@@ -3,22 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../application/services/cart.service';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-cart-view',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-4 pb-32">
+    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      <app-header title="Your Cart" [showBackButton]="true"></app-header>
+      
+      <div class="p-4 pb-32">
       <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="mb-6">
-          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Your Cart
-          </h1>
-          <p class="text-gray-600">Review your order before proceeding</p>
-        </div>
-
         <!-- Empty Cart State -->
         @if (isEmpty()) {
           <div class="bg-white/80 backdrop-blur-md rounded-3xl shadow-lg p-12 text-center border-2 border-purple-200">
@@ -222,6 +218,8 @@ import { CartService } from '../../../application/services/cart.service';
           </div>
         </div>
       }
+      </div>
+      </div>
     </div>
   `
 })

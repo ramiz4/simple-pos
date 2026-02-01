@@ -13,6 +13,7 @@ import { Product } from '../../../domain/entities/product.interface';
 import { Variant } from '../../../domain/entities/variant.interface';
 import { Extra } from '../../../domain/entities/extra.interface';
 import { CartItem } from '../../../domain/dtos/cart.dto';
+import { HeaderComponent } from '../../components/header/header.component';
 
 interface ProductWithExtras extends Product {
   availableExtras: Extra[];
@@ -21,18 +22,13 @@ interface ProductWithExtras extends Product {
 @Component({
   selector: 'app-product-selection',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-4 pb-32">
+    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      <app-header title="Select Products" [showBackButton]="true"></app-header>
+      
+      <div class="p-4 pb-32">
       <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="mb-6">
-          <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Select Products
-          </h1>
-          <p class="text-gray-600">Choose items for your order</p>
-        </div>
-
         <!-- Category Tabs -->
         <div class="mb-6 overflow-x-auto pb-2">
           <div class="flex gap-2 min-w-max">
@@ -72,16 +68,7 @@ interface ProductWithExtras extends Product {
             <p class="text-gray-500 text-lg">No products available in this category</p>
           </div>
         }
-
-        <!-- Back Button -->
-        <div class="mt-8 text-center">
-          <button
-            (click)="goBack()"
-            class="px-6 py-3 rounded-xl bg-white/80 backdrop-blur-md text-gray-700 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            ← Back
-          </button>
-        </div>
+      </div>
       </div>
 
       <!-- Cart Summary Bar (Fixed Bottom) -->

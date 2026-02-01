@@ -7,22 +7,23 @@ import { EnumMappingService } from '../../../application/services/enum-mapping.s
 import { PrinterService } from '../../../application/services/printer.service';
 import { AuthService } from '../../../application/services/auth.service';
 import { OrderStatusEnum } from '../../../domain/enums';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4 flex items-center justify-center">
+    <div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      @if (!processing() && !completed()) {
+        <app-header title="Confirm Payment" [showBackButton]="true" backRoute="/pos/cart"></app-header>
+      }
+      
+      <div class="p-4 flex items-center justify-center">
       <div class="max-w-2xl w-full">
         @if (!processing() && !completed()) {
           <!-- Payment Confirmation -->
           <div class="backdrop-blur-md bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl">
-            <div class="text-center mb-8">
-              <div class="text-6xl mb-4">💳</div>
-              <h1 class="text-3xl font-bold text-white mb-2">Confirm Payment</h1>
-              <p class="text-white/80">Cash payment</p>
-            </div>
 
             <!-- Order Summary -->
             <div class="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20 mb-6">
@@ -115,6 +116,7 @@ import { OrderStatusEnum } from '../../../domain/enums';
             </button>
           </div>
         }
+      </div>
       </div>
     </div>
   `
