@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { ProductExtra } from '../../domain/entities/product-extra.interface';
+import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IndexedDBProductExtraRepository implements BaseRepository<ProductExtra> {
-  private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'product_extra';
-  private readonly DB_VERSION = 4;
-  private db: IDBDatabase | null = null;
+
+  constructor(private indexedDBService: IndexedDBService) {}
 
   async findById(id: number): Promise<ProductExtra | null> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -24,7 +24,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async findAll(): Promise<ProductExtra[]> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -36,7 +36,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async create(entity: Omit<ProductExtra, 'id'>): Promise<ProductExtra> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -50,7 +50,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async update(id: number, entity: Partial<ProductExtra>): Promise<ProductExtra> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
     if (!existing) throw new Error(`ProductExtra with id ${id} not found`);
 
@@ -66,7 +66,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async delete(id: number): Promise<void> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -78,7 +78,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async count(): Promise<number> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -90,7 +90,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async findByProduct(productId: number): Promise<ProductExtra[]> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -104,7 +104,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
   }
 
   async deleteByProductAndExtra(productId: number, extraId: number): Promise<void> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -125,26 +125,4 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
     });
   }
 
-  private async getDb(): Promise<IDBDatabase> {
-    if (this.db) return this.db;
-
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        this.db = request.result;
-        resolve(this.db);
-      };
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        if (!db.objectStoreNames.contains(this.STORE_NAME)) {
-          const store = db.createObjectStore(this.STORE_NAME, { keyPath: 'id' });
-          store.createIndex('productId_extraId', ['productId', 'extraId'], { unique: true });
-        }
-      };
-    });
-  }
 }

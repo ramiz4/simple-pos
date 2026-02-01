@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { Order } from '../../domain/entities/order.interface';
+import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IndexedDBOrderRepository implements BaseRepository<Order> {
-  private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'order';
-  private readonly DB_VERSION = 4;
-  private db: IDBDatabase | null = null;
+
+  constructor(private indexedDBService: IndexedDBService) {}
 
   async findById(id: number): Promise<Order | null> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -24,7 +24,7 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
   }
 
   async findAll(): Promise<Order[]> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -40,7 +40,7 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
   }
 
   async create(entity: Omit<Order, 'id'>): Promise<Order> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -54,7 +54,7 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
   }
 
   async update(id: number, entity: Partial<Order>): Promise<Order> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
     if (!existing) throw new Error(`Order with id ${id} not found`);
 
@@ -70,7 +70,7 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
   }
 
   async delete(id: number): Promise<void> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -82,7 +82,7 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
   }
 
   async count(): Promise<number> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -115,31 +115,5 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
     const todayOrders = allOrders.filter((o) => o.orderNumber.startsWith(today));
     const sequence = (todayOrders.length + 1).toString().padStart(4, '0');
     return `${today}${sequence}`;
-  }
-
-  private async getDb(): Promise<IDBDatabase> {
-    if (this.db) return this.db;
-
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        this.db = request.result;
-        resolve(this.db);
-      };
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        if (!db.objectStoreNames.contains(this.STORE_NAME)) {
-          const store = db.createObjectStore(this.STORE_NAME, { keyPath: 'id' });
-          store.createIndex('orderNumber', 'orderNumber', { unique: true });
-          store.createIndex('statusId', 'statusId', { unique: false });
-          store.createIndex('tableId', 'tableId', { unique: false });
-          store.createIndex('createdAt', 'createdAt', { unique: false });
-        }
-      };
-    });
   }
 }

@@ -9,8 +9,8 @@ import { TestEntity } from '../../domain/entities/test-entity.interface';
   providedIn: 'root',
 })
 export class IndexedDBTestRepository implements BaseRepository<TestEntity> {
-  private readonly DB_NAME = 'SimpleDatabase';
-  private readonly DB_VERSION = 4;
+  private readonly DB_NAME = 'SimpleDatabase_Test';
+  private readonly DB_VERSION = 1;
   private readonly STORE_NAME = 'test_entity';
   private db: IDBDatabase | null = null;
 
