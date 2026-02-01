@@ -25,7 +25,7 @@ interface ProductWithExtras extends Product {
   imports: [CommonModule, FormsModule, HeaderComponent],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <app-header title="Select Products" [showBackButton]="true"></app-header>
+      <app-header title="Select Products" [showBackButton]="false"></app-header>
       
       <div class="p-4 pb-32">
       <div class="max-w-7xl mx-auto">
