@@ -130,14 +130,20 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
     try {
       if (this.editingId) {
         await this.variantService.update(this.editingId, this.formData);
-        this.successMessage = 'Variant updated successfully';
       } else {
         await this.variantService.create(this.formData);
-        this.successMessage = 'Variant created successfully';
       }
       await this.loadData();
       this.closeForm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        this.successMessage = this.editingId ? 'Variant updated successfully' : 'Variant created successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      });
     } catch (error) {
       this.errorMessage = 'Failed to save variant';
       console.error('Save error:', error);
@@ -149,10 +155,17 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
 
     try {
       await this.variantService.delete(this.deleteConfirmId);
-      this.successMessage = 'Variant deleted successfully';
       await this.loadData();
       this.closeDeleteConfirm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        this.successMessage = 'Variant deleted successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      });
     } catch (error) {
       this.errorMessage = 'Failed to delete variant';
       console.error('Delete error:', error);

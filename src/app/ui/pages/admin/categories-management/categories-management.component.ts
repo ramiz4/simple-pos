@@ -108,14 +108,20 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
     try {
       if (this.editingId) {
         await this.categoryService.update(this.editingId, this.formData);
-        this.successMessage = 'Category updated successfully';
       } else {
         await this.categoryService.create(this.formData);
-        this.successMessage = 'Category created successfully';
       }
       await this.loadData();
       this.closeForm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        this.successMessage = this.editingId ? 'Category updated successfully' : 'Category created successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      });
     } catch (error) {
       this.errorMessage = 'Failed to save category';
       console.error('Save error:', error);
@@ -127,10 +133,17 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
 
     try {
       await this.categoryService.delete(this.deleteConfirmId);
-      this.successMessage = 'Category deleted successfully';
       await this.loadData();
       this.closeDeleteConfirm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        this.successMessage = 'Category deleted successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      });
     } catch (error) {
       this.errorMessage = 'Failed to delete category';
       console.error('Delete error:', error);

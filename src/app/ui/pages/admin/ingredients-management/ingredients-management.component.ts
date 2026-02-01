@@ -108,14 +108,20 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
     try {
       if (this.editingId) {
         await this.ingredientService.update(this.editingId, this.formData);
-        this.successMessage = 'Ingredient updated successfully';
       } else {
         await this.ingredientService.create(this.formData);
-        this.successMessage = 'Ingredient created successfully';
       }
       await this.loadData();
       this.closeForm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        this.successMessage = this.editingId ? 'Ingredient updated successfully' : 'Ingredient created successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      });
     } catch (error) {
       this.errorMessage = 'Failed to save ingredient';
       console.error('Save error:', error);
@@ -127,10 +133,17 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
 
     try {
       await this.ingredientService.delete(this.deleteConfirmId);
-      this.successMessage = 'Ingredient deleted successfully';
       await this.loadData();
       this.closeDeleteConfirm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        this.successMessage = 'Ingredient deleted successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      });
     } catch (error) {
       this.errorMessage = 'Failed to delete ingredient';
       console.error('Delete error:', error);
