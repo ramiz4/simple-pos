@@ -63,16 +63,29 @@
         </div>
 
         @if (isAdmin()) {
-          <div class="mt-6">
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
               routerLink="/admin"
-              class="block w-full p-6 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer text-center"
+              class="block p-6 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer text-center"
             >
               <div class="flex items-center justify-center space-x-3">
                 <span class="text-2xl">⚙️</span>
                 <div class="text-left">
                   <h3 class="text-xl font-bold">Admin Configuration</h3>
                   <p class="text-sm text-white/90">Manage tables, products, categories, and inventory</p>
+                </div>
+              </div>
+            </a>
+
+            <a
+              routerLink="/phase2-test"
+              class="block p-6 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer text-center"
+            >
+              <div class="flex items-center justify-center space-x-3">
+                <span class="text-2xl">🧪</span>
+                <div class="text-left">
+                  <h3 class="text-xl font-bold">Phase 2 Tests</h3>
+                  <p class="text-sm text-white/90">Run comprehensive test suite for Phase 2</p>
                 </div>
               </div>
             </a>

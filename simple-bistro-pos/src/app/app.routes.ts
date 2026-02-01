@@ -10,6 +10,7 @@ import { ProductsManagementComponent } from './ui/pages/admin/products-managemen
 import { VariantsManagementComponent } from './ui/pages/admin/variants-management/variants-management.component';
 import { ExtrasManagementComponent } from './ui/pages/admin/extras-management/extras-management.component';
 import { IngredientsManagementComponent } from './ui/pages/admin/ingredients-management/ingredients-management.component';
+import { Phase2TestComponent } from './ui/pages/phase2-test/phase2-test.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/role.guard';
 
@@ -18,6 +19,7 @@ export const routes: Routes = [
   { path: 'seed-user', component: SeedUserComponent },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'phase2-test', component: Phase2TestComponent, canActivate: [authGuard] },
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
   { path: 'admin/tables', component: TablesManagementComponent, canActivate: [adminGuard] },
