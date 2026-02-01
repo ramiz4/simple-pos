@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -32,7 +32,8 @@ export class VariantsManagementComponent implements OnInit {
   constructor(
     private variantService: VariantService,
     private productService: ProductService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -49,6 +50,7 @@ export class VariantsManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     try {
       const [variants, products] = await Promise.all([
         this.variantService.getAll(),
@@ -74,6 +76,7 @@ export class VariantsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

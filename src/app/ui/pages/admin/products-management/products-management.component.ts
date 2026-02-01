@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -32,7 +32,8 @@ export class ProductsManagementComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -51,6 +52,7 @@ export class ProductsManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     try {
       const [products, categories] = await Promise.all([
         this.productService.getAll(),
@@ -64,6 +66,7 @@ export class ProductsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

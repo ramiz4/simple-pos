@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -28,7 +28,8 @@ export class CategoriesManagementComponent implements OnInit {
 
   constructor(
     private categoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -45,6 +46,7 @@ export class CategoriesManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     try {
       let categories = await this.categoryService.getAll();
       categories = categories.sort((a, b) => a.sortOrder - b.sortOrder);
@@ -55,6 +57,7 @@ export class CategoriesManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

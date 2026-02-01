@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -30,7 +30,8 @@ export class IngredientsManagementComponent implements OnInit {
 
   constructor(
     private ingredientService: IngredientService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -47,6 +48,7 @@ export class IngredientsManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     try {
       const ingredients = await this.ingredientService.getAll();
       this.ingredients = ingredients.sort((a, b) => a.name.localeCompare(b.name));
@@ -56,6 +58,7 @@ export class IngredientsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

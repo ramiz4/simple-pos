@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -32,7 +32,8 @@ export class TablesManagementComponent implements OnInit {
   constructor(
     private tableService: TableService,
     private enumMappingService: EnumMappingService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -50,6 +51,7 @@ export class TablesManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     try {
       const [tables, statuses] = await Promise.all([
         this.tableService.getAll(),
@@ -63,6 +65,7 @@ export class TablesManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 

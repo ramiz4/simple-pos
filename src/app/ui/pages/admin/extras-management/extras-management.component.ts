@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -28,7 +28,8 @@ export class ExtrasManagementComponent implements OnInit {
 
   constructor(
     private extraService: ExtraService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -44,6 +45,7 @@ export class ExtrasManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.cdr.detectChanges();
     try {
       const extras = await this.extraService.getAll();
       this.extras = extras.sort((a, b) => a.name.localeCompare(b.name));
@@ -53,6 +55,7 @@ export class ExtrasManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
