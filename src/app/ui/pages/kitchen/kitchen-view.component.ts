@@ -22,6 +22,7 @@ interface KitchenOrder {
   order: Order;
   orderType: string;
   orderStatus: string;
+  orderStatusCode: string;
   items: KitchenOrderItem[];
   table: Table | null;
 }
@@ -193,7 +194,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
   processingOrderId = signal<number | null>(null);
   session: UserSession | null = null;
   
-  private refreshInterval: any;
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private orderService: OrderService,
@@ -251,6 +252,9 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     const items = await Promise.all(
       orderItems.map(async (item): Promise<KitchenOrderItem> => {
         const product = await this.productService.getById(item.productId);
+        if (!product) {
+          throw new Error(`Product with id ${item.productId} not found`);
+        }
         const variant = item.variantId ? await this.variantService.getById(item.variantId) : null;
         const extraIds = await this.orderService.getOrderItemExtras(item.id);
         const extras = await Promise.all(
@@ -259,7 +263,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
 
         return {
           item,
-          product: product!,
+          product,
           variant,
           extras: extras.filter((e): e is Extra => e !== null)
         };
@@ -269,11 +273,13 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     const table = order.tableId ? await this.tableService.getById(order.tableId) : null;
     const orderType = await this.enumMappingService.getTranslation(order.typeId, 'en');
     const orderStatus = await this.enumMappingService.getTranslation(order.statusId, 'en');
+    const orderStatusEnum = await this.enumMappingService.getEnumFromId(order.statusId);
 
     return {
       order,
       orderType,
       orderStatus,
+      orderStatusCode: orderStatusEnum.code,
       items,
       table
     };
@@ -309,33 +315,23 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
 
   canMarkAsPreparing(order: Order): boolean {
     // Can mark as preparing if order is PAID
-    const statusCode = this.getOrderStatusCode(order);
-    return statusCode === OrderStatusEnum.PAID;
+    const kitchenOrder = this.orders().find(ko => ko.order.id === order.id);
+    if (!kitchenOrder) return false;
+    return kitchenOrder.orderStatusCode === OrderStatusEnum.PAID;
   }
 
   canMarkAsReady(order: Order): boolean {
     // Can mark as ready if order is PREPARING
-    const statusCode = this.getOrderStatusCode(order);
-    return statusCode === OrderStatusEnum.PREPARING;
+    const kitchenOrder = this.orders().find(ko => ko.order.id === order.id);
+    if (!kitchenOrder) return false;
+    return kitchenOrder.orderStatusCode === OrderStatusEnum.PREPARING;
   }
 
   canMarkAsCompleted(order: Order): boolean {
     // Can mark as completed if order is READY
-    const statusCode = this.getOrderStatusCode(order);
-    return statusCode === OrderStatusEnum.READY;
-  }
-
-  private getOrderStatusCode(order: Order): string | null {
     const kitchenOrder = this.orders().find(ko => ko.order.id === order.id);
-    if (!kitchenOrder) return null;
-
-    // Map status label back to enum (simplified approach)
-    const statusLabel = kitchenOrder.orderStatus.toLowerCase();
-    if (statusLabel.includes('paid')) return OrderStatusEnum.PAID;
-    if (statusLabel.includes('preparing')) return OrderStatusEnum.PREPARING;
-    if (statusLabel.includes('ready')) return OrderStatusEnum.READY;
-    if (statusLabel.includes('completed')) return OrderStatusEnum.COMPLETED;
-    return null;
+    if (!kitchenOrder) return false;
+    return kitchenOrder.orderStatusCode === OrderStatusEnum.READY;
   }
 
   formatTime(dateString: string): string {
