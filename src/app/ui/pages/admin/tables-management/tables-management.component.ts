@@ -122,7 +122,6 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       await this.loadData();
       this.closeForm();
       
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
       setTimeout(() => {
         this.successMessage = isUpdate ? 'Table updated successfully' : 'Table created successfully';
         this.cdr.detectChanges();
@@ -145,7 +144,6 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       await this.loadData();
       this.closeDeleteConfirm();
       
-      // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
       setTimeout(() => {
         this.successMessage = 'Table deleted successfully';
         this.cdr.detectChanges();
