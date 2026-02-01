@@ -5,7 +5,8 @@ import { CartItem, CartSummary } from '../../domain/dtos/cart.dto';
   providedIn: 'root'
 })
 export class CartService {
-  private readonly TAX_RATE = 0.18; // 18% tax (Kosovo VAT)
+  // Tax rate is 0 because product prices already include taxes (tax-inclusive pricing)
+  private readonly TAX_RATE = 0;
   
   private cartItems = signal<CartItem[]>([]);
   private tipAmount = signal<number>(0);

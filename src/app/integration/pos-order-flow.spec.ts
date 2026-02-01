@@ -142,7 +142,8 @@ describe('Phase 3: Core POS Flow', () => {
     items: CartItem[]
   ): Promise<CreateOrderData> {
     const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-    const tax = subtotal * 0.18; // 18% tax
+    // Tax is 0 because product prices already include taxes (tax-inclusive pricing)
+    const tax = 0;
     const tip = 0;
     const total = subtotal + tax + tip;
 
@@ -367,7 +368,8 @@ describe('Phase 3: Core POS Flow', () => {
       const unitPrice = product.price + extra.price;
       const lineTotal = unitPrice * quantity;
       const subtotal = lineTotal;
-      const tax = subtotal * 0.18;
+      // Tax is 0 because product prices already include taxes (tax-inclusive pricing)
+      const tax = 0;
       const total = subtotal + tax;
 
       const cartItem: CartItem = {
@@ -794,8 +796,9 @@ describe('Phase 3: Core POS Flow', () => {
       expect(summary.items.length).toBe(1);
       expect(summary.itemCount).toBe(2);
       expect(summary.subtotal).toBe(product.price * 2);
-      expect(summary.tax).toBeCloseTo(summary.subtotal * 0.18, 2);
-      expect(summary.total).toBeCloseTo(summary.subtotal + summary.tax, 2);
+      // Tax is 0 because product prices already include taxes (tax-inclusive pricing)
+      expect(summary.tax).toBe(0);
+      expect(summary.total).toBe(summary.subtotal);
     });
 
     it('should clear cart after order creation', async () => {
