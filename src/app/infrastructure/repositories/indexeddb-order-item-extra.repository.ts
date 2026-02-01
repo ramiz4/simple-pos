@@ -7,7 +7,7 @@ import { OrderItemExtra } from '../../domain/entities/order-item-extra.interface
 export class IndexedDBOrderItemExtraRepository {
   private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'order_item_extra';
-  private readonly DB_VERSION = 3;
+  private readonly DB_VERSION = 4;
   private db: IDBDatabase | null = null;
 
   async create(entity: OrderItemExtra): Promise<void> {

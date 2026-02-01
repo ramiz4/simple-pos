@@ -8,7 +8,7 @@ import { Variant } from '../../domain/entities/variant.interface';
 export class IndexedDBVariantRepository implements BaseRepository<Variant> {
   private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'variant';
-  private readonly DB_VERSION = 3;
+  private readonly DB_VERSION = 4;
   private db: IDBDatabase | null = null;
 
   async findById(id: number): Promise<Variant | null> {

@@ -8,7 +8,7 @@ import { OrderItem } from '../../domain/entities/order-item.interface';
 export class IndexedDBOrderItemRepository implements BaseRepository<OrderItem> {
   private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'order_item';
-  private readonly DB_VERSION = 3;
+  private readonly DB_VERSION = 4;
   private db: IDBDatabase | null = null;
 
   async findById(id: number): Promise<OrderItem | null> {

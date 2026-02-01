@@ -8,7 +8,7 @@ import { Table } from '../../domain/entities/table.interface';
 export class IndexedDBTableRepository implements BaseRepository<Table> {
   private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'table';
-  private readonly DB_VERSION = 3;
+  private readonly DB_VERSION = 4;
   private db: IDBDatabase | null = null;
 
   async findById(id: number): Promise<Table | null> {

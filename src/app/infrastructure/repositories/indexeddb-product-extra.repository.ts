@@ -8,7 +8,7 @@ import { ProductExtra } from '../../domain/entities/product-extra.interface';
 export class IndexedDBProductExtraRepository implements BaseRepository<ProductExtra> {
   private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'product_extra';
-  private readonly DB_VERSION = 3;
+  private readonly DB_VERSION = 4;
   private db: IDBDatabase | null = null;
 
   async findById(id: number): Promise<ProductExtra | null> {
