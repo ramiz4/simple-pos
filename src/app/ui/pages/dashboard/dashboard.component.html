@@ -29,7 +29,7 @@
       <div class="bg-white rounded-lg shadow p-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Dashboard</h2>
         <p class="text-gray-600 mb-4">
-          Welcome to the Simple Simple POS system. Phase 1 (Core Domain & CodeTable System) is complete!
+          Welcome to the Simple Simple POS system. Phase 3 (Core POS Flow) is complete!
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -46,6 +46,12 @@
               <li>• Table, Category, Product Management</li>
               <li>• Variant, Extra, Ingredient Management</li>
               <li>• Inventory Tracking System</li>
+              <li>• Complete POS Flow (Phase 3)</li>
+              <li>• Order Creation with Table Selection</li>
+              <li>• Order Status Management</li>
+              <li>• Kitchen View & Workflow</li>
+              <li>• ESC/POS Printing (Web Fallback)</li>
+              <li>• Reporting & Analytics</li>
             </ul>
           </div>
 
@@ -86,6 +92,40 @@
                 <div class="text-left">
                   <h3 class="text-xl font-bold">Reports & Analytics</h3>
                   <p class="text-sm text-white/90">View sales reports and manage backups</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        }
+
+        @if (isCashier()) {
+          <div class="mt-6">
+            <a
+              routerLink="/pos/order-type"
+              class="block p-6 bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer text-center"
+            >
+              <div class="flex items-center justify-center space-x-3">
+                <span class="text-2xl">💰</span>
+                <div class="text-left">
+                  <h3 class="text-xl font-bold">Start New Order</h3>
+                  <p class="text-sm text-white/90">Create a new order for a customer</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        }
+
+        @if (isKitchen()) {
+          <div class="mt-6">
+            <a
+              routerLink="/kitchen"
+              class="block p-6 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer text-center"
+            >
+              <div class="flex items-center justify-center space-x-3">
+                <span class="text-2xl">🍽️</span>
+                <div class="text-left">
+                  <h3 class="text-xl font-bold">Kitchen View</h3>
+                  <p class="text-sm text-white/90">View and manage active orders in the kitchen</p>
                 </div>
               </div>
             </a>
