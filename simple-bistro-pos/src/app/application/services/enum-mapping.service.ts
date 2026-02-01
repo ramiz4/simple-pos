@@ -5,8 +5,6 @@ import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/
 import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
 import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
 import { CodeTable } from '../../domain/entities/code-table.interface';
-import { TableStatusEnum, OrderTypeEnum, OrderStatusEnum, UserRoleEnum } from '../../domain/enums';
-
 @Injectable({
   providedIn: 'root'
 })
