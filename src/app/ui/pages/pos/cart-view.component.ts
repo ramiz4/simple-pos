@@ -189,7 +189,6 @@ import { HeaderComponent } from '../../components/header/header.component';
             </button>
           </div>
         }
-      </div>
 
       <!-- Clear Cart Confirmation Modal -->
       @if (showClearConfirmation()) {
