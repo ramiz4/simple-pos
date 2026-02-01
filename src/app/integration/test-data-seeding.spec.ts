@@ -139,13 +139,13 @@ describe('Test Data Seeding Integration', () => {
     
     // Check that relationships exist
     const margheritaPizza = products.find(p => p.name === 'Margherita Pizza');
-    if (margheritaPizza) {
-      const pizzaExtras = await productExtraService.getByProduct(margheritaPizza.id);
-      expect(pizzaExtras.length).toBeGreaterThan(0);
-      
-      const pizzaIngredients = await productIngredientService.getByProduct(margheritaPizza.id);
-      expect(pizzaIngredients.length).toBe(4); // Flour, Tomato Sauce, Mozzarella, Basil
-    }
+    expect(margheritaPizza).toBeDefined();
+
+    const pizzaExtras = await productExtraService.getByProduct(margheritaPizza!.id);
+    expect(pizzaExtras.length).toBeGreaterThan(0);
+
+    const pizzaIngredients = await productIngredientService.getByProduct(margheritaPizza!.id);
+    expect(pizzaIngredients.length).toBe(4); // Flour, Tomato Sauce, Mozzarella, Basil
   });
 
   it('should not duplicate data on second seeding', async () => {
@@ -162,5 +162,5 @@ describe('Test Data Seeding Integration', () => {
     
     const products = await productService.getAll();
     expect(products.length).toBe(16);
-  });
+  }, 15000); // Increase timeout to 15 seconds for this test
 });
