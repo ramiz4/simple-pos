@@ -15,6 +15,8 @@ import { OrderTypeSelectionComponent } from './ui/pages/pos/order-type-selection
 import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
 import { ProductSelectionComponent } from './ui/pages/pos/product-selection.component';
 import { CartViewComponent } from './ui/pages/pos/cart-view.component';
+import { PaymentComponent } from './ui/pages/pos/payment.component';
+import { ReportsComponent } from './ui/pages/reports/reports.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/role.guard';
 
@@ -36,5 +38,7 @@ export const routes: Routes = [
   { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/product-selection', component: ProductSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/cart', component: CartViewComponent, canActivate: [authGuard] },
+  { path: 'pos/payment', component: PaymentComponent, canActivate: [authGuard] },
+  { path: 'reports', component: ReportsComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/seed-user' }
 ];
