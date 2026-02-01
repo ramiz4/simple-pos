@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { ProductService } from '../../../../application/services/product.service
   templateUrl: './variants-management.component.html',
   styleUrls: ['./variants-management.component.css']
 })
-export class VariantsManagementComponent implements OnInit {
+export class VariantsManagementComponent implements OnInit, OnDestroy {
   variants: (Variant & { productName?: string; basePrice?: number; calculatedPrice?: number })[] = [];
   products: Product[] = [];
   isLoading = false;
@@ -29,14 +29,21 @@ export class VariantsManagementComponent implements OnInit {
   deleteConfirmId: number | null = null;
   deleteConfirmName = '';
 
+  private destroyed = false;
+
   constructor(
     private variantService: VariantService,
     private productService: ProductService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -74,6 +81,9 @@ export class VariantsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 

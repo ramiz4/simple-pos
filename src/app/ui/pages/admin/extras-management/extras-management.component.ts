@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -12,7 +12,7 @@ import { ExtraService } from '../../../../application/services/extra.service';
   templateUrl: './extras-management.component.html',
   styleUrls: ['./extras-management.component.css']
 })
-export class ExtrasManagementComponent implements OnInit {
+export class ExtrasManagementComponent implements OnInit, OnDestroy {
   extras: Extra[] = [];
   isLoading = false;
   isFormOpen = false;
@@ -26,13 +26,20 @@ export class ExtrasManagementComponent implements OnInit {
   deleteConfirmId: number | null = null;
   deleteConfirmName = '';
 
+  private destroyed = false;
+
   constructor(
     private extraService: ExtraService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -53,6 +60,9 @@ export class ExtrasManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 

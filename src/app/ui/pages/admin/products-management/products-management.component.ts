@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { CategoryService } from '../../../../application/services/category.servi
   templateUrl: './products-management.component.html',
   styleUrls: ['./products-management.component.css']
 })
-export class ProductsManagementComponent implements OnInit {
+export class ProductsManagementComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   categories: Category[] = [];
   isLoading = false;
@@ -29,14 +29,21 @@ export class ProductsManagementComponent implements OnInit {
   deleteConfirmId: number | null = null;
   deleteConfirmName = '';
 
+  private destroyed = false;
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -64,6 +71,9 @@ export class ProductsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 
