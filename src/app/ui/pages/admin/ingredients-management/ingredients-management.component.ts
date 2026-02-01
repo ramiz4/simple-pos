@@ -122,7 +122,7 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save ingredient';
       console.error('Save error:', error);
@@ -144,7 +144,7 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete ingredient';
       console.error('Delete error:', error);

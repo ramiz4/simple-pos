@@ -119,7 +119,7 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save extra';
       console.error('Save error:', error);
@@ -141,7 +141,7 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete extra';
       console.error('Delete error:', error);

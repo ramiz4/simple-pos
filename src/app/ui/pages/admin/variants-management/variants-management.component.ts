@@ -144,7 +144,7 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save variant';
       console.error('Save error:', error);
@@ -166,7 +166,7 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete variant';
       console.error('Delete error:', error);

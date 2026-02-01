@@ -130,7 +130,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save product';
       console.error('Save error:', error);
@@ -152,7 +152,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
-      });
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete product';
       console.error('Delete error:', error);
