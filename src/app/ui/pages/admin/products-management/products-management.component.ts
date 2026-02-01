@@ -80,24 +80,28 @@ export class ProductsManagementComponent implements OnInit {
     }
     this.isFormOpen = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
   }
 
   closeForm() {
     this.isFormOpen = false;
     this.editingId = null;
     this.formData = this.initializeFormData();
+    this.cdr.detectChanges();
   }
 
   openDeleteConfirm(product: Product) {
     this.deleteConfirmId = product.id;
     this.deleteConfirmName = product.name;
     this.isDeleteConfirmOpen = true;
+    this.cdr.detectChanges();
   }
 
   closeDeleteConfirm() {
     this.isDeleteConfirmOpen = false;
     this.deleteConfirmId = null;
     this.deleteConfirmName = '';
+    this.cdr.detectChanges();
   }
 
   async saveProduct() {

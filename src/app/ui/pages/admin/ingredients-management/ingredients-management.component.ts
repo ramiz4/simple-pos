@@ -72,24 +72,28 @@ export class IngredientsManagementComponent implements OnInit {
     }
     this.isFormOpen = true;
     this.errorMessage = '';
+    this.cdr.detectChanges();
   }
 
   closeForm() {
     this.isFormOpen = false;
     this.editingId = null;
     this.formData = this.initializeFormData();
+    this.cdr.detectChanges();
   }
 
   openDeleteConfirm(ingredient: Ingredient) {
     this.deleteConfirmId = ingredient.id;
     this.deleteConfirmName = ingredient.name;
     this.isDeleteConfirmOpen = true;
+    this.cdr.detectChanges();
   }
 
   closeDeleteConfirm() {
     this.isDeleteConfirmOpen = false;
     this.deleteConfirmId = null;
     this.deleteConfirmName = '';
+    this.cdr.detectChanges();
   }
 
   async saveIngredient() {
