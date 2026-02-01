@@ -193,14 +193,17 @@ export class SeedService {
   private async seedTestData(): Promise<void> {
     console.log('Checking test data seeding...');
     
-    // Check if we already have test data by checking multiple entities
+    // Check if we already have test data by checking multiple entities.
+    // This prevents partial seeding states and avoids unique constraint violations
+    // on indexed fields (table.number, category.name, extra.name, ingredient.name).
     const [existingTables, existingCategories, existingProducts] = await Promise.all([
       this.tableService.getAll(),
       this.categoryService.getAll(),
       this.productService.getAll(),
     ]);
 
-    // If all test data exists, skip seeding to avoid duplicates
+    // If all test data exists, skip seeding to avoid duplicates.
+    // Using AND condition ensures all entities are checked, preventing partial seeding.
     if (existingTables.length > 0 && existingCategories.length > 0 && existingProducts.length > 0) {
       console.log('Test data already exists, skipping seeding');
       return;
