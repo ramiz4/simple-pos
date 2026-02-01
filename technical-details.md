@@ -1,15 +1,16 @@
 # Technical Architecture & Implementation Details
-# Simple Bistro POS System
+
+# Simple Simple POS System
 
 ---
 
 # 1. Architecture Overview
 
-Frontend: Angular (latest stable)  
-Desktop Runtime: Tauri  
-Database: SQLite (Desktop) / IndexedDB (Web)  
-Styling: TailwindCSS  
-Architecture Pattern: Clean Architecture + Repository Pattern  
+Frontend: Angular (latest stable)
+Desktop Runtime: Tauri
+Database: SQLite (Desktop) / IndexedDB (Web)
+Styling: TailwindCSS
+Architecture Pattern: Clean Architecture + Repository Pattern
 
 Offline-first by design.
 
@@ -50,16 +51,19 @@ Offline-first by design.
 # 4. Domain Enums
 
 ## TableStatusEnum
+
 - FREE
 - OCCUPIED
 - RESERVED
 
 ## OrderTypeEnum
+
 - DINE_IN
 - TAKEAWAY
 - DELIVERY
 
 ## OrderStatusEnum
+
 - OPEN
 - PAID
 - PREPARING
@@ -69,6 +73,7 @@ Offline-first by design.
 - CANCELLED
 
 ## UserRoleEnum
+
 - ADMIN
 - CASHIER
 - KITCHEN
@@ -81,6 +86,7 @@ All enums persisted via CodeTable.
 # 5. Database Entities
 
 ## User
+
 - id
 - name
 - roleId (FK CodeTable)
@@ -88,6 +94,7 @@ All enums persisted via CodeTable.
 - active
 
 ## Table
+
 - id
 - name
 - number
@@ -95,6 +102,7 @@ All enums persisted via CodeTable.
 - statusId (FK CodeTable)
 
 ## Product
+
 - id
 - name
 - categoryId
@@ -103,22 +111,26 @@ All enums persisted via CodeTable.
 - isAvailable
 
 ## Variant
+
 - id
 - productId
 - name
 - priceModifier
 
 ## Extra
+
 - id
 - name
 - price
 
 ## Ingredient
+
 - id
 - name
 - stockQuantity
 
 ## Order
+
 - id
 - typeId (FK CodeTable)
 - statusId (FK CodeTable)
@@ -128,6 +140,7 @@ All enums persisted via CodeTable.
 - userId
 
 ## OrderItem
+
 - id
 - orderId
 - productId
@@ -191,10 +204,12 @@ Mobile-first responsive design.
 # 11. Deployment
 
 ## Web
+
 - Static hosting
 - PWA enabled
 
 ## Desktop
+
 - Tauri build
 - SQLite embedded
 - Native printer access
