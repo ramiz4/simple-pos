@@ -335,6 +335,15 @@ export class SeedService {
 
   private async seedProducts(categories: Map<string, number>): Promise<Map<string, number>> {
     console.log('Seeding products...');
+    
+    // Validate required categories exist
+    const requiredCategories = ['Pizzas', 'Burgers', 'Pasta', 'Salads', 'Beverages', 'Desserts'];
+    for (const categoryName of requiredCategories) {
+      if (!categories.has(categoryName)) {
+        throw new Error(`Required category '${categoryName}' not found in seeded categories`);
+      }
+    }
+    
     const products = [
       // Pizzas
       { name: 'Margherita Pizza', categoryId: categories.get('Pizzas')!, price: 9.99, stock: 50, isAvailable: true },
@@ -373,6 +382,19 @@ export class SeedService {
 
   private async seedVariants(products: Map<string, number>): Promise<void> {
     console.log('Seeding variants...');
+    
+    // Validate required products exist
+    const requiredProducts = [
+      'Margherita Pizza', 'Pepperoni Pizza', 'Vegetarian Pizza',
+      'Classic Burger', 'Cheese Burger', 'Bacon Burger',
+      'Coca Cola', 'Orange Juice'
+    ];
+    for (const productName of requiredProducts) {
+      if (!products.has(productName)) {
+        throw new Error(`Required product '${productName}' not found in seeded products`);
+      }
+    }
+    
     const variants = [
       // Pizza sizes
       { productId: products.get('Margherita Pizza')!, name: 'Small (10")', priceModifier: -2.00 },
@@ -409,6 +431,22 @@ export class SeedService {
 
   private async seedProductExtras(products: Map<string, number>, extras: Map<string, number>): Promise<void> {
     console.log('Seeding product-extra relationships...');
+    
+    // Validate required products and extras exist
+    const requiredProducts = ['Margherita Pizza', 'Pepperoni Pizza', 'Vegetarian Pizza', 'Classic Burger', 'Cheese Burger', 'Bacon Burger'];
+    const requiredExtras = ['Extra Cheese', 'Mushrooms', 'Olives', 'Jalapeños', 'Extra Sauce', 'Bacon', 'Onions'];
+    
+    for (const productName of requiredProducts) {
+      if (!products.has(productName)) {
+        throw new Error(`Required product '${productName}' not found for product-extra relationships`);
+      }
+    }
+    for (const extraName of requiredExtras) {
+      if (!extras.has(extraName)) {
+        throw new Error(`Required extra '${extraName}' not found for product-extra relationships`);
+      }
+    }
+    
     const productExtras = [
       // Pizzas can have various extras
       { productId: products.get('Margherita Pizza')!, extraId: extras.get('Extra Cheese')! },
@@ -440,6 +478,28 @@ export class SeedService {
 
   private async seedProductIngredients(products: Map<string, number>, ingredients: Map<string, number>): Promise<void> {
     console.log('Seeding product-ingredient relationships...');
+    
+    // Validate required products and ingredients exist
+    const requiredProducts = [
+      'Margherita Pizza', 'Pepperoni Pizza', 'Classic Burger', 'Cheese Burger',
+      'Spaghetti Bolognese', 'Carbonara', 'Caesar Salad', 'Greek Salad'
+    ];
+    const requiredIngredients = [
+      'Flour', 'Tomato Sauce', 'Mozzarella', 'Basil', 'Ground Beef',
+      'Lettuce', 'Tomato', 'Onion', 'Pasta', 'Olive Oil'
+    ];
+    
+    for (const productName of requiredProducts) {
+      if (!products.has(productName)) {
+        throw new Error(`Required product '${productName}' not found for product-ingredient relationships`);
+      }
+    }
+    for (const ingredientName of requiredIngredients) {
+      if (!ingredients.has(ingredientName)) {
+        throw new Error(`Required ingredient '${ingredientName}' not found for product-ingredient relationships`);
+      }
+    }
+    
     const productIngredients = [
       // Margherita Pizza ingredients
       { productId: products.get('Margherita Pizza')!, ingredientId: ingredients.get('Flour')!, quantity: 200 },
