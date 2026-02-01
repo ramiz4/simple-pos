@@ -3,6 +3,13 @@ import { LoginComponent } from './ui/pages/login/login.component';
 import { DashboardComponent } from './ui/pages/dashboard/dashboard.component';
 import { UnauthorizedComponent } from './ui/pages/unauthorized/unauthorized.component';
 import { SeedUserComponent } from './ui/pages/seed-user/seed-user.component';
+import { AdminDashboardComponent } from './ui/pages/admin/admin-dashboard.component';
+import { TablesManagementComponent } from './ui/pages/admin/tables-management/tables-management.component';
+import { CategoriesManagementComponent } from './ui/pages/admin/categories-management/categories-management.component';
+import { ProductsManagementComponent } from './ui/pages/admin/products-management/products-management.component';
+import { VariantsManagementComponent } from './ui/pages/admin/variants-management/variants-management.component';
+import { ExtrasManagementComponent } from './ui/pages/admin/extras-management/extras-management.component';
+import { IngredientsManagementComponent } from './ui/pages/admin/ingredients-management/ingredients-management.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -11,5 +18,12 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'unauthorized', component: UnauthorizedComponent },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [authGuard] },
+  { path: 'admin/tables', component: TablesManagementComponent, canActivate: [authGuard] },
+  { path: 'admin/categories', component: CategoriesManagementComponent, canActivate: [authGuard] },
+  { path: 'admin/products', component: ProductsManagementComponent, canActivate: [authGuard] },
+  { path: 'admin/variants', component: VariantsManagementComponent, canActivate: [authGuard] },
+  { path: 'admin/extras', component: ExtrasManagementComponent, canActivate: [authGuard] },
+  { path: 'admin/ingredients', component: IngredientsManagementComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/seed-user' }
 ];
