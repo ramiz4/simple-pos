@@ -113,16 +113,25 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.tableService.update(this.editingId, this.formData);
-        this.successMessage = 'Table updated successfully';
       } else {
         await this.tableService.create(this.formData);
-        this.successMessage = 'Table created successfully';
       }
       await this.loadData();
       this.closeForm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        if (this.destroyed) return;
+        this.successMessage = isUpdate ? 'Table updated successfully' : 'Table created successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          if (this.destroyed) return;
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save table';
       console.error('Save error:', error);
@@ -134,10 +143,19 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
 
     try {
       await this.tableService.delete(this.deleteConfirmId);
-      this.successMessage = 'Table deleted successfully';
       await this.loadData();
       this.closeDeleteConfirm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        if (this.destroyed) return;
+        this.successMessage = 'Table deleted successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          if (this.destroyed) return;
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete table';
       console.error('Delete error:', error);

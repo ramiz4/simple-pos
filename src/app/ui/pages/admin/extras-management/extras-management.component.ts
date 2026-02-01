@@ -103,16 +103,25 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.extraService.update(this.editingId, this.formData);
-        this.successMessage = 'Extra updated successfully';
       } else {
         await this.extraService.create(this.formData);
-        this.successMessage = 'Extra created successfully';
       }
       await this.loadData();
       this.closeForm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        if (this.destroyed) return;
+        this.successMessage = isUpdate ? 'Extra updated successfully' : 'Extra created successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          if (this.destroyed) return;
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save extra';
       console.error('Save error:', error);
@@ -124,10 +133,19 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
 
     try {
       await this.extraService.delete(this.deleteConfirmId);
-      this.successMessage = 'Extra deleted successfully';
       await this.loadData();
       this.closeDeleteConfirm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        if (this.destroyed) return;
+        this.successMessage = 'Extra deleted successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          if (this.destroyed) return;
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete extra';
       console.error('Delete error:', error);

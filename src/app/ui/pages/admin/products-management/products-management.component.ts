@@ -114,16 +114,25 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.productService.update(this.editingId, this.formData);
-        this.successMessage = 'Product updated successfully';
       } else {
         await this.productService.create(this.formData);
-        this.successMessage = 'Product created successfully';
       }
       await this.loadData();
       this.closeForm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        if (this.destroyed) return;
+        this.successMessage = isUpdate ? 'Product updated successfully' : 'Product created successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          if (this.destroyed) return;
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to save product';
       console.error('Save error:', error);
@@ -135,10 +144,19 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
 
     try {
       await this.productService.delete(this.deleteConfirmId);
-      this.successMessage = 'Product deleted successfully';
       await this.loadData();
       this.closeDeleteConfirm();
-      setTimeout(() => (this.successMessage = ''), 3000);
+      
+      setTimeout(() => {
+        if (this.destroyed) return;
+        this.successMessage = 'Product deleted successfully';
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          if (this.destroyed) return;
+          this.successMessage = '';
+          this.cdr.detectChanges();
+        }, 3000);
+      }, 0);
     } catch (error) {
       this.errorMessage = 'Failed to delete product';
       console.error('Delete error:', error);
