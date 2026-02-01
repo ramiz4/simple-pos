@@ -55,6 +55,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
+      # Continue on test errors due to existing test failures
+      # TODO: Fix failing tests and remove continue-on-error
       - name: Run tests
         run: pnpm test --run
         continue-on-error: true
@@ -66,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: dist/simple-pos/browser
+          path: dist/**/browser
           retention-days: 1
 
   deploy:
