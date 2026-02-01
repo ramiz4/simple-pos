@@ -94,11 +94,11 @@ export class ReportingService {
       ? await this.getOrdersInDateRange(filter)
       : await this.orderService.getAllOrders();
     
-    const completedOrders = await this.filterOrdersByStatus(orders, OrderStatusEnum.COMPLETED);
+    const paidOrCompleted = await this.filterOrdersByStatusPaidOrCompleted(orders);
 
     const revenueMap = new Map<string, { revenue: number; count: number }>();
 
-    for (const order of completedOrders) {
+    for (const order of paidOrCompleted) {
       const orderTypeLabel = await this.enumMappingService.getTranslation(order.typeId, 'en');
 
       if (!revenueMap.has(orderTypeLabel)) {
@@ -340,6 +340,12 @@ export class ReportingService {
   private async filterOrdersByStatus(orders: Order[], status: OrderStatusEnum): Promise<Order[]> {
     const statusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', status);
     return orders.filter(order => order.statusId === statusId);
+  }
+
+  private async filterOrdersByStatusPaidOrCompleted(orders: Order[]): Promise<Order[]> {
+    const paidId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.PAID);
+    const completedId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.COMPLETED);
+    return orders.filter(order => order.statusId === paidId || order.statusId === completedId);
   }
 
   private async getTotalItemsSold(orders: Order[]): Promise<number> {

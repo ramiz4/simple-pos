@@ -20,15 +20,18 @@ export class ReportsComponent implements OnInit {
   revenueByType = signal<RevenueByTypeReport[]>([]);
   zReport = signal<ZReport | null>(null);
   
-  startDate = signal<string>(this.getTodayString());
-  endDate = signal<string>(this.getTomorrowString());
+  startDate: string;
+  endDate: string;
   
   activeTab = signal<'daily' | 'breakdown' | 'zreport' | 'backup'>('daily');
 
   constructor(
     private reportingService: ReportingService,
     private backupService: BackupService
-  ) {}
+  ) {
+    this.startDate = this.getTodayString();
+    this.endDate = this.getTomorrowString();
+  }
 
   async ngOnInit() {
     await this.loadDailyRevenue();
@@ -58,8 +61,8 @@ export class ReportsComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       const report = await this.reportingService.getRevenueByOrderType({
-        startDate: this.startDate(),
-        endDate: this.endDate()
+        startDate: this.startDate,
+        endDate: this.endDate
       });
       this.revenueByType.set(report);
     } catch (err) {
@@ -74,8 +77,8 @@ export class ReportsComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       const report = await this.reportingService.generateZReport({
-        startDate: this.startDate(),
-        endDate: this.endDate()
+        startDate: this.startDate,
+        endDate: this.endDate
       });
       this.zReport.set(report);
     } catch (err) {
@@ -90,8 +93,8 @@ export class ReportsComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       const csv = await this.reportingService.exportOrdersToCSV({
-        startDate: this.startDate(),
-        endDate: this.endDate()
+        startDate: this.startDate,
+        endDate: this.endDate
       });
       this.reportingService.downloadCSV(csv, `orders-${this.getTodayString()}.csv`);
       this.success.set('Orders exported successfully');
@@ -107,8 +110,8 @@ export class ReportsComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       const csv = await this.reportingService.exportRevenueReportToCSV({
-        startDate: this.startDate(),
-        endDate: this.endDate()
+        startDate: this.startDate,
+        endDate: this.endDate
       });
       this.reportingService.downloadCSV(csv, `revenue-report-${this.getTodayString()}.csv`);
       this.success.set('Revenue report exported successfully');
@@ -124,8 +127,8 @@ export class ReportsComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       const csv = await this.reportingService.exportZReportToCSV({
-        startDate: this.startDate(),
-        endDate: this.endDate()
+        startDate: this.startDate,
+        endDate: this.endDate
       });
       this.reportingService.downloadCSV(csv, `z-report-${this.getTodayString()}.csv`);
       this.success.set('Z-Report exported successfully');

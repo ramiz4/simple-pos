@@ -100,8 +100,6 @@ export class PrinterService {
     if (!order) throw new Error(`Order ${orderId} not found`);
 
     const orderItems = await this.orderService.getOrderItems(orderId);
-    const orderType = await this.enumMappingService.getEnumFromId(order.typeId);
-    const orderStatus = await this.enumMappingService.getEnumFromId(order.statusId);
 
     const items = await Promise.all(
       orderItems.map(async (item: OrderItem) => {
@@ -146,7 +144,6 @@ export class PrinterService {
     if (!order) throw new Error(`Order ${orderId} not found`);
 
     const orderItems = await this.orderService.getOrderItems(orderId);
-    const orderType = await this.enumMappingService.getEnumFromId(order.typeId);
 
     const items = await Promise.all(
       orderItems.map(async (item: OrderItem) => {
