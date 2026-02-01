@@ -1,0 +1,63 @@
+<div class="min-h-screen bg-gray-50">
+  <nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold text-gray-800">Simple Bistro POS</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          @if (session) {
+            <div class="text-sm">
+              <span class="text-gray-600">Welcome,</span>
+              <span class="font-semibold text-gray-800 ml-1">{{ session.user.name }}</span>
+              <span class="text-gray-500 ml-2">({{ session.roleCode }})</span>
+            </div>
+            <button
+              (click)="onLogout()"
+              class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+            >
+              Logout
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Dashboard</h2>
+        <p class="text-gray-600 mb-4">
+          Welcome to the Simple Bistro POS system. Phase 1 (Core Domain & CodeTable System) is complete!
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="font-semibold text-gray-800 mb-2">✅ Implemented Features</h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+              <li>• CodeTable System</li>
+              <li>• Domain Enums (TABLE_STATUS, ORDER_TYPE, ORDER_STATUS, USER_ROLE)</li>
+              <li>• User System with PIN Authentication</li>
+              <li>• Route Guards (Auth & Role-based)</li>
+              <li>• English & Albanian Translations</li>
+              <li>• SQLite & IndexedDB Support</li>
+            </ul>
+          </div>
+
+          <div class="border border-gray-200 rounded-lg p-4">
+            <h3 class="font-semibold text-gray-800 mb-2">📝 User Information</h3>
+            @if (session) {
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li><strong>ID:</strong> {{ session.user.id }}</li>
+                <li><strong>Name:</strong> {{ session.user.name }}</li>
+                <li><strong>Role:</strong> {{ session.roleCode }}</li>
+                <li><strong>Status:</strong> {{ session.user.active ? 'Active' : 'Inactive' }}</li>
+              </ul>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

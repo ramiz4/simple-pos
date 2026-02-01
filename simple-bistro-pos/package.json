@@ -34,6 +34,7 @@
     "@angular/router": "^21.1.0",
     "@tauri-apps/api": "^2.9.1",
     "@tauri-apps/plugin-sql": "^2.3.1",
+    "bcryptjs": "^3.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -43,6 +44,7 @@
     "@angular/compiler-cli": "^21.1.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@tauri-apps/cli": "^2.9.6",
+    "@types/bcryptjs": "^2.4.6",
     "autoprefixer": "^10.4.24",
     "jsdom": "^27.1.0",
     "postcss": "^8.5.6",
