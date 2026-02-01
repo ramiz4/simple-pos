@@ -127,9 +127,9 @@
                 name="productId"
                 class="w-full px-4 py-2 min-h-[44px] backdrop-blur-md bg-white/60 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                <option value="0">-- Select Product --</option>
+                <option [ngValue]="0">-- Select Product --</option>
                 @for (product of products; track product.id) {
-                  <option [value]="product.id">{{ product.name }} (${{ product.price.toFixed(2) }})</option>
+                  <option [ngValue]="product.id">{{ product.name }} (${{ product.price.toFixed(2) }})</option>
                 }
               </select>
             </div>
