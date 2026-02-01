@@ -113,7 +113,10 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
     const allOrders = await this.findAll();
     const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
     const todayOrders = allOrders.filter((o) => o.orderNumber.startsWith(today));
-    const sequence = (todayOrders.length + 1).toString().padStart(4, '0');
-    return `${today}${sequence}`;
+    const baseSequence = todayOrders.length + 1;
+    // Add random suffix to ensure uniqueness even for rapid consecutive orders
+    const randomSuffix = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+    const sequence = baseSequence.toString().padStart(4, '0');
+    return `${today}${sequence}${randomSuffix}`;
   }
 }

@@ -1,0 +1,861 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { OrderService, CreateOrderData } from '../application/services/order.service';
+import { TableService } from '../application/services/table.service';
+import { CategoryService } from '../application/services/category.service';
+import { ProductService } from '../application/services/product.service';
+import { VariantService } from '../application/services/variant.service';
+import { ExtraService } from '../application/services/extra.service';
+import { CartService } from '../application/services/cart.service';
+import { SeedService } from '../application/services/seed.service';
+import { EnumMappingService } from '../application/services/enum-mapping.service';
+import { RepositoryFactory } from '../infrastructure/adapters/repository.factory';
+import { PlatformService } from '../shared/utilities/platform.service';
+import { OrderStatusEnum } from '../domain/enums/order-status.enum';
+import { OrderTypeEnum } from '../domain/enums/order-type.enum';
+import { TableStatusEnum } from '../domain/enums/table-status.enum';
+import { Order } from '../domain/entities';
+import { CartItem } from '../domain/dtos/cart.dto';
+
+/**
+ * Phase 3 Integration Tests - Core POS Flow
+ * 
+ * These tests verify the complete order lifecycle:
+ * - Order type selection (DINE_IN, TAKEAWAY, DELIVERY)
+ * - Table selection and management
+ * - Product selection (with variants and extras)
+ * - Payment processing
+ * - Order status transitions
+ * - Table automation (FREE ↔ OCCUPIED)
+ * - Kitchen view functionality
+ * - Transaction integrity
+ */
+describe('Phase 3: Core POS Flow', () => {
+  let orderService: OrderService;
+  let tableService: TableService;
+  let categoryService: CategoryService;
+  let productService: ProductService;
+  let variantService: VariantService;
+  let extraService: ExtraService;
+  let cartService: CartService;
+  let seedService: SeedService;
+  let enumMappingService: EnumMappingService;
+
+  // Store status IDs for reuse across tests
+  let freeStatusId: number;
+  let occupiedStatusId: number;
+  let dineInTypeId: number;
+  let takeawayTypeId: number;
+  let deliveryTypeId: number;
+  let openStatusId: number;
+  let paidStatusId: number;
+  let preparingStatusId: number;
+  let readyStatusId: number;
+  let completedStatusId: number;
+  let cancelledStatusId: number;
+
+  beforeEach(async () => {
+    TestBed.configureTestingModule({
+      providers: [
+        OrderService,
+        TableService,
+        CategoryService,
+        ProductService,
+        VariantService,
+        ExtraService,
+        CartService,
+        SeedService,
+        EnumMappingService,
+        RepositoryFactory,
+        {
+          provide: PlatformService,
+          useValue: {
+            isTauri: () => false,
+            isWeb: () => true
+          }
+        }
+      ]
+    });
+
+    orderService = TestBed.inject(OrderService);
+    tableService = TestBed.inject(TableService);
+    categoryService = TestBed.inject(CategoryService);
+    productService = TestBed.inject(ProductService);
+    variantService = TestBed.inject(VariantService);
+    extraService = TestBed.inject(ExtraService);
+    cartService = TestBed.inject(CartService);
+    seedService = TestBed.inject(SeedService);
+    enumMappingService = TestBed.inject(EnumMappingService);
+
+    // Seed database with CodeTable data and test data
+    await seedService.seedDatabase();
+    await enumMappingService.init();
+
+    // Cache status IDs for tests
+    freeStatusId = await enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.FREE);
+    occupiedStatusId = await enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.OCCUPIED);
+    dineInTypeId = await enumMappingService.getCodeTableId('ORDER_TYPE', OrderTypeEnum.DINE_IN);
+    takeawayTypeId = await enumMappingService.getCodeTableId('ORDER_TYPE', OrderTypeEnum.TAKEAWAY);
+    deliveryTypeId = await enumMappingService.getCodeTableId('ORDER_TYPE', OrderTypeEnum.DELIVERY);
+    openStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.OPEN);
+    paidStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.PAID);
+    preparingStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.PREPARING);
+    readyStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.READY);
+    completedStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.COMPLETED);
+    cancelledStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.CANCELLED);
+
+    // Clear cart before each test
+    cartService.clear();
+  });
+
+  /**
+   * Helper function to create cart items for testing
+   */
+  async function createTestCartItem(): Promise<CartItem> {
+    const products = await productService.getAll();
+    const product = products[0];
+    
+    return {
+      productId: product.id,
+      productName: product.name,
+      productPrice: product.price,
+      variantId: null,
+      variantName: null,
+      variantPriceModifier: 0,
+      quantity: 1,
+      extraIds: [],
+      extraNames: [],
+      extraPrices: [],
+      unitPrice: product.price,
+      lineTotal: product.price,
+      notes: null
+    };
+  }
+
+  /**
+   * Helper function to create order data
+   */
+  async function createOrderData(
+    typeId: number,
+    statusId: number,
+    tableId: number | null,
+    items: CartItem[]
+  ): Promise<CreateOrderData> {
+    const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+    const tax = subtotal * 0.18; // 18% tax
+    const tip = 0;
+    const total = subtotal + tax + tip;
+
+    return {
+      typeId,
+      statusId,
+      tableId,
+      subtotal,
+      tax,
+      tip,
+      total,
+      userId: 1,
+      items
+    };
+  }
+
+  /**
+   * Helper to create a FREE table for testing
+   */
+  async function createFreeTable(): Promise<number> {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 100000);
+    const table = await tableService.create({
+      name: `Test Table ${timestamp}-${random}`,
+      number: (timestamp % 100000) + random,
+      seats: 4,
+      statusId: freeStatusId
+    });
+    return table.id;
+  }
+
+  describe('Order Type Selection', () => {
+    it('should create a DINE_IN order with table', async () => {
+      const tableId = await createFreeTable();
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.id).toBeDefined();
+      expect(order.typeId).toBe(dineInTypeId);
+      expect(order.tableId).toBe(tableId);
+      expect(order.statusId).toBe(paidStatusId);
+    });
+
+    it('should create a TAKEAWAY order without table', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.id).toBeDefined();
+      expect(order.typeId).toBe(takeawayTypeId);
+      expect(order.tableId).toBeNull();
+    });
+
+    it('should create a DELIVERY order without table', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(deliveryTypeId, paidStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.id).toBeDefined();
+      expect(order.typeId).toBe(deliveryTypeId);
+      expect(order.tableId).toBeNull();
+    });
+  });
+
+  describe('Table Selection & Management', () => {
+    it('should set table to OCCUPIED when creating DINE_IN order with PAID status', async () => {
+      const tableId = await createFreeTable();
+      
+      // Verify table is FREE initially
+      const tableBefore = await tableService.getById(tableId);
+      expect(tableBefore?.statusId).toBe(freeStatusId);
+
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      await orderService.createOrder(orderData);
+
+      // Verify table is now OCCUPIED
+      const tableAfter = await tableService.getById(tableId);
+      expect(tableAfter?.statusId).toBe(occupiedStatusId);
+    });
+
+    it('should filter FREE tables for selection', async () => {
+      // Create a new table that's FREE
+      const freeTableId = await createFreeTable();
+      
+      // Get all tables and filter by FREE status
+      const allTables = await tableService.getAll();
+      const freeTables = allTables.filter(t => t.statusId === freeStatusId);
+      
+      // Verify we can find free tables
+      expect(freeTables.length).toBeGreaterThan(0);
+      expect(freeTables.some(t => t.id === freeTableId)).toBe(true);
+    });
+
+    it('should not allow selecting OCCUPIED table', async () => {
+      const tableId = await createFreeTable();
+      
+      // Set table to OCCUPIED
+      await tableService.updateTableStatus(tableId, occupiedStatusId);
+      
+      // Verify table is OCCUPIED
+      const table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(occupiedStatusId);
+      
+      // In a real app, UI would prevent selection of occupied tables
+      // Here we verify the table's status
+      const allTables = await tableService.getAll();
+      const freeTables = allTables.filter(t => t.statusId === freeStatusId);
+      expect(freeTables.some(t => t.id === tableId)).toBe(false);
+    });
+  });
+
+  describe('Product Selection', () => {
+    it('should add products to order', async () => {
+      const products = await productService.getAll();
+      expect(products.length).toBeGreaterThan(0);
+
+      const product = products[0];
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity: 2,
+        extraIds: [],
+        extraNames: [],
+        extraPrices: [],
+        unitPrice: product.price,
+        lineTotal: product.price * 2,
+        notes: null
+      };
+
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      const orderItems = await orderService.getOrderItems(order.id);
+      expect(orderItems.length).toBe(1);
+      expect(orderItems[0].productId).toBe(product.id);
+      expect(orderItems[0].quantity).toBe(2);
+    });
+
+    it('should add variants to order items', async () => {
+      const products = await productService.getAll();
+      const variants = await variantService.getAll();
+      
+      // Find a product with variants
+      const product = products.find(p => variants.some(v => v.productId === p.id));
+      expect(product).toBeDefined();
+      
+      const variant = variants.find(v => v.productId === product!.id);
+      expect(variant).toBeDefined();
+
+      const cartItem: CartItem = {
+        productId: product!.id,
+        productName: product!.name,
+        productPrice: product!.price,
+        variantId: variant!.id,
+        variantName: variant!.name,
+        variantPriceModifier: variant!.priceModifier,
+        quantity: 1,
+        extraIds: [],
+        extraNames: [],
+        extraPrices: [],
+        unitPrice: product!.price + variant!.priceModifier,
+        lineTotal: product!.price + variant!.priceModifier,
+        notes: null
+      };
+
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      const orderItems = await orderService.getOrderItems(order.id);
+      expect(orderItems.length).toBe(1);
+      expect(orderItems[0].variantId).toBe(variant!.id);
+    });
+
+    it('should add extras to order items', async () => {
+      const products = await productService.getAll();
+      const extras = await extraService.getAll();
+      const product = products[0];
+      const extra = extras[0];
+
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity: 1,
+        extraIds: [extra.id],
+        extraNames: [extra.name],
+        extraPrices: [extra.price],
+        unitPrice: product.price + extra.price,
+        lineTotal: product.price + extra.price,
+        notes: null
+      };
+
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      const orderItems = await orderService.getOrderItems(order.id);
+      expect(orderItems.length).toBe(1);
+      
+      const orderItemExtras = await orderService.getOrderItemExtras(orderItems[0].id);
+      expect(orderItemExtras).toContain(extra.id);
+    });
+
+    it('should calculate order totals correctly', async () => {
+      const products = await productService.getAll();
+      const extras = await extraService.getAll();
+      const product = products[0];
+      const extra = extras[0];
+
+      const quantity = 2;
+      const unitPrice = product.price + extra.price;
+      const lineTotal = unitPrice * quantity;
+      const subtotal = lineTotal;
+      const tax = subtotal * 0.18;
+      const total = subtotal + tax;
+
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity,
+        extraIds: [extra.id],
+        extraNames: [extra.name],
+        extraPrices: [extra.price],
+        unitPrice,
+        lineTotal,
+        notes: null
+      };
+
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.subtotal).toBeCloseTo(subtotal, 2);
+      expect(order.tax).toBeCloseTo(tax, 2);
+      expect(order.total).toBeCloseTo(total, 2);
+    });
+  });
+
+  describe('Payment Processing', () => {
+    it('should process cash payment and set status to PAID', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.statusId).toBe(paidStatusId);
+      expect(order.total).toBeGreaterThan(0);
+    });
+
+    it('should persist order after payment', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      const createdOrder = await orderService.createOrder(orderData);
+      const retrievedOrder = await orderService.getOrderById(createdOrder.id);
+
+      expect(retrievedOrder).toBeDefined();
+      expect(retrievedOrder?.id).toBe(createdOrder.id);
+      expect(retrievedOrder?.statusId).toBe(paidStatusId);
+    });
+  });
+
+  describe('Order Status Transitions', () => {
+    it('should transition from PAID to PREPARING', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+      expect(order.statusId).toBe(paidStatusId);
+
+      const updatedOrder = await orderService.updateOrderStatus(order.id, preparingStatusId);
+      expect(updatedOrder.statusId).toBe(preparingStatusId);
+    });
+
+    it('should transition from PREPARING to READY', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+      await orderService.updateOrderStatus(order.id, preparingStatusId);
+      
+      const updatedOrder = await orderService.updateOrderStatus(order.id, readyStatusId);
+      expect(updatedOrder.statusId).toBe(readyStatusId);
+    });
+
+    it('should transition from READY to COMPLETED', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+      await orderService.updateOrderStatus(order.id, preparingStatusId);
+      await orderService.updateOrderStatus(order.id, readyStatusId);
+      
+      const updatedOrder = await orderService.completeOrder(order.id);
+      expect(updatedOrder.statusId).toBe(completedStatusId);
+      expect(updatedOrder.completedAt).not.toBeNull();
+    });
+
+    it('should cancel order from OPEN state', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, openStatusId, null, [cartItem]);
+
+      const order = await orderService.createOrder(orderData);
+      expect(order.statusId).toBe(openStatusId);
+
+      const cancelledOrder = await orderService.cancelOrder(order.id, 'Customer request');
+      expect(cancelledOrder.statusId).toBe(cancelledStatusId);
+      expect(cancelledOrder.cancelledReason).toBe('Customer request');
+      expect(cancelledOrder.completedAt).not.toBeNull();
+    });
+
+    it('should complete full order lifecycle: PAID → PREPARING → READY → COMPLETED', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+
+      // Create order with PAID status
+      const order = await orderService.createOrder(orderData);
+      expect(order.statusId).toBe(paidStatusId);
+
+      // Move to PREPARING
+      let currentOrder = await orderService.updateOrderStatus(order.id, preparingStatusId);
+      expect(currentOrder.statusId).toBe(preparingStatusId);
+
+      // Move to READY
+      currentOrder = await orderService.updateOrderStatus(order.id, readyStatusId);
+      expect(currentOrder.statusId).toBe(readyStatusId);
+
+      // Complete the order
+      currentOrder = await orderService.completeOrder(order.id);
+      expect(currentOrder.statusId).toBe(completedStatusId);
+      expect(currentOrder.completedAt).not.toBeNull();
+    });
+  });
+
+  describe('Table Automation', () => {
+    it('should set table to OCCUPIED when DINE_IN order is created', async () => {
+      const tableId = await createFreeTable();
+
+      // Verify table is FREE
+      let table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(freeStatusId);
+
+      // Create DINE_IN order
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      await orderService.createOrder(orderData);
+
+      // Verify table is OCCUPIED
+      table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(occupiedStatusId);
+    });
+
+    it('should set table to FREE when DINE_IN order is COMPLETED', async () => {
+      const tableId = await createFreeTable();
+
+      // Create DINE_IN order (table becomes OCCUPIED)
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      // Verify table is OCCUPIED
+      let table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(occupiedStatusId);
+
+      // Complete the order
+      await orderService.completeOrder(order.id);
+
+      // Verify table is FREE again
+      table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(freeStatusId);
+    });
+
+    it('should set table to FREE when DINE_IN order is CANCELLED', async () => {
+      const tableId = await createFreeTable();
+
+      // Create DINE_IN order (table becomes OCCUPIED)
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      // Verify table is OCCUPIED
+      let table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(occupiedStatusId);
+
+      // Cancel the order
+      await orderService.cancelOrder(order.id, 'Customer left');
+
+      // Verify table is FREE again
+      table = await tableService.getById(tableId);
+      expect(table?.statusId).toBe(freeStatusId);
+    });
+
+    it('should not affect table status for TAKEAWAY orders', async () => {
+      // Track all FREE tables before
+      const tablesBefore = await tableService.getAll();
+      const freeTablesBefore = tablesBefore.filter(t => t.statusId === freeStatusId);
+      
+      // Create TAKEAWAY order (no table)
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      await orderService.createOrder(orderData);
+
+      // Verify no table status changed
+      const tablesAfter = await tableService.getAll();
+      const freeTablesAfter = tablesAfter.filter(t => t.statusId === freeStatusId);
+      
+      // Same number of free tables
+      expect(freeTablesAfter.length).toBe(freeTablesBefore.length);
+    });
+  });
+
+  describe('Kitchen View', () => {
+    it('should filter orders by PREPARING status', async () => {
+      // Create an order and move it to PREPARING
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+      await orderService.updateOrderStatus(order.id, preparingStatusId);
+
+      // Get orders by PREPARING status
+      const preparingOrders = await orderService.getOrdersByStatus(OrderStatusEnum.PREPARING);
+      
+      expect(preparingOrders.length).toBeGreaterThan(0);
+      expect(preparingOrders.some(o => o.id === order.id)).toBe(true);
+    });
+
+    it('should update order status from kitchen view', async () => {
+      // Create order and move to PREPARING
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+      await orderService.updateOrderStatus(order.id, preparingStatusId);
+
+      // Verify it's in PREPARING
+      let preparingOrders = await orderService.getOrdersByStatus(OrderStatusEnum.PREPARING);
+      expect(preparingOrders.some(o => o.id === order.id)).toBe(true);
+
+      // Kitchen marks it as READY
+      await orderService.updateOrderStatus(order.id, readyStatusId);
+
+      // Verify it's no longer in PREPARING
+      preparingOrders = await orderService.getOrdersByStatus(OrderStatusEnum.PREPARING);
+      expect(preparingOrders.some(o => o.id === order.id)).toBe(false);
+
+      // Verify it's in READY
+      const readyOrders = await orderService.getOrdersByStatus(OrderStatusEnum.READY);
+      expect(readyOrders.some(o => o.id === order.id)).toBe(true);
+    });
+
+    it('should display correct orders for kitchen staff', async () => {
+      // Create multiple orders with different statuses
+      const cartItem1 = await createTestCartItem();
+      const order1Data = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem1]);
+      const order1 = await orderService.createOrder(order1Data);
+      
+      const cartItem2 = await createTestCartItem();
+      const order2Data = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem2]);
+      const order2 = await orderService.createOrder(order2Data);
+      
+      const cartItem3 = await createTestCartItem();
+      const order3Data = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem3]);
+      const order3 = await orderService.createOrder(order3Data);
+
+      // Move orders to different statuses
+      await orderService.updateOrderStatus(order1.id, preparingStatusId);
+      await orderService.updateOrderStatus(order2.id, preparingStatusId);
+      // order3 stays in PAID status
+
+      // Kitchen should only see PREPARING orders
+      const kitchenOrders = await orderService.getOrdersByStatus(OrderStatusEnum.PREPARING);
+      
+      expect(kitchenOrders.some(o => o.id === order1.id)).toBe(true);
+      expect(kitchenOrders.some(o => o.id === order2.id)).toBe(true);
+      expect(kitchenOrders.some(o => o.id === order3.id)).toBe(false);
+    });
+  });
+
+  describe('Transaction Integrity', () => {
+    it('should create order atomically with items and extras', async () => {
+      const products = await productService.getAll();
+      const extras = await extraService.getAll();
+      const product = products[0];
+      const extra1 = extras[0];
+      const extra2 = extras[1];
+
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity: 1,
+        extraIds: [extra1.id, extra2.id],
+        extraNames: [extra1.name, extra2.name],
+        extraPrices: [extra1.price, extra2.price],
+        unitPrice: product.price + extra1.price + extra2.price,
+        lineTotal: product.price + extra1.price + extra2.price,
+        notes: 'Test order'
+      };
+
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      // Verify order created
+      expect(order.id).toBeDefined();
+
+      // Verify order items created
+      const orderItems = await orderService.getOrderItems(order.id);
+      expect(orderItems.length).toBe(1);
+      expect(orderItems[0].notes).toBe('Test order');
+
+      // Verify extras attached to order item
+      const itemExtras = await orderService.getOrderItemExtras(orderItems[0].id);
+      expect(itemExtras.length).toBe(2);
+      expect(itemExtras).toContain(extra1.id);
+      expect(itemExtras).toContain(extra2.id);
+    });
+
+    it('should maintain data consistency across multiple orders', async () => {
+      const initialOrders = await orderService.getAllOrders();
+      const initialCount = initialOrders.length;
+
+      // Create multiple orders sequentially
+      const createdOrders = [];
+      for (let i = 0; i < 3; i++) {
+        const cartItem = await createTestCartItem();
+        const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+        const order = await orderService.createOrder(orderData);
+        createdOrders.push(order);
+      }
+
+      // Verify all orders created
+      expect(createdOrders.length).toBe(3);
+      createdOrders.forEach(order => {
+        expect(order.id).toBeDefined();
+      });
+
+      // Verify order count
+      const finalOrders = await orderService.getAllOrders();
+      expect(finalOrders.length).toBe(initialCount + 3);
+
+      // Verify each order is unique
+      const orderIds = createdOrders.map(o => o.id);
+      const uniqueIds = [...new Set(orderIds)];
+      expect(uniqueIds.length).toBe(3);
+    });
+
+    it('should generate unique order numbers', async () => {
+      const cartItem1 = await createTestCartItem();
+      const orderData1 = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem1]);
+      const order1 = await orderService.createOrder(orderData1);
+      
+      const cartItem2 = await createTestCartItem();
+      const orderData2 = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem2]);
+      const order2 = await orderService.createOrder(orderData2);
+
+      expect(order1.orderNumber).toBeDefined();
+      expect(order2.orderNumber).toBeDefined();
+      expect(order1.orderNumber).not.toBe(order2.orderNumber);
+    });
+
+    it('should persist order with all related data', async () => {
+      const tableId = await createFreeTable();
+      const products = await productService.getAll();
+      const variants = await variantService.getAll();
+      const extras = await extraService.getAll();
+      
+      const product = products.find(p => variants.some(v => v.productId === p.id));
+      const variant = variants.find(v => v.productId === product?.id);
+      const extra = extras[0];
+
+      const cartItem: CartItem = {
+        productId: product!.id,
+        productName: product!.name,
+        productPrice: product!.price,
+        variantId: variant?.id ?? null,
+        variantName: variant?.name ?? null,
+        variantPriceModifier: variant?.priceModifier ?? 0,
+        quantity: 2,
+        extraIds: [extra.id],
+        extraNames: [extra.name],
+        extraPrices: [extra.price],
+        unitPrice: product!.price + (variant?.priceModifier ?? 0) + extra.price,
+        lineTotal: (product!.price + (variant?.priceModifier ?? 0) + extra.price) * 2,
+        notes: 'Special instructions'
+      };
+
+      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      const createdOrder = await orderService.createOrder(orderData);
+
+      // Retrieve order and verify all data persisted
+      const retrievedOrder = await orderService.getOrderById(createdOrder.id);
+      expect(retrievedOrder).toBeDefined();
+      expect(retrievedOrder?.typeId).toBe(dineInTypeId);
+      expect(retrievedOrder?.tableId).toBe(tableId);
+
+      // Verify order items
+      const orderItems = await orderService.getOrderItems(createdOrder.id);
+      expect(orderItems.length).toBe(1);
+      expect(orderItems[0].variantId).toBe(variant?.id ?? null);
+      expect(orderItems[0].quantity).toBe(2);
+      expect(orderItems[0].notes).toBe('Special instructions');
+
+      // Verify extras
+      const itemExtras = await orderService.getOrderItemExtras(orderItems[0].id);
+      expect(itemExtras).toContain(extra.id);
+    });
+  });
+
+  describe('Cart Service Integration', () => {
+    it('should add items to cart and calculate summary', async () => {
+      const products = await productService.getAll();
+      const product = products[0];
+
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity: 2,
+        extraIds: [],
+        extraNames: [],
+        extraPrices: [],
+        unitPrice: product.price,
+        lineTotal: product.price * 2,
+        notes: null
+      };
+
+      cartService.addItem(cartItem);
+      
+      const summary = cartService.getSummary();
+      expect(summary.items.length).toBe(1);
+      expect(summary.itemCount).toBe(2);
+      expect(summary.subtotal).toBe(product.price * 2);
+      expect(summary.tax).toBeCloseTo(summary.subtotal * 0.18, 2);
+      expect(summary.total).toBeCloseTo(summary.subtotal + summary.tax, 2);
+    });
+
+    it('should clear cart after order creation', async () => {
+      const products = await productService.getAll();
+      const product = products[0];
+
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity: 1,
+        extraIds: [],
+        extraNames: [],
+        extraPrices: [],
+        unitPrice: product.price,
+        lineTotal: product.price,
+        notes: null
+      };
+
+      cartService.addItem(cartItem);
+      expect(cartService.isEmpty()).toBe(false);
+
+      // Create order using cart items
+      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      await orderService.createOrder(orderData);
+
+      // Simulate clearing cart after order
+      cartService.clear();
+      expect(cartService.isEmpty()).toBe(true);
+    });
+
+    it('should update item quantities in cart', async () => {
+      const products = await productService.getAll();
+      const product = products[0];
+
+      const cartItem: CartItem = {
+        productId: product.id,
+        productName: product.name,
+        productPrice: product.price,
+        variantId: null,
+        variantName: null,
+        variantPriceModifier: 0,
+        quantity: 1,
+        extraIds: [],
+        extraNames: [],
+        extraPrices: [],
+        unitPrice: product.price,
+        lineTotal: product.price,
+        notes: null
+      };
+
+      cartService.addItem(cartItem);
+      cartService.updateItemQuantity(0, 3);
+
+      const summary = cartService.getSummary();
+      expect(summary.items[0].quantity).toBe(3);
+      expect(summary.itemCount).toBe(3);
+    });
+  });
+});
