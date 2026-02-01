@@ -103,6 +103,7 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.extraService.update(this.editingId, this.formData);
       } else {
@@ -112,7 +113,7 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
-        this.successMessage = this.editingId ? 'Extra updated successfully' : 'Extra created successfully';
+        this.successMessage = isUpdate ? 'Extra updated successfully' : 'Extra created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
           this.successMessage = '';

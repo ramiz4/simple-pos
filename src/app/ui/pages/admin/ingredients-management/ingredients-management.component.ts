@@ -106,6 +106,7 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.ingredientService.update(this.editingId, this.formData);
       } else {
@@ -115,7 +116,7 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
-        this.successMessage = this.editingId ? 'Ingredient updated successfully' : 'Ingredient created successfully';
+        this.successMessage = isUpdate ? 'Ingredient updated successfully' : 'Ingredient created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
           this.successMessage = '';

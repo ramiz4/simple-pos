@@ -113,6 +113,7 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.tableService.update(this.editingId, this.formData);
       } else {
@@ -123,7 +124,7 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       
       // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
       setTimeout(() => {
-        this.successMessage = this.editingId ? 'Table updated successfully' : 'Table created successfully';
+        this.successMessage = isUpdate ? 'Table updated successfully' : 'Table created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
           this.successMessage = '';

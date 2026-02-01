@@ -114,6 +114,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.productService.update(this.editingId, this.formData);
       } else {
@@ -123,7 +124,7 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
-        this.successMessage = this.editingId ? 'Product updated successfully' : 'Product created successfully';
+        this.successMessage = isUpdate ? 'Product updated successfully' : 'Product created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
           this.successMessage = '';

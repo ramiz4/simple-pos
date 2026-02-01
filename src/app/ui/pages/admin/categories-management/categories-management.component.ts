@@ -106,6 +106,7 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.categoryService.update(this.editingId, this.formData);
       } else {
@@ -115,7 +116,7 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
-        this.successMessage = this.editingId ? 'Category updated successfully' : 'Category created successfully';
+        this.successMessage = isUpdate ? 'Category updated successfully' : 'Category created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
           this.successMessage = '';

@@ -128,6 +128,7 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
     }
 
     try {
+      const isUpdate = !!this.editingId;
       if (this.editingId) {
         await this.variantService.update(this.editingId, this.formData);
       } else {
@@ -137,7 +138,7 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
-        this.successMessage = this.editingId ? 'Variant updated successfully' : 'Variant created successfully';
+        this.successMessage = isUpdate ? 'Variant updated successfully' : 'Variant created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
           this.successMessage = '';
