@@ -15,11 +15,6 @@ permissions:
   pages: write
   id-token: write
 
-# Allow one concurrent deployment
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
   build-and-test:
     name: Build and Test
@@ -60,13 +55,14 @@ jobs:
         continue-on-error: true
       
       - name: Build application
-        run: pnpm run build
+        run: pnpm ng build --base-href=/simple-pos/
       
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: dist/**/browser
+          if-no-files-found: error
           retention-days: 1
 
   deploy:
@@ -74,6 +70,11 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    # Allow one concurrent deployment
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
     
     environment:
       name: github-pages
@@ -90,7 +91,7 @@ jobs:
         uses: actions/configure-pages@v5
       
       - name: Upload artifact to Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: dist
       
