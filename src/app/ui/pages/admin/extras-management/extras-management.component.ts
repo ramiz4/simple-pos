@@ -45,7 +45,6 @@ export class ExtrasManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
-    this.cdr.detectChanges();
     try {
       const extras = await this.extraService.getAll();
       this.extras = extras.sort((a, b) => a.name.localeCompare(b.name));

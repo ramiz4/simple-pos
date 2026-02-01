@@ -50,7 +50,6 @@ export class VariantsManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
-    this.cdr.detectChanges();
     try {
       const [variants, products] = await Promise.all([
         this.variantService.getAll(),

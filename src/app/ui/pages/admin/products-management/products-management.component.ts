@@ -52,7 +52,6 @@ export class ProductsManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
-    this.cdr.detectChanges();
     try {
       const [products, categories] = await Promise.all([
         this.productService.getAll(),

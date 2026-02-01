@@ -46,7 +46,6 @@ export class CategoriesManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
-    this.cdr.detectChanges();
     try {
       let categories = await this.categoryService.getAll();
       categories = categories.sort((a, b) => a.sortOrder - b.sortOrder);

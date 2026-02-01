@@ -48,7 +48,6 @@ export class IngredientsManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
-    this.cdr.detectChanges();
     try {
       const ingredients = await this.ingredientService.getAll();
       this.ingredients = ingredients.sort((a, b) => a.name.localeCompare(b.name));

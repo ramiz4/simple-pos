@@ -51,7 +51,6 @@ export class TablesManagementComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
-    this.cdr.detectChanges();
     try {
       const [tables, statuses] = await Promise.all([
         this.tableService.getAll(),
