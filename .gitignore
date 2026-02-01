@@ -1,6 +1,7 @@
 # Simple Bistro POS - Root .gitignore
 
-# Generated documentation (keep only original docs)
+# Generated documentation (keep only original docs like prd.md, technical-details.md, ai-mvp-execution-plan.md)
+# Root level generated docs
 /ARCHITECTURE_DIAGRAM.md
 /INITIALIZATION_STATUS.md
 /PROJECT_INITIALIZED.md
@@ -8,6 +9,15 @@
 /PHASE_2_COMPLETE.md
 /PHASE_2_SUMMARY.md
 /PHASE_2_TEST_GUIDE.md
+
+# Subdirectory generated docs (but keep README.md, ARCHITECTURE.md, SETUP.md)
+**/PHASE_*_COMPLETE.md
+**/PHASE_*_SUMMARY.md
+**/PHASE_*_TEST_GUIDE.md
+**/PHASE_*_TEST_RESULTS.md
+**/TASK_COMPLETE.md
+**/INITIALIZATION_STATUS.md
+**/PROJECT_INITIALIZED.md
 
 # Temporary files
 *.tmp
