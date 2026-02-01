@@ -1,7 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ReportingService, DailyRevenueReport, RevenueByTypeReport, ZReport } from '../../../application/services/reporting.service';
 import { BackupService, BackupData } from '../../../application/services/backup.service';
 import { HeaderComponent } from '../../components/header/header.component';
@@ -29,8 +28,7 @@ export class ReportsComponent implements OnInit {
 
   constructor(
     private reportingService: ReportingService,
-    private backupService: BackupService,
-    private router: Router
+    private backupService: BackupService
   ) {
     this.startDate = this.getTodayString();
     this.endDate = this.getTomorrowString();
