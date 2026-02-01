@@ -124,9 +124,11 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = isUpdate ? 'Product updated successfully' : 'Product created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
@@ -146,9 +148,11 @@ export class ProductsManagementComponent implements OnInit, OnDestroy {
       this.closeDeleteConfirm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = 'Product deleted successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);

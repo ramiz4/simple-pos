@@ -123,9 +123,11 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = isUpdate ? 'Table updated successfully' : 'Table created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
@@ -145,9 +147,11 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       this.closeDeleteConfirm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = 'Table deleted successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);

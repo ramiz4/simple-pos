@@ -116,9 +116,11 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = isUpdate ? 'Ingredient updated successfully' : 'Ingredient created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
@@ -138,9 +140,11 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
       this.closeDeleteConfirm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = 'Ingredient deleted successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);

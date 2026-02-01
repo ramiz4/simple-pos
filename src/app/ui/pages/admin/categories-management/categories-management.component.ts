@@ -116,9 +116,11 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = isUpdate ? 'Category updated successfully' : 'Category created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
@@ -138,9 +140,11 @@ export class CategoriesManagementComponent implements OnInit, OnDestroy {
       this.closeDeleteConfirm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = 'Category deleted successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);

@@ -138,9 +138,11 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
       this.closeForm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = isUpdate ? 'Variant updated successfully' : 'Variant created successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
@@ -160,9 +162,11 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
       this.closeDeleteConfirm();
       
       setTimeout(() => {
+        if (this.destroyed) return;
         this.successMessage = 'Variant deleted successfully';
         this.cdr.detectChanges();
         setTimeout(() => {
+          if (this.destroyed) return;
           this.successMessage = '';
           this.cdr.detectChanges();
         }, 3000);
