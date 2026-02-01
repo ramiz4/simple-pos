@@ -26,6 +26,14 @@ export class DashboardComponent {
     return this.authService.hasAnyRole([UserRoleEnum.ADMIN]);
   }
 
+  isKitchen(): boolean {
+    return this.authService.hasAnyRole([UserRoleEnum.KITCHEN]);
+  }
+
+  isCashier(): boolean {
+    return this.authService.hasAnyRole([UserRoleEnum.CASHIER, UserRoleEnum.ADMIN]);
+  }
+
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/login']);

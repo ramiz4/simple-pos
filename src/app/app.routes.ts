@@ -17,8 +17,9 @@ import { ProductSelectionComponent } from './ui/pages/pos/product-selection.comp
 import { CartViewComponent } from './ui/pages/pos/cart-view.component';
 import { PaymentComponent } from './ui/pages/pos/payment.component';
 import { ReportsComponent } from './ui/pages/reports/reports.component';
+import { KitchenViewComponent } from './ui/pages/kitchen/kitchen-view.component';
 import { authGuard } from './core/guards/auth.guard';
-import { adminGuard } from './core/guards/role.guard';
+import { adminGuard, kitchenGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/seed-user', pathMatch: 'full' },
@@ -44,5 +45,6 @@ export const routes: Routes = [
   { path: 'pos/cart', component: CartViewComponent, canActivate: [authGuard] },
   { path: 'pos/payment', component: PaymentComponent, canActivate: [authGuard] },
   { path: 'reports', component: ReportsComponent, canActivate: [authGuard] },
+  { path: 'kitchen', component: KitchenViewComponent, canActivate: [kitchenGuard] },
   { path: '**', redirectTo: '/seed-user' },
 ];
