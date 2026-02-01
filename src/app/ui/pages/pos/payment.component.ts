@@ -33,7 +33,7 @@ import { HeaderComponent } from '../../components/header/header.component';
                   <span class="font-semibold">€{{ summary().subtotal.toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between items-center text-lg">
-                  <span>VAT (18%)</span>
+                  <span>Incl. VAT (18%)</span>
                   <span class="font-semibold">€{{ summary().tax.toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between items-center text-lg">

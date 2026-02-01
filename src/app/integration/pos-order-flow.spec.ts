@@ -142,10 +142,12 @@ describe('Phase 3: Core POS Flow', () => {
     items: CartItem[]
   ): Promise<CreateOrderData> {
     const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-    // Tax is 0 because product prices already include taxes (tax-inclusive pricing)
-    const tax = 0;
+    // Calculate included tax (prices are tax-inclusive): tax = subtotal * 0.18 / 1.18
+    const taxRate = 0.18;
+    const tax = subtotal * taxRate / (1 + taxRate);
     const tip = 0;
-    const total = subtotal + tax + tip;
+    // Total = subtotal + tip (no additional tax, prices are tax-inclusive)
+    const total = subtotal + tip;
 
     return {
       typeId,
@@ -368,9 +370,11 @@ describe('Phase 3: Core POS Flow', () => {
       const unitPrice = product.price + extra.price;
       const lineTotal = unitPrice * quantity;
       const subtotal = lineTotal;
-      // Tax is 0 because product prices already include taxes (tax-inclusive pricing)
-      const tax = 0;
-      const total = subtotal + tax;
+      // Calculate included tax (prices are tax-inclusive): tax = subtotal * 0.18 / 1.18
+      const taxRate = 0.18;
+      const tax = subtotal * taxRate / (1 + taxRate);
+      // Total = subtotal (no additional tax added, prices already include tax)
+      const total = subtotal;
 
       const cartItem: CartItem = {
         productId: product.id,
@@ -796,8 +800,10 @@ describe('Phase 3: Core POS Flow', () => {
       expect(summary.items.length).toBe(1);
       expect(summary.itemCount).toBe(2);
       expect(summary.subtotal).toBe(product.price * 2);
-      // Tax is 0 because product prices already include taxes (tax-inclusive pricing)
-      expect(summary.tax).toBe(0);
+      // Tax is the included tax (extracted from tax-inclusive price): tax = subtotal * 0.18 / 1.18
+      const expectedTax = summary.subtotal * 0.18 / 1.18;
+      expect(summary.tax).toBeCloseTo(expectedTax, 2);
+      // Total = subtotal (no additional tax, prices already include tax)
       expect(summary.total).toBe(summary.subtotal);
     });
 

@@ -5,8 +5,9 @@ import { CartItem, CartSummary } from '../../domain/dtos/cart.dto';
   providedIn: 'root'
 })
 export class CartService {
-  // Tax rate is 0 because product prices already include taxes (tax-inclusive pricing)
-  private readonly TAX_RATE = 0;
+  // Kosovo VAT rate (18%) - prices already include this tax (tax-inclusive pricing)
+  // We display the included tax but don't add it on top
+  private readonly TAX_RATE = 0.18;
   
   private cartItems = signal<CartItem[]>([]);
   private tipAmount = signal<number>(0);
@@ -64,9 +65,12 @@ export class CartService {
   getSummary(): CartSummary {
     const items = this.cartItems();
     const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-    const tax = subtotal * this.TAX_RATE;
+    // Calculate included tax (tax already in price): tax = subtotal * rate / (1 + rate)
+    // For 18% VAT: tax = subtotal * 0.18 / 1.18
+    const tax = subtotal * this.TAX_RATE / (1 + this.TAX_RATE);
     const tip = this.tipAmount();
-    const total = subtotal + tax + tip;
+    // Total = subtotal + tip (no additional tax, prices are tax-inclusive)
+    const total = subtotal + tip;
     const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
     return {

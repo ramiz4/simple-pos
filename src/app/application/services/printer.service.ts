@@ -225,7 +225,7 @@ export class PrinterService {
     
     lines.push('------------------------\n');
     lines.push(`${lang === 'en' ? 'Subtotal' : 'Nentotali'}: ${this.formatPrice(data.order.subtotal)}\n`);
-    lines.push(`${lang === 'en' ? 'VAT (18%)' : 'TVSH (18%)'}: ${this.formatPrice(data.order.tax)}\n`);
+    lines.push(`${lang === 'en' ? 'Incl. VAT (18%)' : 'Inkl. TVSH (18%)'}: ${this.formatPrice(data.order.tax)}\n`);
     
     if (data.order.tip > 0) {
       lines.push(`${lang === 'en' ? 'Tip' : 'Bakshish'}: ${this.formatPrice(data.order.tip)}\n`);
@@ -431,7 +431,7 @@ export class PrinterService {
     
     lines.push('<div class="line"></div>');
     lines.push(`<div><strong>${lang === 'en' ? 'Subtotal' : 'Nentotali'}:</strong> <span style="float: right;">${this.formatPrice(data.order.subtotal)}</span></div>`);
-    lines.push(`<div><strong>${lang === 'en' ? 'VAT (18%)' : 'TVSH (18%)'}:</strong> <span style="float: right;">${this.formatPrice(data.order.tax)}</span></div>`);
+    lines.push(`<div><strong>${lang === 'en' ? 'Incl. VAT (18%)' : 'Inkl. TVSH (18%)'}:</strong> <span style="float: right;">${this.formatPrice(data.order.tax)}</span></div>`);
     
     if (data.order.tip > 0) {
       lines.push(`<div><strong>${lang === 'en' ? 'Tip' : 'Bakshish'}:</strong> <span style="float: right;">${this.formatPrice(data.order.tip)}</span></div>`);
