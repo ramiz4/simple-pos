@@ -11,6 +11,9 @@ import { VariantsManagementComponent } from './ui/pages/admin/variants-managemen
 import { ExtrasManagementComponent } from './ui/pages/admin/extras-management/extras-management.component';
 import { IngredientsManagementComponent } from './ui/pages/admin/ingredients-management/ingredients-management.component';
 import { Phase2TestComponent } from './ui/pages/phase2-test/phase2-test.component';
+import { OrderTypeSelectionComponent } from './ui/pages/pos/order-type-selection.component';
+import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
+import { ProductSelectionComponent } from './ui/pages/pos/product-selection.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/role.guard';
 
@@ -28,5 +31,8 @@ export const routes: Routes = [
   { path: 'admin/variants', component: VariantsManagementComponent, canActivate: [adminGuard] },
   { path: 'admin/extras', component: ExtrasManagementComponent, canActivate: [adminGuard] },
   { path: 'admin/ingredients', component: IngredientsManagementComponent, canActivate: [adminGuard] },
+  { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [authGuard] },
+  { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [authGuard] },
+  { path: 'pos/product-selection', component: ProductSelectionComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/seed-user' }
 ];

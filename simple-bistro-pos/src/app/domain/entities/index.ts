@@ -10,3 +10,6 @@ export * from './extra.interface';
 export * from './ingredient.interface';
 export * from './product-extra.interface';
 export * from './product-ingredient.interface';
+export * from './order.interface';
+export * from './order-item.interface';
+export * from './order-item-extra.interface';

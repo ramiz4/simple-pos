@@ -38,4 +38,8 @@ export class TableService {
   async delete(id: number): Promise<void> {
     return this.repo.delete(id);
   }
+
+  async updateTableStatus(id: number, statusId: number): Promise<Table> {
+    return this.repo.update(id, { statusId });
+  }
 }
