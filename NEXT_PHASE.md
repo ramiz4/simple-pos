@@ -42,7 +42,7 @@
    - Low stock alerts functional (< 5 units)
 
 7. **Quality Verification** ✅
-   - **41 integration tests passing (100%)**
+   - **36 integration tests passing (100%)**
    - Build successful with no errors
    - Code review passed
    - Security scan passed (0 vulnerabilities)
@@ -57,8 +57,8 @@
 Phase 2 - Admin Configuration Layer
 ├── [x] Table Management (4 tests passing)
 ├── [x] Category Management (4 tests passing)
-├── [x] Product Management (4 tests passing)
-├── [x] Variant Management (2 tests passing)
+├── [x] Product Management (5 tests passing)
+├── [x] Variant Management (4 tests passing)
 ├── [x] Extra Management (3 tests passing)
 ├── [x] Ingredient Management (4 tests passing)
 ├── [x] Data Persistence (2 tests passing)
@@ -67,7 +67,7 @@ Phase 2 - Admin Configuration Layer
 ├── [x] Security Scan Passed
 └── [x] ✅ PHASE 2 COMPLETE
 
-Total Tests: 33 Phase 2 tests + 8 Phase 1 tests = 41 tests (100% passing)
+Total Tests: 28 Phase 2 tests + 8 Phase 1 tests = 36 tests (100% passing)
 ```
 
 ---
@@ -155,12 +155,12 @@ Phase 3 will be complete when:
 ```
 Phase 0: Architecture Lock         ████████████████████ 100% ✅
 Phase 1: Core Domain & CodeTable   ████████████████████ 100% ✅ (8 tests)
-Phase 2: Admin Configuration       ████████████████████ 100% ✅ (33 tests)
+Phase 2: Admin Configuration       ████████████████████ 100% ✅ (28 tests)
 Phase 3: Core POS Flow             ░░░░░░░░░░░░░░░░░░░░   0% ⏳ (NEXT)
 Phase 4: Printing & Reporting      ░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
 
-**Overall MVP Progress: 70% Complete** (3 of 5 phases done)
+**Overall MVP Progress: 60% Complete** (3 of 5 phases done)
 
 ---
 
@@ -172,7 +172,7 @@ git checkout copilot/implement-next-phase
 
 # 2. Run existing tests to confirm everything works
 pnpm test
-# Should show: Test Files  4 passed (4), Tests  41 passed (41)
+# Should show: Test Files  4 passed (4), Tests  36 passed (36)
 
 # 3. Create the new test file for Phase 3
 touch src/app/integration/pos-order-flow.spec.ts
