@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { Table } from '../../domain/entities/table.interface';
+import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IndexedDBTableRepository implements BaseRepository<Table> {
-  private readonly DB_NAME = 'SimpleDatabase';
   private readonly STORE_NAME = 'table';
-  private readonly DB_VERSION = 3;
-  private db: IDBDatabase | null = null;
+
+  constructor(private indexedDBService: IndexedDBService) {}
 
   async findById(id: number): Promise<Table | null> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -24,7 +24,7 @@ export class IndexedDBTableRepository implements BaseRepository<Table> {
   }
 
   async findAll(): Promise<Table[]> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -36,7 +36,7 @@ export class IndexedDBTableRepository implements BaseRepository<Table> {
   }
 
   async create(entity: Omit<Table, 'id'>): Promise<Table> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -50,7 +50,7 @@ export class IndexedDBTableRepository implements BaseRepository<Table> {
   }
 
   async update(id: number, entity: Partial<Table>): Promise<Table> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
     if (!existing) throw new Error(`Table with id ${id} not found`);
 
@@ -66,7 +66,7 @@ export class IndexedDBTableRepository implements BaseRepository<Table> {
   }
 
   async delete(id: number): Promise<void> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -78,7 +78,7 @@ export class IndexedDBTableRepository implements BaseRepository<Table> {
   }
 
   async count(): Promise<number> {
-    const db = await this.getDb();
+    const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
@@ -86,29 +86,6 @@ export class IndexedDBTableRepository implements BaseRepository<Table> {
 
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
-    });
-  }
-
-  private async getDb(): Promise<IDBDatabase> {
-    if (this.db) return this.db;
-
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        this.db = request.result;
-        resolve(this.db);
-      };
-
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-
-        if (!db.objectStoreNames.contains(this.STORE_NAME)) {
-          const store = db.createObjectStore(this.STORE_NAME, { keyPath: 'id' });
-          store.createIndex('number', 'number', { unique: true });
-        }
-      };
     });
   }
 }
