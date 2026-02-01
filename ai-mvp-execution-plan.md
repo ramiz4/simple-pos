@@ -1,12 +1,14 @@
 # AI MVP Execution Plan
-# Simple Bistro POS – Autonomous Development Roadmap
+
+# Simple Simple POS – Autonomous Development Roadmap
+
 # Angular + Tauri + Offline-First
 
 ---
 
 # 1. Purpose
 
-This document defines the autonomous execution roadmap for an AI Agent responsible for developing the full MVP of the Simple Bistro POS system.
+This document defines the autonomous execution roadmap for an AI Agent responsible for developing the full MVP of the Simple Simple POS system.
 
 The AI Agent must:
 
@@ -41,6 +43,7 @@ The AI Agent MUST:
 # 3. Architecture Lock (Phase 0)
 
 ## Objective
+
 Establish unchangeable architectural foundation.
 
 ## Tasks
@@ -79,6 +82,7 @@ No feature work begins before this phase is complete.
 # 4. Phase 1 – Core Domain & CodeTable System
 
 ## Objective
+
 Implement foundational domain and enum persistence.
 
 ## Tasks
@@ -142,6 +146,7 @@ Enum <-> CodeTable lookup
 # 5. Phase 2 – Admin Configuration Layer
 
 ## Objective
+
 Enable full system configuration before POS flow.
 
 ## 5.1 Table Management
@@ -178,6 +183,7 @@ Enable full system configuration before POS flow.
 # 6. Phase 3 – Core POS Flow
 
 ## Objective
+
 Implement complete order lifecycle.
 
 ## 6.1 Order Creation
@@ -193,8 +199,8 @@ Flow:
 
 ## 6.2 Order Status Flow
 
-OPEN → PAID → PREPARING → READY → COMPLETED  
-CANCELLED allowed from OPEN  
+OPEN → PAID → PREPARING → READY → COMPLETED
+CANCELLED allowed from OPEN
 
 All statuses persisted via CodeTable.
 

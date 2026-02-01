@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Glassmorphism base styles */
+@layer components {
+  .glass-card {
+    @apply backdrop-blur-xl bg-white/30 border border-white/20 rounded-3xl shadow-xl;
+  }
+  
+  .glass-button {
+    @apply backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-lg hover:bg-white/30 transition-all;
+  }
+}

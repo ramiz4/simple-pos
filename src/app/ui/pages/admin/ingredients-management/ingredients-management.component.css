@@ -1,0 +1,38 @@
+:host {
+  display: block;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  :host ::ng-deep {
+    .flex-wrap {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+/* Animation for messages */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.max-w-7xl {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Touch-friendly adjustments */
+@supports (padding: max(0px)) {
+  button,
+  input,
+  select,
+  textarea {
+    padding: max(0.5rem, env(safe-area-inset-bottom));
+  }
+}
