@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -12,7 +12,7 @@ import { CategoryService } from '../../../../application/services/category.servi
   templateUrl: './categories-management.component.html',
   styleUrls: ['./categories-management.component.css']
 })
-export class CategoriesManagementComponent implements OnInit {
+export class CategoriesManagementComponent implements OnInit, OnDestroy {
   categories: Category[] = [];
   isLoading = false;
   isFormOpen = false;
@@ -26,6 +26,8 @@ export class CategoriesManagementComponent implements OnInit {
   deleteConfirmId: number | null = null;
   deleteConfirmName = '';
 
+  private destroyed = false;
+
   constructor(
     private categoryService: CategoryService,
     private router: Router,
@@ -34,6 +36,10 @@ export class CategoriesManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -56,7 +62,9 @@ export class CategoriesManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.detectChanges();
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 
@@ -71,28 +79,24 @@ export class CategoriesManagementComponent implements OnInit {
     }
     this.isFormOpen = true;
     this.errorMessage = '';
-    this.cdr.detectChanges();
   }
 
   closeForm() {
     this.isFormOpen = false;
     this.editingId = null;
     this.formData = this.initializeFormData();
-    this.cdr.detectChanges();
   }
 
   openDeleteConfirm(category: Category) {
     this.deleteConfirmId = category.id;
     this.deleteConfirmName = category.name;
     this.isDeleteConfirmOpen = true;
-    this.cdr.detectChanges();
   }
 
   closeDeleteConfirm() {
     this.isDeleteConfirmOpen = false;
     this.deleteConfirmId = null;
     this.deleteConfirmName = '';
-    this.cdr.detectChanges();
   }
 
   async saveCategory() {

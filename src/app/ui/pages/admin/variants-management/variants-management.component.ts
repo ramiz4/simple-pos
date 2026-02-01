@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { ProductService } from '../../../../application/services/product.service
   templateUrl: './variants-management.component.html',
   styleUrls: ['./variants-management.component.css']
 })
-export class VariantsManagementComponent implements OnInit {
+export class VariantsManagementComponent implements OnInit, OnDestroy {
   variants: (Variant & { productName?: string; basePrice?: number; calculatedPrice?: number })[] = [];
   products: Product[] = [];
   isLoading = false;
@@ -29,6 +29,8 @@ export class VariantsManagementComponent implements OnInit {
   deleteConfirmId: number | null = null;
   deleteConfirmName = '';
 
+  private destroyed = false;
+
   constructor(
     private variantService: VariantService,
     private productService: ProductService,
@@ -38,6 +40,10 @@ export class VariantsManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -75,7 +81,9 @@ export class VariantsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.detectChanges();
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 
@@ -93,28 +101,24 @@ export class VariantsManagementComponent implements OnInit {
     }
     this.isFormOpen = true;
     this.errorMessage = '';
-    this.cdr.detectChanges();
   }
 
   closeForm() {
     this.isFormOpen = false;
     this.editingId = null;
     this.formData = this.initializeFormData();
-    this.cdr.detectChanges();
   }
 
   openDeleteConfirm(variant: Variant) {
     this.deleteConfirmId = variant.id;
     this.deleteConfirmName = variant.name;
     this.isDeleteConfirmOpen = true;
-    this.cdr.detectChanges();
   }
 
   closeDeleteConfirm() {
     this.isDeleteConfirmOpen = false;
     this.deleteConfirmId = null;
     this.deleteConfirmName = '';
-    this.cdr.detectChanges();
   }
 
   async saveVariant() {

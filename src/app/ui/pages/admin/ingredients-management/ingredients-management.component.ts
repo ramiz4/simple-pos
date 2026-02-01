@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -12,7 +12,7 @@ import { IngredientService } from '../../../../application/services/ingredient.s
   templateUrl: './ingredients-management.component.html',
   styleUrls: ['./ingredients-management.component.css']
 })
-export class IngredientsManagementComponent implements OnInit {
+export class IngredientsManagementComponent implements OnInit, OnDestroy {
   ingredients: Ingredient[] = [];
   isLoading = false;
   isFormOpen = false;
@@ -28,6 +28,8 @@ export class IngredientsManagementComponent implements OnInit {
 
   readonly LOW_STOCK_THRESHOLD = 5;
 
+  private destroyed = false;
+
   constructor(
     private ingredientService: IngredientService,
     private router: Router,
@@ -36,6 +38,10 @@ export class IngredientsManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -57,7 +63,9 @@ export class IngredientsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.detectChanges();
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 
@@ -71,28 +79,24 @@ export class IngredientsManagementComponent implements OnInit {
     }
     this.isFormOpen = true;
     this.errorMessage = '';
-    this.cdr.detectChanges();
   }
 
   closeForm() {
     this.isFormOpen = false;
     this.editingId = null;
     this.formData = this.initializeFormData();
-    this.cdr.detectChanges();
   }
 
   openDeleteConfirm(ingredient: Ingredient) {
     this.deleteConfirmId = ingredient.id;
     this.deleteConfirmName = ingredient.name;
     this.isDeleteConfirmOpen = true;
-    this.cdr.detectChanges();
   }
 
   closeDeleteConfirm() {
     this.isDeleteConfirmOpen = false;
     this.deleteConfirmId = null;
     this.deleteConfirmName = '';
-    this.cdr.detectChanges();
   }
 
   async saveIngredient() {

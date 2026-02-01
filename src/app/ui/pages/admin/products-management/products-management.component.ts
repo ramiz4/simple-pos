@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -14,7 +14,7 @@ import { CategoryService } from '../../../../application/services/category.servi
   templateUrl: './products-management.component.html',
   styleUrls: ['./products-management.component.css']
 })
-export class ProductsManagementComponent implements OnInit {
+export class ProductsManagementComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   categories: Category[] = [];
   isLoading = false;
@@ -29,6 +29,8 @@ export class ProductsManagementComponent implements OnInit {
   deleteConfirmId: number | null = null;
   deleteConfirmName = '';
 
+  private destroyed = false;
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
@@ -38,6 +40,10 @@ export class ProductsManagementComponent implements OnInit {
 
   ngOnInit() {
     this.loadData();
+  }
+
+  ngOnDestroy() {
+    this.destroyed = true;
   }
 
   private initializeFormData() {
@@ -65,7 +71,9 @@ export class ProductsManagementComponent implements OnInit {
       console.error('Load error:', error);
     } finally {
       this.isLoading = false;
-      this.cdr.detectChanges();
+      if (!this.destroyed) {
+        this.cdr.detectChanges();
+      }
     }
   }
 
@@ -79,28 +87,24 @@ export class ProductsManagementComponent implements OnInit {
     }
     this.isFormOpen = true;
     this.errorMessage = '';
-    this.cdr.detectChanges();
   }
 
   closeForm() {
     this.isFormOpen = false;
     this.editingId = null;
     this.formData = this.initializeFormData();
-    this.cdr.detectChanges();
   }
 
   openDeleteConfirm(product: Product) {
     this.deleteConfirmId = product.id;
     this.deleteConfirmName = product.name;
     this.isDeleteConfirmOpen = true;
-    this.cdr.detectChanges();
   }
 
   closeDeleteConfirm() {
     this.isDeleteConfirmOpen = false;
     this.deleteConfirmId = null;
     this.deleteConfirmName = '';
-    this.cdr.detectChanges();
   }
 
   async saveProduct() {
