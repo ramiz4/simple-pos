@@ -13,7 +13,7 @@ import { PlatformService } from '../../../shared/utilities/platform.service';
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
         <div class="glass-card p-6 mb-6">
-          <h1 class="text-3xl font-bold text-white mb-2">Simple Simple POS - Persistence Test</h1>
+          <h1 class="text-3xl font-bold text-white mb-2">SPOS - Persistence Test</h1>
           <p class="text-white/80">
             Platform:
             <span class="font-semibold">{{

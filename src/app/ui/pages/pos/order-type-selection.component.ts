@@ -3,22 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { OrderTypeEnum } from '../../../domain/enums';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-order-type-selection',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-4">
+    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      <app-header title="New Order" [showBackButton]="true"></app-header>
+      
+      <div class="p-4">
       <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8 text-center">
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            New Order
-          </h1>
-          <p class="text-gray-600">Select order type to continue</p>
-        </div>
-
         <!-- Order Type Buttons -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Dine In -->
@@ -60,16 +56,7 @@ import { OrderTypeEnum } from '../../../domain/enums';
             <div class="absolute inset-0 bg-gradient-to-br from-indigo-400/0 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
         </div>
-
-        <!-- Back Button -->
-        <div class="mt-8 text-center">
-          <button
-            (click)="goBack()"
-            class="px-6 py-3 rounded-xl bg-white/80 backdrop-blur-md text-gray-700 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            ← Back to Dashboard
-          </button>
-        </div>
+      </div>
       </div>
     </div>
   `

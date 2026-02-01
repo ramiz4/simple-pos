@@ -10,6 +10,7 @@ import { TableService } from '../../../application/services/table.service';
 import { AuthService, UserSession } from '../../../application/services/auth.service';
 import { Order, OrderItem, Product, Variant, Extra, Table } from '../../../domain/entities';
 import { OrderStatusEnum } from '../../../domain/enums';
+import { HeaderComponent } from '../../components/header/header.component';
 
 interface KitchenOrderItem {
   item: OrderItem;
@@ -30,39 +31,10 @@ interface KitchenOrder {
 @Component({
   selector: 'app-kitchen-view',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent],
   template: `
     <div class="min-h-screen bg-gray-50">
-      <!-- Header -->
-      <nav class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16">
-            <div class="flex items-center">
-              <h1 class="text-xl font-bold text-gray-800">🍽️ Kitchen View</h1>
-            </div>
-            <div class="flex items-center space-x-4">
-              @if (session) {
-                <div class="text-sm">
-                  <span class="text-gray-600">Welcome,</span>
-                  <span class="font-semibold text-gray-800 ml-1">{{ session.user.name }}</span>
-                </div>
-              }
-              <button
-                (click)="goToDashboard()"
-                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition"
-              >
-                Dashboard
-              </button>
-              <button
-                (click)="onLogout()"
-                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <app-header title="🍽️ Kitchen View" [showBackButton]="true"></app-header>
 
       <!-- Main Content -->
       <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">

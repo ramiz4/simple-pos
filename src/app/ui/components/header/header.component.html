@@ -1,0 +1,32 @@
+<nav class="bg-white shadow">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between h-16">
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-gray-800">{{ title }}</h1>
+      </div>
+      <div class="flex items-center space-x-4">
+        @if (session) {
+          <div class="text-sm">
+            <span class="text-gray-600">Welcome,</span>
+            <span class="font-semibold text-gray-800 ml-1">{{ session.user.name }}</span>
+            <span class="text-gray-500 ml-2">({{ session.roleCode }})</span>
+          </div>
+          @if (showBackButton) {
+            <button
+              (click)="onBack()"
+              class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition"
+            >
+              Back
+            </button>
+          }
+          <button
+            (click)="onLogout()"
+            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+          >
+            Logout
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</nav>

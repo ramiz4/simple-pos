@@ -5,22 +5,18 @@ import { TableService } from '../../../application/services/table.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { Table } from '../../../domain/entities';
 import { TableStatusEnum } from '../../../domain/enums';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-table-selection',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 p-4">
+    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
+      <app-header title="Select Table" [showBackButton]="true" backRoute="/pos/order-type"></app-header>
+      
+      <div class="p-4">
       <div class="max-w-6xl mx-auto">
-        <!-- Header -->
-        <div class="mb-8">
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Select Table
-          </h1>
-          <p class="text-gray-600">Choose an available table for dine-in service</p>
-        </div>
-
         <!-- Tables Grid -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
           @for (table of tables(); track table.id) {
@@ -47,16 +43,7 @@ import { TableStatusEnum } from '../../../domain/enums';
             <p class="text-gray-500 text-lg">No tables available</p>
           </div>
         }
-
-        <!-- Back Button -->
-        <div class="mt-8 text-center">
-          <button
-            (click)="goBack()"
-            class="px-6 py-3 rounded-xl bg-white/80 backdrop-blur-md text-gray-700 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            ← Back
-          </button>
-        </div>
+      </div>
       </div>
     </div>
   `

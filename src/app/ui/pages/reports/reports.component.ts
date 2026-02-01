@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ReportingService, DailyRevenueReport, RevenueByTypeReport, ZReport } from '../../../application/services/reporting.service';
 import { BackupService, BackupData } from '../../../application/services/backup.service';
+import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HeaderComponent],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css']
 })
