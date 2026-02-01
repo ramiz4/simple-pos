@@ -11,6 +11,7 @@ import { VariantsManagementComponent } from './ui/pages/admin/variants-managemen
 import { ExtrasManagementComponent } from './ui/pages/admin/extras-management/extras-management.component';
 import { IngredientsManagementComponent } from './ui/pages/admin/ingredients-management/ingredients-management.component';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/seed-user', pathMatch: 'full' },
@@ -18,12 +19,12 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'unauthorized', component: UnauthorizedComponent },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [authGuard] },
-  { path: 'admin/tables', component: TablesManagementComponent, canActivate: [authGuard] },
-  { path: 'admin/categories', component: CategoriesManagementComponent, canActivate: [authGuard] },
-  { path: 'admin/products', component: ProductsManagementComponent, canActivate: [authGuard] },
-  { path: 'admin/variants', component: VariantsManagementComponent, canActivate: [authGuard] },
-  { path: 'admin/extras', component: ExtrasManagementComponent, canActivate: [authGuard] },
-  { path: 'admin/ingredients', component: IngredientsManagementComponent, canActivate: [authGuard] },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
+  { path: 'admin/tables', component: TablesManagementComponent, canActivate: [adminGuard] },
+  { path: 'admin/categories', component: CategoriesManagementComponent, canActivate: [adminGuard] },
+  { path: 'admin/products', component: ProductsManagementComponent, canActivate: [adminGuard] },
+  { path: 'admin/variants', component: VariantsManagementComponent, canActivate: [adminGuard] },
+  { path: 'admin/extras', component: ExtrasManagementComponent, canActivate: [adminGuard] },
+  { path: 'admin/ingredients', component: IngredientsManagementComponent, canActivate: [adminGuard] },
   { path: '**', redirectTo: '/seed-user' }
 ];

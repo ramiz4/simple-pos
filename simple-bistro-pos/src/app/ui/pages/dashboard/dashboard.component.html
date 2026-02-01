@@ -42,6 +42,10 @@
               <li>• Route Guards (Auth & Role-based)</li>
               <li>• English & Albanian Translations</li>
               <li>• SQLite & IndexedDB Support</li>
+              <li>• Admin Configuration Layer (Phase 2)</li>
+              <li>• Table, Category, Product Management</li>
+              <li>• Variant, Extra, Ingredient Management</li>
+              <li>• Inventory Tracking System</li>
             </ul>
           </div>
 
@@ -57,6 +61,23 @@
             }
           </div>
         </div>
+
+        @if (isAdmin()) {
+          <div class="mt-6">
+            <a
+              routerLink="/admin"
+              class="block w-full p-6 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer text-center"
+            >
+              <div class="flex items-center justify-center space-x-3">
+                <span class="text-2xl">⚙️</span>
+                <div class="text-left">
+                  <h3 class="text-xl font-bold">Admin Configuration</h3>
+                  <p class="text-sm text-white/90">Manage tables, products, categories, and inventory</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        }
       </div>
     </div>
   </main>
