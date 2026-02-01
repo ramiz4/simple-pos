@@ -14,6 +14,7 @@ import { Phase2TestComponent } from './ui/pages/phase2-test/phase2-test.componen
 import { OrderTypeSelectionComponent } from './ui/pages/pos/order-type-selection.component';
 import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
 import { ProductSelectionComponent } from './ui/pages/pos/product-selection.component';
+import { CartViewComponent } from './ui/pages/pos/cart-view.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/role.guard';
 
@@ -34,5 +35,6 @@ export const routes: Routes = [
   { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/product-selection', component: ProductSelectionComponent, canActivate: [authGuard] },
+  { path: 'pos/cart', component: CartViewComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '/seed-user' }
 ];
