@@ -14,112 +14,183 @@ import { HeaderComponent } from '../../components/header/header.component';
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div class="min-h-screen bg-[#F8FAFC]">
       @if (!processing() && !completed()) {
-        <app-header title="Confirm Payment" [showBackButton]="true" backRoute="/pos/cart"></app-header>
+        <app-header title="Checkout" [showBackButton]="true" (back)="goBack()"></app-header>
       }
-      
-      <div class="p-4 flex items-center justify-center">
-      <div class="max-w-2xl w-full">
-        @if (!processing() && !completed()) {
-          <!-- Payment Confirmation -->
-          <div class="backdrop-blur-md bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl">
 
-            <!-- Order Summary -->
-            <div class="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20 mb-6">
-              <div class="space-y-3 text-white">
-                <div class="flex justify-between items-center text-lg">
-                  <span>Subtotal</span>
-                  <span class="font-semibold">€{{ summary().subtotal.toFixed(2) }}</span>
+      <main class="p-6 max-w-2xl mx-auto animate-fade-in">
+        @if (!processing() && !completed()) {
+          <div class="mb-10 text-center">
+            <h2 class="text-3xl font-black text-surface-900 mb-2">Final Step</h2>
+            <p class="text-surface-500 font-medium">Review your order and process payment.</p>
+          </div>
+
+          <!-- Payment Card -->
+          <div class="glass-card !bg-surface-900 overflow-hidden shadow-primary-200">
+            <div class="p-8 border-b border-white/10">
+              <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-8">
+                Detailed Summary
+              </h3>
+
+              <div class="space-y-4">
+                <div class="flex justify-between items-center text-white/60">
+                  <span class="font-medium">Subtotal</span>
+                  <span class="font-bold">€{{ summary().subtotal.toFixed(2) }}</span>
                 </div>
-                <div class="flex justify-between items-center text-lg">
-                  <span>Incl. VAT (18%)</span>
-                  <span class="font-semibold">€{{ summary().tax.toFixed(2) }}</span>
+                <div class="flex justify-between items-center text-white/60">
+                  <span class="font-medium">VAT (18%)</span>
+                  <span class="font-bold">€{{ summary().tax.toFixed(2) }}</span>
                 </div>
-                <div class="flex justify-between items-center text-lg">
-                  <span>Tip</span>
-                  <span class="font-semibold">€{{ summary().tip.toFixed(2) }}</span>
+                <div class="flex justify-between items-center text-primary-400">
+                  <span class="font-medium">Tip</span>
+                  <span class="font-bold">€{{ summary().tip.toFixed(2) }}</span>
                 </div>
-                <div class="border-t border-white/20 my-3"></div>
-                <div class="flex justify-between items-center text-2xl">
-                  <span class="font-bold">Total</span>
-                  <span class="font-bold">€{{ summary().total.toFixed(2) }}</span>
+                <div class="pt-6 mt-6 border-t border-white/10 flex justify-between items-center">
+                  <span class="text-xl font-black text-white">Total</span>
+                  <span class="text-4xl font-black text-primary-400"
+                    >€{{ summary().total.toFixed(2) }}</span
+                  >
                 </div>
               </div>
             </div>
 
-            @if (error()) {
-              <div class="backdrop-blur-md bg-red-500/20 border border-red-500/50 rounded-xl p-4 mb-6">
-                <p class="text-white font-semibold">{{ error() }}</p>
-              </div>
-            }
+            <div class="p-8 bg-white/5 space-y-4">
+              @if (error()) {
+                <div
+                  class="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl text-sm font-bold mb-4"
+                >
+                  {{ error() }}
+                </div>
+              }
 
-            <!-- Action Buttons -->
-            <div class="space-y-3">
               <button
                 (click)="confirmPayment()"
-                class="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                class="neo-button w-full h-20 text-xl flex items-center justify-center gap-4"
               >
-                ✓ Confirm Cash Payment
+                <span>Complete Cash Payment</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
               </button>
+
               <button
                 (click)="goBack()"
-                class="w-full py-3 rounded-xl font-semibold backdrop-blur-md bg-white/10 text-white hover:bg-white/20 border border-white/20 transition-all"
+                class="w-full h-14 rounded-2xl bg-white/5 text-white font-black hover:bg-white/10 transition-all border border-white/10"
               >
-                ← Back to Cart
+                Go Back
               </button>
             </div>
           </div>
         }
 
         @if (processing()) {
-          <!-- Processing State -->
-          <div class="backdrop-blur-md bg-white/10 rounded-3xl p-12 border border-white/20 shadow-2xl text-center">
-            <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-white mb-6"></div>
-            <h2 class="text-2xl font-bold text-white mb-2">Processing Payment...</h2>
-            <p class="text-white/80">Please wait</p>
+          <div
+            class="fixed inset-0 bg-surface-900/90 backdrop-blur-xl flex items-center justify-center p-6 z-50"
+          >
+            <div class="text-center animate-scale-in">
+              <div class="w-24 h-24 mx-auto mb-8 relative">
+                <div class="absolute inset-0 border-8 border-white/10 rounded-full"></div>
+                <div
+                  class="absolute inset-0 border-8 border-primary-500 rounded-full border-t-transparent animate-spin"
+                ></div>
+              </div>
+              <h2 class="text-4xl font-black text-white mb-4">Processing...</h2>
+              <p class="text-white/60 font-medium">Almost there, finalizing your order.</p>
+            </div>
           </div>
         }
 
         @if (completed()) {
-          <!-- Success State -->
-          <div class="backdrop-blur-md bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl text-center">
-            <div class="text-6xl mb-4">✅</div>
-            <h2 class="text-3xl font-bold text-white mb-4">Order Completed!</h2>
-            <div class="backdrop-blur-md bg-white/10 rounded-xl p-6 border border-white/20 mb-6">
-              <p class="text-white/80 mb-2">Order Number</p>
-              <p class="text-4xl font-bold text-white">{{ orderNumber() }}</p>
+          <div class="text-center py-12 animate-scale-in">
+            <div
+              class="w-32 h-32 mx-auto bg-green-100 text-green-600 rounded-[40px] flex items-center justify-center text-6xl mb-10 shadow-2xl shadow-green-100"
+            >
+              ✓
             </div>
-            
-            <div class="space-y-3 mb-6">
+            <h2 class="text-5xl font-black text-surface-900 mb-4 tracking-tight">Well Done!</h2>
+            <p class="text-surface-500 mb-12 font-medium">
+              Your order has been completed successfully.
+            </p>
+
+            <div class="glass-card p-10 mb-12 relative overflow-hidden">
+              <div
+                class="absolute top-0 right-0 w-32 h-32 primary-gradient opacity-10 rounded-bl-full"
+              ></div>
+              <div class="relative z-10">
+                <div class="text-xs font-black text-surface-400 uppercase tracking-[0.3em] mb-4">
+                  Order Reference
+                </div>
+                <div class="text-6xl font-black text-primary-600 tracking-tight">
+                  {{ orderNumber() }}
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
               <button
                 (click)="printReceipt()"
                 [disabled]="printing()"
-                class="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 shadow-lg disabled:opacity-50"
+                class="h-16 rounded-2xl bg-white border-2 border-surface-100 font-black text-surface-900 hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
               >
-                {{ printing() ? '🖨️ Printing...' : '🖨️ Print Receipt' }}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                  />
+                </svg>
+                <span>Print Receipt</span>
               </button>
               <button
                 (click)="printKitchenTicket()"
                 [disabled]="printing()"
-                class="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg disabled:opacity-50"
+                class="h-16 rounded-2xl bg-white border-2 border-surface-100 font-black text-surface-900 hover:border-orange-400 hover:text-orange-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
               >
-                {{ printing() ? '🖨️ Printing...' : '🍽️ Print Kitchen Ticket' }}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                  />
+                </svg>
+                <span>Kitchen Ticket</span>
               </button>
             </div>
 
-            <button
-              (click)="startNewOrder()"
-              class="w-full py-3 rounded-xl font-semibold backdrop-blur-md bg-white/10 text-white hover:bg-white/20 border border-white/20 transition-all"
-            >
-              Start New Order
+            <button (click)="startNewOrder()" class="neo-button w-full h-16 text-lg">
+              Start Next Order
             </button>
           </div>
         }
-      </div>
-      </div>
+      </main>
     </div>
-  `
+  `,
 })
 export class PaymentComponent implements OnInit {
   private typeId?: number;
@@ -140,13 +211,13 @@ export class PaymentComponent implements OnInit {
     private orderService: OrderService,
     private enumMappingService: EnumMappingService,
     private printerService: PrinterService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
     this.summary = this.cartService.getSummary;
   }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
     });
@@ -172,7 +243,10 @@ export class PaymentComponent implements OnInit {
       this.processing.set(true);
       this.error.set(null);
 
-      const statusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.PAID);
+      const statusId = await this.enumMappingService.getCodeTableId(
+        'ORDER_STATUS',
+        OrderStatusEnum.PAID,
+      );
       const summary = this.cartService.getSummary();
 
       const order = await this.orderService.createOrder({
@@ -184,7 +258,7 @@ export class PaymentComponent implements OnInit {
         tip: summary.tip,
         total: summary.total,
         userId: session.user.id,
-        items: this.cartService.cart()
+        items: this.cartService.cart(),
       });
 
       this.orderNumber.set(order.orderNumber);
@@ -230,8 +304,8 @@ export class PaymentComponent implements OnInit {
     this.router.navigate(['/pos/cart'], {
       queryParams: {
         typeId: this.typeId,
-        tableId: this.tableId
-      }
+        tableId: this.tableId,
+      },
     });
   }
 

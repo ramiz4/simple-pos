@@ -10,73 +10,105 @@ import { HeaderComponent } from '../../components/header/header.component';
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <app-header title="New Order" [showBackButton]="true"></app-header>
-      
-      <div class="p-4">
-      <div class="max-w-4xl mx-auto">
-        <!-- Order Type Buttons -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="min-h-screen bg-[#F8FAFC]">
+      <app-header title="Order Type" [showBackButton]="true"></app-header>
+
+      <main class="p-6 max-w-4xl mx-auto animate-fade-in">
+        <div class="mb-12 text-center">
+          <h2 class="text-3xl font-black text-surface-900 mb-2">How can we help?</h2>
+          <p class="text-surface-500 font-medium">Select your preferred service type below.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Dine In -->
           <button
             (click)="selectOrderType('DINE_IN')"
-            class="group relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-purple-200 hover:border-purple-400"
+            class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
-            <div class="text-center">
-              <div class="text-6xl mb-4">🍽️</div>
-              <h3 class="text-2xl font-bold text-gray-800 mb-2">Dine In</h3>
-              <p class="text-gray-600 text-sm">In-house service</p>
+            <div class="relative z-10">
+              <div
+                class="w-20 h-20 mx-auto bg-primary-100 rounded-2xl flex items-center justify-center text-5xl mb-6 group-hover:scale-110 transition-transform duration-500"
+              >
+                🍽️
+              </div>
+              <h3 class="text-2xl font-black text-surface-900 mb-2">Dine In</h3>
+              <p class="text-surface-500 font-medium leading-relaxed">
+                Relax and enjoy our in-house service.
+              </p>
             </div>
-            <div class="absolute inset-0 bg-gradient-to-br from-purple-400/0 to-purple-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div
+              class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+            >
+              <div class="text-9xl">🍽️</div>
+            </div>
           </button>
 
           <!-- Takeaway -->
           <button
             (click)="selectOrderType('TAKEAWAY')"
-            class="group relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-blue-200 hover:border-blue-400"
+            class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
-            <div class="text-center">
-              <div class="text-6xl mb-4">🥡</div>
-              <h3 class="text-2xl font-bold text-gray-800 mb-2">Takeaway</h3>
-              <p class="text-gray-600 text-sm">Pickup orders</p>
+            <div class="relative z-10">
+              <div
+                class="w-20 h-20 mx-auto bg-orange-100 rounded-2xl flex items-center justify-center text-5xl mb-6 group-hover:scale-110 transition-transform duration-500"
+              >
+                🥡
+              </div>
+              <h3 class="text-2xl font-black text-surface-900 mb-2">Takeaway</h3>
+              <p class="text-surface-500 font-medium leading-relaxed">
+                Quick pickup for your convenience.
+              </p>
             </div>
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-blue-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div
+              class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+            >
+              <div class="text-9xl">🥡</div>
+            </div>
           </button>
 
           <!-- Delivery -->
           <button
             (click)="selectOrderType('DELIVERY')"
-            class="group relative overflow-hidden rounded-3xl bg-white/80 backdrop-blur-md p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 active:scale-95 border-2 border-indigo-200 hover:border-indigo-400"
+            class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
-            <div class="text-center">
-              <div class="text-6xl mb-4">🚗</div>
-              <h3 class="text-2xl font-bold text-gray-800 mb-2">Delivery</h3>
-              <p class="text-gray-600 text-sm">Home delivery</p>
+            <div class="relative z-10">
+              <div
+                class="w-20 h-20 mx-auto bg-green-100 rounded-2xl flex items-center justify-center text-5xl mb-6 group-hover:scale-110 transition-transform duration-500"
+              >
+                🚗
+              </div>
+              <h3 class="text-2xl font-black text-surface-900 mb-2">Delivery</h3>
+              <p class="text-surface-500 font-medium leading-relaxed">
+                We'll bring the food to your door.
+              </p>
             </div>
-            <div class="absolute inset-0 bg-gradient-to-br from-indigo-400/0 to-indigo-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div
+              class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+            >
+              <div class="text-9xl">🚗</div>
+            </div>
           </button>
         </div>
-      </div>
-      </div>
+      </main>
     </div>
-  `
+  `,
 })
 export class OrderTypeSelectionComponent {
   constructor(
     private router: Router,
-    private enumMappingService: EnumMappingService
+    private enumMappingService: EnumMappingService,
   ) {}
 
   async selectOrderType(type: string): Promise<void> {
     const typeId = await this.enumMappingService.getCodeTableId('ORDER_TYPE', type);
-    
+
     if (type === OrderTypeEnum.DINE_IN) {
-      this.router.navigate(['/pos/table-selection'], { 
-        queryParams: { typeId } 
+      this.router.navigate(['/pos/table-selection'], {
+        queryParams: { typeId },
       });
     } else {
-      this.router.navigate(['/pos/product-selection'], { 
-        queryParams: { typeId, tableId: null } 
+      this.router.navigate(['/pos/product-selection'], {
+        queryParams: { typeId, tableId: null },
       });
     }
   }
