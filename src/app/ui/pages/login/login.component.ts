@@ -3,6 +3,8 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
+import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
+import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +22,8 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private router: Router,
+    private rateLimiter: RateLimiterService,
+    private inputSanitizer: InputSanitizerService,
   ) {}
 
   async onLogin() {
@@ -30,14 +34,29 @@ export class LoginComponent {
       return;
     }
 
+    // Sanitize inputs for rate limiting and authentication
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(this.username());
+    const sanitizedPin = this.inputSanitizer.sanitizePin(this.pin());
+
+    // Check rate limiting using sanitized username
+    const rateLimitKey = `login:${sanitizedUsername}`;
+    if (!this.rateLimiter.isAllowed(rateLimitKey)) {
+      const remainingTime = this.rateLimiter.getBlockedTimeRemaining(rateLimitKey);
+      this.errorMessage.set(
+        `Too many login attempts. Please try again in ${Math.ceil(remainingTime / 60)} minutes.`,
+      );
+      return;
+    }
+
     this.isLoading.set(true);
 
     try {
-      const session = await this.authService.login(this.username(), this.pin());
-      console.log('Login successful', session);
+      await this.authService.login(sanitizedUsername, sanitizedPin);
+      // Reset rate limiter on success
+      this.rateLimiter.reset(rateLimitKey);
       this.router.navigate(['/dashboard']);
     } catch (error: any) {
-      console.error('Login failed', error);
+      this.rateLimiter.recordAttempt(rateLimitKey);
       this.errorMessage.set(error.message || 'Login failed');
     } finally {
       this.isLoading.set(false);
@@ -52,5 +71,9 @@ export class LoginComponent {
   onUsernameInput(event: Event) {
     const input = event.target as HTMLInputElement;
     this.username.set(input.value);
+  }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
   }
 }

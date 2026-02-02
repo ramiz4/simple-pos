@@ -4,7 +4,9 @@ import { User } from '../../domain/entities/user.interface';
 import { UserRoleEnum } from '../../domain/enums';
 import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
 import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
+import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
 import { PlatformService } from '../../shared/utilities/platform.service';
+import { ValidationUtils } from '../../shared/utilities/validation.utils';
 import { EnumMappingService } from './enum-mapping.service';
 import { OrganizationService } from './organization.service';
 
@@ -28,15 +30,25 @@ export class AuthService {
     private indexedDBUserRepo: IndexedDBUserRepository,
     private enumMappingService: EnumMappingService,
     private organizationService: OrganizationService,
+    private inputSanitizer: InputSanitizerService,
   ) {
     this.loadSessionFromStorage();
   }
 
   async login(username: string, pin: string): Promise<UserSession> {
+    // Sanitize inputs
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(username);
+    const sanitizedPin = this.inputSanitizer.sanitizePin(pin);
+
+    if (!sanitizedUsername || !sanitizedPin) {
+      throw new Error('Invalid username or PIN');
+    }
+
     const userRepo = this.getUserRepo();
-    const user = await userRepo.findByName(username);
+    const user = await userRepo.findByName(sanitizedUsername);
 
     if (!user) {
+      // Use generic error message to prevent username enumeration
       throw new Error('Invalid username or PIN');
     }
 
@@ -44,7 +56,7 @@ export class AuthService {
       throw new Error('User account is inactive');
     }
 
-    const isValid = await bcrypt.compare(pin, user.pinHash);
+    const isValid = await bcrypt.compare(sanitizedPin, user.pinHash);
     if (!isValid) {
       throw new Error('Invalid username or PIN');
     }
@@ -98,13 +110,37 @@ export class AuthService {
   async register(
     organizationName: string,
     organizationEmail: string,
-    ownerName: string,
+    ownerUsername: string,
     ownerPin: string,
   ): Promise<{ user: User; organization: any }> {
-    // Create organization first
+    // Sanitize inputs
+    const sanitizedOrgName = this.inputSanitizer.sanitizeName(organizationName);
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(organizationEmail);
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(ownerUsername);
+    const sanitizedPin = this.inputSanitizer.sanitizePin(ownerPin);
+
+    // Validate inputs
+    if (!ValidationUtils.isValidName(sanitizedOrgName)) {
+      throw new Error('Organization name must be between 2 and 100 characters');
+    }
+
+    if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
+      throw new Error('Invalid email address');
+    }
+
+    if (!ValidationUtils.isValidUsername(sanitizedUsername)) {
+      throw new Error('Username must be 3-30 characters (letters, numbers, - and _ only)');
+    }
+
+    const pinValidation = ValidationUtils.validatePin(sanitizedPin);
+    if (!pinValidation.valid) {
+      throw new Error(pinValidation.errors[0]);
+    }
+
+    // Create organization first (organizationService handles duplicate email check)
     const organization = await this.organizationService.createOrganization(
-      organizationName,
-      organizationEmail,
+      sanitizedOrgName,
+      sanitizedEmail,
     );
 
     // Get ADMIN role ID
@@ -112,11 +148,11 @@ export class AuthService {
 
     // Create owner user
     const userRepo = this.getUserRepo();
-    const pinHash = await this.hashPin(ownerPin);
+    const pinHash = await this.hashPin(sanitizedPin);
 
     const user = await userRepo.create({
-      name: ownerName,
-      email: organizationEmail,
+      name: sanitizedUsername,
+      email: sanitizedEmail,
       roleId: adminRole.id,
       pinHash,
       active: true,
