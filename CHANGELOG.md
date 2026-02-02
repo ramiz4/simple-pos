@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/ramiz4/simple-pos/compare/v1.1.0...v1.2.0) (2026-02-02)
+
+### Bug Fixes
+
+- correct agent examples to match actual codebase patterns ([9555b0e](https://github.com/ramiz4/simple-pos/commit/9555b0e068af928d54e6800d2652b518627c6787))
+
+### Features
+
+- add custom agent profiles for specialized development tasks ([d7ff3cd](https://github.com/ramiz4/simple-pos/commit/d7ff3cd287070937019b758e26613c4dda3ead50))
+
 # [1.1.0](https://github.com/ramiz4/simple-pos/compare/v1.0.0...v1.1.0) (2026-02-02)
 
 ### Bug Fixes
