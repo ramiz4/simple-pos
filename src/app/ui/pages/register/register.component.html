@@ -1,102 +1,307 @@
 <div
-  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4"
+  class="min-h-screen bg-surface-50 flex items-center justify-center p-6 relative overflow-hidden"
 >
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-    <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-gray-800 mb-2">Create Organization</h1>
-      <p class="text-gray-600">Register your business and become the admin</p>
+  <!-- Background Decorations -->
+  <div
+    class="absolute -top-24 -left-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+  ></div>
+  <div
+    class="absolute -bottom-24 -right-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+    style="animation-delay: -1.5s"
+  ></div>
+
+  <div class="glass-card w-full max-w-2xl p-10 relative z-10 animate-scale-in">
+    <div class="text-center mb-10">
+      <div class="mb-6 flex justify-center">
+        <img
+          src="favicon.svg"
+          alt="Simple POS Logo"
+          class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
+        />
+      </div>
+      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Create Organization</h1>
+      <p class="text-surface-500 font-medium">Register your business and become the admin</p>
     </div>
 
-    <form (ngSubmit)="onRegister()" class="space-y-4">
+    <form (ngSubmit)="onRegister()" class="space-y-6">
       <!-- Organization Details -->
-      <div class="space-y-4 border-b pb-4">
-        <h2 class="text-lg font-semibold text-gray-700">Organization Details</h2>
+      <div class="space-y-4 pb-4 border-b border-surface-100">
+        <h2 class="text-sm font-black text-surface-400 uppercase tracking-widest">
+          Organization Details
+        </h2>
 
-        <div>
-          <label for="orgName" class="block text-sm font-medium text-gray-700 mb-1">
+        <div class="space-y-2">
+          <label
+            for="orgName"
+            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+          >
             Organization Name
           </label>
-          <input
-            type="text"
-            id="orgName"
-            [value]="organizationName()"
-            (input)="organizationName.set($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="My Restaurant"
-            required
-          />
+          <div class="relative">
+            <input
+              type="text"
+              id="orgName"
+              [value]="organizationName()"
+              (input)="organizationName.set($any($event.target).value)"
+              class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+              [class.border-surface-100]="!organizationName()"
+              [class.border-green-400]="orgNameValid()"
+              [class.border-red-400]="organizationName() && !orgNameValid()"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary-400]="true"
+              [class.focus:border-transparent]="true"
+              placeholder="My Restaurant"
+              [disabled]="isLoading()"
+              required
+            />
+            @if (organizationName() && orgNameValid()) {
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+            }
+          </div>
         </div>
 
-        <div>
-          <label for="orgEmail" class="block text-sm font-medium text-gray-700 mb-1">
+        <div class="space-y-2">
+          <label
+            for="orgEmail"
+            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+          >
             Organization Email
           </label>
-          <input
-            type="email"
-            id="orgEmail"
-            [value]="organizationEmail()"
-            (input)="organizationEmail.set($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="contact@myrestaurant.com"
-            required
-          />
+          <div class="relative">
+            <input
+              type="email"
+              id="orgEmail"
+              [value]="organizationEmail()"
+              (input)="organizationEmail.set($any($event.target).value)"
+              class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+              [class.border-surface-100]="!organizationEmail()"
+              [class.border-green-400]="emailValid()"
+              [class.border-red-400]="organizationEmail() && !emailValid()"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary-400]="true"
+              [class.focus:border-transparent]="true"
+              placeholder="contact@myrestaurant.com"
+              [disabled]="isLoading()"
+              required
+            />
+            @if (organizationEmail() && emailValid()) {
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+            }
+          </div>
         </div>
       </div>
 
       <!-- Owner Details -->
       <div class="space-y-4">
-        <h2 class="text-lg font-semibold text-gray-700">Owner Account</h2>
+        <h2 class="text-sm font-black text-surface-400 uppercase tracking-widest">
+          Owner Account
+        </h2>
 
-        <div>
-          <label for="ownerName" class="block text-sm font-medium text-gray-700 mb-1">
+        <div class="space-y-2">
+          <label
+            for="ownerName"
+            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+          >
             Your Name
           </label>
-          <input
-            type="text"
-            id="ownerName"
-            [value]="ownerName()"
-            (input)="ownerName.set($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="John Doe"
-            required
-          />
+          <div class="relative">
+            <input
+              type="text"
+              id="ownerName"
+              [value]="ownerName()"
+              (input)="ownerName.set($any($event.target).value)"
+              class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+              [class.border-surface-100]="!ownerName()"
+              [class.border-green-400]="ownerNameValid()"
+              [class.border-red-400]="ownerName() && !ownerNameValid()"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary-400]="true"
+              [class.focus:border-transparent]="true"
+              placeholder="John Doe"
+              [disabled]="isLoading()"
+              required
+            />
+            @if (ownerName() && ownerNameValid()) {
+              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+            }
+          </div>
         </div>
 
-        <div>
-          <label for="ownerPin" class="block text-sm font-medium text-gray-700 mb-1">
-            PIN (4+ digits)
+        <div class="space-y-2">
+          <label
+            for="ownerPin"
+            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+          >
+            Security PIN (6-20 digits)
           </label>
-          <input
-            type="password"
-            id="ownerPin"
-            [value]="ownerPin()"
-            (input)="ownerPin.set($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="****"
-            required
-            minlength="4"
-          />
+          <div class="relative">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="ownerPin"
+              [value]="ownerPin()"
+              (input)="ownerPin.set($any($event.target).value)"
+              class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+              [class.border-surface-100]="!ownerPin()"
+              [class.border-green-400]="pinValid()"
+              [class.border-red-400]="ownerPin() && !pinValid()"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary-400]="true"
+              [class.focus:border-transparent]="true"
+              [class.tracking-[0.5em]]="!showPassword()"
+              placeholder="••••••"
+              [disabled]="isLoading()"
+              required
+              minlength="6"
+              maxlength="20"
+            />
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
+              [disabled]="isLoading()"
+            >
+              @if (showPassword()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              }
+            </button>
+          </div>
+
+          <!-- PIN Strength Meter -->
+          @if (ownerPin()) {
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-surface-500 font-semibold">PIN Strength:</span>
+                <span class="font-bold" [class]="pinStrengthColor().replace('bg-', 'text-')">
+                  {{ pinStrengthLabel() }}
+                </span>
+              </div>
+              <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
+                <div
+                  class="h-full transition-all duration-300 rounded-full"
+                  [class]="pinStrengthColor()"
+                  [style.width.%]="pinStrength()"
+                ></div>
+              </div>
+            </div>
+          }
         </div>
 
-        <div>
-          <label for="confirmPin" class="block text-sm font-medium text-gray-700 mb-1">
+        <div class="space-y-2">
+          <label
+            for="confirmPin"
+            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+          >
             Confirm PIN
           </label>
-          <input
-            type="password"
-            id="confirmPin"
-            [value]="confirmPin()"
-            (input)="confirmPin.set($any($event.target).value)"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="****"
-            required
-            minlength="4"
-          />
+          <div class="relative">
+            <input
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              id="confirmPin"
+              [value]="confirmPin()"
+              (input)="confirmPin.set($any($event.target).value)"
+              class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+              [class.border-surface-100]="!confirmPin()"
+              [class.border-green-400]="pinsMatch()"
+              [class.border-red-400]="confirmPin() && !pinsMatch()"
+              [class.focus:ring-2]="true"
+              [class.focus:ring-primary-400]="true"
+              [class.focus:border-transparent]="true"
+              [class.tracking-[0.5em]]="!showConfirmPassword()"
+              placeholder="••••••"
+              [disabled]="isLoading()"
+              required
+              minlength="6"
+              maxlength="20"
+            />
+            <button
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
+              [disabled]="isLoading()"
+            >
+              @if (showConfirmPassword()) {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                  />
+                </svg>
+              } @else {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                  />
+                </svg>
+              }
+            </button>
+            @if (confirmPin() && pinsMatch()) {
+              <span class="absolute right-14 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+            }
+          </div>
         </div>
       </div>
 
       @if (errorMessage()) {
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div
+          class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100"
+        >
           {{ errorMessage() }}
         </div>
       }
@@ -104,12 +309,29 @@
       <button
         type="submit"
         [disabled]="isLoading()"
-        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+        class="neo-button w-full h-16 text-lg disabled:opacity-50 flex items-center justify-center gap-3"
       >
         @if (isLoading()) {
+          <div
+            class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
+          ></div>
           <span>Creating Organization...</span>
         } @else {
           <span>Register & Continue</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            />
+          </svg>
         }
       </button>
 
@@ -117,17 +339,24 @@
         <button
           type="button"
           (click)="goToLogin()"
-          class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          class="text-primary-600 hover:text-primary-700 text-sm font-semibold transition-colors"
         >
           Already have an account? Login
         </button>
       </div>
     </form>
 
-    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-      <p class="text-xs text-gray-600">
-        <strong>Note:</strong> As the organization owner, you will be automatically assigned as the
-        admin. You can add cashier and kitchen users after registration.
+    <div class="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+      <p class="text-xs text-surface-600 font-medium">
+        <strong class="text-primary-600">Note:</strong> As the organization owner, you will be
+        automatically assigned as the admin. You can add cashier and kitchen users after
+        registration.
+      </p>
+    </div>
+
+    <div class="mt-6 pt-6 border-t border-surface-100 text-center">
+      <p class="text-[10px] font-black uppercase tracking-[0.2em] text-surface-300">
+        Simple POS System v1.0 • Offline Ready
       </p>
     </div>
   </div>

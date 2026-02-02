@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
+import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
+import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
+import { ValidationUtils } from '../../../shared/utilities/validation.utils';
 
 @Component({
   selector: 'app-register',
@@ -19,23 +22,70 @@ export class RegisterComponent {
   confirmPin = signal('');
   errorMessage = signal('');
   isLoading = signal(false);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
+
+  // Computed signals for validation
+  pinStrength = computed(() => ValidationUtils.calculatePinStrength(this.ownerPin()));
+  pinStrengthLabel = computed(() => ValidationUtils.getPinStrengthLabel(this.pinStrength()));
+  pinStrengthColor = computed(() => ValidationUtils.getPinStrengthColor(this.pinStrength()));
+
+  // Validation states
+  orgNameValid = computed(() => ValidationUtils.isValidName(this.organizationName()));
+  emailValid = computed(() => ValidationUtils.isValidEmail(this.organizationEmail()));
+  ownerNameValid = computed(() => ValidationUtils.isValidName(this.ownerName()));
+  pinValid = computed(() => ValidationUtils.validatePin(this.ownerPin()).valid);
+  pinsMatch = computed(() => this.ownerPin() === this.confirmPin() && this.confirmPin().length > 0);
 
   constructor(
     private authService: AuthService,
     private router: Router,
+    private inputSanitizer: InputSanitizerService,
+    private rateLimiter: RateLimiterService,
   ) {}
 
   async onRegister() {
     this.errorMessage.set('');
 
+    // Sanitize inputs
+    const sanitizedOrgName = this.inputSanitizer.sanitizeName(this.organizationName());
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.organizationEmail());
+    const sanitizedOwnerName = this.inputSanitizer.sanitizeName(this.ownerName());
+
+    // Check rate limiting
+    const rateLimitKey = `register:${sanitizedEmail}`;
+    if (!this.rateLimiter.isAllowed(rateLimitKey)) {
+      const remainingTime = this.rateLimiter.getBlockedTimeRemaining(rateLimitKey);
+      this.errorMessage.set(
+        `Too many registration attempts. Please try again in ${Math.ceil(remainingTime / 60)} minutes.`,
+      );
+      return;
+    }
+
     // Validation
-    if (
-      !this.organizationName() ||
-      !this.organizationEmail() ||
-      !this.ownerName() ||
-      !this.ownerPin()
-    ) {
+    if (!sanitizedOrgName || !sanitizedEmail || !sanitizedOwnerName || !this.ownerPin()) {
       this.errorMessage.set('All fields are required');
+      return;
+    }
+
+    if (!ValidationUtils.isValidName(sanitizedOrgName)) {
+      this.errorMessage.set('Organization name must be between 2 and 100 characters');
+      return;
+    }
+
+    if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
+      this.errorMessage.set('Invalid email format');
+      return;
+    }
+
+    if (!ValidationUtils.isValidName(sanitizedOwnerName)) {
+      this.errorMessage.set('Owner name must be between 2 and 100 characters');
+      return;
+    }
+
+    const pinValidation = ValidationUtils.validatePin(this.ownerPin());
+    if (!pinValidation.valid) {
+      this.errorMessage.set(pinValidation.errors.join('. '));
       return;
     }
 
@@ -44,37 +94,38 @@ export class RegisterComponent {
       return;
     }
 
-    if (this.ownerPin().length < 4) {
-      this.errorMessage.set('PIN must be at least 4 characters');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(this.organizationEmail())) {
-      this.errorMessage.set('Invalid email format');
-      return;
-    }
-
     this.isLoading.set(true);
 
     try {
-      const result = await this.authService.register(
-        this.organizationName(),
-        this.organizationEmail(),
-        this.ownerName(),
+      await this.authService.register(
+        sanitizedOrgName,
+        sanitizedEmail,
+        sanitizedOwnerName,
         this.ownerPin(),
       );
 
+      // Reset rate limiter on success
+      this.rateLimiter.reset(rateLimitKey);
+
       // Auto-login after registration
-      await this.authService.login(this.ownerName(), this.ownerPin());
+      await this.authService.login(sanitizedOwnerName, this.ownerPin());
 
       // Navigate to dashboard
       this.router.navigate(['/dashboard']);
     } catch (error: any) {
+      this.rateLimiter.recordAttempt(rateLimitKey);
       this.errorMessage.set(error?.message || 'Registration failed. Please try again.');
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword.set(!this.showPassword());
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword.set(!this.showConfirmPassword());
   }
 
   goToLogin() {
