@@ -12,7 +12,7 @@
       </div>
 
       @if (session) {
-        <div class="glass-card px-6 py-4 flex items-center gap-4 !bg-white/40">
+        <div class="glass-card px-6 py-4 flex items-center gap-4 bg-white/40!">
           <div class="w-12 h-12 rounded-2xl primary-gradient flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-200">
             {{ session.user.name.charAt(0).toUpperCase() }}
           </div>
@@ -74,33 +74,35 @@
 
     <!-- Stats / Info Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div class="glass-card p-8">
-        <h3 class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
-          <span>System Overview</span>
-          <span class="h-[1px] grow bg-surface-100"></span>
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="p-4 bg-surface-50 rounded-2xl">
-            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Status</div>
-            <div class="font-bold text-green-600 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              Online & Ready
+      @if (isAdmin()) {
+        <div class="glass-card p-8">
+          <h3 class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+            <span>System Overview</span>
+            <span class="h-px grow bg-surface-100"></span>
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-surface-50 rounded-2xl">
+              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Status</div>
+              <div class="font-bold text-green-600 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Online & Ready
+              </div>
+            </div>
+            <div class="p-4 bg-surface-50 rounded-2xl">
+              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Database</div>
+              <div class="font-bold text-surface-700">IndexedDB Local</div>
+            </div>
+            <div class="p-4 bg-surface-50 rounded-2xl">
+              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Version</div>
+              <div class="font-bold text-surface-700">v1.2.0-stable</div>
+            </div>
+            <div class="p-4 bg-surface-50 rounded-2xl">
+              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Last Sync</div>
+              <div class="font-bold text-surface-700">Just now</div>
             </div>
           </div>
-          <div class="p-4 bg-surface-50 rounded-2xl">
-            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Database</div>
-            <div class="font-bold text-surface-700">IndexedDB Local</div>
-          </div>
-          <div class="p-4 bg-surface-50 rounded-2xl">
-            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Version</div>
-            <div class="font-bold text-surface-700">v1.2.0-stable</div>
-          </div>
-          <div class="p-4 bg-surface-50 rounded-2xl">
-            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">Last Sync</div>
-            <div class="font-bold text-surface-700">Just now</div>
-          </div>
         </div>
-      </div>
+      }
 
       @if (isAdmin()) {
         <a routerLink="/reports" class="glass-card p-8 group relative overflow-hidden primary-gradient text-white border-none transition-all duration-300 hover:scale-[1.02]">
