@@ -26,7 +26,7 @@ describe('BackupService', () => {
     };
 
     // Mock Web Crypto API
-    Object.defineProperty(global, 'crypto', {
+    Object.defineProperty(globalThis, 'crypto', {
       value: {
         getRandomValues: (arr: any) => arr,
         subtle: {
@@ -143,7 +143,7 @@ describe('BackupService', () => {
     const wrongPassword = 'wrong-password';
 
     // Mock failure for this specific test
-    const cryptoMock = (global as any).crypto.subtle;
+    const cryptoMock = (globalThis as any).crypto.subtle;
     cryptoMock.decrypt.mockRejectedValueOnce(new Error('Decryption failed'));
 
     const originalBackup = await service.createBackup({ encrypt: true, password });

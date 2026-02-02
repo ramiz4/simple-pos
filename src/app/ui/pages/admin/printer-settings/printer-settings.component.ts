@@ -38,9 +38,6 @@ import { HeaderComponent } from '../../../components/header/header.component';
                   placeholder="tcp:192.168.1.100:9100"
                   class="w-full h-14 px-5 rounded-2xl bg-surface-50 border-2 border-surface-100 focus:border-primary-500 focus:bg-white transition-all outline-none font-medium"
                 />
-                <p class="text-[10px] text-surface-400 font-bold ml-1">
-                  Format: tcp:IP:PORT or local:NAME
-                </p>
               </div>
 
               <div class="space-y-2">

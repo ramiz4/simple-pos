@@ -341,11 +341,13 @@ export class BackupService {
       return { valid: false, message: 'Missing backup data' };
     }
 
-    // Check for required tables
-    const requiredTables = ['codeTables', 'users', 'categories', 'products'];
-    for (const table of requiredTables) {
-      if (!backup.data[table as keyof typeof backup.data]) {
-        return { valid: false, message: `Missing required table: ${table}` };
+    // Check for required tables (only if not encrypted)
+    if (!backup.encrypted) {
+      const requiredTables = ['codeTables', 'users', 'categories', 'products'];
+      for (const table of requiredTables) {
+        if (!backup.data[table as keyof typeof backup.data]) {
+          return { valid: false, message: `Missing required table: ${table}` };
+        }
       }
     }
 
