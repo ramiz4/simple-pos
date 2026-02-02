@@ -1,0 +1,46 @@
+# Simple POS - AI Assistant Rules
+
+## Commit Message Requirements (CRITICAL)
+
+This project uses **automated semantic versioning**. ALL commits MUST follow Conventional Commits format:
+
+```
+<type>: <subject>
+```
+
+**Types:**
+- `feat:` → minor bump (0.1.0 → 0.2.0)
+- `fix:` → patch bump (0.1.0 → 0.1.1)
+- `feat!:` → major bump (0.1.0 → 1.0.0)
+- `docs:`, `chore:`, `style:`, `refactor:`, `test:`, `ci:` → no release
+
+**Examples:**
+```bash
+✅ feat: add receipt printing
+✅ fix: resolve cart calculation
+✅ feat!: redesign auth system
+❌ Add receipt printing
+❌ Fixed bug
+```
+
+See CONTRIBUTING.md for details.
+
+## Tech Stack
+
+- Angular 19+ (Signals, standalone components)
+- Tauri v2 (desktop)
+- TailwindCSS v4
+- SQLite (desktop) / IndexedDB (web)
+- Clean Architecture
+
+## Key Rules
+
+1. **Use conventional commits** (required for releases)
+2. **Use Angular Signals** (not Observables)
+3. **Use standalone components** (no NgModules)
+4. **Follow Clean Architecture** layers
+5. **Implement dual repositories** (SQLite + IndexedDB)
+6. **Use pnpm** (not npm/yarn)
+7. **Type safety** (no `any` types)
+
+See .github/copilot-instructions.md for complete guidelines.
