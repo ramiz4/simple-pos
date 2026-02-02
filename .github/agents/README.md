@@ -5,9 +5,11 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 ## Available Custom Agents
 
 ### 🧪 Test Specialist (`test-specialist`)
+
 **Focus**: Test coverage, quality, and testing best practices using Vitest
 
 **Use this agent when you need to**:
+
 - Write comprehensive unit tests for services and repositories
 - Create integration tests for data flow across layers
 - Write component tests using Angular TestBed
@@ -15,6 +17,7 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 - Ensure tests follow Vitest and Angular testing best practices
 
 **Key Features**:
+
 - Expert in Vitest 4.0.8 with jsdom environment
 - Knows how to mock IndexedDB with `fake-indexeddb`
 - Specializes in Angular TestBed for component/service testing
@@ -22,9 +25,11 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 - Tests both success and error paths
 
 ### 🗄️ Repository Specialist (`repository-specialist`)
+
 **Focus**: Dual-platform repository implementations (SQLite + IndexedDB) following Clean Architecture
 
 **Use this agent when you need to**:
+
 - Create new repositories for entities
 - Implement both SQLite (Tauri) and IndexedDB (Web) versions
 - Write database migrations for SQLite
@@ -33,6 +38,7 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 - Handle platform-specific data access patterns
 
 **Key Features**:
+
 - Expert in dual-platform data access (desktop + web)
 - Enforces BaseRepository interface compliance
 - Creates SQLite migrations in `src-tauri/migrations/`
@@ -41,9 +47,11 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 - Performance optimization for both platforms
 
 ### 🎨 Angular Component Specialist (`angular-component-specialist`)
+
 **Focus**: Modern Angular 21 standalone components with Signals
 
 **Use this agent when you need to**:
+
 - Create new UI components or pages
 - Implement reactive state with Angular Signals
 - Use modern Angular template syntax (`@if`, `@for`)
@@ -53,6 +61,7 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 - Write component tests with Angular TestBed
 
 **Key Features**:
+
 - Expert in Angular 21 standalone components (no NgModules)
 - Uses Angular Signals API for reactive state (not RxJS)
 - Modern control flow syntax (@if, @for, @empty)
@@ -99,16 +108,16 @@ gh copilot agent run --agent test-specialist "Write tests for ProductService"
 
 ## When to Use Each Agent
 
-| Task | Recommended Agent |
-|------|------------------|
-| Writing or reviewing tests | **test-specialist** |
-| Creating new data repositories | **repository-specialist** |
-| Building UI components or pages | **angular-component-specialist** |
-| Implementing database migrations | **repository-specialist** |
-| Adding form validations | **angular-component-specialist** |
-| Increasing test coverage | **test-specialist** |
-| Fixing responsive design issues | **angular-component-specialist** |
-| Creating SQLite and IndexedDB implementations | **repository-specialist** |
+| Task                                          | Recommended Agent                |
+| --------------------------------------------- | -------------------------------- |
+| Writing or reviewing tests                    | **test-specialist**              |
+| Creating new data repositories                | **repository-specialist**        |
+| Building UI components or pages               | **angular-component-specialist** |
+| Implementing database migrations              | **repository-specialist**        |
+| Adding form validations                       | **angular-component-specialist** |
+| Increasing test coverage                      | **test-specialist**              |
+| Fixing responsive design issues               | **angular-component-specialist** |
+| Creating SQLite and IndexedDB implementations | **repository-specialist**        |
 
 ## Agent Configuration
 
@@ -118,9 +127,8 @@ Each agent profile is defined in a `.agent.md` file with YAML frontmatter:
 ---
 name: agent-name
 description: Brief description of the agent's expertise
-tools: ["read", "edit", "search", "bash"]  # Optional: restrict tools
+tools: ['read', 'edit', 'search', 'bash'] # Optional: restrict tools
 ---
-
 Detailed instructions for the agent in Markdown...
 ```
 
@@ -130,7 +138,7 @@ Detailed instructions for the agent in Markdown...
 ✅ **Consistency**: Enforces project standards and patterns automatically  
 ✅ **Efficiency**: Faster development with focused, context-aware assistance  
 ✅ **Quality**: Reduces errors by following best practices  
-✅ **Onboarding**: New team members can leverage agent knowledge  
+✅ **Onboarding**: New team members can leverage agent knowledge
 
 ## Modifying Custom Agents
 
