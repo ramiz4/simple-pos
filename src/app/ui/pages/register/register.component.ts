@@ -40,7 +40,7 @@ export class RegisterComponent {
   // Validation states
   orgNameValid = computed(() => ValidationUtils.isValidName(this.organizationName()));
   emailValid = computed(() => ValidationUtils.isValidEmail(this.organizationEmail()));
-  ownerNameValid = computed(() => ValidationUtils.isValidName(this.ownerName()));
+  ownerNameValid = computed(() => ValidationUtils.isValidUsername(this.ownerName()));
   pinValid = computed(() => ValidationUtils.validatePin(this.ownerPin()).valid);
   pinsMatch = computed(() => this.ownerPin() === this.confirmPin() && this.confirmPin().length > 0);
 
@@ -57,7 +57,7 @@ export class RegisterComponent {
     // Sanitize inputs
     const sanitizedOrgName = this.inputSanitizer.sanitizeName(this.organizationName());
     const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.organizationEmail());
-    const sanitizedOwnerName = this.inputSanitizer.sanitizeName(this.ownerName());
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(this.ownerName());
 
     // Check rate limiting
     const rateLimitKey = `register:${sanitizedEmail}`;
@@ -70,7 +70,7 @@ export class RegisterComponent {
     }
 
     // Validation
-    if (!sanitizedOrgName || !sanitizedEmail || !sanitizedOwnerName || !this.ownerPin()) {
+    if (!sanitizedOrgName || !sanitizedEmail || !sanitizedUsername || !this.ownerPin()) {
       this.errorMessage.set('All fields are required');
       return;
     }
@@ -85,8 +85,8 @@ export class RegisterComponent {
       return;
     }
 
-    if (!ValidationUtils.isValidName(sanitizedOwnerName)) {
-      this.errorMessage.set('Owner name must be between 2 and 100 characters');
+    if (!ValidationUtils.isValidUsername(sanitizedUsername)) {
+      this.errorMessage.set('Username must be 3-30 characters (letters, numbers, - and _ only)');
       return;
     }
 
@@ -107,7 +107,7 @@ export class RegisterComponent {
       await this.authService.register(
         sanitizedOrgName,
         sanitizedEmail,
-        sanitizedOwnerName,
+        sanitizedUsername,
         this.ownerPin(),
       );
 
@@ -115,7 +115,7 @@ export class RegisterComponent {
       this.rateLimiter.reset(rateLimitKey);
 
       // Auto-login after registration
-      await this.authService.login(sanitizedOwnerName, this.ownerPin());
+      await this.authService.login(sanitizedUsername, this.ownerPin());
 
       // Navigate to dashboard
       this.router.navigate(['/dashboard']);

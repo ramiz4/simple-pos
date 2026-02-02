@@ -109,13 +109,13 @@ export class AuthService {
   async register(
     organizationName: string,
     organizationEmail: string,
-    ownerName: string,
+    ownerUsername: string,
     ownerPin: string,
   ): Promise<{ user: User; organization: any }> {
     // Sanitize inputs
     const sanitizedOrgName = this.inputSanitizer.sanitizeName(organizationName);
     const sanitizedEmail = this.inputSanitizer.sanitizeEmail(organizationEmail);
-    const sanitizedOwnerName = this.inputSanitizer.sanitizeName(ownerName);
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(ownerUsername);
 
     // Validate inputs
     if (!ValidationUtils.isValidName(sanitizedOrgName)) {
@@ -126,8 +126,8 @@ export class AuthService {
       throw new Error('Invalid email address');
     }
 
-    if (!ValidationUtils.isValidName(sanitizedOwnerName)) {
-      throw new Error('Owner name must be between 2 and 100 characters');
+    if (!ValidationUtils.isValidUsername(sanitizedUsername)) {
+      throw new Error('Username must be 3-30 characters (letters, numbers, - and _ only)');
     }
 
     const pinValidation = ValidationUtils.validatePin(ownerPin);
@@ -155,7 +155,7 @@ export class AuthService {
     const pinHash = await this.hashPin(ownerPin);
 
     const user = await userRepo.create({
-      name: sanitizedOwnerName,
+      name: sanitizedUsername,
       email: sanitizedEmail,
       roleId: adminRole.id,
       pinHash,
