@@ -11,7 +11,7 @@ import { AuthService, UserSession } from '../../../application/services/auth.ser
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
-  @Input() title: string = 'SPOS';
+  @Input() title: string = 'Simple POS';
   @Input() showBackButton: boolean = false;
   @Input() backRoute: string = '/dashboard';
   @Output() back = new EventEmitter<void>();

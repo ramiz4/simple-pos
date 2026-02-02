@@ -1,12 +1,23 @@
-<div class="min-h-screen bg-surface-50 flex items-center justify-center p-6 relative overflow-hidden">
+<div
+  class="min-h-screen bg-surface-50 flex items-center justify-center p-6 relative overflow-hidden"
+>
   <!-- Background Decorations -->
-  <div class="absolute -top-24 -left-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"></div>
-  <div class="absolute -bottom-24 -right-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float" style="animation-delay: -1.5s"></div>
+  <div
+    class="absolute -top-24 -left-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+  ></div>
+  <div
+    class="absolute -bottom-24 -right-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+    style="animation-delay: -1.5s"
+  ></div>
 
   <div class="glass-card w-full max-w-md p-10 relative z-10 animate-scale-in">
     <div class="text-center mb-10">
-      <div class="w-20 h-20 mx-auto primary-gradient rounded-3xl flex items-center justify-center text-white text-3xl font-black mb-6 shadow-xl shadow-primary-200">
-        SP
+      <div class="mb-6 flex justify-center">
+        <img
+          src="favicon.svg"
+          alt="Simple POS Logo"
+          class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
+        />
       </div>
       <h1 class="text-3xl font-black text-surface-900 tracking-tight">Welcome Back</h1>
       <p class="text-surface-500 font-medium">Please enter your credentials</p>
@@ -14,7 +25,10 @@
 
     <form (ngSubmit)="onLogin()" class="space-y-6">
       <div class="space-y-2">
-        <label for="username" class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1">
+        <label
+          for="username"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
           Username
         </label>
         <div class="relative">
@@ -50,7 +64,9 @@
       </div>
 
       @if (errorMessage()) {
-        <div class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100">
+        <div
+          class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100"
+        >
           {{ errorMessage() }}
         </div>
       }
@@ -61,12 +77,25 @@
         class="neo-button w-full h-16 text-lg disabled:opacity-50 flex items-center justify-center gap-3"
       >
         @if (isLoading()) {
-          <div class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <div
+            class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
+          ></div>
           <span>Verifying...</span>
         } @else {
           <span>Sign In</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            />
           </svg>
         }
       </button>
@@ -79,4 +108,3 @@
     </div>
   </div>
 </div>
-
