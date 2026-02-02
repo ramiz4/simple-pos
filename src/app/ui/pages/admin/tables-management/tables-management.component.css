@@ -4,10 +4,8 @@
 
 /* Responsive design */
 @media (max-width: 640px) {
-  :host ::ng-deep {
-    .grid {
-      grid-template-columns: 1fr !important;
-    }
+  :host ::ng-deep .grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

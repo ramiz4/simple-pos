@@ -61,8 +61,12 @@
   }
 
   body {
-    @apply bg-surface-50 text-surface-900 antialiased selection:bg-primary-200;
+    @apply bg-surface-50 text-surface-900 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    background-color: var(--color-primary-200);
   }
 }
 
@@ -99,7 +103,11 @@
 
   .neo-button::after {
     content: '';
-    @apply absolute inset-0 bg-white/20 opacity-0 transition-opacity hover:opacity-100;
+    @apply absolute inset-0 bg-white/20 opacity-0 transition-opacity;
+  }
+
+  .neo-button:hover::after {
+    @apply opacity-100;
   }
 }
 
@@ -114,5 +122,9 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-surface-300 rounded-full hover:bg-surface-400 transition-colors;
+  @apply bg-surface-300 rounded-full transition-colors;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-surface-400;
 }
