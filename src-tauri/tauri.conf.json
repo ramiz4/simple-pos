@@ -37,6 +37,10 @@
     }
   },
   "plugins": {
+    "updater": {
+      "endpoints": ["https://github.com/ramiz4/simple-pos/releases/latest/download/latest.json"],
+      "pubkey": "YOUR_PUBLIC_KEY_HERE_RUN_PNPM_TAURI_SIGNER_GENERATE"
+    },
     "sql": {
       "preload": ["sqlite:simple-pos.db"]
     }
