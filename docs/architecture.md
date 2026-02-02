@@ -17,6 +17,7 @@ src/app/
 │   └── use-cases/     # Business use cases
 ├── infrastructure/    # External concerns (DB, APIs)
 │   ├── repositories/  # Data access implementations
+> 📊 **[Implementation Status & Roadmap →](implementation-status.md)**
 │   └── adapters/      # Platform adapters, factories
 ├── ui/                # Presentation layer
 │   ├── components/    # Reusable UI components

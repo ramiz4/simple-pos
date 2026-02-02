@@ -474,7 +474,7 @@ pnpm run tauri:build
 
 - **AI Execution Plan:** `ai-mvp-execution-plan.md`
 - **PRD:** `prd.md`
-- **Architecture:** `ARCHITECTURE.md`
+- **Architecture:** `architecture.md`
 - **Technical Details:** `technical-details.md`
 - **Setup Guide:** `SETUP.md`
 

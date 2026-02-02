@@ -1,7 +1,7 @@
 # Simple Simple POS
 
-> 📊 **[Implementation Status & Roadmap →](IMPLEMENTATION_STATUS.md)** - ✅ MVP COMPLETE
-> 🏗️ **[Architecture →](ARCHITECTURE.md)**
+> 📊 **[Implementation Status & Roadmap →](docs/implementation-status.md)** - ✅ MVP COMPLETE
+> 🏗️ **[Architecture →](docs/architecture.md)**
 
 A modern, offline-capable Point-of-Sale (POS) system built with Angular, Tauri, and Clean Architecture.
 
@@ -199,3 +199,11 @@ Run `ng generate component component-name` to generate a new component. You can 
 ### Running end-to-end tests
 
 Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+
+## Contact & Resources
+
+- **AI Execution Plan:** `docs/ai-mvp-execution-plan.md`
+- **PRD:** `docs/prd.md`
+- **Architecture:** `docs/architecture.md`
+- **Technical Details:** `docs/technical-details.md`
+- **Setup Guide:** `SETUP.md`
