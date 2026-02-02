@@ -3,6 +3,7 @@
 > 📊 **[Implementation Status & Roadmap →](docs/implementation-status.md)** - ✅ MVP COMPLETE
 > 🏗️ **[Architecture →](docs/architecture.md)**
 > 🤝 **[Contributing →](CONTRIBUTING.md)** - Automated releases with conventional commits
+> 🤖 **[GitHub Copilot Custom Agents →](.github/agents/README.md)** - AI-assisted development
 
 A modern, offline-capable Point-of-Sale (POS) system built with Angular, Tauri, and Clean Architecture.
 
@@ -219,6 +220,18 @@ This project uses cryptographic signing to ensure app updates are authentic. For
    - Paste the key content
 
 For local development, the keys are automatically used from `src-tauri/tauri.key`.
+
+## 🤖 GitHub Copilot Support
+
+This repository is configured with GitHub Copilot instructions and custom agents to help you develop faster:
+
+- **General Instructions**: `.github/copilot-instructions.md` - Comprehensive coding standards and best practices
+- **Custom Agents**: `.github/agents/` - Specialized agents for testing, repositories, and Angular components
+  - 🧪 **test-specialist**: Expert in Vitest testing
+  - 🗄️ **repository-specialist**: Dual-platform repository implementations
+  - 🎨 **angular-component-specialist**: Modern Angular 21 components
+
+Learn more: [Custom Agents README](.github/agents/README.md)
 
 ## Contact & Resources
 
