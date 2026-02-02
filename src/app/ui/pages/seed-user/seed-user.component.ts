@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
+import { OrganizationService } from '../../../application/services/organization.service';
 import { UserRoleEnum } from '../../../domain/enums';
 
 @Component({
@@ -20,15 +21,37 @@ export class SeedUserComponent {
   constructor(
     private authService: AuthService,
     private enumMappingService: EnumMappingService,
+    private organizationService: OrganizationService,
     private router: Router,
   ) {}
 
   async createTestUsers() {
     this.isLoading.set(true);
-    this.message.set('Creating test users...');
+    this.message.set('Creating test organization and users...');
 
     try {
       this.isError.set(false);
+      
+      // First, create a test organization
+      let organization;
+      try {
+        organization = await this.organizationService.createOrganization(
+          'Test Restaurant',
+          'test@restaurant.com'
+        );
+        this.message.set('Organization created. Creating users...');
+      } catch (err: any) {
+        // If organization already exists, get it
+        if (err.message?.includes('already exists')) {
+          organization = await this.organizationService.getOrganizationByEmail('test@restaurant.com');
+          if (!organization) {
+            throw new Error('Failed to get test organization');
+          }
+        } else {
+          throw err;
+        }
+      }
+
       const adminRoleId = await this.enumMappingService.getCodeTableId(
         'USER_ROLE',
         UserRoleEnum.ADMIN,
@@ -50,7 +73,12 @@ export class SeedUserComponent {
 
       for (const userData of usersToCreate) {
         try {
-          await this.authService.createUser(userData.name, '1234', userData.roleId);
+          await this.authService.createUser(
+            userData.name, 
+            '1234', 
+            userData.roleId, 
+            organization.id
+          );
         } catch (err: any) {
           // If error is because user already exists, we can ignore it
           if (err.name === 'ConstraintError' || err.message?.includes('already exists')) {

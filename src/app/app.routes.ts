@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './ui/pages/login/login.component';
+import { RegisterComponent } from './ui/pages/register/register.component';
 import { DashboardComponent } from './ui/pages/dashboard/dashboard.component';
 import { UnauthorizedComponent } from './ui/pages/unauthorized/unauthorized.component';
 import { SeedUserComponent } from './ui/pages/seed-user/seed-user.component';
@@ -11,6 +12,7 @@ import { VariantsManagementComponent } from './ui/pages/admin/variants-managemen
 import { ExtrasManagementComponent } from './ui/pages/admin/extras-management/extras-management.component';
 import { IngredientsManagementComponent } from './ui/pages/admin/ingredients-management/ingredients-management.component';
 import { PrinterSettingsComponent } from './ui/pages/admin/printer-settings/printer-settings.component';
+import { UsersManagementComponent } from './ui/pages/admin/users-management/users-management.component';
 
 import { OrderTypeSelectionComponent } from './ui/pages/pos/order-type-selection.component';
 import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
@@ -23,7 +25,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminGuard, kitchenGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/seed-user', pathMatch: 'full' },
+  { path: '', redirectTo: '/register', pathMatch: 'full' },
+  { path: 'register', component: RegisterComponent },
   { path: 'seed-user', component: SeedUserComponent },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
@@ -41,6 +44,7 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   { path: 'admin/printer', component: PrinterSettingsComponent, canActivate: [adminGuard] },
+  { path: 'admin/users', component: UsersManagementComponent, canActivate: [adminGuard] },
   {
     path: 'admin/backup',
     loadComponent: () =>
@@ -54,5 +58,5 @@ export const routes: Routes = [
   { path: 'pos/payment', component: PaymentComponent, canActivate: [authGuard] },
   { path: 'reports', component: ReportsComponent, canActivate: [authGuard] },
   { path: 'kitchen', component: KitchenViewComponent, canActivate: [kitchenGuard] },
-  { path: '**', redirectTo: '/seed-user' },
+  { path: '**', redirectTo: '/register' },
 ];

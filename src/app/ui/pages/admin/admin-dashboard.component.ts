@@ -14,6 +14,7 @@ export class AdminDashboardComponent {
   session: UserSession | null = null;
 
   adminMenuItems = [
+    { name: 'Users', icon: '👥', route: '/admin/users', description: 'Manage cashier & kitchen users' },
     { name: 'Tables', icon: '🪑', route: '/admin/tables', description: 'Manage restaurant tables' },
     {
       name: 'Categories',
