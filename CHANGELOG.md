@@ -1,3 +1,10 @@
+# 1.0.0 (2026-02-02)
+
+### Features
+
+- Add Tauri desktop integration and Auto-updater ([76d8fb2](https://github.com/ramiz4/simple-pos/commit/76d8fb203ec17b76feae10f1cdc14505d9a84368))
+- Core POS web application with PWA support ([d630087](https://github.com/ramiz4/simple-pos/commit/d630087e490269b9a0be534ed1c0d76a7fa3762b))
+
 # [1.1.0](https://github.com/ramiz4/simple-pos/compare/v1.0.0...v1.1.0) (2026-02-02)
 
 ### Bug Fixes
