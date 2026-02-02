@@ -1,8 +1,7 @@
 # Simple Simple POS
 
-> 🌟 **[NEW? START HERE →](QUICK_START.md)** - Quick orientation guide  
-> 🚀 **[What to do next →](NEXT_PHASE.md)** - Immediate action items  
-> 📊 **[Implementation status →](IMPLEMENTATION_STATUS.md)** - Detailed progress
+> 📊 **[Implementation Status & Roadmap →](IMPLEMENTATION_STATUS.md)**
+> 🏗️ **[Architecture →](ARCHITECTURE.md)**
 
 A modern, offline-capable Point-of-Sale (POS) system built with Angular, Tauri, and Clean Architecture.
 
