@@ -3,6 +3,7 @@
 > 📊 **[Implementation Status & Roadmap →](docs/implementation-status.md)** - ✅ MVP COMPLETE
 > 🏗️ **[Architecture →](docs/architecture.md)**
 > 🤝 **[Contributing →](CONTRIBUTING.md)** - Automated releases with conventional commits
+> 🤖 **[GitHub Copilot Custom Agents →](.github/agents/README.md)** - AI-assisted development
 
 A modern, offline-capable Point-of-Sale (POS) system built with Angular, Tauri, and Clean Architecture.
 
