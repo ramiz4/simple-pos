@@ -94,7 +94,7 @@ interface KitchenOrder {
                     <div class="border-b border-gray-200 pb-3 last:border-b-0">
                       <div class="flex items-start">
                         <div
-                          class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm"
+                          class="shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm"
                         >
                           {{ orderItem.item.quantity }}
                         </div>

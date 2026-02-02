@@ -46,6 +46,12 @@ export class AdminDashboardComponent {
       route: '/admin/printer',
       description: 'Configure thermal printers',
     },
+    {
+      name: 'Backups',
+      icon: '💾',
+      route: '/admin/backup',
+      description: 'Backup & Restore Data',
+    },
   ];
 
   constructor(

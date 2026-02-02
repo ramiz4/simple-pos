@@ -41,6 +41,12 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
   { path: 'admin/printer', component: PrinterSettingsComponent, canActivate: [adminGuard] },
+  {
+    path: 'admin/backup',
+    loadComponent: () =>
+      import('./ui/pages/admin/backup/backup.component').then((m) => m.BackupComponent),
+    canActivate: [adminGuard],
+  },
   { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/product-selection', component: ProductSelectionComponent, canActivate: [authGuard] },

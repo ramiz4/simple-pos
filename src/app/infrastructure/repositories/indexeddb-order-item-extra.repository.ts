@@ -26,6 +26,18 @@ export class IndexedDBOrderItemExtraRepository {
     });
   }
 
+  async findAll(): Promise<OrderItemExtra[]> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
   async findByOrderItemId(orderItemId: number): Promise<OrderItemExtra[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {

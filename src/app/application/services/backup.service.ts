@@ -123,7 +123,7 @@ export class BackupService {
           productIngredients: await this.getProductIngredientRepo().findAll(),
           orders: await this.getOrderRepo().findAll(),
           orderItems: await this.getOrderItemRepo().findAll(),
-          orderItemExtras: [], // We'll skip order item extras for now as they need special handling
+          orderItemExtras: await this.getOrderItemExtraRepo().findAll(),
         },
       };
 
@@ -260,7 +260,12 @@ export class BackupService {
         itemsRestored++;
       }
 
-      // Skip order item extras for now - would need special handling
+      // 12. Order item extras
+      for (const item of data.orderItemExtras) {
+        const { id, ...rest } = item;
+        await this.getOrderItemExtraRepo().create(rest);
+        itemsRestored++;
+      }
 
       return {
         success: true,

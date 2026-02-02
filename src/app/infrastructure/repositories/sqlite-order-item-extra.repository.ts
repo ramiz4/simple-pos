@@ -16,6 +16,11 @@ export class SQLiteOrderItemExtraRepository {
     );
   }
 
+  async findAll(): Promise<OrderItemExtra[]> {
+    const db = await this.getDb();
+    return await db.select<OrderItemExtra[]>('SELECT * FROM order_item_extra');
+  }
+
   async findByOrderItemId(orderItemId: number): Promise<OrderItemExtra[]> {
     const db = await this.getDb();
     return await db.select<OrderItemExtra[]>(
