@@ -72,4 +72,8 @@ export class LoginComponent {
     const input = event.target as HTMLInputElement;
     this.username.set(input.value);
   }
+
+  goToRegister() {
+    this.router.navigate(['/register']);
+  }
 }
