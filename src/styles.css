@@ -68,6 +68,30 @@
   ::selection {
     background-color: var(--color-primary-200);
   }
+  button,
+  [role="button"],
+  a,
+  area,
+  input[type="submit"],
+  input[type="reset"],
+  input[type="button"],
+  input[type="image"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  label,
+  select,
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  [disabled],
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
 @layer components {

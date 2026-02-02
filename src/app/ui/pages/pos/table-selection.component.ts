@@ -74,12 +74,10 @@ import { HeaderComponent } from '../../components/header/header.component';
               <!-- Decorative element for available tables -->
               @if (isTableFree(table)) {
                 <div
-                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 -z-0"
+                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
                 ></div>
               } @else {
-                <div
-                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-red-50 rounded-full -z-0"
-                ></div>
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-red-50 rounded-full z-0"></div>
               }
             </button>
           }
