@@ -50,6 +50,7 @@ export class ValidationUtils {
 
   /**
    * Calculate PIN strength (0-100)
+   * Note: For numeric-only PINs, this focuses on length and uniqueness
    */
   static calculatePinStrength(pin: string): number {
     if (!pin) return 0;
@@ -61,13 +62,21 @@ export class ValidationUtils {
     if (pin.length >= 8) strength += 10;
     if (pin.length >= 10) strength += 10;
 
-    // Complexity score (up to 30 points)
-    if (/\d/.test(pin)) strength += 10;
-    if (/[a-z]/.test(pin)) strength += 10;
-    if (/[A-Z]/.test(pin)) strength += 10;
+    // For numeric PINs: diversity bonus (up to 30 points)
+    const isNumeric = /^\d+$/.test(pin);
+    if (isNumeric) {
+      // Award points for using different digits
+      const uniqueDigits = new Set(pin.split('')).size;
+      strength += Math.min(30, uniqueDigits * 3);
+    } else {
+      // For mixed PINs: complexity score (up to 30 points)
+      if (/\d/.test(pin)) strength += 10;
+      if (/[a-z]/.test(pin)) strength += 10;
+      if (/[A-Z]/.test(pin)) strength += 10;
+    }
 
-    // Special characters (up to 10 points)
-    if (/[^a-zA-Z0-9]/.test(pin)) strength += 10;
+    // Special characters (up to 10 points) - only for non-numeric PINs
+    if (!isNumeric && /[^a-zA-Z0-9]/.test(pin)) strength += 10;
 
     // Uniqueness penalty (up to -20 points)
     if (this.hasSequentialNumbers(pin)) strength -= 10;

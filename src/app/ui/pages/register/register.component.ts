@@ -29,6 +29,13 @@ export class RegisterComponent {
   pinStrength = computed(() => ValidationUtils.calculatePinStrength(this.ownerPin()));
   pinStrengthLabel = computed(() => ValidationUtils.getPinStrengthLabel(this.pinStrength()));
   pinStrengthColor = computed(() => ValidationUtils.getPinStrengthColor(this.pinStrength()));
+  pinStrengthTextColor = computed(() => {
+    const strength = this.pinStrength();
+    if (strength < 30) return 'text-red-500';
+    if (strength < 60) return 'text-yellow-500';
+    if (strength < 80) return 'text-blue-500';
+    return 'text-green-500';
+  });
 
   // Validation states
   orgNameValid = computed(() => ValidationUtils.isValidName(this.organizationName()));

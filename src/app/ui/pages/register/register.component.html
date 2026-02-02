@@ -15,7 +15,7 @@
       <div class="mb-6 flex justify-center">
         <img
           src="favicon.svg"
-          alt="Simple POS Logo"
+          alt="Simple POS System - Point of Sale Application Logo"
           class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
         />
       </div>
@@ -93,9 +93,7 @@
 
       <!-- Owner Details -->
       <div class="space-y-4">
-        <h2 class="text-sm font-black text-surface-400 uppercase tracking-widest">
-          Owner Account
-        </h2>
+        <h2 class="text-sm font-black text-surface-400 uppercase tracking-widest">Owner Account</h2>
 
         <div class="space-y-2">
           <label
@@ -205,7 +203,7 @@
             <div class="space-y-1">
               <div class="flex items-center justify-between text-xs">
                 <span class="text-surface-500 font-semibold">PIN Strength:</span>
-                <span class="font-bold" [class]="pinStrengthColor().replace('bg-', 'text-')">
+                <span class="font-bold" [class]="pinStrengthTextColor()">
                   {{ pinStrengthLabel() }}
                 </span>
               </div>
