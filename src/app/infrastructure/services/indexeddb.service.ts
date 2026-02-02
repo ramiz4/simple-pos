@@ -119,9 +119,34 @@ export class IndexedDBService {
         // 13. user
         if (!db.objectStoreNames.contains('user')) {
           const store = db.createObjectStore('user', { keyPath: 'id' });
-          store.createIndex('name', 'name', { unique: true });
+          store.createIndex('name', 'name', { unique: false });
+          store.createIndex('name_organizationId', ['name', 'organizationId'], { unique: true });
           store.createIndex('email', 'email', { unique: false });
           store.createIndex('organizationId', 'organizationId', { unique: false });
+        } else {
+          // Handle upgrade from v4 to v5 - add new indexes to existing user store
+          const transaction = (event.target as IDBOpenDBRequest).transaction;
+          if (transaction) {
+            const store = transaction.objectStore('user');
+            // Check if indexes already exist before creating
+            if (!store.indexNames.contains('name_organizationId')) {
+              store.createIndex('name_organizationId', ['name', 'organizationId'], { unique: true });
+            }
+            if (!store.indexNames.contains('email')) {
+              store.createIndex('email', 'email', { unique: false });
+            }
+            if (!store.indexNames.contains('organizationId')) {
+              store.createIndex('organizationId', 'organizationId', { unique: false });
+            }
+            // Update name index to be non-unique if it exists as unique
+            if (store.indexNames.contains('name')) {
+              const nameIndex = store.index('name');
+              if (nameIndex.unique) {
+                store.deleteIndex('name');
+                store.createIndex('name', 'name', { unique: false });
+              }
+            }
+          }
         }
 
         // 14. organization

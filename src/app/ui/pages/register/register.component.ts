@@ -33,7 +33,8 @@ export class RegisterComponent {
       !this.organizationName() ||
       !this.organizationEmail() ||
       !this.ownerName() ||
-      !this.ownerPin()
+      !this.ownerPin() ||
+      !this.confirmPin()
     ) {
       this.errorMessage.set('All fields are required');
       return;
@@ -58,7 +59,7 @@ export class RegisterComponent {
     this.isLoading.set(true);
 
     try {
-      const result = await this.authService.register(
+      await this.authService.register(
         this.organizationName(),
         this.organizationEmail(),
         this.ownerName(),

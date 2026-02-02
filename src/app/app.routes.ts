@@ -58,5 +58,5 @@ export const routes: Routes = [
   { path: 'pos/payment', component: PaymentComponent, canActivate: [authGuard] },
   { path: 'reports', component: ReportsComponent, canActivate: [authGuard] },
   { path: 'kitchen', component: KitchenViewComponent, canActivate: [kitchenGuard] },
-  { path: '**', redirectTo: '/register' },
+  { path: '**', redirectTo: '/login' },
 ];

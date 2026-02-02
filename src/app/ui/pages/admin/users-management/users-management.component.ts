@@ -6,7 +6,6 @@ import { UserManagementService } from '../../../../application/services/user-man
 import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { User } from '../../../../domain/entities/user.interface';
-import { UserRoleEnum } from '../../../../domain/enums';
 
 @Component({
   selector: 'app-users-management',
@@ -28,7 +27,7 @@ export class UsersManagementComponent implements OnInit {
   successMessage = signal('');
   isLoading = signal(false);
 
-  organizationId: number = 0;
+  organizationId: number | null = null;
   roleMap = signal<Map<number, string>>(new Map());
 
   constructor(
@@ -40,7 +39,7 @@ export class UsersManagementComponent implements OnInit {
 
   async ngOnInit() {
     const session = this.authService.getCurrentSession();
-    if (!session) {
+    if (!session || !session.organizationId) {
       this.router.navigate(['/login']);
       return;
     }
@@ -64,6 +63,8 @@ export class UsersManagementComponent implements OnInit {
   }
 
   async loadUsers() {
+    if (this.organizationId === null) return;
+    
     try {
       const allUsers = await this.userManagementService.getOrganizationUsers(
         this.organizationId
@@ -102,6 +103,11 @@ export class UsersManagementComponent implements OnInit {
       return;
     }
 
+    if (this.organizationId === null) {
+      this.errorMessage.set('Organization ID is missing');
+      return;
+    }
+
     this.isLoading.set(true);
 
     try {
@@ -112,14 +118,14 @@ export class UsersManagementComponent implements OnInit {
           this.newUserName(),
           this.newUserPin(),
           this.organizationId,
-          this.newUserEmail() || undefined
+          this.newUserEmail()
         );
       } else {
         await this.userManagementService.addKitchenUser(
           this.newUserName(),
           this.newUserPin(),
           this.organizationId,
-          this.newUserEmail() || undefined
+          this.newUserEmail()
         );
       }
 

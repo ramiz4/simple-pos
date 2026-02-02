@@ -4,6 +4,7 @@ import { PlatformService } from '../../shared/utilities/platform.service';
 import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
 import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
 import { User } from '../../domain/entities/user.interface';
+import { Organization } from '../../domain/entities/organization.interface';
 import { EnumMappingService } from './enum-mapping.service';
 import { UserRoleEnum } from '../../domain/enums';
 import { OrganizationService } from './organization.service';
@@ -100,31 +101,47 @@ export class AuthService {
     organizationEmail: string,
     ownerName: string,
     ownerPin: string
-  ): Promise<{ user: User; organization: any }> {
+  ): Promise<{ user: User; organization: Organization }> {
+    // Validate inputs
+    if (!organizationEmail || !organizationEmail.includes('@')) {
+      throw new Error('Valid organization email is required.');
+    }
+
     // Create organization first
     const organization = await this.organizationService.createOrganization(
       organizationName,
       organizationEmail
     );
 
-    // Get ADMIN role ID
-    const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
+    try {
+      // Get ADMIN role ID
+      const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN, 'USER_ROLE');
 
-    // Create owner user
-    const userRepo = this.getUserRepo();
-    const pinHash = await this.hashPin(ownerPin);
+      // Create owner user
+      const userRepo = this.getUserRepo();
+      const pinHash = await this.hashPin(ownerPin);
 
-    const user = await userRepo.create({
-      name: ownerName,
-      email: organizationEmail,
-      roleId: adminRole.id,
-      pinHash,
-      active: true,
-      organizationId: organization.id,
-      isOwner: true,
-    });
+      const user = await userRepo.create({
+        name: ownerName,
+        email: organizationEmail, // Owner must have email
+        roleId: adminRole.id,
+        pinHash,
+        active: true,
+        organizationId: organization.id,
+        isOwner: true,
+      });
 
-    return { user, organization };
+      return { user, organization };
+    } catch (error) {
+      // Best-effort rollback: try to remove the created organization if user creation fails
+      try {
+        await this.organizationService.deleteOrganization(organization.id);
+      } catch (rollbackError) {
+        // Log rollback failure but throw original error
+        console.error('Failed to rollback organization creation:', rollbackError);
+      }
+      throw error;
+    }
   }
 
   async createUser(
@@ -135,6 +152,13 @@ export class AuthService {
     email?: string
   ): Promise<User> {
     const userRepo = this.getUserRepo();
+    
+    // Check if user with same name already exists in this organization
+    const existingUsers = await userRepo.findByOrganizationId(organizationId);
+    if (existingUsers.some(u => u.name === name)) {
+      throw new Error(`User with name "${name}" already exists in this organization.`);
+    }
+    
     const pinHash = await this.hashPin(pin);
 
     return await userRepo.create({

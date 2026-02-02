@@ -105,15 +105,16 @@ export class SQLiteUserRepository implements BaseRepository<User> {
     await db.execute(`
       CREATE TABLE IF NOT EXISTS user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
         email TEXT,
         roleId INTEGER NOT NULL,
         pinHash TEXT NOT NULL,
         active INTEGER NOT NULL DEFAULT 1,
         organizationId INTEGER NOT NULL,
         isOwner INTEGER NOT NULL DEFAULT 0,
+        UNIQUE(name, organizationId),
         FOREIGN KEY (roleId) REFERENCES code_table (id),
-        FOREIGN KEY (organizationId) REFERENCES organization (id)
+        FOREIGN KEY (organizationId) REFERENCES organization (id) ON DELETE RESTRICT
       )
     `);
   }
