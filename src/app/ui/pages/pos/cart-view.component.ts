@@ -121,9 +121,9 @@ import { HeaderComponent } from '../../components/header/header.component';
               <span class="text-lg font-semibold text-gray-800">€{{ summary().subtotal.toFixed(2) }}</span>
             </div>
 
-            <!-- Tax -->
+            <!-- Tax (included in price) -->
             <div class="flex justify-between items-center py-2 border-b border-gray-200">
-              <span class="text-gray-700">Tax ({{ (summary().taxRate * 100).toFixed(0) }}%)</span>
+              <span class="text-gray-700">Incl. VAT ({{ (summary().taxRate * 100).toFixed(0) }}%)</span>
               <span class="text-lg font-semibold text-gray-800">€{{ summary().tax.toFixed(2) }}</span>
             </div>
 
