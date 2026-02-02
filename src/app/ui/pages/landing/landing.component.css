@@ -1,0 +1,31 @@
+/* Landing page specific styles */
+:host {
+  display: block;
+}
+
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+.animate-delay-300 {
+  animation-delay: 300ms;
+}
+.animate-delay-400 {
+  animation-delay: 400ms;
+}
+
+/* Custom animations for the landing page */
+@keyframes reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.reveal-animation {
+  animation: reveal 1s cubic-bezier(0.77, 0, 0.175, 1);
+}

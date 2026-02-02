@@ -1,0 +1,119 @@
+<div
+  class="min-h-screen bg-surface-50 flex items-center justify-center p-6 relative overflow-hidden"
+>
+  <!-- Background Decorations -->
+  <div
+    class="absolute -top-24 -left-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+  ></div>
+  <div
+    class="absolute -bottom-24 -right-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+    style="animation-delay: -1.5s"
+  ></div>
+
+  <div class="glass-card w-full max-w-md p-10 relative z-10 animate-scale-in">
+    <div class="text-center mb-10">
+      <div class="mb-6 flex justify-center">
+        <img
+          src="favicon.svg"
+          alt="Simple POS Logo"
+          class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
+        />
+      </div>
+      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Welcome Back</h1>
+      <p class="text-surface-500 font-medium">Please enter your credentials</p>
+    </div>
+
+    <form (ngSubmit)="onLogin()" class="space-y-6">
+      <div class="space-y-2">
+        <label
+          for="username"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Username
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            id="username"
+            [value]="username()"
+            (input)="onUsernameInput($event)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            placeholder="e.g. admin"
+            [disabled]="isLoading()"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label for="pin" class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1">
+          Security PIN
+        </label>
+        <div class="relative">
+          <input
+            type="password"
+            id="pin"
+            [value]="pin()"
+            (input)="onPinInput($event)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300 tracking-[0.5em]"
+            placeholder="••••"
+            [disabled]="isLoading()"
+            required
+          />
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div
+          class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100"
+        >
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <button
+        type="submit"
+        [disabled]="isLoading()"
+        class="neo-button w-full h-16 text-lg disabled:opacity-50 flex items-center justify-center gap-3"
+      >
+        @if (isLoading()) {
+          <div
+            class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
+          ></div>
+          <span>Verifying...</span>
+        } @else {
+          <span>Sign In</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M14 5l7 7m0 0l-7 7m7-7H3"
+            />
+          </svg>
+        }
+      </button>
+
+      <div class="text-center mt-4">
+        <a
+          href="/register"
+          class="text-primary-600 hover:text-primary-700 text-sm font-semibold transition-colors"
+        >
+          Don't have an organization? Register here
+        </a>
+      </div>
+    </form>
+
+    <div class="mt-12 pt-8 border-t border-surface-100 text-center">
+      <p class="text-[10px] font-black uppercase tracking-[0.2em] text-surface-300">
+        Simple POS System v1.0 • Offline Ready
+      </p>
+    </div>
+  </div>
+</div>
