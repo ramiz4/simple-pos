@@ -28,11 +28,32 @@ export class SQLiteUserRepository implements BaseRepository<User> {
     return results.length > 0 ? results[0] : null;
   }
 
+  async findByOrganizationId(organizationId: number): Promise<User[]> {
+    const db = await this.getDb();
+    return await db.select<User[]>('SELECT * FROM user WHERE organizationId = ?', [
+      organizationId,
+    ]);
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const db = await this.getDb();
+    const results = await db.select<User[]>('SELECT * FROM user WHERE email = ?', [email]);
+    return results.length > 0 ? results[0] : null;
+  }
+
   async create(entity: Omit<User, 'id'>): Promise<User> {
     const db = await this.getDb();
     const result = await db.execute(
-      'INSERT INTO user (name, roleId, pinHash, active) VALUES (?, ?, ?, ?)',
-      [entity.name, entity.roleId, entity.pinHash, entity.active ? 1 : 0],
+      'INSERT INTO user (name, email, roleId, pinHash, active, organizationId, isOwner) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [
+        entity.name,
+        entity.email || null,
+        entity.roleId,
+        entity.pinHash,
+        entity.active ? 1 : 0,
+        entity.organizationId,
+        entity.isOwner ? 1 : 0,
+      ],
     );
     const id = result.lastInsertId ?? Date.now();
     return { ...entity, id };
@@ -44,13 +65,19 @@ export class SQLiteUserRepository implements BaseRepository<User> {
     if (!existing) throw new Error(`User with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
-    await db.execute('UPDATE user SET name = ?, roleId = ?, pinHash = ?, active = ? WHERE id = ?', [
-      updated.name,
-      updated.roleId,
-      updated.pinHash,
-      updated.active ? 1 : 0,
-      id,
-    ]);
+    await db.execute(
+      'UPDATE user SET name = ?, email = ?, roleId = ?, pinHash = ?, active = ?, organizationId = ?, isOwner = ? WHERE id = ?',
+      [
+        updated.name,
+        updated.email || null,
+        updated.roleId,
+        updated.pinHash,
+        updated.active ? 1 : 0,
+        updated.organizationId,
+        updated.isOwner ? 1 : 0,
+        id,
+      ],
+    );
     return updated;
   }
 
@@ -79,10 +106,14 @@ export class SQLiteUserRepository implements BaseRepository<User> {
       CREATE TABLE IF NOT EXISTS user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,
+        email TEXT,
         roleId INTEGER NOT NULL,
         pinHash TEXT NOT NULL,
         active INTEGER NOT NULL DEFAULT 1,
-        FOREIGN KEY (roleId) REFERENCES code_table (id)
+        organizationId INTEGER NOT NULL,
+        isOwner INTEGER NOT NULL DEFAULT 0,
+        FOREIGN KEY (roleId) REFERENCES code_table (id),
+        FOREIGN KEY (organizationId) REFERENCES organization (id)
       )
     `);
   }

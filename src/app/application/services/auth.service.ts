@@ -6,10 +6,13 @@ import { IndexedDBUserRepository } from '../../infrastructure/repositories/index
 import { User } from '../../domain/entities/user.interface';
 import { EnumMappingService } from './enum-mapping.service';
 import { UserRoleEnum } from '../../domain/enums';
+import { OrganizationService } from './organization.service';
 
 export interface UserSession {
   user: User;
   roleCode: string;
+  organizationId: number;
+  organizationName?: string;
 }
 
 @Injectable({
@@ -23,7 +26,8 @@ export class AuthService {
     private platformService: PlatformService,
     private sqliteUserRepo: SQLiteUserRepository,
     private indexedDBUserRepo: IndexedDBUserRepository,
-    private enumMappingService: EnumMappingService
+    private enumMappingService: EnumMappingService,
+    private organizationService: OrganizationService
   ) {
     this.loadSessionFromStorage();
   }
@@ -46,9 +50,13 @@ export class AuthService {
     }
 
     const roleInfo = await this.enumMappingService.getEnumFromId(user.roleId);
+    const organization = await this.organizationService.getOrganizationById(user.organizationId);
+    
     const session: UserSession = {
       user,
-      roleCode: roleInfo.code
+      roleCode: roleInfo.code,
+      organizationId: user.organizationId,
+      organizationName: organization?.name,
     };
 
     this.currentSession = session;
@@ -83,16 +91,62 @@ export class AuthService {
     return await bcrypt.hash(pin, this.SALT_ROUNDS);
   }
 
-  async createUser(name: string, pin: string, roleId: number): Promise<User> {
+  async register(
+    organizationName: string,
+    organizationEmail: string,
+    ownerName: string,
+    ownerPin: string
+  ): Promise<{ user: User; organization: any }> {
+    // Create organization first
+    const organization = await this.organizationService.createOrganization(
+      organizationName,
+      organizationEmail
+    );
+
+    // Get ADMIN role ID
+    const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
+
+    // Create owner user
+    const userRepo = this.getUserRepo();
+    const pinHash = await this.hashPin(ownerPin);
+
+    const user = await userRepo.create({
+      name: ownerName,
+      email: organizationEmail,
+      roleId: adminRole.id,
+      pinHash,
+      active: true,
+      organizationId: organization.id,
+      isOwner: true,
+    });
+
+    return { user, organization };
+  }
+
+  async createUser(
+    name: string,
+    pin: string,
+    roleId: number,
+    organizationId: number,
+    email?: string
+  ): Promise<User> {
     const userRepo = this.getUserRepo();
     const pinHash = await this.hashPin(pin);
 
     return await userRepo.create({
       name,
+      email,
       roleId,
       pinHash,
-      active: true
+      active: true,
+      organizationId,
+      isOwner: false,
     });
+  }
+
+  async getUsersByOrganization(organizationId: number): Promise<User[]> {
+    const userRepo = this.getUserRepo();
+    return await userRepo.findByOrganizationId(organizationId);
   }
 
   private saveSessionToStorage(session: UserSession): void {

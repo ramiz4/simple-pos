@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { User } from '../../domain/entities/user.interface';
+import { Organization } from '../../domain/entities/organization.interface';
 import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBUserRepository implements BaseRepository<User> {
-  private readonly STORE_NAME = 'user';
+export class IndexedDBOrganizationRepository implements BaseRepository<Organization> {
+  private readonly STORE_NAME = 'organization';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<User | null> {
+  async findById(id: number): Promise<Organization | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -23,7 +23,7 @@ export class IndexedDBUserRepository implements BaseRepository<User> {
     });
   }
 
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<Organization[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -35,36 +35,7 @@ export class IndexedDBUserRepository implements BaseRepository<User> {
     });
   }
 
-  async findByName(name: string): Promise<User | null> {
-    const db = await this.indexedDBService.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.STORE_NAME], 'readonly');
-      const store = transaction.objectStore(this.STORE_NAME);
-      const index = store.index('name');
-      const request = index.get(name);
-
-      request.onsuccess = () => {
-        const user = request.result;
-        resolve(user && user.active ? user : null);
-      };
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  async findByOrganizationId(organizationId: number): Promise<User[]> {
-    const db = await this.indexedDBService.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.STORE_NAME], 'readonly');
-      const store = transaction.objectStore(this.STORE_NAME);
-      const index = store.index('organizationId');
-      const request = index.getAll(organizationId);
-
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  async findByEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<Organization | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -77,7 +48,7 @@ export class IndexedDBUserRepository implements BaseRepository<User> {
     });
   }
 
-  async create(entity: Omit<User, 'id'>): Promise<User> {
+  async create(entity: Omit<Organization, 'id'>): Promise<Organization> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
@@ -91,10 +62,10 @@ export class IndexedDBUserRepository implements BaseRepository<User> {
     });
   }
 
-  async update(id: number, entity: Partial<User>): Promise<User> {
+  async update(id: number, entity: Partial<Organization>): Promise<Organization> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`User with id ${id} not found`);
+    if (!existing) throw new Error(`Organization with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {

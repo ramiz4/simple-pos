@@ -55,6 +55,15 @@ export class EnumMappingService {
     return result;
   }
 
+  async getEnumFromCode(code: string, codeType: string = 'USER_ROLE'): Promise<{ id: number; code: string; codeType: string }> {
+    const repo = this.getCodeTableRepo();
+    const entry = await repo.findByCodeTypeAndCode(codeType, code);
+    if (!entry) {
+      throw new Error(`CodeTable entry not found for ${codeType}.${code}`);
+    }
+    return entry;
+  }
+
   async getTranslation(id: number, language: string): Promise<string> {
     const translationRepo = this.getCodeTranslationRepo();
     const translation = await translationRepo.findByCodeTableIdAndLanguage(id, language);

@@ -1,6 +1,7 @@
 export * from './test-entity.interface';
 export * from './code-table.interface';
 export * from './code-translation.interface';
+export * from './organization.interface';
 export * from './user.interface';
 export * from './table.interface';
 export * from './category.interface';

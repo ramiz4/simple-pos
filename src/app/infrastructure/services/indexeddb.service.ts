@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class IndexedDBService {
   private readonly DB_NAME = 'SimpleDatabase';
-  private readonly DB_VERSION = 4;
+  private readonly DB_VERSION = 5;
   private db: IDBDatabase | null = null;
   private connectionPromise: Promise<IDBDatabase> | null = null;
 
@@ -120,9 +120,17 @@ export class IndexedDBService {
         if (!db.objectStoreNames.contains('user')) {
           const store = db.createObjectStore('user', { keyPath: 'id' });
           store.createIndex('name', 'name', { unique: true });
+          store.createIndex('email', 'email', { unique: false });
+          store.createIndex('organizationId', 'organizationId', { unique: false });
         }
 
-        // 14. variant
+        // 14. organization
+        if (!db.objectStoreNames.contains('organization')) {
+          const store = db.createObjectStore('organization', { keyPath: 'id' });
+          store.createIndex('email', 'email', { unique: true });
+        }
+
+        // 15. variant
         if (!db.objectStoreNames.contains('variant')) {
           const store = db.createObjectStore('variant', { keyPath: 'id' });
           store.createIndex('productId', 'productId', { unique: false });
