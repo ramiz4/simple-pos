@@ -1,14 +1,154 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Glassmorphism base styles */
+@theme {
+  /* Primary Colors */
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  --color-primary-200: #ddd6fe;
+  --color-primary-300: #c4b5fd;
+  --color-primary-400: #a78bfa;
+  --color-primary-500: #8b5cf6;
+  --color-primary-600: #7c3aed;
+  --color-primary-700: #6d28d9;
+  --color-primary-800: #5b21b6;
+  --color-primary-900: #4c1d95;
+  --color-primary-950: #2e1065;
+
+  /* Surface Colors */
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f4f4f5;
+  --color-surface-200: #e4e4e7;
+  --color-surface-300: #d4d4d8;
+  --color-surface-400: #a1a1aa;
+  --color-surface-500: #71717a;
+  --color-surface-600: #52525b;
+  --color-surface-700: #3f3f46;
+  --color-surface-800: #27272a;
+  --color-surface-900: #18181b;
+
+  /* Animations */
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-slide-up: slideUp 0.4s ease-out;
+  --animate-scale-in: scaleIn 0.3s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  @keyframes slideUp {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes scaleIn {
+    0% { transform: scale(0.95); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Backdrop Blur */
+  --backdrop-blur-xs: 2px;
+}
+
+@layer base {
+  :root {
+    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --surface-glass: rgba(255, 255, 255, 0.7);
+    --border-glass: rgba(255, 255, 255, 0.3);
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-900 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection {
+    background-color: var(--color-primary-200);
+  }
+  button,
+  [role="button"],
+  a,
+  area,
+  input[type="submit"],
+  input[type="reset"],
+  input[type="button"],
+  input[type="image"],
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"],
+  label,
+  select,
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  [disabled],
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
 @layer components {
   .glass-card {
-    @apply backdrop-blur-xl bg-white/30 border border-white/20 rounded-3xl shadow-xl;
+    @apply backdrop-blur-xl bg-white/70 border border-white/40 rounded-3xl shadow-2xl;
   }
-  
+
   .glass-button {
-    @apply backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-lg hover:bg-white/30 transition-all;
+    @apply backdrop-blur-lg bg-white/40 border border-white/60 rounded-2xl shadow-lg hover:bg-white/60 transition-all active:scale-95 text-surface-800 font-semibold;
   }
+
+  .primary-gradient {
+    background: var(--primary-gradient);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: var(--primary-gradient);
+  }
+
+  .nav-blur {
+    @apply sticky top-0 z-40 w-full backdrop-blur-md bg-white/70 border-b border-white/20;
+  }
+
+  .mobile-bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-white/20 px-6 py-4 flex items-center justify-between pb-8 sm:pb-4;
+  }
+
+  .neo-button {
+    @apply relative overflow-hidden rounded-2xl px-6 py-3 font-bold text-white transition-all hover:shadow-lg active:scale-95;
+    background: var(--primary-gradient);
+  }
+
+  .neo-button::after {
+    content: '';
+    @apply absolute inset-0 bg-white/20 opacity-0 transition-opacity;
+  }
+
+  .neo-button:hover::after {
+    @apply opacity-100;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-surface-300 rounded-full transition-colors;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-surface-400;
 }

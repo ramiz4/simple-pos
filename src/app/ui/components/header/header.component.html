@@ -1,32 +1,46 @@
-<nav class="bg-white shadow">
+<header class="nav-blur">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <div class="flex items-center">
-        <h1 class="text-xl font-bold text-gray-800">{{ title }}</h1>
+    <div class="flex justify-between h-16 items-center">
+      <div class="flex items-center gap-3">
+        @if (showBackButton) {
+          <button
+            (click)="onBack()"
+            class="p-2 hover:bg-surface-100 rounded-full transition-colors active:scale-90"
+            aria-label="Go back"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-surface-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </button>
+        }
+        <h1 class="text-xl font-black tracking-tight text-surface-900">
+          <span class="text-primary-600">S</span>POS <span class="text-surface-400 font-medium text-base ml-1 hidden sm:inline">| {{ title }}</span>
+        </h1>
       </div>
-      <div class="flex items-center space-x-4">
+
+      <div class="flex items-center gap-4">
         @if (session) {
-          <div class="text-sm">
-            <span class="text-gray-600">Welcome,</span>
-            <span class="font-semibold text-gray-800 ml-1">{{ session.user.name }}</span>
-            <span class="text-gray-500 ml-2">({{ session.roleCode }})</span>
+          <div class="hidden md:flex flex-col items-end leading-tight">
+            <span class="text-xs font-bold text-surface-500 uppercase tracking-wider">{{ session.roleCode }}</span>
+            <span class="font-bold text-surface-800">{{ session.user.name }}</span>
           </div>
-          @if (showBackButton) {
-            <button
-              (click)="onBack()"
-              class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition"
-            >
-              Back
-            </button>
-          }
+
+          <div class="h-10 w-10 rounded-full primary-gradient flex items-center justify-center text-white font-bold shadow-lg shadow-primary-200">
+            {{ session.user.name.charAt(0).toUpperCase() }}
+          </div>
+
           <button
             (click)="onLogout()"
-            class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
+            class="p-2 hover:bg-red-50 text-red-500 rounded-full transition-colors active:scale-90"
+            title="Logout"
           >
-            Logout
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
           </button>
         }
       </div>
     </div>
   </div>
-</nav>
+</header>
+

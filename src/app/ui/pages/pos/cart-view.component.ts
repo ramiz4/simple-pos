@@ -10,21 +10,23 @@ import { HeaderComponent } from '../../components/header/header.component';
   standalone: true,
   imports: [CommonModule, FormsModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <app-header title="Your Cart" [showBackButton]="true"></app-header>
-      
-      <div class="p-4 pb-32">
-      <div class="max-w-4xl mx-auto">
+    <div class="min-h-screen bg-[#F8FAFC]">
+      <app-header title="Your Order" [showBackButton]="true" (back)="backToProducts()"></app-header>
+
+      <main class="p-6 max-w-4xl mx-auto animate-fade-in pb-32">
         <!-- Empty Cart State -->
         @if (isEmpty()) {
-          <div class="bg-white/80 backdrop-blur-md rounded-3xl shadow-lg p-12 text-center border-2 border-purple-200">
-            <div class="text-6xl mb-4">🛒</div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Your cart is empty</h2>
-            <p class="text-gray-600 mb-6">Add some delicious items to get started!</p>
-            <button
-              (click)="backToProducts()"
-              class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+          <div class="glass-card p-12 text-center animate-scale-in">
+            <div
+              class="w-24 h-24 mx-auto bg-surface-100 rounded-3xl flex items-center justify-center text-6xl mb-6"
             >
+              🛒
+            </div>
+            <h2 class="text-3xl font-black text-surface-900 mb-2">Your cart is empty</h2>
+            <p class="text-surface-500 font-medium mb-8">
+              Add some delicious items to get started!
+            </p>
+            <button (click)="backToProducts()" class="neo-button px-10 h-14">
               Browse Products
             </button>
           </div>
@@ -32,195 +34,242 @@ import { HeaderComponent } from '../../components/header/header.component';
 
         <!-- Cart Items -->
         @if (!isEmpty()) {
-          <div class="space-y-4 mb-6">
-            @for (item of cartItems(); track $index) {
-              <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg p-4 border-2 border-purple-200 hover:border-purple-300 transition-all duration-200">
-                <div class="flex gap-4">
-                  <!-- Product Image Placeholder -->
-                  <div class="flex-shrink-0 w-20 h-20 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl flex items-center justify-center">
-                    <span class="text-3xl">🍽️</span>
-                  </div>
+          <div class="flex flex-col lg:flex-row gap-8 items-start">
+            <!-- Items List -->
+            <div class="flex-1 w-full space-y-4">
+              <h2
+                class="text-xs font-black text-surface-400 uppercase tracking-widest mb-4 flex items-center gap-2"
+              >
+                <span>Items</span>
+                <span class="h-[1px] grow bg-surface-100"></span>
+              </h2>
 
-                  <!-- Product Info -->
-                  <div class="flex-1 min-w-0">
-                    <!-- Product Name -->
-                    <h3 class="text-lg font-bold text-gray-800 mb-1">{{ item.productName }}</h3>
-                    
-                    <!-- Variant -->
-                    @if (item.variantName) {
-                      <p class="text-sm text-purple-600 font-medium mb-1">
-                        📦 {{ item.variantName }}
-                      </p>
-                    }
+              @for (item of cartItems(); track $index) {
+                <div
+                  class="glass-card p-5 group hover:ring-2 hover:ring-primary-100 transition-all duration-300"
+                >
+                  <div class="flex gap-4">
+                    <div
+                      class="w-20 h-20 rounded-2xl bg-surface-100 flex items-center justify-center text-4xl shrink-0 group-hover:scale-110 transition-transform"
+                    >
+                      🍽️
+                    </div>
 
-                    <!-- Extras -->
-                    @if (item.extraNames.length > 0) {
-                      <div class="flex flex-wrap gap-1 mb-2">
+                    <div class="grow min-w-0">
+                      <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-black text-surface-900 leading-tight">
+                          {{ item.productName }}
+                        </h3>
+                        <span class="font-black text-primary-600 ml-4"
+                          >€{{ item.lineTotal.toFixed(2) }}</span
+                        >
+                      </div>
+
+                      <div class="flex flex-wrap gap-2 mb-3">
+                        @if (item.variantName) {
+                          <span
+                            class="text-[10px] font-black uppercase tracking-wider bg-primary-100 text-primary-700 px-2 py-0.5 rounded-md"
+                          >
+                            {{ item.variantName }}
+                          </span>
+                        }
                         @for (extraName of item.extraNames; track $index) {
-                          <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                          <span
+                            class="text-[10px] font-black uppercase tracking-wider bg-surface-100 text-surface-500 px-2 py-0.5 rounded-md"
+                          >
                             + {{ extraName }}
                           </span>
                         }
                       </div>
-                    }
 
-                    <!-- Notes -->
-                    @if (item.notes) {
-                      <p class="text-xs text-gray-600 italic mb-2">
-                        💬 {{ item.notes }}
-                      </p>
-                    }
+                      @if (item.notes) {
+                        <p class="text-xs text-surface-400 italic mb-4 flex items-center gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-3 w-3"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                            />
+                          </svg>
+                          {{ item.notes }}
+                        </p>
+                      }
 
-                    <!-- Price Info -->
-                    <div class="flex items-center gap-4 mb-2">
-                      <span class="text-sm text-gray-600">
-                        €{{ item.unitPrice.toFixed(2) }} each
-                      </span>
-                      <span class="text-lg font-bold text-purple-600">
-                        €{{ item.lineTotal.toFixed(2) }}
-                      </span>
+                      <div class="flex items-center justify-between mt-auto">
+                        <div
+                          class="flex items-center gap-4 bg-surface-50 p-1.5 rounded-xl border border-surface-100"
+                        >
+                          <button
+                            (click)="decrementQuantity($index)"
+                            class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-black text-primary-600 active:scale-90 transition-transform"
+                          >
+                            −
+                          </button>
+                          <span class="font-black text-surface-900 min-w-[1.5rem] text-center">{{
+                            item.quantity
+                          }}</span>
+                          <button
+                            (click)="incrementQuantity($index)"
+                            class="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center font-black text-primary-600 active:scale-90 transition-transform"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <button
+                          (click)="removeItem($index)"
+                          class="p-2 text-surface-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
+                  </div>
+                </div>
+              }
+            </div>
 
-                    <!-- Quantity Controls -->
-                    <div class="flex items-center gap-2">
+            <!-- Side Summary -->
+            <div class="w-full lg:w-80 shrink-0 sticky top-24 space-y-4">
+              <div class="glass-card p-6 !bg-surface-900 border-none shadow-primary-200">
+                <h2 class="text-xs font-black text-surface-400 uppercase tracking-widest mb-6">
+                  Order Total
+                </h2>
+
+                <div class="space-y-4 mb-8">
+                  <div class="flex justify-between items-center">
+                    <span class="text-surface-400 text-sm font-medium">Subtotal</span>
+                    <span class="text-white font-bold">€{{ summary().subtotal.toFixed(2) }}</span>
+                  </div>
+                  <div class="flex justify-between items-center pb-4 border-b border-white/10">
+                    <span class="text-surface-400 text-sm font-medium"
+                      >VAT ({{ (summary().taxRate * 100).toFixed(0) }}%)</span
+                    >
+                    <span class="text-white font-bold">€{{ summary().tax.toFixed(2) }}</span>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between items-center mb-3">
+                      <span class="text-surface-400 text-sm font-medium">Tip (Optional)</span>
+                      <span class="text-primary-400 font-bold">€{{ tipAmount().toFixed(2) }}</span>
+                    </div>
+                    <div class="flex gap-2">
+                      @for (preset of tipPresets; track preset) {
+                        <button
+                          (click)="setTipPreset(preset)"
+                          [class]="
+                            tipInput === preset
+                              ? 'primary-gradient border-none'
+                              : 'bg-white/5 border border-white/10 text-white'
+                          "
+                          class="flex-1 py-2 rounded-xl text-xs font-black transition-all hover:bg-white/10"
+                        >
+                          €{{ preset }}
+                        </button>
+                      }
                       <button
-                        (click)="decrementQuantity($index)"
-                        class="w-8 h-8 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-600 font-bold text-lg transition-colors flex items-center justify-center"
+                        (click)="tipInput = 0; onTipChange()"
+                        class="px-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
                       >
-                        −
-                      </button>
-                      <span class="text-lg font-semibold text-gray-800 min-w-[2rem] text-center">
-                        {{ item.quantity }}
-                      </span>
-                      <button
-                        (click)="incrementQuantity($index)"
-                        class="w-8 h-8 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-600 font-bold text-lg transition-colors flex items-center justify-center"
-                      >
-                        +
-                      </button>
-                      <button
-                        (click)="removeItem($index)"
-                        class="ml-auto px-4 py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-600 font-semibold text-sm transition-colors"
-                      >
-                        🗑️ Remove
+                        ×
                       </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            }
-          </div>
 
-          <!-- Cart Summary -->
-          <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-6 border-2 border-purple-300 mb-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Order Summary</h2>
-            
-            <!-- Subtotal -->
-            <div class="flex justify-between items-center py-2 border-b border-gray-200">
-              <span class="text-gray-700">Subtotal</span>
-              <span class="text-lg font-semibold text-gray-800">€{{ summary().subtotal.toFixed(2) }}</span>
-            </div>
+                <div class="flex justify-between items-center mb-8">
+                  <span class="text-white font-black text-xl">Total</span>
+                  <div class="text-right">
+                    <span class="text-primary-400 font-black text-3xl"
+                      >€{{ summary().total.toFixed(2) }}</span
+                    >
+                  </div>
+                </div>
 
-            <!-- Tax (included in price) -->
-            <div class="flex justify-between items-center py-2 border-b border-gray-200">
-              <span class="text-gray-700">Incl. VAT ({{ (summary().taxRate * 100).toFixed(0) }}%)</span>
-              <span class="text-lg font-semibold text-gray-800">€{{ summary().tax.toFixed(2) }}</span>
-            </div>
-
-            <!-- Tip Input -->
-            <div class="py-2 border-b border-gray-200">
-              <div class="flex justify-between items-center mb-2">
-                <label for="tip" class="text-gray-700">Tip (Optional)</label>
-                <span class="text-lg font-semibold text-gray-800">€{{ tipAmount().toFixed(2) }}</span>
-              </div>
-              <input
-                id="tip"
-                type="number"
-                [(ngModel)]="tipInput"
-                (ngModelChange)="onTipChange()"
-                min="0"
-                step="0.50"
-                placeholder="0.00"
-                class="w-full px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-purple-500 focus:outline-none text-center text-lg font-semibold"
-              />
-              <div class="flex gap-2 mt-2">
-                @for (preset of tipPresets; track preset) {
-                  <button
-                    (click)="setTipPreset(preset)"
-                    class="flex-1 px-3 py-2 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-700 font-medium text-sm transition-colors"
-                  >
-                    €{{ preset.toFixed(2) }}
+                <div class="space-y-3">
+                  <button (click)="proceedToPayment()" class="neo-button w-full h-16 text-lg">
+                    Pay Now
                   </button>
-                }
+                  <button
+                    (click)="backToProducts()"
+                    class="w-full h-14 rounded-2xl bg-white/5 text-white font-black hover:bg-white/10 transition-all border border-white/10"
+                  >
+                    Add More
+                  </button>
+                  <button
+                    (click)="confirmClearCart()"
+                    class="w-full py-4 text-red-400 text-sm font-black hover:text-red-300 transition-colors"
+                  >
+                    Clear All Items
+                  </button>
+                </div>
               </div>
             </div>
-
-            <!-- Total -->
-            <div class="flex justify-between items-center py-4 mt-2">
-              <span class="text-xl font-bold text-gray-800">Total</span>
-              <span class="text-3xl font-bold text-purple-600">€{{ summary().total.toFixed(2) }}</span>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="space-y-3">
-            <!-- Proceed to Payment -->
-            <button
-              (click)="proceedToPayment()"
-              class="w-full py-4 rounded-xl font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
-            >
-              Proceed to Payment →
-            </button>
-
-            <!-- Back to Products -->
-            <button
-              (click)="backToProducts()"
-              class="w-full py-4 rounded-xl font-semibold bg-white/80 backdrop-blur-md text-gray-700 hover:bg-white transition-all duration-200 shadow-md hover:shadow-lg border-2 border-purple-200 hover:border-purple-300"
-            >
-              ← Back to Products
-            </button>
-
-            <!-- Clear Cart -->
-            <button
-              (click)="confirmClearCart()"
-              class="w-full py-3 rounded-xl font-semibold bg-red-50 text-red-600 hover:bg-red-100 transition-all duration-200 shadow-md hover:shadow-lg border-2 border-red-200 hover:border-red-300"
-            >
-              🗑️ Clear Cart
-            </button>
           </div>
         }
+      </main>
 
       <!-- Clear Cart Confirmation Modal -->
       @if (showClearConfirmation()) {
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" (click)="cancelClearCart()">
-          <div class="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+        <div
+          class="fixed inset-0 bg-surface-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in"
+          (click)="cancelClearCart()"
+        >
+          <div
+            class="bg-white rounded-[32px] shadow-2xl max-w-sm w-full p-8 animate-scale-in"
+            (click)="$event.stopPropagation()"
+          >
             <div class="text-center">
-              <div class="text-6xl mb-4">⚠️</div>
-              <h2 class="text-2xl font-bold text-gray-800 mb-2">Clear Cart?</h2>
-              <p class="text-gray-600 mb-6">Are you sure you want to remove all items from your cart? This action cannot be undone.</p>
-              
-              <div class="flex gap-3">
+              <div
+                class="w-20 h-20 mx-auto bg-red-50 text-red-500 rounded-3xl flex items-center justify-center text-4xl mb-6"
+              >
+                ⚠️
+              </div>
+              <h2 class="text-2xl font-black text-surface-900 mb-2">Clear Cart?</h2>
+              <p class="text-surface-500 font-medium mb-8">
+                Are you sure you want to remove all items? This cannot be undone.
+              </p>
+
+              <div class="grid grid-cols-2 gap-3">
                 <button
                   (click)="cancelClearCart()"
-                  class="flex-1 py-3 rounded-xl font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
+                  class="h-14 rounded-2xl font-black bg-surface-50 text-surface-500 hover:bg-surface-100 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   (click)="clearCart()"
-                  class="flex-1 py-3 rounded-xl font-semibold bg-red-500 text-white hover:bg-red-600 transition-all duration-200"
+                  class="h-14 rounded-2xl font-black bg-red-500 text-white hover:bg-red-600 transition-all shadow-lg shadow-red-200"
                 >
-                  Clear Cart
+                  Yes, Clear
                 </button>
               </div>
             </div>
           </div>
         </div>
       }
-      </div>
-      </div>
     </div>
-  `
+  `,
 })
 export class CartViewComponent implements OnInit {
   // Query params
@@ -242,12 +291,12 @@ export class CartViewComponent implements OnInit {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private cartService: CartService
+    private cartService: CartService,
   ) {}
 
   ngOnInit(): void {
     // Get query params
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
     });
@@ -302,8 +351,8 @@ export class CartViewComponent implements OnInit {
     this.router.navigate(['/pos/product-selection'], {
       queryParams: {
         typeId: this.typeId,
-        tableId: this.tableId
-      }
+        tableId: this.tableId,
+      },
     });
   }
 
@@ -311,8 +360,8 @@ export class CartViewComponent implements OnInit {
     this.router.navigate(['/pos/payment'], {
       queryParams: {
         typeId: this.typeId,
-        tableId: this.tableId
-      }
+        tableId: this.tableId,
+      },
     });
   }
 }

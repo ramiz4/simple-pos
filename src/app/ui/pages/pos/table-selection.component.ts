@@ -12,41 +12,87 @@ import { HeaderComponent } from '../../components/header/header.component';
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100">
-      <app-header title="Select Table" [showBackButton]="true" backRoute="/pos/order-type"></app-header>
-      
-      <div class="p-4">
-      <div class="max-w-6xl mx-auto">
+    <div class="min-h-screen bg-[#F8FAFC]">
+      <app-header
+        title="Select Table"
+        [showBackButton]="true"
+        backRoute="/pos/order-type"
+      ></app-header>
+
+      <main class="p-6 max-w-7xl mx-auto animate-fade-in">
+        <div class="mb-12 text-center">
+          <h2 class="text-3xl font-black text-surface-900 mb-2">Where are they sitting?</h2>
+          <p class="text-surface-500 font-medium">
+            Select an available table from the floor plan below.
+          </p>
+        </div>
+
         <!-- Tables Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           @for (table of tables(); track table.id) {
             <button
               (click)="selectTable(table)"
               [disabled]="!isTableFree(table)"
               [class]="getTableButtonClass(table)"
+              class="relative overflow-hidden group transition-all duration-300"
             >
-              <div class="text-center">
-                <div class="text-4xl mb-2">{{ getTableIcon(table) }}</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-1">{{ table.name }}</h3>
-                <p class="text-sm text-gray-600 mb-1">Table #{{ table.number }}</p>
-                <p class="text-xs font-medium" [class]="getStatusClass(table)">
-                  {{ getTableStatus(table) }}
-                </p>
-                <p class="text-xs text-gray-500 mt-1">{{ table.seats }} seats</p>
+              <div class="p-6 relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center font-black text-surface-400 group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors"
+                  >
+                    #{{ table.number }}
+                  </div>
+                  <div
+                    [class]="getStatusClass(table)"
+                    class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md"
+                  >
+                    {{ getTableStatus(table) }}
+                  </div>
+                </div>
+
+                <h3 class="text-lg font-black text-surface-900 mb-1">{{ table.name }}</h3>
+                <div class="flex items-center gap-1 text-surface-400 font-medium text-sm">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                  {{ table.seats }} seats
+                </div>
               </div>
+
+              <!-- Decorative element for available tables -->
+              @if (isTableFree(table)) {
+                <div
+                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
+                ></div>
+              } @else {
+                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-red-50 rounded-full z-0"></div>
+              }
             </button>
           }
         </div>
 
         @if (tables().length === 0) {
-          <div class="text-center py-12">
-            <p class="text-gray-500 text-lg">No tables available</p>
+          <div class="text-center py-20 glass-card">
+            <div class="text-6xl mb-4">🏜️</div>
+            <p class="text-surface-500 text-lg font-bold">No tables found</p>
+            <p class="text-surface-400">Please add tables in the admin panel.</p>
           </div>
         }
-      </div>
-      </div>
+      </main>
     </div>
-  `
+  `,
 })
 export class TableSelectionComponent implements OnInit {
   tables = signal<Table[]>([]);
@@ -57,16 +103,19 @@ export class TableSelectionComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private tableService: TableService,
-    private enumMappingService: EnumMappingService
+    private enumMappingService: EnumMappingService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
     });
 
     await this.loadTables();
-    this.freeStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.FREE);
+    this.freeStatusId = await this.enumMappingService.getCodeTableId(
+      'TABLE_STATUS',
+      TableStatusEnum.FREE,
+    );
   }
 
   async loadTables(): Promise<void> {
@@ -94,30 +143,30 @@ export class TableSelectionComponent implements OnInit {
   }
 
   getTableButtonClass(table: Table): string {
-    const baseClass = 'relative overflow-hidden rounded-3xl p-6 shadow-lg transition-all duration-300 border-2 min-h-[180px]';
-    
+    const baseClass = 'glass-card border-none ring-1 active:scale-95';
+
     if (this.isTableFree(table)) {
-      return `${baseClass} bg-white/80 backdrop-blur-md hover:shadow-2xl transform hover:scale-105 active:scale-95 border-green-200 hover:border-green-400 cursor-pointer`;
+      return `${baseClass} ring-green-100 hover:ring-green-400 cursor-pointer`;
     } else {
-      return `${baseClass} bg-gray-300/50 backdrop-blur-md border-gray-300 cursor-not-allowed opacity-60`;
+      return `${baseClass} ring-red-100 cursor-not-allowed opacity-60 bg-red-50/50`;
     }
   }
 
   getStatusClass(table: Table): string {
     if (this.isTableFree(table)) {
-      return 'text-green-600 bg-green-100 px-2 py-1 rounded-full';
+      return 'text-green-600 bg-green-100';
     }
-    return 'text-red-600 bg-red-100 px-2 py-1 rounded-full';
+    return 'text-red-600 bg-red-100';
   }
 
   selectTable(table: Table): void {
     if (!this.isTableFree(table)) return;
-    
+
     this.router.navigate(['/pos/product-selection'], {
       queryParams: {
         typeId: this.typeId,
-        tableId: table.id
-      }
+        tableId: table.id,
+      },
     });
   }
 
