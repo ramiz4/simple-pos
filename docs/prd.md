@@ -1,11 +1,12 @@
 # Product Requirements Document (PRD)
-# Simple Bistro POS System (Offline-First Web + Desktop via Tauri)
+
+# Simple POS System (Offline-First Web + Desktop via Tauri)
 
 ---
 
 # 1. Product Overview
 
-A modern, offline-capable Point-of-Sale (POS) system for a bistro in Kosovo.
+A modern, offline-capable Point-of-Sale (POS) system for a restaurant in Kosovo.
 
 The system supports:
 
@@ -20,9 +21,9 @@ The application runs as:
 - Offline-first
 - Mobile-first & fully responsive
 
-Default Language: English  
-Secondary Language: Albanian  
-Primary Market: Kosovo  
+Default Language: English
+Secondary Language: Albanian
+Primary Market: Kosovo
 
 ---
 
@@ -47,7 +48,7 @@ Primary Market: Kosovo
 
 # 3. Target Users
 
-- Small to medium-sized bistros
+- Small to medium-sized restaurants
 - 1–10 employees
 - No ERP required
 - Focus on speed and simplicity
