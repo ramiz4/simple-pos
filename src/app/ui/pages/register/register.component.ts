@@ -54,10 +54,26 @@ export class RegisterComponent {
   async onRegister() {
     this.errorMessage.set('');
 
-    // Sanitize inputs
-    const sanitizedOrgName = this.inputSanitizer.sanitizeName(this.organizationName());
+    // Basic empty field check only
+    if (
+      !this.organizationName() ||
+      !this.organizationEmail() ||
+      !this.ownerName() ||
+      !this.ownerPin() ||
+      !this.confirmPin()
+    ) {
+      this.errorMessage.set('All fields are required');
+      return;
+    }
+
+    // PIN match check (client-side UX only)
+    if (this.ownerPin() !== this.confirmPin()) {
+      this.errorMessage.set('PINs do not match');
+      return;
+    }
+
+    // Sanitize email for rate limiting key
     const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.organizationEmail());
-    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(this.ownerName());
 
     // Check rate limiting
     const rateLimitKey = `register:${sanitizedEmail}`;
@@ -69,45 +85,14 @@ export class RegisterComponent {
       return;
     }
 
-    // Validation
-    if (!sanitizedOrgName || !sanitizedEmail || !sanitizedUsername || !this.ownerPin()) {
-      this.errorMessage.set('All fields are required');
-      return;
-    }
-
-    if (!ValidationUtils.isValidName(sanitizedOrgName)) {
-      this.errorMessage.set('Organization name must be between 2 and 100 characters');
-      return;
-    }
-
-    if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
-      this.errorMessage.set('Invalid email format');
-      return;
-    }
-
-    if (!ValidationUtils.isValidUsername(sanitizedUsername)) {
-      this.errorMessage.set('Username must be 3-30 characters (letters, numbers, - and _ only)');
-      return;
-    }
-
-    const pinValidation = ValidationUtils.validatePin(this.ownerPin());
-    if (!pinValidation.valid) {
-      this.errorMessage.set(pinValidation.errors.join('. '));
-      return;
-    }
-
-    if (this.ownerPin() !== this.confirmPin()) {
-      this.errorMessage.set('PINs do not match');
-      return;
-    }
-
     this.isLoading.set(true);
 
     try {
+      // Auth service will handle all sanitization and validation
       await this.authService.register(
-        sanitizedOrgName,
-        sanitizedEmail,
-        sanitizedUsername,
+        this.organizationName(),
+        this.organizationEmail(),
+        this.ownerName(),
         this.ownerPin(),
       );
 
@@ -115,7 +100,7 @@ export class RegisterComponent {
       this.rateLimiter.reset(rateLimitKey);
 
       // Auto-login after registration
-      await this.authService.login(sanitizedUsername, this.ownerPin());
+      await this.authService.login(this.ownerName(), this.ownerPin());
 
       // Navigate to dashboard
       this.router.navigate(['/dashboard']);

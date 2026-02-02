@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
+import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
 import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
 
 @Component({
@@ -22,6 +23,7 @@ export class LoginComponent {
     private authService: AuthService,
     private router: Router,
     private rateLimiter: RateLimiterService,
+    private inputSanitizer: InputSanitizerService,
   ) {}
 
   async onLogin() {
@@ -32,8 +34,12 @@ export class LoginComponent {
       return;
     }
 
-    // Check rate limiting
-    const rateLimitKey = `login:${this.username().toLowerCase()}`;
+    // Sanitize inputs for rate limiting and authentication
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(this.username());
+    const sanitizedPin = this.inputSanitizer.sanitizePin(this.pin());
+
+    // Check rate limiting using sanitized username
+    const rateLimitKey = `login:${sanitizedUsername}`;
     if (!this.rateLimiter.isAllowed(rateLimitKey)) {
       const remainingTime = this.rateLimiter.getBlockedTimeRemaining(rateLimitKey);
       this.errorMessage.set(
@@ -45,7 +51,7 @@ export class LoginComponent {
     this.isLoading.set(true);
 
     try {
-      await this.authService.login(this.username(), this.pin());
+      await this.authService.login(sanitizedUsername, sanitizedPin);
       // Reset rate limiter on success
       this.rateLimiter.reset(rateLimitKey);
       this.router.navigate(['/dashboard']);

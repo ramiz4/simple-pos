@@ -55,7 +55,13 @@
               required
             />
             @if (organizationName() && orgNameValid()) {
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+              <span
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
+                role="status"
+                aria-live="polite"
+                aria-label="Valid organization name"
+                >✓</span
+              >
             }
           </div>
         </div>
@@ -85,7 +91,13 @@
               required
             />
             @if (organizationEmail() && emailValid()) {
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+              <span
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
+                role="status"
+                aria-live="polite"
+                aria-label="Valid email address"
+                >✓</span
+              >
             }
           </div>
         </div>
@@ -120,7 +132,13 @@
               required
             />
             @if (ownerName() && ownerNameValid()) {
-              <span class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+              <span
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
+                role="status"
+                aria-live="polite"
+                aria-label="Valid username"
+                >✓</span
+              >
             }
           </div>
         </div>
@@ -157,6 +175,8 @@
               (click)="togglePasswordVisibility()"
               class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
               [disabled]="isLoading()"
+              [attr.aria-label]="showPassword() ? 'Hide PIN' : 'Show PIN'"
+              [attr.aria-pressed]="showPassword()"
             >
               @if (showPassword()) {
                 <svg
@@ -250,6 +270,8 @@
               (click)="toggleConfirmPasswordVisibility()"
               class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
               [disabled]="isLoading()"
+              [attr.aria-label]="showConfirmPassword() ? 'Hide confirm PIN' : 'Show confirm PIN'"
+              [attr.aria-pressed]="showConfirmPassword()"
             >
               @if (showConfirmPassword()) {
                 <svg
@@ -290,7 +312,13 @@
               }
             </button>
             @if (confirmPin() && pinsMatch()) {
-              <span class="absolute right-14 top-1/2 -translate-y-1/2 text-green-500">✓</span>
+              <span
+                class="absolute right-14 top-1/2 -translate-y-1/2 text-green-500"
+                role="status"
+                aria-live="polite"
+                aria-label="PINs match"
+                >✓</span
+              >
             }
           </div>
         </div>
