@@ -1,3 +1,17 @@
+# [1.1.0](https://github.com/ramiz4/simple-pos/compare/v1.0.0...v1.1.0) (2026-02-02)
+
+### Bug Fixes
+
+- address code review feedback - sanitize PIN, fix rate limiting, add accessibility ([f30bc15](https://github.com/ramiz4/simple-pos/commit/f30bc1576e1a03d9ad20ae047eb8dece3f4ed38d))
+- address code review feedback and improve PIN strength calculation ([e8489b8](https://github.com/ramiz4/simple-pos/commit/e8489b8d84995869b052ea96bc4e1fc341f726dd))
+- clarify username field is for login, not full name ([2d93a8d](https://github.com/ramiz4/simple-pos/commit/2d93a8d8188d20c8b05736ba448a0faa351e2cec))
+- improve input sanitization security and address CodeQL alerts ([a5a6e69](https://github.com/ramiz4/simple-pos/commit/a5a6e69e00dd75dd659a65b220e8c23d3a9713d2))
+- use Angular router for register link to fix GitHub Pages navigation ([ef5d917](https://github.com/ramiz4/simple-pos/commit/ef5d917ec6b3cdf0077770e0b9bd26b4f825c5e6))
+
+### Features
+
+- add security improvements and enhanced UX for authentication ([34bbe39](https://github.com/ramiz4/simple-pos/commit/34bbe39cc345ae0529dc858a4d9463bbd54c2b2c))
+
 # 1.0.0 (2026-02-02)
 
 ### Features
