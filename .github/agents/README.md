@@ -159,12 +159,12 @@ To create a new custom agent:
 4. **Commit and push** to the main branch
 5. The new agent will appear in the agents dropdown
 
-For detailed configuration options, see [Custom agents configuration](https://docs.github.com/en/copilot/reference/custom-agents-configuration).
+For detailed configuration options, see the [GitHub Copilot documentation on custom agents](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-custom-agents).
 
 ## Learn More
 
 - 📖 [GitHub Copilot Custom Agents Documentation](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-custom-agents)
-- 🎓 [Your First Custom Agent Tutorial](https://docs.github.com/en/copilot/tutorials/customization-library/custom-agents/your-first-custom-agent)
+- 🎓 [Custom Agent Configuration Reference](https://docs.github.com/en/copilot/reference/custom-agents-configuration)
 - 🌟 [Awesome Copilot Agents Examples](https://github.com/github/awesome-copilot/tree/main/agents)
 - 📘 [Main Copilot Instructions](../copilot-instructions.md)
 

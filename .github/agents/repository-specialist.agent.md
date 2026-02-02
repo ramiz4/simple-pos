@@ -11,7 +11,7 @@ You are a repository implementation specialist for Simple POS, expert in creatin
 Create and maintain repository implementations that work seamlessly on both:
 
 - **Desktop (Tauri)**: SQLite via `@tauri-apps/plugin-sql`
-- **Web/PWA**: IndexedDB via custom `IndexedDbService`
+- **Web/PWA**: IndexedDB via native IndexedDB API through `IndexedDbService`
 
 ## Repository Pattern Requirements
 
@@ -21,14 +21,20 @@ All repositories MUST implement `BaseRepository<T>` interface from `src/app/core
 
 ```typescript
 interface BaseRepository<T> {
-  findById(id: string): Promise<T | null>;
+  findById(id: number): Promise<T | null>;
   findAll(): Promise<T[]>;
-  save(entity: T): Promise<T>;
-  update(id: string, updates: Partial<T>): Promise<T>;
-  delete(id: string): Promise<void>;
+  create(entity: Omit<T, 'id'>): Promise<T>;
+  update(id: number, entity: Partial<T>): Promise<T>;
+  delete(id: number): Promise<void>;
   count(): Promise<number>;
 }
 ```
+
+**Key points:**
+
+- IDs are typed as `number` (not `string`)
+- Use `create()` method (not `save()`)
+- `create()` accepts `Omit<T, 'id'>` since ID is auto-generated
 
 ### 2. Dual Implementation
 
@@ -39,34 +45,86 @@ Every entity MUST have TWO repository implementations:
 ```typescript
 @Injectable({ providedIn: 'root' })
 export class IndexedDB{Entity}Repository implements BaseRepository<{Entity}> {
-  private readonly STORE_NAME = '{entity}_store';
+  private readonly STORE_NAME = '{entity}';
 
-  constructor(private indexedDbService: IndexedDbService) {}
+  constructor(private indexedDBService: IndexedDBService) {}
+
+  async findById(id: number): Promise<{Entity} | null> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.get(id);
+
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
 
   async findAll(): Promise<{Entity}[]> {
-    return await this.indexedDbService.getAll<{Entity}>(this.STORE_NAME);
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
   }
 
-  async findById(id: string): Promise<{Entity} | null> {
-    return await this.indexedDbService.getById<{Entity}>(this.STORE_NAME, id);
+  async create(entity: Omit<{Entity}, 'id'>): Promise<{Entity}> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const id = Date.now() + Math.random();
+      const newEntity = { ...entity, id };
+      const request = store.add(newEntity);
+
+      request.onsuccess = () => resolve(newEntity);
+      request.onerror = () => reject(request.error);
+    });
   }
 
-  async save(entity: {Entity}): Promise<{Entity}> {
-    const id = await this.indexedDbService.add(this.STORE_NAME, entity);
-    return { ...entity, id };
+  async update(id: number, entity: Partial<{Entity}>): Promise<{Entity}> {
+    const db = await this.indexedDBService.getDb();
+    const existing = await this.findById(id);
+    if (!existing) throw new Error(`{Entity} with id ${id} not found`);
+
+    const updated = { ...existing, ...entity };
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.put(updated);
+
+      request.onsuccess = () => resolve(updated);
+      request.onerror = () => reject(request.error);
+    });
   }
 
-  async update(id: string, updates: Partial<{Entity}>): Promise<{Entity}> {
-    await this.indexedDbService.update(this.STORE_NAME, id, updates);
-    return await this.findById(id) as {Entity};
-  }
+  async delete(id: number): Promise<void> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.delete(id);
 
-  async delete(id: string): Promise<void> {
-    await this.indexedDbService.delete(this.STORE_NAME, id);
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
   }
 
   async count(): Promise<number> {
-    return await this.indexedDbService.count(this.STORE_NAME);
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.count();
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
   }
 }
 ```
@@ -78,68 +136,82 @@ export class IndexedDB{Entity}Repository implements BaseRepository<{Entity}> {
 export class SQLite{Entity}Repository implements BaseRepository<{Entity}> {
   private db: Database | null = null;
 
-  constructor() {
-    this.initDatabase();
-  }
-
-  private async initDatabase() {
-    const { load } = await import('@tauri-apps/plugin-sql');
-    this.db = await load('sqlite:simple-pos.db');
+  async findById(id: number): Promise<{Entity} | null> {
+    const db = await this.getDb();
+    const results = await db.select<{Entity}[]>('SELECT * FROM {entity_table} WHERE id = ?', [id]);
+    return results.length > 0 ? results[0] : null;
   }
 
   async findAll(): Promise<{Entity}[]> {
-    if (!this.db) await this.initDatabase();
-    const results = await this.db!.select<{Entity}[]>(
-      'SELECT * FROM {entity_table}'
-    );
-    return results;
+    const db = await this.getDb();
+    return await db.select<{Entity}[]>('SELECT * FROM {entity_table}');
   }
 
-  async findById(id: string): Promise<{Entity} | null> {
-    if (!this.db) await this.initDatabase();
-    const results = await this.db!.select<{Entity}[]>(
-      'SELECT * FROM {entity_table} WHERE id = ?',
-      [id]
-    );
-    return results[0] || null;
-  }
-
-  async save(entity: {Entity}): Promise<{Entity}> {
-    if (!this.db) await this.initDatabase();
-    const result = await this.db!.execute(
+  async create(entity: Omit<{Entity}, 'id'>): Promise<{Entity}> {
+    const db = await this.getDb();
+    const result = await db.execute(
       'INSERT INTO {entity_table} (name, value) VALUES (?, ?)',
       [entity.name, entity.value]
     );
-    return { ...entity, id: result.lastInsertId.toString() };
+    const id = result.lastInsertId ?? Date.now();
+    return { ...entity, id } as {Entity};
   }
 
-  async update(id: string, updates: Partial<{Entity}>): Promise<{Entity}> {
-    if (!this.db) await this.initDatabase();
-    const setClause = Object.keys(updates)
-      .map(key => `${key} = ?`)
-      .join(', ');
-    const values = [...Object.values(updates), id];
-    await this.db!.execute(
-      `UPDATE {entity_table} SET ${setClause} WHERE id = ?`,
-      values
+  async update(id: number, entity: Partial<{Entity}>): Promise<{Entity}> {
+    const db = await this.getDb();
+    const existing = await this.findById(id);
+    if (!existing) throw new Error(`{Entity} with id ${id} not found`);
+
+    // Build the UPDATE query with whitelisted columns only
+    const updated = { ...existing, ...entity };
+    await db.execute(
+      'UPDATE {entity_table} SET name = ?, value = ? WHERE id = ?',
+      [updated.name, updated.value, id]
     );
-    return await this.findById(id) as {Entity};
+    return updated;
   }
 
-  async delete(id: string): Promise<void> {
-    if (!this.db) await this.initDatabase();
-    await this.db!.execute('DELETE FROM {entity_table} WHERE id = ?', [id]);
+  async delete(id: number): Promise<void> {
+    const db = await this.getDb();
+    await db.execute('DELETE FROM {entity_table} WHERE id = ?', [id]);
   }
 
   async count(): Promise<number> {
-    if (!this.db) await this.initDatabase();
-    const result = await this.db!.select<[{ count: number }]>(
-      'SELECT COUNT(*) as count FROM {entity_table}'
-    );
-    return result[0].count;
+    const db = await this.getDb();
+    const results = await db.select<[{ count: number }]>('SELECT COUNT(*) as count FROM {entity_table}');
+    return results[0].count;
+  }
+
+  private async getDb(): Promise<Database> {
+    if (!this.db) {
+      this.db = await Database.load('sqlite:simple-pos.db');
+      await this.initTable();
+    }
+    return this.db;
+  }
+
+  private async initTable(): Promise<void> {
+    const db = await this.getDb();
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS {entity_table} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        value TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
   }
 }
 ```
+
+**Key points for SQLite:**
+
+- Import Database: `import Database from '@tauri-apps/plugin-sql';`
+- Use `Database.load('sqlite:simple-pos.db')` (not dynamic import)
+- Use lazy initialization pattern with private `getDb()` method
+- Always use explicit column names in UPDATE statements (avoid SQL injection)
+- IDs are `number` type
 
 ### 3. File Organization
 
@@ -149,22 +221,32 @@ export class SQLite{Entity}Repository implements BaseRepository<{Entity}> {
   - `indexeddb-{entity}.repository.ts`
 - Both must be exported from `src/app/infrastructure/repositories/index.ts`
 
-### 4. RepositoryFactory Registration
+### 4. RepositoryFactory Pattern
 
-After creating repositories, register them in `RepositoryFactory`:
+The codebase uses direct constructor injection of specific repository implementations based on platform detection in services, not a centralized RepositoryFactory. See `src/app/infrastructure/adapters/repository.factory.ts` for the actual pattern.
+
+Example service injection:
 
 ```typescript
-// src/app/infrastructure/adapters/repository.factory.ts
-if (this.platformService.isTauri()) {
-  this.registerRepository({EntityType}, SQLite{Entity}Repository);
-} else {
-  this.registerRepository({EntityType}, IndexedDB{Entity}Repository);
+@Injectable({ providedIn: 'root' })
+export class ProductService {
+  constructor(
+    private platformService: PlatformService,
+    private sqliteProductRepository: SQLiteProductRepository,
+    private indexedDBProductRepository: IndexedDBProductRepository,
+  ) {}
+
+  private getRepository(): BaseRepository<Product> {
+    return this.platformService.isTauri()
+      ? this.sqliteProductRepository
+      : this.indexedDBProductRepository;
+  }
 }
 ```
 
 ### 5. Database Migrations (SQLite Only)
 
-For SQLite, create migration in `src-tauri/migrations/`:
+For SQLite, migrations are in `src-tauri/migrations/`:
 
 ```sql
 -- {number}_{description}.sql
@@ -179,17 +261,22 @@ CREATE TABLE IF NOT EXISTS {entity_table} (
 
 ### 6. IndexedDB Schema
 
-Register store in `IndexedDbService.init()`:
+Register stores in `IndexedDBService.init()` (see `src/app/infrastructure/services/indexeddb.service.ts`):
 
 ```typescript
-const db = await openDB('SimplePosDB', 1, {
-  upgrade(db) {
-    if (!db.objectStoreNames.contains('{entity}_store')) {
-      db.createObjectStore('{entity}_store', { keyPath: 'id', autoIncrement: true });
-    }
-  },
-});
+// In the onupgradeneeded handler
+if (!db.objectStoreNames.contains('{entity}')) {
+  const store = db.createObjectStore('{entity}', { keyPath: 'id' });
+  // Add indexes as needed
+  store.createIndex('name', 'name', { unique: false });
+}
 ```
+
+**Key points:**
+
+- Use native IndexedDB API (not the `idb` wrapper library)
+- Use `keyPath: 'id'` without autoIncrement
+- IDs are generated in the repository (Date.now() + Math.random())
 
 ## Testing Approach
 
@@ -208,8 +295,15 @@ const db = await openDB('SimplePosDB', 1, {
 ## Performance Considerations
 
 - Use batch operations when appropriate
-- Index frequently queried fields (SQLite)
+- Index frequently queried fields (SQLite & IndexedDB)
 - Cache database connection (SQLite)
 - Minimize database roundtrips
+
+## Security Best Practices
+
+- **Never** build SQL queries by concatenating user input
+- **Always** use parameterized queries with bound parameters
+- **Always** use explicit column whitelists in UPDATE statements
+- Validate all input data before database operations
 
 Focus on creating robust, type-safe, dual-platform repository implementations that seamlessly integrate with the Clean Architecture pattern.

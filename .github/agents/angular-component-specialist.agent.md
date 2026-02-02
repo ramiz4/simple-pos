@@ -65,9 +65,6 @@ export class ProductListComponent {
   totalCount = computed(() => this.items().length);
   hasItems = computed(() => this.items().length > 0);
 
-  // Service injection using inject() function
-  private productService = inject(ProductService);
-
   async loadProducts() {
     this._isLoading.set(true);
     this._error.set(null);
@@ -91,7 +88,7 @@ export class ProductListComponent {
 
 ### 3. Modern Template Syntax
 
-Use Angular's new control flow (NOT *ngIf, *ngFor):
+Use Angular's new control flow (NOT \*ngIf, \*ngFor):
 
 ```html
 <!-- ✅ CORRECT - New control flow -->
@@ -110,24 +107,33 @@ Use Angular's new control flow (NOT *ngIf, *ngFor):
 <div *ngFor="let item of items(); trackBy: trackById">{{ item.name }}</div>
 ```
 
-### 4. Dependency Injection with inject()
+### 4. Dependency Injection
 
-Prefer `inject()` function over constructor injection:
+**Use constructor injection for components and services** (this is the codebase convention):
 
 ```typescript
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({...})
 export class MyComponent {
-  // ✅ Preferred approach
-  private productService = inject(ProductService);
-  private router = inject(Router);
-  private platformService = inject(PlatformService);
+  // ✅ CORRECT - Constructor injection (used throughout the codebase)
+  constructor(
+    private productService: ProductService,
+    private router: Router,
+    private platformService: PlatformService
+  ) {}
 
-  // ❌ Avoid constructor injection (only use if inject() is not possible)
-  // constructor(private productService: ProductService) {}
+  // Note: inject() function is used in functional contexts like guards
+  // See src/app/core/guards/auth.guard.ts for guard examples
 }
 ```
+
+**When to use `inject()` function:**
+
+- Functional route guards (`CanActivateFn`)
+- Functional route resolvers
+- Standalone functional contexts where constructor injection isn't available
+- NOT in regular components (use constructor injection instead)
 
 ### 5. TailwindCSS Styling
 
@@ -195,9 +201,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
   `,
 })
 export class ProductFormComponent {
-  private fb = inject(FormBuilder);
-  private productService = inject(ProductService);
-
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
 
@@ -206,6 +209,11 @@ export class ProductFormComponent {
     price: [0, [Validators.required, Validators.min(0)]],
     description: [''],
   });
+
+  constructor(
+    private fb: FormBuilder,
+    private productService: ProductService,
+  ) {}
 
   async onSubmit() {
     if (this.form.invalid) return;
@@ -232,12 +240,12 @@ Components should ONLY depend on services, NEVER directly on repositories:
 ```typescript
 // ✅ CORRECT
 export class ProductComponent {
-  private productService = inject(ProductService); // Service layer
+  constructor(private productService: ProductService) {} // Service layer
 }
 
 // ❌ WRONG
 export class ProductComponent {
-  private productRepository = inject(ProductRepository); // Skip service layer
+  constructor(private productRepository: ProductRepository) {} // Skip service layer
 }
 ```
 
@@ -325,4 +333,4 @@ describe('ProductComponent', () => {
 });
 ```
 
-Focus on creating modern, performant, and accessible Angular components that leverage the latest Angular 21 features and integrate seamlessly with the Clean Architecture pattern.
+Focus on creating modern, performant, and accessible Angular components that leverage the latest Angular 21 features and integrate seamlessly with the Clean Architecture pattern. Always follow the codebase convention of using constructor injection for components and services.
