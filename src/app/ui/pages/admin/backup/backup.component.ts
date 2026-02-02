@@ -200,16 +200,6 @@ import { HeaderComponent } from '../../../components/header/header.component';
       </main>
     </div>
   `,
-  styles: [
-    `
-      .glass-card {
-        @apply bg-white border-2 border-surface-50 shadow-xl shadow-surface-200/50 rounded-[2.5rem] transition-all duration-500;
-      }
-      .glass-card:hover {
-        @apply border-primary-100 shadow-2xl shadow-primary-100/10 translate-y-[-4px];
-      }
-    `,
-  ],
 })
 export class BackupComponent {
   backupPassword = '';
