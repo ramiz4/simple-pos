@@ -52,11 +52,15 @@ export class AuthService {
     const roleInfo = await this.enumMappingService.getEnumFromId(user.roleId);
     const organization = await this.organizationService.getOrganizationById(user.organizationId);
     
+    if (!organization) {
+      throw new Error('Organization not found. Please contact support.');
+    }
+    
     const session: UserSession = {
       user,
       roleCode: roleInfo.code,
       organizationId: user.organizationId,
-      organizationName: organization?.name,
+      organizationName: organization.name,
     };
 
     this.currentSession = session;

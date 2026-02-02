@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserManagementService } from '../../../../application/services/user-management.service';
 import { AuthService } from '../../../../application/services/auth.service';
+import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { User } from '../../../../domain/entities/user.interface';
 import { UserRoleEnum } from '../../../../domain/enums';
 
@@ -28,10 +29,12 @@ export class UsersManagementComponent implements OnInit {
   isLoading = signal(false);
 
   organizationId: number = 0;
+  roleMap = signal<Map<number, string>>(new Map());
 
   constructor(
     private userManagementService: UserManagementService,
     private authService: AuthService,
+    private enumMappingService: EnumMappingService,
     private router: Router
   ) {}
 
@@ -43,7 +46,21 @@ export class UsersManagementComponent implements OnInit {
     }
 
     this.organizationId = session.organizationId;
+    await this.loadRoleMap();
     await this.loadUsers();
+  }
+
+  async loadRoleMap() {
+    try {
+      const roles = await this.enumMappingService.getCodeTableByType('USER_ROLE');
+      const map = new Map<number, string>();
+      roles.forEach(role => {
+        map.set(role.id, role.code);
+      });
+      this.roleMap.set(map);
+    } catch (error) {
+      console.error('Failed to load role mappings', error);
+    }
   }
 
   async loadUsers() {
@@ -121,14 +138,7 @@ export class UsersManagementComponent implements OnInit {
   }
 
   getRoleDisplay(roleId: number): string {
-    // This is a simplified version - in production you'd use EnumMappingService
-    const roleMap: { [key: number]: string } = {
-      1: 'Admin',
-      2: 'Cashier',
-      3: 'Kitchen',
-      4: 'Driver',
-    };
-    return roleMap[roleId] || 'Unknown';
+    return this.roleMap().get(roleId) || 'Unknown';
   }
 
   goBack() {

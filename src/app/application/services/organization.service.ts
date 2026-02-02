@@ -23,7 +23,7 @@ export class OrganizationService {
     // Check if organization with email already exists
     const existing = await orgRepo.findByEmail(email);
     if (existing) {
-      throw new Error('An organization with this email already exists');
+      throw new Error('An organization is already registered with this email address. Please use a different email or contact support if you believe this is an error.');
     }
 
     return await orgRepo.create({
