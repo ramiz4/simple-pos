@@ -227,3 +227,21 @@ For local development, the keys are automatically used from `src-tauri/tauri.key
 - **Architecture:** `docs/architecture.md`
 - **Technical Details:** `docs/technical-details.md`
 - **Setup Guide:** `SETUP.md`
+
+## Troubleshooting
+
+### macOS: "App is damaged and can't be opened"
+
+If you see this error when trying to run the app on macOS, it's because the app is not signed with an Apple Developer ID. This is a common security feature for apps downloaded from the internet.
+
+**Fix:**
+
+1. Open Terminal
+2. Run the following command (replace path with actual location):
+   ```bash
+   xattr -cr /Applications/Simple\ POS.app
+   ```
+   _or if running from the Downloads folder:_
+   ```bash
+   xattr -cr ~/Downloads/Simple\ POS.app
+   ```
