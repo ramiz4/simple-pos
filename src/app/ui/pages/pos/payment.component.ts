@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CartService } from '../../../application/services/cart.service';
@@ -27,7 +27,7 @@ import { HeaderComponent } from '../../components/header/header.component';
           </div>
 
           <!-- Payment Card -->
-          <div class="glass-card !bg-surface-900 overflow-hidden shadow-primary-200">
+          <div class="glass-card bg-surface-900! overflow-hidden shadow-primary-200">
             <div class="p-8 border-b border-white/10">
               <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-8">
                 Detailed Summary
@@ -202,7 +202,7 @@ export class PaymentComponent implements OnInit {
   error = signal<string | null>(null);
   orderNumber = signal<string>('');
   createdOrderId = signal<number | null>(null);
-  summary: () => { subtotal: number; tax: number; tip: number; total: number };
+  summary = computed(() => this.cartService.getSummary());
 
   constructor(
     private router: Router,
@@ -212,9 +212,7 @@ export class PaymentComponent implements OnInit {
     private enumMappingService: EnumMappingService,
     private printerService: PrinterService,
     private authService: AuthService,
-  ) {
-    this.summary = this.cartService.getSummary;
-  }
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
