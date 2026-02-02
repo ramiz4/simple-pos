@@ -10,6 +10,7 @@ import { ProductsManagementComponent } from './ui/pages/admin/products-managemen
 import { VariantsManagementComponent } from './ui/pages/admin/variants-management/variants-management.component';
 import { ExtrasManagementComponent } from './ui/pages/admin/extras-management/extras-management.component';
 import { IngredientsManagementComponent } from './ui/pages/admin/ingredients-management/ingredients-management.component';
+import { PrinterSettingsComponent } from './ui/pages/admin/printer-settings/printer-settings.component';
 
 import { OrderTypeSelectionComponent } from './ui/pages/pos/order-type-selection.component';
 import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
@@ -39,6 +40,7 @@ export const routes: Routes = [
     component: IngredientsManagementComponent,
     canActivate: [adminGuard],
   },
+  { path: 'admin/printer', component: PrinterSettingsComponent, canActivate: [adminGuard] },
   { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [authGuard] },
   { path: 'pos/product-selection', component: ProductSelectionComponent, canActivate: [authGuard] },

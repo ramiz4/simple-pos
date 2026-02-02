@@ -3,6 +3,29 @@
 
 use tauri_plugin_sql::{Builder as SqlBuilder, Migration, MigrationKind};
 
+#[tauri::command]
+async fn print_raw(connection: String, data: Vec<u8>) -> Result<(), String> {
+    if connection.starts_with("tcp:") {
+        let addr = connection.trim_start_matches("tcp:").to_string();
+        use std::net::TcpStream;
+        use std::io::Write;
+        use std::time::Duration;
+
+        let mut stream = TcpStream::connect_timeout(
+            &addr.parse().map_err(|e| format!("Invalid address: {}", e))?,
+            Duration::from_secs(5)
+        ).map_err(|e| format!("Failed to connect: {}", e))?;
+
+        stream.write_all(&data).map_err(|e| format!("Failed to write: {}", e))?;
+        stream.flush().map_err(|e| format!("Failed to flush: {}", e))?;
+        Ok(())
+    } else {
+        // Fallback or other connection types (USB, Serial, Local)
+        // For now, we only implement TCP for network printers
+        Err(format!("Unsupported connection type: {}", connection))
+    }
+}
+
 fn main() {
     let migrations = vec![
         Migration {
@@ -20,6 +43,7 @@ fn main() {
                 .build(),
         )
         .plugin(tauri_plugin_shell::init())
+        .invoke_handler(tauri::generate_handler![print_raw])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
