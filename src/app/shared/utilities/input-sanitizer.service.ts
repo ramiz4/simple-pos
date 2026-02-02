@@ -13,8 +13,11 @@ export class InputSanitizerService {
   sanitizeString(input: string): string {
     if (!input) return '';
 
-    // Remove any HTML tags
-    let sanitized = input.replace(/<[^>]*>/g, '');
+    // First pass: remove script tags and their content
+    let sanitized = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+    // Second pass: remove all HTML tags but keep the content between tags
+    sanitized = sanitized.replace(/<[^>]*>/g, '');
 
     // Remove script-related content
     sanitized = sanitized.replace(/javascript:/gi, '');
@@ -55,8 +58,13 @@ export class InputSanitizerService {
   sanitizeName(name: string): string {
     if (!name) return '';
 
+    // First remove script tags and their content completely
+    let sanitized = this.sanitizeString(name);
+
     // Allow letters, numbers, spaces, hyphens, apostrophes, and periods
-    return this.sanitizeString(name).replace(/[^a-zA-Z0-9\s\-'\.]/g, '');
+    sanitized = sanitized.replace(/[^a-zA-Z0-9\s\-'\.]/g, '');
+
+    return sanitized;
   }
 
   /**
