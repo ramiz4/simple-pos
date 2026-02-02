@@ -1,7 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ReportingService, DailyRevenueReport, RevenueByTypeReport, ZReport } from '../../../application/services/reporting.service';
+import {
+  ReportingService,
+  DailyRevenueReport,
+  RevenueByTypeReport,
+  ZReport,
+} from '../../../application/services/reporting.service';
 import { BackupService, BackupData } from '../../../application/services/backup.service';
 import { HeaderComponent } from '../../components/header/header.component';
 
@@ -10,25 +15,26 @@ import { HeaderComponent } from '../../components/header/header.component';
   standalone: true,
   imports: [CommonModule, FormsModule, HeaderComponent],
   templateUrl: './reports.component.html',
-  styleUrls: ['./reports.component.css']
+  styleUrls: ['./reports.component.css'],
 })
 export class ReportsComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal<string | null>(null);
-  
+
   dailyRevenue = signal<DailyRevenueReport | null>(null);
   revenueByType = signal<RevenueByTypeReport[]>([]);
   zReport = signal<ZReport | null>(null);
-  
+  lastUpdated = signal<Date | null>(null);
+
   startDate: string;
   endDate: string;
-  
+
   activeTab = signal<'daily' | 'breakdown' | 'zreport' | 'backup'>('daily');
 
   constructor(
     private reportingService: ReportingService,
-    private backupService: BackupService
+    private backupService: BackupService,
   ) {
     this.startDate = this.getTodayString();
     this.endDate = this.getTomorrowString();
@@ -36,6 +42,7 @@ export class ReportsComponent implements OnInit {
 
   async ngOnInit() {
     await this.loadDailyRevenue();
+    this.lastUpdated.set(new Date());
   }
 
   setActiveTab(tab: 'daily' | 'breakdown' | 'zreport' | 'backup') {
@@ -50,6 +57,7 @@ export class ReportsComponent implements OnInit {
       this.error.set(null);
       const report = await this.reportingService.getDailyRevenue();
       this.dailyRevenue.set(report);
+      this.lastUpdated.set(new Date());
     } catch (err) {
       this.error.set('Failed to load daily revenue: ' + (err as Error).message);
     } finally {
@@ -63,9 +71,10 @@ export class ReportsComponent implements OnInit {
       this.error.set(null);
       const report = await this.reportingService.getRevenueByOrderType({
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
       });
       this.revenueByType.set(report);
+      this.lastUpdated.set(new Date());
     } catch (err) {
       this.error.set('Failed to load revenue breakdown: ' + (err as Error).message);
     } finally {
@@ -79,9 +88,10 @@ export class ReportsComponent implements OnInit {
       this.error.set(null);
       const report = await this.reportingService.generateZReport({
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
       });
       this.zReport.set(report);
+      this.lastUpdated.set(new Date());
     } catch (err) {
       this.error.set('Failed to generate Z-Report: ' + (err as Error).message);
     } finally {
@@ -95,7 +105,7 @@ export class ReportsComponent implements OnInit {
       this.error.set(null);
       const csv = await this.reportingService.exportOrdersToCSV({
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
       });
       this.reportingService.downloadCSV(csv, `orders-${this.getTodayString()}.csv`);
       this.success.set('Orders exported successfully');
@@ -112,7 +122,7 @@ export class ReportsComponent implements OnInit {
       this.error.set(null);
       const csv = await this.reportingService.exportRevenueReportToCSV({
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
       });
       this.reportingService.downloadCSV(csv, `revenue-report-${this.getTodayString()}.csv`);
       this.success.set('Revenue report exported successfully');
@@ -129,7 +139,7 @@ export class ReportsComponent implements OnInit {
       this.error.set(null);
       const csv = await this.reportingService.exportZReportToCSV({
         startDate: this.startDate,
-        endDate: this.endDate
+        endDate: this.endDate,
       });
       this.reportingService.downloadCSV(csv, `z-report-${this.getTodayString()}.csv`);
       this.success.set('Z-Report exported successfully');
@@ -164,18 +174,18 @@ export class ReportsComponent implements OnInit {
       this.loading.set(true);
       this.error.set(null);
       const backup = await this.backupService.importBackupFromFile(file);
-      
+
       const confirmed = confirm(
-        'Are you sure you want to restore this backup? This will add all data from the backup to your current database.'
+        'Are you sure you want to restore this backup? This will add all data from the backup to your current database.',
       );
-      
+
       if (!confirmed) {
         this.loading.set(false);
         return;
       }
 
       const result = await this.backupService.restoreBackup(backup);
-      
+
       if (result.success) {
         this.success.set(`Backup restored successfully. ${result.itemsRestored} items restored.`);
       } else {
