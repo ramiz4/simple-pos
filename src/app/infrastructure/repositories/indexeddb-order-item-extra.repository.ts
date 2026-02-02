@@ -17,7 +17,7 @@ export class IndexedDBOrderItemExtraRepository {
       const store = transaction.objectStore(this.STORE_NAME);
       const compositeKey = {
         ...entity,
-        id: `${entity.orderItemId}-${entity.extraId}`,
+        id: `${entity.orderItemId}-${entity.extraId}-${Math.random()}`,
       };
       const request = store.add(compositeKey);
 
@@ -85,5 +85,4 @@ export class IndexedDBOrderItemExtraRepository {
       transaction.onerror = () => reject(transaction.error);
     });
   }
-
 }

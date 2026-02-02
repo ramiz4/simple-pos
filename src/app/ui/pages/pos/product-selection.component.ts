@@ -8,6 +8,8 @@ import { VariantService } from '../../../application/services/variant.service';
 import { ExtraService } from '../../../application/services/extra.service';
 import { ProductExtraService } from '../../../application/services/product-extra.service';
 import { CartService } from '../../../application/services/cart.service';
+import { TableService } from '../../../application/services/table.service';
+import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { Category } from '../../../domain/entities/category.interface';
 import { Product } from '../../../domain/entities/product.interface';
 import { Variant } from '../../../domain/entities/variant.interface';
@@ -52,7 +54,7 @@ interface ProductWithExtras extends Product {
                 (click)="openProductModal(product)"
                 class="glass-card group flex flex-col items-start overflow-hidden hover:ring-2 hover:ring-primary-400 transition-all duration-300"
               >
-                <div class="w-full aspect-[4/3] relative overflow-hidden bg-surface-100">
+                <div class="w-full aspect-4/3 relative overflow-hidden bg-surface-100">
                   <div
                     class="absolute inset-0 primary-gradient opacity-10 group-hover:opacity-20 transition-opacity"
                   ></div>
@@ -109,7 +111,7 @@ interface ProductWithExtras extends Product {
       <div class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-8 sm:pb-4 pointer-events-none">
         <div class="max-w-4xl mx-auto pointer-events-auto">
           <div
-            class="glass-card !bg-surface-900/90 !backdrop-blur-2xl border-white/10 p-4 shadow-2xl flex items-center justify-between gap-6 translate-y-0 animate-slide-up"
+            class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-4 shadow-2xl flex items-center justify-between gap-6 translate-y-0 animate-slide-up"
           >
             <div class="flex items-center gap-4">
               <div
@@ -396,6 +398,8 @@ export class ProductSelectionComponent implements OnInit {
     private extraService: ExtraService,
     private productExtraService: ProductExtraService,
     private cartService: CartService,
+    private tableService: TableService,
+    private enumMappingService: EnumMappingService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -536,7 +540,30 @@ export class ProductSelectionComponent implements OnInit {
     };
 
     this.cartService.addItem(cartItem);
+
+    // Update table status if this is a dine-in order
+    this.updateTableStatusIfNecessary();
+
     this.closeModal();
+  }
+
+  private async updateTableStatusIfNecessary(): Promise<void> {
+    if (this.tableId) {
+      try {
+        const table = await this.tableService.getById(this.tableId);
+        const freeStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', 'FREE');
+
+        if (table && table.statusId === freeStatusId) {
+          const occupiedStatusId = await this.enumMappingService.getCodeTableId(
+            'TABLE_STATUS',
+            'OCCUPIED',
+          );
+          await this.tableService.updateTableStatus(this.tableId, occupiedStatusId);
+        }
+      } catch (error) {
+        console.error('Error updating table status:', error);
+      }
+    }
   }
 
   viewCart(): void {

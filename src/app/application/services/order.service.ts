@@ -25,7 +25,7 @@ export interface CreateOrderData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OrderService {
   constructor(
@@ -37,7 +37,7 @@ export class OrderService {
     private sqliteOrderItemExtraRepo: SQLiteOrderItemExtraRepository,
     private indexedDBOrderItemExtraRepo: IndexedDBOrderItemExtraRepository,
     private enumMappingService: EnumMappingService,
-    private tableService: TableService
+    private tableService: TableService,
   ) {}
 
   async createOrder(data: CreateOrderData): Promise<Order> {
@@ -62,7 +62,7 @@ export class OrderService {
         createdAt: new Date().toISOString(),
         completedAt: null,
         userId: data.userId,
-        cancelledReason: null
+        cancelledReason: null,
       });
 
       // Create order items
@@ -73,7 +73,7 @@ export class OrderService {
           variantId: cartItem.variantId,
           quantity: cartItem.quantity,
           unitPrice: cartItem.unitPrice,
-          notes: cartItem.notes
+          notes: cartItem.notes,
         });
 
         // Create order item extras
@@ -81,20 +81,32 @@ export class OrderService {
           await orderItemExtraRepo.create({
             orderId: order.id,
             orderItemId: orderItem.id,
-            extraId
+            extraId,
           });
         }
       }
 
-      // If DINE_IN order with PAID status, set table to OCCUPIED
+      // Update table status for DINE_IN orders
       const orderType = await this.enumMappingService.getEnumFromId(data.typeId);
       const orderStatus = await this.enumMappingService.getEnumFromId(data.statusId);
-      
-      if (orderType.code === OrderTypeEnum.DINE_IN && 
-          orderStatus.code === OrderStatusEnum.PAID && 
-          data.tableId) {
-        const occupiedStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.OCCUPIED);
-        await this.tableService.updateTableStatus(data.tableId, occupiedStatusId);
+
+      if (orderType.code === OrderTypeEnum.DINE_IN && data.tableId) {
+        if (
+          orderStatus.code === OrderStatusEnum.PAID ||
+          orderStatus.code === OrderStatusEnum.COMPLETED
+        ) {
+          const freeStatusId = await this.enumMappingService.getCodeTableId(
+            'TABLE_STATUS',
+            TableStatusEnum.FREE,
+          );
+          await this.tableService.updateTableStatus(data.tableId, freeStatusId);
+        } else {
+          const occupiedStatusId = await this.enumMappingService.getCodeTableId(
+            'TABLE_STATUS',
+            TableStatusEnum.OCCUPIED,
+          );
+          await this.tableService.updateTableStatus(data.tableId, occupiedStatusId);
+        }
       }
 
       return order;
@@ -124,23 +136,29 @@ export class OrderService {
   async updateOrderStatus(id: number, newStatusId: number): Promise<Order> {
     const orderRepo = this.getOrderRepo();
     const order = await orderRepo.findById(id);
-    
+
     if (!order) {
       throw new Error(`Order with id ${id} not found`);
     }
 
     const newStatus = await this.enumMappingService.getEnumFromId(newStatusId);
-    
+
     // If status is COMPLETED or CANCELLED, set completedAt and free table
-    if (newStatus.code === OrderStatusEnum.COMPLETED || newStatus.code === OrderStatusEnum.CANCELLED) {
+    if (
+      newStatus.code === OrderStatusEnum.COMPLETED ||
+      newStatus.code === OrderStatusEnum.CANCELLED
+    ) {
       const updated = await orderRepo.update(id, {
         statusId: newStatusId,
-        completedAt: new Date().toISOString()
+        completedAt: new Date().toISOString(),
       });
 
       // Free the table if it was a DINE_IN order
       if (order.tableId) {
-        const freeStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.FREE);
+        const freeStatusId = await this.enumMappingService.getCodeTableId(
+          'TABLE_STATUS',
+          TableStatusEnum.FREE,
+        );
         await this.tableService.updateTableStatus(order.tableId, freeStatusId);
       }
 
@@ -151,10 +169,13 @@ export class OrderService {
   }
 
   async cancelOrder(id: number, reason: string): Promise<Order> {
-    const cancelledStatusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.CANCELLED);
+    const cancelledStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.CANCELLED,
+    );
     const orderRepo = this.getOrderRepo();
     const order = await orderRepo.findById(id);
-    
+
     if (!order) {
       throw new Error(`Order with id ${id} not found`);
     }
@@ -162,12 +183,15 @@ export class OrderService {
     const updated = await orderRepo.update(id, {
       statusId: cancelledStatusId,
       cancelledReason: reason,
-      completedAt: new Date().toISOString()
+      completedAt: new Date().toISOString(),
     });
 
     // Free the table if it was a DINE_IN order
     if (order.tableId) {
-      const freeStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.FREE);
+      const freeStatusId = await this.enumMappingService.getCodeTableId(
+        'TABLE_STATUS',
+        TableStatusEnum.FREE,
+      );
       await this.tableService.updateTableStatus(order.tableId, freeStatusId);
     }
 
@@ -175,7 +199,10 @@ export class OrderService {
   }
 
   async completeOrder(id: number): Promise<Order> {
-    const completedStatusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.COMPLETED);
+    const completedStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.COMPLETED,
+    );
     return await this.updateOrderStatus(id, completedStatusId);
   }
 
@@ -185,7 +212,7 @@ export class OrderService {
 
   async getOrderItemExtras(orderItemId: number): Promise<number[]> {
     const extras = await this.getOrderItemExtraRepo().findByOrderItemId(orderItemId);
-    return extras.map(e => e.extraId);
+    return extras.map((e) => e.extraId);
   }
 
   private getOrderRepo() {
@@ -197,6 +224,8 @@ export class OrderService {
   }
 
   private getOrderItemExtraRepo() {
-    return this.platformService.isTauri() ? this.sqliteOrderItemExtraRepo : this.indexedDBOrderItemExtraRepo;
+    return this.platformService.isTauri()
+      ? this.sqliteOrderItemExtraRepo
+      : this.indexedDBOrderItemExtraRepo;
   }
 }

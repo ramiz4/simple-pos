@@ -70,7 +70,7 @@ interface KitchenOrder {
             @for (order of orders(); track order.order.id) {
               <div class="bg-white rounded-lg shadow-lg border-2 border-gray-200 overflow-hidden">
                 <!-- Order Header -->
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4">
+                <div class="bg-linear-to-r from-orange-500 to-red-500 text-white p-4">
                   <div class="flex justify-between items-start mb-2">
                     <div>
                       <div class="text-3xl font-bold">{{ order.order.orderNumber }}</div>
@@ -93,13 +93,19 @@ interface KitchenOrder {
                   @for (orderItem of order.items; track orderItem.item.id) {
                     <div class="border-b border-gray-200 pb-3 last:border-b-0">
                       <div class="flex items-start">
-                        <div class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                        <div
+                          class="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm"
+                        >
                           {{ orderItem.item.quantity }}
                         </div>
                         <div class="ml-3 flex-1">
-                          <div class="font-semibold text-gray-800">{{ orderItem.product.name }}</div>
+                          <div class="font-semibold text-gray-800">
+                            {{ orderItem.product.name }}
+                          </div>
                           @if (orderItem.variant) {
-                            <div class="text-sm text-gray-600">Size: {{ orderItem.variant.name }}</div>
+                            <div class="text-sm text-gray-600">
+                              Size: {{ orderItem.variant.name }}
+                            </div>
                           }
                           @for (extra of orderItem.extras; track extra.id) {
                             <div class="text-sm text-gray-600">+ {{ extra.name }}</div>
@@ -127,7 +133,11 @@ interface KitchenOrder {
                         [disabled]="processingOrderId() === order.order.id"
                         class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold transition disabled:opacity-50"
                       >
-                        {{ processingOrderId() === order.order.id ? '⏳ Processing...' : '👨‍🍳 Start Preparing' }}
+                        {{
+                          processingOrderId() === order.order.id
+                            ? '⏳ Processing...'
+                            : '👨‍🍳 Start Preparing'
+                        }}
                       </button>
                     }
                     @if (canMarkAsReady(order.order)) {
@@ -136,7 +146,11 @@ interface KitchenOrder {
                         [disabled]="processingOrderId() === order.order.id"
                         class="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition disabled:opacity-50"
                       >
-                        {{ processingOrderId() === order.order.id ? '⏳ Processing...' : '✅ Mark as Ready' }}
+                        {{
+                          processingOrderId() === order.order.id
+                            ? '⏳ Processing...'
+                            : '✅ Mark as Ready'
+                        }}
                       </button>
                     }
                     @if (canMarkAsCompleted(order.order)) {
@@ -145,7 +159,11 @@ interface KitchenOrder {
                         [disabled]="processingOrderId() === order.order.id"
                         class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition disabled:opacity-50"
                       >
-                        {{ processingOrderId() === order.order.id ? '⏳ Processing...' : '🎉 Mark as Completed' }}
+                        {{
+                          processingOrderId() === order.order.id
+                            ? '⏳ Processing...'
+                            : '🎉 Mark as Completed'
+                        }}
                       </button>
                     }
                   </div>
@@ -157,7 +175,7 @@ interface KitchenOrder {
       </main>
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class KitchenViewComponent implements OnInit, OnDestroy {
   orders = signal<KitchenOrder[]>([]);
@@ -165,7 +183,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
   error = signal<string | null>(null);
   processingOrderId = signal<number | null>(null);
   session: UserSession | null = null;
-  
+
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
@@ -176,14 +194,14 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     private extraService: ExtraService,
     private tableService: TableService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
   ) {
     this.session = this.authService.getCurrentSession();
   }
 
   async ngOnInit() {
     await this.loadOrders();
-    
+
     // Auto-refresh every 30 seconds
     this.refreshInterval = setInterval(() => {
       this.loadOrders();
@@ -203,10 +221,10 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     try {
       // Get all active orders (not completed or cancelled)
       const activeOrders = await this.orderService.getActiveOrders();
-      
+
       // Transform orders to kitchen order format
       const kitchenOrders = await Promise.all(
-        activeOrders.map(order => this.transformToKitchenOrder(order))
+        activeOrders.map((order) => this.transformToKitchenOrder(order)),
       );
 
       this.orders.set(kitchenOrders);
@@ -220,7 +238,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
 
   private async transformToKitchenOrder(order: Order): Promise<KitchenOrder> {
     const orderItems = await this.orderService.getOrderItems(order.id);
-    
+
     const items = await Promise.all(
       orderItems.map(async (item): Promise<KitchenOrderItem> => {
         const product = await this.productService.getById(item.productId);
@@ -229,17 +247,15 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
         }
         const variant = item.variantId ? await this.variantService.getById(item.variantId) : null;
         const extraIds = await this.orderService.getOrderItemExtras(item.id);
-        const extras = await Promise.all(
-          extraIds.map(id => this.extraService.getById(id))
-        );
+        const extras = await Promise.all(extraIds.map((id) => this.extraService.getById(id)));
 
         return {
           item,
           product,
           variant,
-          extras: extras.filter((e): e is Extra => e !== null)
+          extras: extras.filter((e): e is Extra => e !== null),
         };
-      })
+      }),
     );
 
     const table = order.tableId ? await this.tableService.getById(order.tableId) : null;
@@ -253,7 +269,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
       orderStatus,
       orderStatusCode: orderStatusEnum.code,
       items,
-      table
+      table,
     };
   }
 
@@ -287,21 +303,21 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
 
   canMarkAsPreparing(order: Order): boolean {
     // Can mark as preparing if order is PAID
-    const kitchenOrder = this.orders().find(ko => ko.order.id === order.id);
+    const kitchenOrder = this.orders().find((ko) => ko.order.id === order.id);
     if (!kitchenOrder) return false;
     return kitchenOrder.orderStatusCode === OrderStatusEnum.PAID;
   }
 
   canMarkAsReady(order: Order): boolean {
     // Can mark as ready if order is PREPARING
-    const kitchenOrder = this.orders().find(ko => ko.order.id === order.id);
+    const kitchenOrder = this.orders().find((ko) => ko.order.id === order.id);
     if (!kitchenOrder) return false;
     return kitchenOrder.orderStatusCode === OrderStatusEnum.PREPARING;
   }
 
   canMarkAsCompleted(order: Order): boolean {
     // Can mark as completed if order is READY
-    const kitchenOrder = this.orders().find(ko => ko.order.id === order.id);
+    const kitchenOrder = this.orders().find((ko) => ko.order.id === order.id);
     if (!kitchenOrder) return false;
     return kitchenOrder.orderStatusCode === OrderStatusEnum.READY;
   }
@@ -315,7 +331,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     if (diffMins < 1) return 'Just now';
     if (diffMins === 1) return '1 minute ago';
     if (diffMins < 60) return `${diffMins} minutes ago`;
-    
+
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours === 1) return '1 hour ago';
     return `${diffHours} hours ago`;

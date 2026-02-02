@@ -1,32 +1,32 @@
-<div class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+<div class="min-h-screen bg-linear-to-br from-purple-900 via-blue-900 to-indigo-900">
   <app-header title="Reports & Analytics" [showBackButton]="true"></app-header>
-  
+
   <div class="p-4 md:p-8">
   <div class="max-w-7xl mx-auto">
     <!-- Tabs -->
     <div class="mb-6 flex flex-wrap gap-2">
-      <button 
+      <button
         (click)="setActiveTab('daily')"
         [class.bg-white/30]="activeTab() === 'daily'"
         [class.bg-white/10]="activeTab() !== 'daily'"
         class="px-6 py-3 rounded-lg text-white font-semibold backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
         Daily Revenue
       </button>
-      <button 
+      <button
         (click)="setActiveTab('breakdown')"
         [class.bg-white/30]="activeTab() === 'breakdown'"
         [class.bg-white/10]="activeTab() !== 'breakdown'"
         class="px-6 py-3 rounded-lg text-white font-semibold backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
         Revenue Breakdown
       </button>
-      <button 
+      <button
         (click)="setActiveTab('zreport')"
         [class.bg-white/30]="activeTab() === 'zreport'"
         [class.bg-white/10]="activeTab() !== 'zreport'"
         class="px-6 py-3 rounded-lg text-white font-semibold backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all">
         Z-Report
       </button>
-      <button 
+      <button
         (click)="setActiveTab('backup')"
         [class.bg-white/30]="activeTab() === 'backup'"
         [class.bg-white/10]="activeTab() !== 'backup'"
@@ -60,7 +60,7 @@
       <div class="backdrop-blur-md bg-white/10 rounded-2xl p-6 border border-white/20">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-2xl font-bold text-white">Today's Revenue</h2>
-          <button 
+          <button
             (click)="loadDailyRevenue()"
             class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all">
             Refresh
@@ -84,7 +84,7 @@
           </div>
 
           <div class="mt-6">
-            <button 
+            <button
               (click)="exportOrders()"
               class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
               Export Orders to CSV
@@ -102,27 +102,27 @@
         <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-white mb-2">Start Date</label>
-            <input 
-              type="datetime-local" 
+            <input
+              type="datetime-local"
               [(ngModel)]="startDate"
               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white backdrop-blur-md">
           </div>
           <div>
             <label class="block text-white mb-2">End Date</label>
-            <input 
-              type="datetime-local" 
+            <input
+              type="datetime-local"
               [(ngModel)]="endDate"
               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white backdrop-blur-md">
           </div>
         </div>
 
         <div class="mb-6">
-          <button 
+          <button
             (click)="loadRevenueByType()"
             class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all mr-4">
             Generate Report
           </button>
-          <button 
+          <button
             (click)="exportRevenueReport()"
             class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
             Export to CSV
@@ -162,27 +162,27 @@
         <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-white mb-2">Start Date</label>
-            <input 
-              type="datetime-local" 
+            <input
+              type="datetime-local"
               [(ngModel)]="startDate"
               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white backdrop-blur-md">
           </div>
           <div>
             <label class="block text-white mb-2">End Date</label>
-            <input 
-              type="datetime-local" 
+            <input
+              type="datetime-local"
               [(ngModel)]="endDate"
               class="w-full px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white backdrop-blur-md">
           </div>
         </div>
 
         <div class="mb-6">
-          <button 
+          <button
             (click)="loadZReport()"
             class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all mr-4">
             Generate Z-Report
           </button>
-          <button 
+          <button
             (click)="exportZReport()"
             class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all">
             Export to CSV
@@ -276,7 +276,7 @@
           <div class="backdrop-blur-md bg-white/5 rounded-xl p-6 border border-white/10">
             <h3 class="text-xl font-semibold text-white mb-3">Create Backup</h3>
             <p class="text-white/70 mb-4">Export all database data to a JSON file for backup purposes.</p>
-            <button 
+            <button
               (click)="createBackup()"
               class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-all">
               Download Backup
@@ -290,8 +290,8 @@
             <div class="flex items-center gap-4">
               <label class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition-all cursor-pointer">
                 Choose Backup File
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept=".json"
                   (change)="restoreBackup($event)"
                   class="hidden">

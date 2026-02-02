@@ -44,7 +44,8 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const id = Date.now();
+      // Use high-resolution time if available, or add random to prevent collisions
+      const id = Date.now() + Math.random();
       const newEntity = { ...entity, id };
       const request = store.add(newEntity);
 
@@ -115,7 +116,9 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
     const todayOrders = allOrders.filter((o) => o.orderNumber.startsWith(today));
     const baseSequence = todayOrders.length + 1;
     // Add random suffix to ensure uniqueness even for rapid consecutive orders
-    const randomSuffix = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+    const randomSuffix = Math.floor(Math.random() * 100)
+      .toString()
+      .padStart(2, '0');
     const sequence = baseSequence.toString().padStart(4, '0');
     return `${today}${sequence}${randomSuffix}`;
   }

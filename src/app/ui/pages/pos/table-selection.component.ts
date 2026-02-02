@@ -7,6 +7,8 @@ import { Table } from '../../../domain/entities';
 import { TableStatusEnum } from '../../../domain/enums';
 import { HeaderComponent } from '../../components/header/header.component';
 
+import { CartService } from '../../../application/services/cart.service';
+
 @Component({
   selector: 'app-table-selection',
   standalone: true,
@@ -23,7 +25,7 @@ import { HeaderComponent } from '../../components/header/header.component';
         <div class="mb-12 text-center">
           <h2 class="text-3xl font-black text-surface-900 mb-2">Where are they sitting?</h2>
           <p class="text-surface-500 font-medium">
-            Select an available table from the floor plan below.
+            Select an available or occupied table to manage its order.
           </p>
         </div>
 
@@ -32,7 +34,6 @@ import { HeaderComponent } from '../../components/header/header.component';
           @for (table of tables(); track table.id) {
             <button
               (click)="selectTable(table)"
-              [disabled]="!isTableFree(table)"
               [class]="getTableButtonClass(table)"
               class="relative overflow-hidden group transition-all duration-300"
             >
@@ -71,13 +72,15 @@ import { HeaderComponent } from '../../components/header/header.component';
                 </div>
               </div>
 
-              <!-- Decorative element for available tables -->
+              <!-- Decorative element -->
               @if (isTableFree(table)) {
                 <div
                   class="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
                 ></div>
               } @else {
-                <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-red-50 rounded-full z-0"></div>
+                <div
+                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
+                ></div>
               }
             </button>
           }
@@ -104,6 +107,7 @@ export class TableSelectionComponent implements OnInit {
     private route: ActivatedRoute,
     private tableService: TableService,
     private enumMappingService: EnumMappingService,
+    private cartService: CartService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -143,12 +147,12 @@ export class TableSelectionComponent implements OnInit {
   }
 
   getTableButtonClass(table: Table): string {
-    const baseClass = 'glass-card border-none ring-1 active:scale-95';
+    const baseClass = 'glass-card border-none ring-1 active:scale-95 cursor-pointer';
 
     if (this.isTableFree(table)) {
-      return `${baseClass} ring-green-100 hover:ring-green-400 cursor-pointer`;
+      return `${baseClass} ring-green-100 hover:ring-green-400`;
     } else {
-      return `${baseClass} ring-red-100 cursor-not-allowed opacity-60 bg-red-50/50`;
+      return `${baseClass} ring-orange-100 hover:ring-orange-400 bg-orange-50/30`;
     }
   }
 
@@ -156,11 +160,12 @@ export class TableSelectionComponent implements OnInit {
     if (this.isTableFree(table)) {
       return 'text-green-600 bg-green-100';
     }
-    return 'text-red-600 bg-red-100';
+    return 'text-orange-600 bg-orange-100';
   }
 
   selectTable(table: Table): void {
-    if (!this.isTableFree(table)) return;
+    // Set table context for the cart
+    this.cartService.setContext(table.id);
 
     this.router.navigate(['/pos/product-selection'], {
       queryParams: {

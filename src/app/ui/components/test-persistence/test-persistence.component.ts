@@ -9,7 +9,7 @@ import { PlatformService } from '../../../shared/utilities/platform.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 p-8">
+    <div class="min-h-screen bg-linear-to-br from-blue-400 via-purple-500 to-pink-500 p-8">
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
         <div class="glass-card p-6 mb-6">

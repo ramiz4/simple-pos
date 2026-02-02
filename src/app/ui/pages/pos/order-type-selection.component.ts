@@ -5,13 +5,15 @@ import { EnumMappingService } from '../../../application/services/enum-mapping.s
 import { OrderTypeEnum } from '../../../domain/enums';
 import { HeaderComponent } from '../../components/header/header.component';
 
+import { CartService } from '../../../application/services/cart.service';
+
 @Component({
   selector: 'app-order-type-selection',
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   template: `
     <div class="min-h-screen bg-[#F8FAFC]">
-      <app-header title="Order Type" [showBackButton]="true"></app-header>
+      <app-header title="Order Type" [showBackButton]="true" (back)="goBack()"></app-header>
 
       <main class="p-6 max-w-4xl mx-auto animate-fade-in">
         <div class="mb-12 text-center">
@@ -97,6 +99,7 @@ export class OrderTypeSelectionComponent {
   constructor(
     private router: Router,
     private enumMappingService: EnumMappingService,
+    private cartService: CartService,
   ) {}
 
   async selectOrderType(type: string): Promise<void> {
@@ -107,6 +110,7 @@ export class OrderTypeSelectionComponent {
         queryParams: { typeId },
       });
     } else {
+      this.cartService.setContext(type);
       this.router.navigate(['/pos/product-selection'], {
         queryParams: { typeId, tableId: null },
       });

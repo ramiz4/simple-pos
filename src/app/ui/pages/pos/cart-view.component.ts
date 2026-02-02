@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { CartService } from '../../../application/services/cart.service';
 import { HeaderComponent } from '../../components/header/header.component';
 
+import { TableService } from '../../../application/services/table.service';
+import { EnumMappingService } from '../../../application/services/enum-mapping.service';
+
 @Component({
   selector: 'app-cart-view',
   standalone: true,
@@ -41,7 +44,7 @@ import { HeaderComponent } from '../../components/header/header.component';
                 class="text-xs font-black text-surface-400 uppercase tracking-widest mb-4 flex items-center gap-2"
               >
                 <span>Items</span>
-                <span class="h-[1px] grow bg-surface-100"></span>
+                <span class="h-px grow bg-surface-100"></span>
               </h2>
 
               @for (item of cartItems(); track $index) {
@@ -112,7 +115,7 @@ import { HeaderComponent } from '../../components/header/header.component';
                           >
                             −
                           </button>
-                          <span class="font-black text-surface-900 min-w-[1.5rem] text-center">{{
+                          <span class="font-black text-surface-900 min-w-6 text-center">{{
                             item.quantity
                           }}</span>
                           <button
@@ -151,7 +154,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 
             <!-- Side Summary -->
             <div class="w-full lg:w-80 shrink-0 sticky top-24 space-y-4">
-              <div class="glass-card p-6 !bg-surface-900 border-none shadow-primary-200">
+              <div class="glass-card p-6 bg-surface-900! border-none shadow-primary-200">
                 <h2 class="text-xs font-black text-surface-400 uppercase tracking-widest mb-6">
                   Order Total
                 </h2>
@@ -292,6 +295,8 @@ export class CartViewComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private cartService: CartService,
+    private tableService: TableService,
+    private enumMappingService: EnumMappingService,
   ) {}
 
   ngOnInit(): void {
@@ -341,10 +346,19 @@ export class CartViewComponent implements OnInit {
     this.showClearConfirmation.set(false);
   }
 
-  clearCart(): void {
+  async clearCart(): Promise<void> {
     this.cartService.clear();
     this.tipInput = 0;
     this.showClearConfirmation.set(false);
+
+    if (this.tableId) {
+      try {
+        const freeStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', 'FREE');
+        await this.tableService.updateTableStatus(this.tableId, freeStatusId);
+      } catch (error) {
+        console.error('Error freeing table after clearing cart:', error);
+      }
+    }
   }
 
   backToProducts(): void {
