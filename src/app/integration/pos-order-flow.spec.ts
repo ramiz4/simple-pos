@@ -14,8 +14,10 @@ import { PlatformService } from '../shared/utilities/platform.service';
 import { OrderStatusEnum } from '../domain/enums/order-status.enum';
 import { OrderTypeEnum } from '../domain/enums/order-type.enum';
 import { TableStatusEnum } from '../domain/enums/table-status.enum';
-import { Order } from '../domain/entities';
 import { CartItem } from '../domain/dtos/cart.dto';
+
+// Centralized tax rate constant - matches CartService.TAX_RATE (18% Kosovo VAT)
+const TAX_RATE = 0.18;
 
 /**
  * Phase 3 Integration Tests - Core POS Flow
@@ -142,9 +144,8 @@ describe('Phase 3: Core POS Flow', () => {
     items: CartItem[]
   ): Promise<CreateOrderData> {
     const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
-    // Calculate included tax (prices are tax-inclusive): tax = subtotal * 0.18 / 1.18
-    const taxRate = 0.18;
-    const tax = subtotal * taxRate / (1 + taxRate);
+    // Calculate included tax (prices are tax-inclusive): tax = subtotal * rate / (1 + rate)
+    const tax = subtotal * TAX_RATE / (1 + TAX_RATE);
     const tip = 0;
     // Total = subtotal + tip (no additional tax, prices are tax-inclusive)
     const total = subtotal + tip;
@@ -370,9 +371,8 @@ describe('Phase 3: Core POS Flow', () => {
       const unitPrice = product.price + extra.price;
       const lineTotal = unitPrice * quantity;
       const subtotal = lineTotal;
-      // Calculate included tax (prices are tax-inclusive): tax = subtotal * 0.18 / 1.18
-      const taxRate = 0.18;
-      const tax = subtotal * taxRate / (1 + taxRate);
+      // Calculate included tax (prices are tax-inclusive): tax = subtotal * rate / (1 + rate)
+      const tax = subtotal * TAX_RATE / (1 + TAX_RATE);
       // Total = subtotal (no additional tax added, prices already include tax)
       const total = subtotal;
 
@@ -641,7 +641,7 @@ describe('Phase 3: Core POS Flow', () => {
   });
 
   describe('Transaction Integrity', () => {
-    it('should create order atomically with items and extras', async () => {
+    it('should create order with all related items and extras', async () => {
       const products = await productService.getAll();
       const extras = await extraService.getAll();
       const product = products[0];
@@ -800,14 +800,14 @@ describe('Phase 3: Core POS Flow', () => {
       expect(summary.items.length).toBe(1);
       expect(summary.itemCount).toBe(2);
       expect(summary.subtotal).toBe(product.price * 2);
-      // Tax is the included tax (extracted from tax-inclusive price): tax = subtotal * 0.18 / 1.18
-      const expectedTax = summary.subtotal * 0.18 / 1.18;
+      // Tax is the included tax (extracted from tax-inclusive price): tax = subtotal * rate / (1 + rate)
+      const expectedTax = summary.subtotal * TAX_RATE / (1 + TAX_RATE);
       expect(summary.tax).toBeCloseTo(expectedTax, 2);
       // Total = subtotal (no additional tax, prices already include tax)
       expect(summary.total).toBe(summary.subtotal);
     });
 
-    it('should clear cart after order creation', async () => {
+    it('should allow clearing cart after order creation', async () => {
       const products = await productService.getAll();
       const product = products[0];
 
