@@ -26,7 +26,12 @@ export class LoggerService {
   constructor(private platformService: PlatformService) {
     if (this.platformService.isTauri()) {
       // Detach implies stopping strict forwarding, but attachConsole helps seeing logs in devtools too
-      attachConsole().catch((err) => console.error('Failed to attach console logger', err));
+      // Wrap in try/catch to prevent crashes if Tauri APIs aren't ready
+      try {
+        attachConsole().catch((err) => console.warn('Failed to attach console logger:', err));
+      } catch (err) {
+        console.warn('Failed to attach console logger:', err);
+      }
     }
     this.cleanupOldDedupEntries();
   }
@@ -35,7 +40,12 @@ export class LoggerService {
     await this.log('info', message, context);
 
     if (this.platformService.isTauri()) {
-      await info(this.format(message, context));
+      try {
+        await info(this.format(message, context));
+      } catch {
+        // Fallback to console if Tauri API fails
+        console.log(`[INFO] ${message}`, context);
+      }
     } else {
       console.log(`[INFO] ${message}`, context);
     }
@@ -45,7 +55,12 @@ export class LoggerService {
     await this.log('warn', message, context);
 
     if (this.platformService.isTauri()) {
-      await warn(this.format(message, context));
+      try {
+        await warn(this.format(message, context));
+      } catch {
+        // Fallback to console if Tauri API fails
+        console.warn(`[WARN] ${message}`, context);
+      }
     } else {
       console.warn(`[WARN] ${message}`, context);
     }
@@ -55,7 +70,12 @@ export class LoggerService {
     await this.log('error', message, context);
 
     if (this.platformService.isTauri()) {
-      await error(this.format(message, context));
+      try {
+        await error(this.format(message, context));
+      } catch {
+        // Fallback to console if Tauri API fails
+        console.error(`[ERROR] ${message}`, context);
+      }
     } else {
       console.error(`[ERROR] ${message}`, context);
     }
