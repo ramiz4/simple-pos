@@ -26,8 +26,8 @@ import { desktopLandingGuard } from './core/guards/desktop-landing.guard';
 import { LandingComponent } from './ui/pages/landing/landing.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'landing', pathMatch: 'full' },
-  { path: 'landing', component: LandingComponent, canActivate: [desktopLandingGuard] },
+  { path: '', component: LandingComponent, canActivate: [desktopLandingGuard] },
+  { path: 'landing', redirectTo: '', pathMatch: 'full' },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
