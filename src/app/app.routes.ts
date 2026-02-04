@@ -22,10 +22,12 @@ import { PaymentComponent } from './ui/pages/pos/payment.component';
 import { ProductSelectionComponent } from './ui/pages/pos/product-selection.component';
 import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
 
+import { desktopLandingGuard } from './core/guards/desktop-landing.guard';
 import { LandingComponent } from './ui/pages/landing/landing.component';
 
 export const routes: Routes = [
-  { path: '', component: LandingComponent, pathMatch: 'full' },
+  { path: '', redirectTo: 'landing', pathMatch: 'full' },
+  { path: 'landing', component: LandingComponent, canActivate: [desktopLandingGuard] },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },

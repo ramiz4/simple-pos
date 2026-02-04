@@ -7,10 +7,15 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class PlatformService {
-  private _isTauri: boolean;
+  private readonly _isTauri: boolean;
 
   constructor() {
-    this._isTauri = '__TAURI__' in window;
+    // In Tauri v2, __TAURI_INTERNALS__ is the most reliable internal marker
+    // that is injected even if globals are disabled.
+    this._isTauri =
+      typeof window !== 'undefined' &&
+      ((window as any).__TAURI_INTERNALS__ !== undefined ||
+        (window as any).__TAURI_IPC__ !== undefined);
   }
 
   /**
