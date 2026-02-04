@@ -5,6 +5,17 @@ import { Injectable } from '@angular/core';
 })
 export class IndexedDBService {
   private readonly DB_NAME = 'SimpleDatabase';
+  /**
+   * BREAKING CHANGE: Database version reset from 5 to 1
+   *
+   * This is a breaking change for existing users with data at version 5.
+   * The database schema has been completely refactored from 'organization' to 'account',
+   * requiring a fresh start. Error handling automatically deletes and reloads the database
+   * on version conflicts (lines 23-26), resulting in complete data loss for existing users.
+   *
+   * Migration strategy: This change requires existing users to clear their local data
+   * or accept automatic database reset on first load.
+   */
   private readonly DB_VERSION = 1;
   private db: IDBDatabase | null = null;
   private connectionPromise: Promise<IDBDatabase> | null = null;
@@ -142,14 +153,36 @@ export class IndexedDBService {
           // 13. user
           if (!db.objectStoreNames.contains('user')) {
             const store = db.createObjectStore('user', { keyPath: 'id' });
+            /**
+             * BREAKING CHANGE: User store indexes changed
+             *
+             * Old schema:
+             * - name: unique=true (globally unique usernames)
+             * - email: unique=false
+             *
+             * New schema:
+             * - name: unique=false (allows same username across different accounts)
+             * - email: unique=true (globally unique emails)
+             * - accountName: composite unique index on [accountId, name] (unique per account)
+             *
+             * This change enables multi-tenancy but breaks compatibility with existing data.
+             */
             store.createIndex('name', 'name', { unique: false });
             store.createIndex('email', 'email', { unique: true });
             store.createIndex('accountId', 'accountId', { unique: false });
             store.createIndex('accountName', ['accountId', 'name'], { unique: true });
           }
 
-          // 14. account
+          // 14. account (renamed from 'organization')
           if (!db.objectStoreNames.contains('account')) {
+            /**
+             * BREAKING CHANGE: Object store renamed from 'organization' to 'account'
+             *
+             * This rename is part of the terminology refactoring for improved clarity.
+             * Any existing data in the 'organization' store will be lost and inaccessible.
+             * The automatic database deletion on VersionError handles this migration,
+             * but results in complete data loss.
+             */
             const store = db.createObjectStore('account', { keyPath: 'id' });
             store.createIndex('email', 'email', { unique: true });
           }

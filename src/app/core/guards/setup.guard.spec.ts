@@ -52,7 +52,7 @@ describe('setupGuard', () => {
     expect(routerSpy.createUrlTree).toHaveBeenCalledWith(['/login']);
   });
 
-  it('should redirect to /login if setup is complete (and is Tauri)', async () => {
+  it('should redirect to /staff-select if setup is complete (and is Tauri)', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockResolvedValue(true);
 

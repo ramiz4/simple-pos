@@ -378,6 +378,21 @@ export class AuthService {
     return false;
   }
 
+  /**
+   * Check if a user has the default PIN ("0000")
+   *
+   * Performance consideration: This method uses bcrypt.compare() which is computationally
+   * expensive. If this check is called frequently (e.g., on every page load or user selection),
+   * it could impact performance.
+   *
+   * Optimization option: Add a `hasDefaultPin: boolean` flag to the User entity that is:
+   * - Set to true during user creation if using DEFAULT_PIN
+   * - Set to false when PIN is changed via updateUserPin()
+   * This would avoid repeated bcrypt operations.
+   *
+   * Current implementation chosen for simplicity and to avoid schema changes.
+   * The method is currently called once per staff selection load, which is acceptable.
+   */
   async checkHasDefaultPin(user: User): Promise<boolean> {
     // Check if the user's PIN hash matches the hash for the default PIN
     return await bcrypt.compare(this.DEFAULT_PIN, user.pinHash);
