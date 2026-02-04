@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/ramiz4/simple-pos/compare/v1.2.0...v1.3.0) (2026-02-04)
+
+### Bug Fixes
+
+- add null check for **TAURI** and test coverage for null edge case ([fc8e135](https://github.com/ramiz4/simple-pos/commit/fc8e135efea088ca2fcd0ed112954d8ba4dcbc1b))
+- remove superfluous arguments from desktopLandingGuard test calls ([a70adaf](https://github.com/ramiz4/simple-pos/commit/a70adafe27ed7aeaafb122a422745a61efa8b232))
+
+### Features
+
+- add comprehensive test coverage and improve platform detection ([0cb5c17](https://github.com/ramiz4/simple-pos/commit/0cb5c17f6ebe746c5b9ca6f3699a567ec6496cf3))
+- bypass landing page on desktop and start directly at login ([dfebbfb](https://github.com/ramiz4/simple-pos/commit/dfebbfb5d534f74332a7923ad5e3c3f656c97cd4))
+
 # [1.2.0](https://github.com/ramiz4/simple-pos/compare/v1.1.0...v1.2.0) (2026-02-02)
 
 ### Bug Fixes
