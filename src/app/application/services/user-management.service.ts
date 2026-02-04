@@ -32,11 +32,7 @@ export class UserManagementService {
     return await this.authService.getUsersByAccount(accountId);
   }
 
-  async updateUserProfile(
-    userId: number,
-    name?: string,
-    email?: string,
-  ): Promise<void> {
+  async updateUserProfile(userId: number, name?: string, email?: string): Promise<void> {
     await this.authService.updateUserProfile(userId, name, email);
   }
 
