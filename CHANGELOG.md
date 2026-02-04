@@ -1,3 +1,21 @@
+# [1.4.0](https://github.com/ramiz4/simple-pos/compare/v1.3.0...v1.4.0) (2026-02-04)
+
+### Bug Fixes
+
+- **auth:** address security and validation issues in auth service ([3ae48c9](https://github.com/ramiz4/simple-pos/commit/3ae48c93f52407de3e714985af25005e4901b12b))
+- **guards:** update navigation guards for setup and auth flows ([2f82f05](https://github.com/ramiz4/simple-pos/commit/2f82f050709e08b64236d66c91310c107b1fa796))
+- **indexeddb:** handle VersionError by auto-resetting database ([170a7d3](https://github.com/ramiz4/simple-pos/commit/170a7d3d1a1d2dcd1d0cf676412c08cee9ce793a))
+- **logging:** improve logger service and error handling ([1130272](https://github.com/ramiz4/simple-pos/commit/1130272f58d862e1ac86d8fa28f045d92dd66015))
+- **setup:** logic to prevent repeated setup ([b56b932](https://github.com/ramiz4/simple-pos/commit/b56b93242a813712b197f22b12d27186bab357c0))
+
+### Features
+
+- Add `db:reset` script to delete application database files. ([22b1dea](https://github.com/ramiz4/simple-pos/commit/22b1dead8ba3d1ed22bc37abc336ee90a37cd281))
+- **auth:** improve staff selection with pin verification ([f19e57d](https://github.com/ramiz4/simple-pos/commit/f19e57d95d16ceb292893630ba6093ce99d0b579))
+- **core:** update auth and user management logic ([14c521b](https://github.com/ramiz4/simple-pos/commit/14c521ba4ce133a1782987f24744dac47f0e07eb))
+- **users:** add user deletion functionality ([f510f2e](https://github.com/ramiz4/simple-pos/commit/f510f2e6adc5a2527514dec6b76f16157837bde9))
+- **users:** implement name/email updates and improve error logging ([7e2367b](https://github.com/ramiz4/simple-pos/commit/7e2367b9e51ebad72ac7bed5fe52e5998e2835c1))
+
 # [1.3.0](https://github.com/ramiz4/simple-pos/compare/v1.2.0...v1.3.0) (2026-02-04)
 
 ### Bug Fixes
