@@ -20,6 +20,7 @@
     "tauri:build": "tauri build",
     "format": "prettier --write .",
     "lint": "prettier --check .",
+    "db:reset": "node scripts/reset-db.js",
     "prepare": "husky"
   },
   "lint-staged": {
