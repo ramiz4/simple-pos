@@ -10,22 +10,27 @@ export const desktopLandingGuard: CanActivateFn = async () => {
 
   if (platformService.isTauri()) {
     try {
-      const isSetupComplete = await authService.isSetupComplete();
+      const setupComplete = await authService.isSetupComplete();
 
-      if (!isSetupComplete) {
+      if (!setupComplete) {
         router.navigate(['/initial-setup']);
-        return false;
+      } else {
+        router.navigate(['/staff-select']);
       }
-
-      const target = authService.isLoggedIn() ? '/dashboard' : '/login';
-      router.navigate([target]);
       return false;
-    } catch (e) {
-      console.error('Error in desktop landing guard', e);
-      // Fallback to login on error
-      router.navigate(['/login']);
+    } catch (error) {
+      console.error('[DesktopLandingGuard] Error checking setup:', error);
+      router.navigate(['/initial-setup']);
       return false;
     }
   }
+
+  // Web logic: redirect logged-in users to staff selection
+  if (authService.isLoggedIn()) {
+    router.navigate(['/staff-select']);
+    return false;
+  }
+
+  // Allow access to landing page for non-logged-in web users
   return true;
 };

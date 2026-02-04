@@ -59,7 +59,7 @@ describe('setupGuard', () => {
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
     expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/staff-select']);
   });
 
   it('should allow access if setup is NOT complete', async () => {

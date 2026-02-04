@@ -15,8 +15,8 @@ export const setupGuard: CanActivateFn = async () => {
   try {
     const isComplete = await authService.isSetupComplete();
     if (isComplete) {
-      // If setup is done, redirect to login
-      router.navigate(['/login']);
+      // If setup is done, redirect to staff-select (or login)
+      router.navigate(['/staff-select']);
       return false;
     }
     return true;

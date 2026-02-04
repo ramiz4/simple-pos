@@ -43,8 +43,9 @@ describe('desktopLandingGuard', () => {
     expect(executeGuard).toBeTruthy();
   });
 
-  it('should allow navigation if NOT tauri', async () => {
+  it('should allow navigation if NOT tauri and NOT logged in', async () => {
     platformServiceSpy.isTauri.mockReturnValue(false);
+    authServiceSpy.isLoggedIn.mockReturnValue(false);
 
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
@@ -62,7 +63,7 @@ describe('desktopLandingGuard', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/initial-setup']);
   });
 
-  it('should redirect to /dashboard if Tauri, setup complete, and logged in', async () => {
+  it('should redirect to /staff-select if Tauri, setup complete, and logged in', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockResolvedValue(true);
     authServiceSpy.isLoggedIn.mockReturnValue(true);
@@ -70,10 +71,10 @@ describe('desktopLandingGuard', () => {
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
     expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/staff-select']);
   });
 
-  it('should redirect to /login if Tauri, setup complete, and NOT logged in', async () => {
+  it('should redirect to /staff-select if Tauri, setup complete, and NOT logged in', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockResolvedValue(true);
     authServiceSpy.isLoggedIn.mockReturnValue(false);
@@ -81,16 +82,16 @@ describe('desktopLandingGuard', () => {
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
     expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/staff-select']);
   });
 
-  it('should fallback to /login if check errors', async () => {
+  it('should fallback to /initial-setup if check errors', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockRejectedValue('Error');
 
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
     expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/initial-setup']);
   });
 });
