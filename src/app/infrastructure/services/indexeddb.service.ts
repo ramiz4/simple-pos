@@ -16,9 +16,34 @@ export class IndexedDBService {
     this.connectionPromise = new Promise((resolve, reject) => {
       const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
 
-      request.onerror = () => {
-        console.error('IndexedDB connection error:', request.error);
-        reject(request.error);
+      request.onerror = (event) => {
+        const error = (event.target as IDBOpenDBRequest).error;
+        console.error('IndexedDB connection error:', error);
+
+        if (error?.name === 'VersionError') {
+          console.warn('VersionError detected. The local database version is higher than 1.');
+          console.warn('Automatically resetting database to match the codebase version...');
+
+          request.transaction?.abort();
+          this.db = null;
+          this.connectionPromise = null;
+
+          const deleteRequest = indexedDB.deleteDatabase(this.DB_NAME);
+
+          deleteRequest.onsuccess = () => {
+            console.log('Database deleted successfully. Reloading page...');
+            window.location.reload();
+          };
+
+          deleteRequest.onerror = (e) => {
+            console.error('Failed to delete database:', (e.target as IDBOpenDBRequest).error);
+            reject(error);
+          };
+
+          return;
+        }
+
+        reject(error);
       };
 
       request.onsuccess = () => {
