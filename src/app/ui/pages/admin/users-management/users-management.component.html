@@ -100,9 +100,19 @@
                 }
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button (click)="openEditUserModal(user)" class="text-blue-600 hover:text-blue-900">
-                  Edit
-                </button>
+                <div class="flex justify-end gap-3">
+                  <button
+                    (click)="openEditUserModal(user)"
+                    class="text-blue-600 hover:text-blue-900"
+                  >
+                    Edit
+                  </button>
+                  @if (!user.isOwner && currentUserIsOwner()) {
+                    <button (click)="onDeleteUser(user)" class="text-red-600 hover:text-red-900">
+                      Delete
+                    </button>
+                  }
+                </div>
               </td>
             </tr>
           } @empty {

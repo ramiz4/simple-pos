@@ -32,6 +32,7 @@ export class UsersManagementComponent implements OnInit {
   errorMessage = signal('');
   successMessage = signal('');
   isLoading = signal(false);
+  currentUserIsOwner = signal(false);
 
   accountId: number = 0;
   roleMap = signal<Map<number, string>>(new Map());
@@ -51,6 +52,7 @@ export class UsersManagementComponent implements OnInit {
     }
 
     this.accountId = session.accountId;
+    this.currentUserIsOwner.set(session.user.isOwner);
     await this.loadRoleMap();
     await this.loadUsers();
   }
@@ -179,13 +181,34 @@ export class UsersManagementComponent implements OnInit {
         await this.authService.updateUserPin(user.id, this.editUserPin());
       }
 
-      // TODO: Update name/email via Service
+      // TODO: Implement name/email update via UserManagementService
+      // Currently only PIN updates are supported. Future enhancement needed for full user profile editing.
 
       this.successMessage.set('User updated successfully');
       await this.loadUsers();
       setTimeout(() => this.closeEditUserModal(), 1000);
     } catch (e: any) {
       this.errorMessage.set(e.message || 'Update failed');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  async onDeleteUser(user: User) {
+    if (!confirm(`Are you sure you want to delete user "${user.name}"?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+
+    try {
+      await this.userManagementService.deleteUser(user.id);
+      this.successMessage.set('User deleted successfully');
+      await this.loadUsers();
+    } catch (e: any) {
+      this.errorMessage.set(e.message || 'Deletion failed');
     } finally {
       this.isLoading.set(false);
     }
