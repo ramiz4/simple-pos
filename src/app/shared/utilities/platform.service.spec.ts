@@ -45,6 +45,15 @@ describe('PlatformService', () => {
       expect(service.isTauri()).toBe(false);
       expect(service.isWeb()).toBe(true);
     });
+
+    it('should not detect Tauri when __TAURI__ is null', () => {
+      // Mock window with __TAURI__ as null (edge case: typeof null === 'object')
+      (window as any).__TAURI__ = null;
+
+      const service = new PlatformService();
+      expect(service.isTauri()).toBe(false);
+      expect(service.isWeb()).toBe(true);
+    });
   });
 
   describe('Web environment detection', () => {
