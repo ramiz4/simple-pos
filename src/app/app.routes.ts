@@ -15,6 +15,7 @@ import { UnauthorizedComponent } from './ui/pages/unauthorized/unauthorized.comp
 
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard, kitchenGuard } from './core/guards/role.guard';
+import { staffGuard } from './core/guards/staff.guard';
 import { KitchenViewComponent } from './ui/pages/kitchen/kitchen-view.component';
 import { CartViewComponent } from './ui/pages/pos/cart-view.component';
 import { OrderTypeSelectionComponent } from './ui/pages/pos/order-type-selection.component';
@@ -23,14 +24,26 @@ import { ProductSelectionComponent } from './ui/pages/pos/product-selection.comp
 import { TableSelectionComponent } from './ui/pages/pos/table-selection.component';
 
 import { desktopLandingGuard } from './core/guards/desktop-landing.guard';
+import { setupGuard } from './core/guards/setup.guard';
 import { LandingComponent } from './ui/pages/landing/landing.component';
+
+import { StaffSelectionComponent } from './ui/pages/staff-selection/staff-selection.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, canActivate: [desktopLandingGuard] },
   { path: 'landing', redirectTo: '', pathMatch: 'full' },
+  {
+    path: 'initial-setup',
+    loadComponent: () =>
+      import('./ui/pages/initial-setup/initial-setup.component').then(
+        (m) => m.InitialSetupComponent,
+      ),
+    canActivate: [setupGuard],
+  },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'staff-select', component: StaffSelectionComponent, canActivate: [authGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [staffGuard] },
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
   { path: 'admin/tables', component: TablesManagementComponent, canActivate: [adminGuard] },
@@ -65,16 +78,20 @@ export const routes: Routes = [
       ),
     canActivate: [adminGuard],
   },
-  { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [authGuard] },
-  { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [authGuard] },
-  { path: 'pos/product-selection', component: ProductSelectionComponent, canActivate: [authGuard] },
-  { path: 'pos/cart', component: CartViewComponent, canActivate: [authGuard] },
-  { path: 'pos/payment', component: PaymentComponent, canActivate: [authGuard] },
+  { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [staffGuard] },
+  { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [staffGuard] },
+  {
+    path: 'pos/product-selection',
+    component: ProductSelectionComponent,
+    canActivate: [staffGuard],
+  },
+  { path: 'pos/cart', component: CartViewComponent, canActivate: [staffGuard] },
+  { path: 'pos/payment', component: PaymentComponent, canActivate: [staffGuard] },
   {
     path: 'reports',
     loadComponent: () =>
       import('./ui/pages/reports/reports.component').then((m) => m.ReportsComponent),
-    canActivate: [authGuard],
+    canActivate: [staffGuard],
   },
   { path: 'kitchen', component: KitchenViewComponent, canActivate: [kitchenGuard] },
   { path: '**', redirectTo: '' },

@@ -1,3 +1,4 @@
+export * from './account.interface';
 export * from './category.interface';
 export * from './code-table.interface';
 export * from './code-translation.interface';
@@ -6,7 +7,6 @@ export * from './ingredient.interface';
 export * from './order-item-extra.interface';
 export * from './order-item.interface';
 export * from './order.interface';
-export * from './organization.interface';
 export * from './product-extra.interface';
 export * from './product-ingredient.interface';
 export * from './product.interface';

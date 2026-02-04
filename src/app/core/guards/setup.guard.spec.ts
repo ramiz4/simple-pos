@@ -8,23 +8,23 @@ import {
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../application/services/auth.service';
 import { PlatformService } from '../../shared/utilities/platform.service';
-import { desktopLandingGuard } from './desktop-landing.guard';
+import { setupGuard } from './setup.guard';
 
-describe('desktopLandingGuard', () => {
+describe('setupGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
-    TestBed.runInInjectionContext(() => desktopLandingGuard(...guardParameters));
+    TestBed.runInInjectionContext(() => setupGuard(...guardParameters));
 
-  let authServiceSpy: { isSetupComplete: any; isLoggedIn: any };
-  let routerSpy: { navigate: any };
+  let authServiceSpy: { isSetupComplete: any };
+  let routerSpy: { navigate: any; createUrlTree: any };
   let platformServiceSpy: { isTauri: any };
 
   beforeEach(() => {
     authServiceSpy = {
       isSetupComplete: vi.fn(),
-      isLoggedIn: vi.fn(),
     };
     routerSpy = {
       navigate: vi.fn(),
+      createUrlTree: vi.fn().mockReturnValue('url-tree'),
     };
     platformServiceSpy = {
       isTauri: vi.fn(),
@@ -43,54 +43,41 @@ describe('desktopLandingGuard', () => {
     expect(executeGuard).toBeTruthy();
   });
 
-  it('should allow navigation if NOT tauri', async () => {
+  it('should redirect to /login if NOT Tauri', async () => {
     platformServiceSpy.isTauri.mockReturnValue(false);
 
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
-    expect(result).toBe(true);
-    expect(authServiceSpy.isSetupComplete).not.toHaveBeenCalled();
+    expect(result).toBe('url-tree');
+    expect(routerSpy.createUrlTree).toHaveBeenCalledWith(['/login']);
   });
 
-  it('should redirect to /initial-setup if Tauri and setup NOT complete', async () => {
+  it('should redirect to /login if setup is complete (and is Tauri)', async () => {
+    platformServiceSpy.isTauri.mockReturnValue(true);
+    authServiceSpy.isSetupComplete.mockResolvedValue(true);
+
+    const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
+
+    expect(result).toBe(false);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('should allow access if setup is NOT complete', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockResolvedValue(false);
 
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
-    expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/initial-setup']);
+    expect(result).toBe(true);
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
-  it('should redirect to /dashboard if Tauri, setup complete, and logged in', async () => {
-    platformServiceSpy.isTauri.mockReturnValue(true);
-    authServiceSpy.isSetupComplete.mockResolvedValue(true);
-    authServiceSpy.isLoggedIn.mockReturnValue(true);
-
-    const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
-
-    expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
-  });
-
-  it('should redirect to /login if Tauri, setup complete, and NOT logged in', async () => {
-    platformServiceSpy.isTauri.mockReturnValue(true);
-    authServiceSpy.isSetupComplete.mockResolvedValue(true);
-    authServiceSpy.isLoggedIn.mockReturnValue(false);
-
-    const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
-
-    expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
-  });
-
-  it('should fallback to /login if check errors', async () => {
+  it('should allow access (fail safe) if isSetupComplete errors', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockRejectedValue('Error');
 
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
-    expect(result).toBe(false);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(result).toBe(true);
   });
 });

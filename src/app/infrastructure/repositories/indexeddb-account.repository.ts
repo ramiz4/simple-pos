@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { Organization } from '../../domain/entities/organization.interface';
+import { Account } from '../../domain/entities/account.interface';
 import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBOrganizationRepository implements BaseRepository<Organization> {
-  private readonly STORE_NAME = 'organization';
+export class IndexedDBAccountRepository implements BaseRepository<Account> {
+  private readonly STORE_NAME = 'account';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<Organization | null> {
+  async findById(id: number): Promise<Account | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -23,7 +23,7 @@ export class IndexedDBOrganizationRepository implements BaseRepository<Organizat
     });
   }
 
-  async findAll(): Promise<Organization[]> {
+  async findAll(): Promise<Account[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -35,7 +35,7 @@ export class IndexedDBOrganizationRepository implements BaseRepository<Organizat
     });
   }
 
-  async findByEmail(email: string): Promise<Organization | null> {
+  async findByEmail(email: string): Promise<Account | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -48,7 +48,7 @@ export class IndexedDBOrganizationRepository implements BaseRepository<Organizat
     });
   }
 
-  async create(entity: Omit<Organization, 'id'>): Promise<Organization> {
+  async create(entity: Omit<Account, 'id'>): Promise<Account> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
@@ -62,10 +62,10 @@ export class IndexedDBOrganizationRepository implements BaseRepository<Organizat
     });
   }
 
-  async update(id: number, entity: Partial<Organization>): Promise<Organization> {
+  async update(id: number, entity: Partial<Account>): Promise<Account> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`Organization with id ${id} not found`);
+    if (!existing) throw new Error(`Account with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {

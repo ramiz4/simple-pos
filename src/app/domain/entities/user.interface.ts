@@ -4,7 +4,8 @@ export interface User {
   email?: string;
   roleId: number;
   pinHash: string;
+  passwordHash?: string;
   active: boolean;
-  organizationId: number;
+  accountId: number;
   isOwner: boolean;
 }

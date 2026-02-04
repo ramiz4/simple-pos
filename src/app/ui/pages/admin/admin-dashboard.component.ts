@@ -67,6 +67,11 @@ export class AdminDashboardComponent {
     this.session = this.authService.getCurrentSession();
   }
 
+  onLock() {
+    this.authService.setStaffActive(false);
+    this.router.navigate(['/staff-select']);
+  }
+
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/login']);

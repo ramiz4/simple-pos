@@ -19,70 +19,29 @@
           class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
         />
       </div>
-      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Create Organization</h1>
-      <p class="text-surface-500 font-medium">Register your business and become the admin</p>
+      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Create Owner Account</h1>
     </div>
 
     <form (ngSubmit)="onRegister()" class="space-y-6">
-      <!-- Organization Details -->
+      <!-- Account Details -->
       <div class="space-y-4 pb-4 border-b border-surface-100">
-        <h2 class="text-sm font-black text-surface-400 uppercase tracking-widest">
-          Organization Details
-        </h2>
-
-        <div class="space-y-2">
-          <label
-            for="orgName"
-            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
-          >
-            Organization Name
-          </label>
-          <div class="relative">
-            <input
-              type="text"
-              id="orgName"
-              [value]="organizationName()"
-              (input)="organizationName.set($any($event.target).value)"
-              class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!organizationName()"
-              [class.border-green-400]="orgNameValid()"
-              [class.border-red-400]="organizationName() && !orgNameValid()"
-              [class.focus:ring-2]="true"
-              [class.focus:ring-primary-400]="true"
-              [class.focus:border-transparent]="true"
-              placeholder="My Restaurant"
-              [disabled]="isLoading()"
-              required
-            />
-            @if (organizationName() && orgNameValid()) {
-              <span
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
-                role="status"
-                aria-live="polite"
-                aria-label="Valid organization name"
-                >✓</span
-              >
-            }
-          </div>
-        </div>
-
         <div class="space-y-2">
           <label
             for="orgEmail"
             class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
           >
-            Organization Email
+            Email Address
           </label>
           <div class="relative">
             <input
               type="email"
               id="orgEmail"
-              [value]="organizationEmail()"
-              (input)="organizationEmail.set($any($event.target).value)"
+              [value]="accountEmail()"
+              (input)="accountEmail.set($any($event.target).value)"
               class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!organizationEmail()"
+              [class.border-surface-100]="!accountEmail()"
               [class.border-green-400]="emailValid()"
-              [class.border-red-400]="organizationEmail() && !emailValid()"
+              [class.border-red-400]="accountEmail() && !emailValid()"
               [class.focus:ring-2]="true"
               [class.focus:ring-primary-400]="true"
               [class.focus:border-transparent]="true"
@@ -90,7 +49,7 @@
               [disabled]="isLoading()"
               required
             />
-            @if (organizationEmail() && emailValid()) {
+            @if (accountEmail() && emailValid()) {
               <span
                 class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
                 role="status"
@@ -101,81 +60,38 @@
             }
           </div>
         </div>
-      </div>
-
-      <!-- Owner Details -->
-      <div class="space-y-4">
-        <h2 class="text-sm font-black text-surface-400 uppercase tracking-widest">Owner Account</h2>
 
         <div class="space-y-2">
           <label
-            for="ownerName"
+            for="password"
             class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
           >
-            Username (for login)
-          </label>
-          <div class="relative">
-            <input
-              type="text"
-              id="ownerName"
-              [value]="ownerName()"
-              (input)="ownerName.set($any($event.target).value)"
-              class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!ownerName()"
-              [class.border-green-400]="ownerNameValid()"
-              [class.border-red-400]="ownerName() && !ownerNameValid()"
-              [class.focus:ring-2]="true"
-              [class.focus:ring-primary-400]="true"
-              [class.focus:border-transparent]="true"
-              placeholder="johndoe"
-              [disabled]="isLoading()"
-              required
-            />
-            @if (ownerName() && ownerNameValid()) {
-              <span
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
-                role="status"
-                aria-live="polite"
-                aria-label="Valid username"
-                >✓</span
-              >
-            }
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <label
-            for="ownerPin"
-            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
-          >
-            Security PIN (6-20 digits)
+            Password
           </label>
           <div class="relative">
             <input
               [type]="showPassword() ? 'text' : 'password'"
-              id="ownerPin"
-              [value]="ownerPin()"
-              (input)="ownerPin.set($any($event.target).value)"
+              id="password"
+              [value]="password()"
+              (input)="password.set($any($event.target).value)"
               class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!ownerPin()"
-              [class.border-green-400]="pinValid()"
-              [class.border-red-400]="ownerPin() && !pinValid()"
+              [class.border-surface-100]="!password()"
+              [class.border-green-400]="passwordValid()"
+              [class.border-red-400]="password() && !passwordValid()"
               [class.focus:ring-2]="true"
               [class.focus:ring-primary-400]="true"
               [class.focus:border-transparent]="true"
-              [class.tracking-[0.5em]]="!showPassword()"
-              placeholder="••••••"
+              placeholder="••••••••"
               [disabled]="isLoading()"
               required
-              minlength="6"
-              maxlength="20"
+              minlength="8"
             />
             <button
               type="button"
               (click)="togglePasswordVisibility()"
               class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
               [disabled]="isLoading()"
-              [attr.aria-label]="showPassword() ? 'Hide PIN' : 'Show PIN'"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
               [attr.aria-pressed]="showPassword()"
             >
               @if (showPassword()) {
@@ -218,20 +134,20 @@
             </button>
           </div>
 
-          <!-- PIN Strength Meter -->
-          @if (ownerPin()) {
+          <!-- Password Strength Meter -->
+          @if (password()) {
             <div class="space-y-1">
               <div class="flex items-center justify-between text-xs">
-                <span class="text-surface-500 font-semibold">PIN Strength:</span>
-                <span class="font-bold" [class]="pinStrengthTextColor()">
-                  {{ pinStrengthLabel() }}
+                <span class="text-surface-500 font-semibold">Password Strength:</span>
+                <span class="font-bold" [class]="passwordStrengthTextColor()">
+                  {{ passwordStrengthLabel() }}
                 </span>
               </div>
               <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
                 <div
                   class="h-full transition-all duration-300 rounded-full"
-                  [class]="pinStrengthColor()"
-                  [style.width.%]="pinStrength()"
+                  [class]="passwordStrengthColor()"
+                  [style.width.%]="passwordStrength()"
                 ></div>
               </div>
             </div>
@@ -240,37 +156,37 @@
 
         <div class="space-y-2">
           <label
-            for="confirmPin"
+            for="confirmPassword"
             class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
           >
-            Confirm PIN
+            Confirm Password
           </label>
           <div class="relative">
             <input
               [type]="showConfirmPassword() ? 'text' : 'password'"
-              id="confirmPin"
-              [value]="confirmPin()"
-              (input)="confirmPin.set($any($event.target).value)"
+              id="confirmPassword"
+              [value]="confirmPassword()"
+              (input)="confirmPassword.set($any($event.target).value)"
               class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!confirmPin()"
-              [class.border-green-400]="pinsMatch()"
-              [class.border-red-400]="confirmPin() && !pinsMatch()"
+              [class.border-surface-100]="!confirmPassword()"
+              [class.border-green-400]="passwordsMatch()"
+              [class.border-red-400]="confirmPassword() && !passwordsMatch()"
               [class.focus:ring-2]="true"
               [class.focus:ring-primary-400]="true"
               [class.focus:border-transparent]="true"
-              [class.tracking-[0.5em]]="!showConfirmPassword()"
-              placeholder="••••••"
+              placeholder="••••••••"
               [disabled]="isLoading()"
               required
-              minlength="6"
-              maxlength="20"
+              minlength="8"
             />
             <button
               type="button"
               (click)="toggleConfirmPasswordVisibility()"
               class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
               [disabled]="isLoading()"
-              [attr.aria-label]="showConfirmPassword() ? 'Hide confirm PIN' : 'Show confirm PIN'"
+              [attr.aria-label]="
+                showConfirmPassword() ? 'Hide confirm password' : 'Show confirm password'
+              "
               [attr.aria-pressed]="showConfirmPassword()"
             >
               @if (showConfirmPassword()) {
@@ -311,12 +227,12 @@
                 </svg>
               }
             </button>
-            @if (confirmPin() && pinsMatch()) {
+            @if (confirmPassword() && passwordsMatch()) {
               <span
                 class="absolute right-14 top-1/2 -translate-y-1/2 text-green-500"
                 role="status"
                 aria-live="polite"
-                aria-label="PINs match"
+                aria-label="Passwords match"
                 >✓</span
               >
             }
@@ -341,7 +257,7 @@
           <div
             class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
           ></div>
-          <span>Creating Organization...</span>
+          <span>Creating Account...</span>
         } @else {
           <span>Register & Continue</span>
           <svg
@@ -374,9 +290,9 @@
 
     <div class="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-100">
       <p class="text-xs text-surface-600 font-medium">
-        <strong class="text-primary-600">Note:</strong> As the organization owner, you will be
-        automatically assigned as the admin. You can add cashier and kitchen users after
-        registration.
+        <strong class="text-primary-600">Note:</strong> As the account owner, you will be
+        automatically assigned as the super-user. You can add admin, cashier and kitchen users after
+        registration. For each user creation it is necessary to know the owner password.
       </p>
     </div>
 

@@ -8,6 +8,18 @@ The application must remain fully functional offline. The SaaS features (remote 
 
 ---
 
+## 0. Phase 0: Multi-Tenant Foundation (COMPLETED)
+
+The application core has been established to support multi-tenancy and robust user management.
+
+- **User Uniqueness:**
+  - Email addresses are globally unique across all accounts.
+  - Staff usernames are unique ONLY within a specific account, allowing different shops to have users with the same name (e.g., "Cashier").
+- **Owner Verification:** Implemented a secure flow for owner operations (e.g., creating other staff members) requiring the account owner's password.
+- **Database Architecture:** Local database schemas are established to support the account-centric model.
+
+---
+
 ## 2. Phase 1: Data Model Migration
 
 Every table in the local database must be updated to support synchronization tracking.
@@ -50,20 +62,20 @@ A background service will handle the bi-directional data flow.
 
 ## 4. Phase 3: SaaS Backend Architecture
 
-A central API to store and serve data for multiple organizations.
+A central API to store and serve data for multiple accounts.
 
 ### Tech Stack Recommendation:
 
 - **Framework:** NestJS (Node.js) or Go.
 - **Database:** PostgreSQL (with Row-Level Security) or MongoDB.
-- **Auth:** JWT-based authentication (supporting Organization-based multi-tenancy).
+- **Auth:** JWT-based authentication (supporting Account-based multi-tenancy).
 
 ### Data Isolation:
 
-Every record in the cloud MUST have an `organizationId`.
+Every record in the cloud MUST have an `accountId`.
 
 ```sql
-SELECT * FROM products WHERE organization_id = 'my-shop-uuid';
+SELECT * FROM products WHERE account_id = 'my-shop-uuid';
 ```
 
 ---

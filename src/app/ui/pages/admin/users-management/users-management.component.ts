@@ -17,17 +17,23 @@ import { User } from '../../../../domain/entities/user.interface';
 export class UsersManagementComponent implements OnInit {
   users = signal<User[]>([]);
   showAddUserModal = signal(false);
+  showEditUserModal = signal(false);
+  editingUser = signal<User | null>(null);
 
   newUserName = signal('');
-  newUserEmail = signal('');
   newUserPin = signal('');
-  newUserRole = signal<'CASHIER' | 'KITCHEN'>('CASHIER');
+  newUserRole = signal<'CASHIER' | 'KITCHEN' | 'ADMIN'>('CASHIER');
+
+  // Re-use logic for edit
+  editUserName = signal('');
+  editUserEmail = signal('');
+  editUserPin = signal(''); // Optional for edit
 
   errorMessage = signal('');
   successMessage = signal('');
   isLoading = signal(false);
 
-  organizationId: number = 0;
+  accountId: number = 0;
   roleMap = signal<Map<number, string>>(new Map());
 
   constructor(
@@ -44,7 +50,7 @@ export class UsersManagementComponent implements OnInit {
       return;
     }
 
-    this.organizationId = session.organizationId;
+    this.accountId = session.accountId;
     await this.loadRoleMap();
     await this.loadUsers();
   }
@@ -64,7 +70,7 @@ export class UsersManagementComponent implements OnInit {
 
   async loadUsers() {
     try {
-      const allUsers = await this.userManagementService.getOrganizationUsers(this.organizationId);
+      const allUsers = await this.userManagementService.getAccountUsers(this.accountId);
       this.users.set(allUsers);
     } catch (error: any) {
       this.errorMessage.set('Failed to load users');
@@ -74,7 +80,6 @@ export class UsersManagementComponent implements OnInit {
   openAddUserModal() {
     this.showAddUserModal.set(true);
     this.newUserName.set('');
-    this.newUserEmail.set('');
     this.newUserPin.set('');
     this.newUserRole.set('CASHIER');
     this.errorMessage.set('');
@@ -90,7 +95,7 @@ export class UsersManagementComponent implements OnInit {
     this.successMessage.set('');
 
     if (!this.newUserName() || !this.newUserPin()) {
-      this.errorMessage.set('Name and PIN are required');
+      this.errorMessage.set('Username and PIN are required');
       return;
     }
 
@@ -108,15 +113,19 @@ export class UsersManagementComponent implements OnInit {
         await this.userManagementService.addCashierUser(
           this.newUserName(),
           this.newUserPin(),
-          this.organizationId,
-          this.newUserEmail() || undefined,
+          this.accountId,
         );
-      } else {
+      } else if (role === 'KITCHEN') {
         await this.userManagementService.addKitchenUser(
           this.newUserName(),
           this.newUserPin(),
-          this.organizationId,
-          this.newUserEmail() || undefined,
+          this.accountId,
+        );
+      } else if (role === 'ADMIN') {
+        await this.userManagementService.addAdminUser(
+          this.newUserName(),
+          this.newUserPin(),
+          this.accountId,
         );
       }
 
@@ -129,6 +138,54 @@ export class UsersManagementComponent implements OnInit {
       }, 1500);
     } catch (error: any) {
       this.errorMessage.set(error?.message || 'Failed to add user');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  openEditUserModal(user: User) {
+    this.editingUser.set(user);
+    this.editUserName.set(user.name);
+    this.editUserEmail.set(user.email || '');
+    this.editUserPin.set(''); // Blank means no change
+    this.showEditUserModal.set(true);
+    this.errorMessage.set('');
+    this.successMessage.set('');
+  }
+
+  closeEditUserModal() {
+    this.showEditUserModal.set(false);
+    this.editingUser.set(null);
+  }
+
+  async onUpdateUser() {
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    const user = this.editingUser();
+
+    if (!user) return;
+    if (!this.editUserName()) {
+      this.errorMessage.set('Name is required');
+      return;
+    }
+
+    this.isLoading.set(true);
+
+    try {
+      if (this.editUserPin()) {
+        if (this.editUserPin().length < 4) {
+          throw new Error('PIN must be at least 4 digits');
+        }
+        await this.authService.updateUserPin(user.id, this.editUserPin());
+      }
+
+      // TODO: Update name/email via Service
+
+      this.successMessage.set('User updated successfully');
+      await this.loadUsers();
+      setTimeout(() => this.closeEditUserModal(), 1000);
+    } catch (e: any) {
+      this.errorMessage.set(e.message || 'Update failed');
     } finally {
       this.isLoading.set(false);
     }

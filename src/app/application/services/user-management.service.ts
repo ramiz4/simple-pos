@@ -13,27 +13,22 @@ export class UserManagementService {
     private enumMappingService: EnumMappingService,
   ) {}
 
-  async addCashierUser(
-    name: string,
-    pin: string,
-    organizationId: number,
-    email?: string,
-  ): Promise<User> {
+  async addAdminUser(name: string, pin: string, accountId: number): Promise<User> {
+    const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
+    return await this.authService.createUser(name, pin, adminRole.id, accountId);
+  }
+
+  async addCashierUser(name: string, pin: string, accountId: number): Promise<User> {
     const cashierRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.CASHIER);
-    return await this.authService.createUser(name, pin, cashierRole.id, organizationId, email);
+    return await this.authService.createUser(name, pin, cashierRole.id, accountId);
   }
 
-  async addKitchenUser(
-    name: string,
-    pin: string,
-    organizationId: number,
-    email?: string,
-  ): Promise<User> {
+  async addKitchenUser(name: string, pin: string, accountId: number): Promise<User> {
     const kitchenRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.KITCHEN);
-    return await this.authService.createUser(name, pin, kitchenRole.id, organizationId, email);
+    return await this.authService.createUser(name, pin, kitchenRole.id, accountId);
   }
 
-  async getOrganizationUsers(organizationId: number): Promise<User[]> {
-    return await this.authService.getUsersByOrganization(organizationId);
+  async getAccountUsers(accountId: number): Promise<User[]> {
+    return await this.authService.getUsersByAccount(accountId);
   }
 }

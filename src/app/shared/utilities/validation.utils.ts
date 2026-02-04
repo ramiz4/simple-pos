@@ -106,7 +106,7 @@ export class ValidationUtils {
   }
 
   /**
-   * Validate organization/user name
+   * Validate account/user name
    */
   static isValidName(name: string): boolean {
     if (!name) return false;
@@ -156,5 +156,45 @@ export class ValidationUtils {
 
     // If more than 80% are the same character
     return repeatCount / str.length > 0.8;
+  }
+  /**
+   * Calculate Password strength (0-100)
+   */
+  static calculatePasswordStrength(password: string): number {
+    if (!password) return 0;
+
+    let strength = 0;
+
+    // Length score
+    if (password.length >= 8) strength += 20;
+    if (password.length >= 12) strength += 20;
+
+    // Complexity score
+    if (/\d/.test(password)) strength += 15;
+    if (/[a-z]/.test(password)) strength += 15;
+    if (/[A-Z]/.test(password)) strength += 15;
+    if (/[^a-zA-Z0-9]/.test(password)) strength += 15;
+
+    return Math.min(100, strength);
+  }
+
+  /**
+   * Get Password strength label
+   */
+  static getPasswordStrengthLabel(strength: number): string {
+    if (strength < 30) return 'Weak';
+    if (strength < 60) return 'Fair';
+    if (strength < 80) return 'Good';
+    return 'Strong';
+  }
+
+  /**
+   * Get Password strength color
+   */
+  static getPasswordStrengthColor(strength: number): string {
+    if (strength < 30) return 'bg-red-500';
+    if (strength < 60) return 'bg-yellow-500';
+    if (strength < 80) return 'bg-blue-500';
+    return 'bg-green-500';
   }
 }

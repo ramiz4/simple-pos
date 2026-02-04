@@ -24,39 +24,42 @@
     </div>
 
     <form (ngSubmit)="onLogin()" class="space-y-6">
-      <div class="space-y-2">
+      <div class="space-y-2 animate-fade-in">
         <label
-          for="username"
+          for="email"
           class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
         >
-          Username
+          Email Address
         </label>
         <div class="relative">
           <input
-            type="text"
-            id="username"
-            [value]="username()"
-            (input)="onUsernameInput($event)"
+            type="email"
+            id="email"
+            [value]="email()"
+            (input)="onEmailInput($event)"
             class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300"
-            placeholder="e.g. admin"
+            placeholder="name@company.com"
             [disabled]="isLoading()"
             required
           />
         </div>
       </div>
 
-      <div class="space-y-2">
-        <label for="pin" class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1">
-          Security PIN
+      <div class="space-y-2 animate-fade-in">
+        <label
+          for="password"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Password
         </label>
         <div class="relative">
           <input
             type="password"
-            id="pin"
-            [value]="pin()"
-            (input)="onPinInput($event)"
-            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300 tracking-[0.5em]"
-            placeholder="••••"
+            id="password"
+            [value]="password()"
+            (input)="onPasswordInput($event)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            placeholder="••••••••"
             [disabled]="isLoading()"
             required
           />
@@ -80,7 +83,7 @@
           <div
             class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
           ></div>
-          <span>Verifying...</span>
+          <span>Signing in...</span>
         } @else {
           <span>Sign In</span>
           <svg
@@ -100,13 +103,13 @@
         }
       </button>
 
-      <div class="text-center mt-4">
+      <div class="text-center pt-2">
         <button
           type="button"
           (click)="goToRegister()"
           class="text-primary-600 hover:text-primary-700 text-sm font-semibold transition-colors"
         >
-          Don't have an organization? Register here
+          Don't have an account? Register here
         </button>
       </div>
     </form>
