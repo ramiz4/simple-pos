@@ -28,9 +28,18 @@ export class SQLiteUserRepository implements BaseRepository<User> {
     return results.length > 0 ? results[0] : null;
   }
 
-  async findByOrganizationId(organizationId: number): Promise<User[]> {
+  async findByNameAndAccount(name: string, accountId: number): Promise<User | null> {
     const db = await this.getDb();
-    return await db.select<User[]>('SELECT * FROM user WHERE organizationId = ?', [organizationId]);
+    const results = await db.select<User[]>(
+      'SELECT * FROM user WHERE name = ? AND accountId = ? AND active = 1',
+      [name, accountId],
+    );
+    return results.length > 0 ? results[0] : null;
+  }
+
+  async findByAccountId(accountId: number): Promise<User[]> {
+    const db = await this.getDb();
+    return await db.select<User[]>('SELECT * FROM user WHERE accountId = ?', [accountId]);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -42,14 +51,15 @@ export class SQLiteUserRepository implements BaseRepository<User> {
   async create(entity: Omit<User, 'id'>): Promise<User> {
     const db = await this.getDb();
     const result = await db.execute(
-      'INSERT INTO user (name, email, roleId, pinHash, active, organizationId, isOwner) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO user (name, email, roleId, pinHash, passwordHash, active, accountId, isOwner) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [
         entity.name,
         entity.email || null,
         entity.roleId,
         entity.pinHash,
+        entity.passwordHash || null,
         entity.active ? 1 : 0,
-        entity.organizationId,
+        entity.accountId,
         entity.isOwner ? 1 : 0,
       ],
     );
@@ -64,14 +74,15 @@ export class SQLiteUserRepository implements BaseRepository<User> {
 
     const updated = { ...existing, ...entity };
     await db.execute(
-      'UPDATE user SET name = ?, email = ?, roleId = ?, pinHash = ?, active = ?, organizationId = ?, isOwner = ? WHERE id = ?',
+      'UPDATE user SET name = ?, email = ?, roleId = ?, pinHash = ?, passwordHash = ?, active = ?, accountId = ?, isOwner = ? WHERE id = ?',
       [
         updated.name,
         updated.email || null,
         updated.roleId,
         updated.pinHash,
+        updated.passwordHash || null,
         updated.active ? 1 : 0,
-        updated.organizationId,
+        updated.accountId,
         updated.isOwner ? 1 : 0,
         id,
       ],
@@ -98,20 +109,43 @@ export class SQLiteUserRepository implements BaseRepository<User> {
     return this.db;
   }
 
+  /**
+   * BREAKING CHANGE: SQLite user table schema has been significantly modified
+   *
+   * Key changes from previous schema:
+   * 1. Email constraint: Changed from `email TEXT` (nullable, no uniqueness) to `email TEXT UNIQUE` (line 118)
+   *    - If existing databases have users with NULL emails or duplicate emails, migration will fail
+   * 2. Username uniqueness: Changed from globally unique `name TEXT NOT NULL UNIQUE` to
+   *    per-account unique via composite constraint `UNIQUE(accountId, name)` (line 125)
+   *    - The old schema had global unique constraint, now allows same name across accounts
+   * 3. Foreign key change: Changed from `FOREIGN KEY (organizationId) REFERENCES organization (id)`
+   *    to `FOREIGN KEY (accountId) REFERENCES account (id)` (line 127)
+   *    - The 'organization' table was renamed to 'account'
+   *    - This breaks existing foreign key relationships unless proper migration is performed
+   * 4. New fields added: passwordHash (line 121), isOwner (line 124)
+   *
+   * Migration considerations:
+   * - SQLite doesn't have easy ALTER TABLE for dropping constraints
+   * - Existing databases with old schema will have conflicts on upgrade
+   * - Tauri app should handle schema migrations or document that users need to reset local database
+   * - Consider implementing a migration script or version detection to handle schema evolution
+   */
   private async initTable(): Promise<void> {
     const db = await this.getDb();
     await db.execute(`
       CREATE TABLE IF NOT EXISTS user (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
-        email TEXT,
+        name TEXT NOT NULL,
+        email TEXT UNIQUE,
         roleId INTEGER NOT NULL,
         pinHash TEXT NOT NULL,
+        passwordHash TEXT,
         active INTEGER NOT NULL DEFAULT 1,
-        organizationId INTEGER NOT NULL,
+        accountId INTEGER NOT NULL,
         isOwner INTEGER NOT NULL DEFAULT 0,
+        UNIQUE(accountId, name),
         FOREIGN KEY (roleId) REFERENCES code_table (id),
-        FOREIGN KEY (organizationId) REFERENCES organization (id)
+        FOREIGN KEY (accountId) REFERENCES account (id)
       )
     `);
   }

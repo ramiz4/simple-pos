@@ -13,6 +13,11 @@ export const roleGuard = (allowedRoles: UserRoleEnum[]): CanActivateFn => {
       return false;
     }
 
+    if (!authService.isStaffActive()) {
+      router.navigate(['/staff-select']);
+      return false;
+    }
+
     if (authService.hasAnyRole(allowedRoles)) {
       return true;
     }

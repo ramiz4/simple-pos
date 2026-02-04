@@ -1,52 +1,48 @@
 import { Injectable } from '@angular/core';
 import Database from '@tauri-apps/plugin-sql';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { Organization } from '../../domain/entities/organization.interface';
+import { Account } from '../../domain/entities/account.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SQLiteOrganizationRepository implements BaseRepository<Organization> {
+export class SQLiteAccountRepository implements BaseRepository<Account> {
   private db: Database | null = null;
 
-  async findById(id: number): Promise<Organization | null> {
+  async findById(id: number): Promise<Account | null> {
     const db = await this.getDb();
-    const results = await db.select<Organization[]>('SELECT * FROM organization WHERE id = ?', [
-      id,
-    ]);
+    const results = await db.select<Account[]>('SELECT * FROM account WHERE id = ?', [id]);
     return results.length > 0 ? results[0] : null;
   }
 
-  async findAll(): Promise<Organization[]> {
+  async findAll(): Promise<Account[]> {
     const db = await this.getDb();
-    return await db.select<Organization[]>('SELECT * FROM organization');
+    return await db.select<Account[]>('SELECT * FROM account');
   }
 
-  async findByEmail(email: string): Promise<Organization | null> {
+  async findByEmail(email: string): Promise<Account | null> {
     const db = await this.getDb();
-    const results = await db.select<Organization[]>('SELECT * FROM organization WHERE email = ?', [
-      email,
-    ]);
+    const results = await db.select<Account[]>('SELECT * FROM account WHERE email = ?', [email]);
     return results.length > 0 ? results[0] : null;
   }
 
-  async create(entity: Omit<Organization, 'id'>): Promise<Organization> {
+  async create(entity: Omit<Account, 'id'>): Promise<Account> {
     const db = await this.getDb();
     const result = await db.execute(
-      'INSERT INTO organization (name, email, active, createdAt) VALUES (?, ?, ?, ?)',
+      'INSERT INTO account (name, email, active, createdAt) VALUES (?, ?, ?, ?)',
       [entity.name, entity.email, entity.active ? 1 : 0, entity.createdAt],
     );
     const id = result.lastInsertId ?? Date.now();
     return { ...entity, id };
   }
 
-  async update(id: number, entity: Partial<Organization>): Promise<Organization> {
+  async update(id: number, entity: Partial<Account>): Promise<Account> {
     const db = await this.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`Organization with id ${id} not found`);
+    if (!existing) throw new Error(`Account with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
-    await db.execute('UPDATE organization SET name = ?, email = ?, active = ? WHERE id = ?', [
+    await db.execute('UPDATE account SET name = ?, email = ?, active = ? WHERE id = ?', [
       updated.name,
       updated.email,
       updated.active ? 1 : 0,
@@ -57,14 +53,12 @@ export class SQLiteOrganizationRepository implements BaseRepository<Organization
 
   async delete(id: number): Promise<void> {
     const db = await this.getDb();
-    await db.execute('DELETE FROM organization WHERE id = ?', [id]);
+    await db.execute('DELETE FROM account WHERE id = ?', [id]);
   }
 
   async count(): Promise<number> {
     const db = await this.getDb();
-    const results = await db.select<[{ count: number }]>(
-      'SELECT COUNT(*) as count FROM organization',
-    );
+    const results = await db.select<[{ count: number }]>('SELECT COUNT(*) as count FROM account');
     return results[0].count;
   }
 
@@ -79,7 +73,7 @@ export class SQLiteOrganizationRepository implements BaseRepository<Organization
   private async initTable(): Promise<void> {
     const db = await this.getDb();
     await db.execute(`
-      CREATE TABLE IF NOT EXISTS organization (
+      CREATE TABLE IF NOT EXISTS account (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,

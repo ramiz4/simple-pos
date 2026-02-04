@@ -29,6 +29,11 @@ export class HeaderComponent {
     this.updateAvailable = this.updateService.updateAvailable;
   }
 
+  onLock() {
+    this.authService.setStaffActive(false);
+    this.router.navigate(['/staff-select']);
+  }
+
   onLogout() {
     this.authService.logout();
     this.router.navigate(['/login']);

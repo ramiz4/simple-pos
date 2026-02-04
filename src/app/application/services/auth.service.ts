@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as bcrypt from 'bcryptjs';
+import { Account } from '../../domain/entities/account.interface';
 import { User } from '../../domain/entities/user.interface';
 import { UserRoleEnum } from '../../domain/enums';
 import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
@@ -7,14 +8,15 @@ import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-u
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { ValidationUtils } from '../../shared/utilities/validation.utils';
+import { AccountService } from './account.service';
 import { EnumMappingService } from './enum-mapping.service';
-import { OrganizationService } from './organization.service';
 
 export interface UserSession {
   user: User;
   roleCode: string;
-  organizationId: number;
-  organizationName?: string;
+  accountId: number;
+  accountName?: string;
+  isStaffActive: boolean;
 }
 
 @Injectable({
@@ -23,19 +25,22 @@ export interface UserSession {
 export class AuthService {
   private currentSession: UserSession | null = null;
   private readonly SALT_ROUNDS = 10;
+  private readonly DEFAULT_PIN = '0000';
+  private readonly LOCAL_SETUP_DOMAIN = 'local.pos';
+  private readonly MAX_USERNAME_COLLISION_ATTEMPTS = 10;
 
   constructor(
     private platformService: PlatformService,
     private sqliteUserRepo: SQLiteUserRepository,
     private indexedDBUserRepo: IndexedDBUserRepository,
     private enumMappingService: EnumMappingService,
-    private organizationService: OrganizationService,
+    private accountService: AccountService,
     private inputSanitizer: InputSanitizerService,
   ) {
     this.loadSessionFromStorage();
   }
 
-  async login(username: string, pin: string): Promise<UserSession> {
+  async login(username: string, pin: string, accountId?: number): Promise<UserSession> {
     // Sanitize inputs
     const sanitizedUsername = this.inputSanitizer.sanitizeUsername(username);
     const sanitizedPin = this.inputSanitizer.sanitizePin(pin);
@@ -45,7 +50,13 @@ export class AuthService {
     }
 
     const userRepo = this.getUserRepo();
-    const user = await userRepo.findByName(sanitizedUsername);
+    let user: User | null;
+
+    if (accountId) {
+      user = await userRepo.findByNameAndAccount(sanitizedUsername, accountId);
+    } else {
+      user = await userRepo.findByName(sanitizedUsername);
+    }
 
     if (!user) {
       // Use generic error message to prevent username enumeration
@@ -62,17 +73,18 @@ export class AuthService {
     }
 
     const roleInfo = await this.enumMappingService.getEnumFromId(user.roleId);
-    const organization = await this.organizationService.getOrganizationById(user.organizationId);
+    const account = await this.accountService.getAccountById(user.accountId);
 
-    if (!organization) {
-      throw new Error('Organization not found. Please contact support.');
+    if (!account) {
+      throw new Error('Account not found. Please contact support.');
     }
 
     const session: UserSession = {
       user,
       roleCode: roleInfo.code,
-      organizationId: user.organizationId,
-      organizationName: organization.name,
+      accountId: user.accountId,
+      accountName: account.name,
+      isStaffActive: true,
     };
 
     this.currentSession = session;
@@ -94,6 +106,17 @@ export class AuthService {
     return this.currentSession !== null;
   }
 
+  isStaffActive(): boolean {
+    return this.currentSession?.isStaffActive === true;
+  }
+
+  setStaffActive(active: boolean): void {
+    if (this.currentSession) {
+      this.currentSession.isStaffActive = active;
+      this.saveSessionToStorage(this.currentSession);
+    }
+  }
+
   hasRole(role: UserRoleEnum): boolean {
     return this.currentSession?.roleCode === role;
   }
@@ -103,45 +126,123 @@ export class AuthService {
     return roles.some((role) => this.currentSession!.roleCode === role);
   }
 
+  async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(password, this.SALT_ROUNDS);
+  }
+
   async hashPin(pin: string): Promise<string> {
     return await bcrypt.hash(pin, this.SALT_ROUNDS);
   }
 
+  async loginWithEmail(email: string, password: string): Promise<UserSession> {
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(email);
+
+    if (!sanitizedEmail || !password) {
+      throw new Error('Invalid email or password');
+    }
+
+    const userRepo = this.getUserRepo();
+    const user = await userRepo.findByEmail(sanitizedEmail);
+
+    if (!user) {
+      throw new Error('Invalid email or password');
+    }
+
+    if (!user.active) {
+      throw new Error('User account is inactive');
+    }
+
+    if (!user.passwordHash) {
+      throw new Error('Password login not enabled for this user');
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      throw new Error('Invalid email or password');
+    }
+
+    const roleInfo = await this.enumMappingService.getEnumFromId(user.roleId);
+    const account = await this.accountService.getAccountById(user.accountId);
+
+    if (!account) {
+      throw new Error('Account not found');
+    }
+
+    const session: UserSession = {
+      user,
+      roleCode: roleInfo.code,
+      accountId: user.accountId,
+      accountName: account.name,
+      isStaffActive: false,
+    };
+
+    this.currentSession = session;
+    this.saveSessionToStorage(session);
+
+    return session;
+  }
+
   async register(
-    organizationName: string,
-    organizationEmail: string,
-    ownerUsername: string,
-    ownerPin: string,
-  ): Promise<{ user: User; organization: any }> {
+    accountEmail: string,
+    ownerUsername?: string,
+    ownerPin?: string,
+    ownerPassword?: string,
+  ): Promise<{ user: User; account: Account }> {
     // Sanitize inputs
-    const sanitizedOrgName = this.inputSanitizer.sanitizeName(organizationName);
-    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(organizationEmail);
-    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(ownerUsername);
-    const sanitizedPin = this.inputSanitizer.sanitizePin(ownerPin);
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(accountEmail);
+
+    // Derive account name from email with special handling for local setup emails
+    const [emailLocalPart, emailDomain] = sanitizedEmail.split('@');
+    let baseAccountNamePart = emailLocalPart;
+
+    if (emailDomain === this.LOCAL_SETUP_DOMAIN) {
+      // For local setup emails like owner_1234567890@local.pos, derive a friendlier name
+      const ownerPattern = /^owner(_\d+)?$/i;
+      if (ownerPattern.test(emailLocalPart)) {
+        baseAccountNamePart = 'Owner';
+      } else {
+        const cleanedLocalPart = emailLocalPart.replace(/_/g, ' ').replace(/\d+$/u, '').trim();
+        baseAccountNamePart = cleanedLocalPart || 'Account';
+      }
+    }
+
+    const accountName =
+      emailDomain === this.LOCAL_SETUP_DOMAIN
+        ? `${baseAccountNamePart} Account`
+        : `${emailLocalPart}'s Account`;
+    const sanitizedAccountName = this.inputSanitizer.sanitizeName(accountName);
+
+    // Derive username from email if not provided (e.g. john@example.com -> john)
+    const derivedUsername = ownerUsername ? ownerUsername : sanitizedEmail.split('@')[0];
+    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(derivedUsername);
+    // Default PIN to DEFAULT_PIN if not provided (Web registration flow)
+    const sanitizedPin = ownerPin ? this.inputSanitizer.sanitizePin(ownerPin) : this.DEFAULT_PIN;
 
     // Validate inputs
-    if (!ValidationUtils.isValidName(sanitizedOrgName)) {
-      throw new Error('Organization name must be between 2 and 100 characters');
+    if (!ValidationUtils.isValidName(sanitizedAccountName)) {
+      throw new Error('Account name must be between 2 and 100 characters');
     }
 
     if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
       throw new Error('Invalid email address');
     }
 
+    // Validate username (whether provided explicitly or derived from email)
     if (!ValidationUtils.isValidUsername(sanitizedUsername)) {
-      throw new Error('Username must be 3-30 characters (letters, numbers, - and _ only)');
+      throw new Error('Invalid username');
     }
 
-    const pinValidation = ValidationUtils.validatePin(sanitizedPin);
-    if (!pinValidation.valid) {
-      throw new Error(pinValidation.errors[0]);
+    // Only validate PIN if it was provided by user. 0000 is a valid 4 digit pin technically but might fail strict "strength" checks if applied.
+    // But here we just check format.
+    if (ownerPin) {
+      const pinValidation = ValidationUtils.validatePin(sanitizedPin);
+      if (!pinValidation.valid) {
+        throw new Error(pinValidation.errors[0]);
+      }
     }
 
-    // Create organization first (organizationService handles duplicate email check)
-    const organization = await this.organizationService.createOrganization(
-      sanitizedOrgName,
-      sanitizedEmail,
-    );
+    // Create account first (accountService handles duplicate email check)
+    const account = await this.accountService.createAccount(sanitizedAccountName, sanitizedEmail);
 
     // Get ADMIN role ID
     const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
@@ -149,25 +250,53 @@ export class AuthService {
     // Create owner user
     const userRepo = this.getUserRepo();
     const pinHash = await this.hashPin(sanitizedPin);
+    const passwordHash = ownerPassword ? await this.hashPassword(ownerPassword) : undefined;
 
-    const user = await userRepo.create({
-      name: sanitizedUsername,
-      email: sanitizedEmail,
-      roleId: adminRole.id,
-      pinHash,
-      active: true,
-      organizationId: organization.id,
-      isOwner: true,
-    });
+    // Check for username collision and resolve by appending suffix
+    let finalUsername = sanitizedUsername;
+    let suffix = 1;
 
-    return { user, organization };
+    for (let attempt = 0; attempt < this.MAX_USERNAME_COLLISION_ATTEMPTS; attempt++) {
+      try {
+        // Try to find existing user with same username in the new account
+        // Since account doesn't exist yet, we just try to create and catch unique constraint error
+        const user = await userRepo.create({
+          name: finalUsername,
+          email: sanitizedEmail,
+          roleId: adminRole.id,
+          pinHash,
+          passwordHash,
+          active: true,
+          accountId: account.id,
+          isOwner: true,
+        });
+
+        return { user, account };
+      } catch (error: any) {
+        // Check if it's a uniqueness constraint error
+        if (
+          error.message &&
+          (error.message.includes('UNIQUE constraint') || error.message.includes('unique'))
+        ) {
+          // Append suffix and try again
+          finalUsername = `${sanitizedUsername}${suffix}`;
+          suffix++;
+        } else {
+          // Re-throw if it's a different error
+          throw error;
+        }
+      }
+    }
+
+    // If we exhausted all attempts, throw an error
+    throw new Error('Unable to create user. Please try a different username.');
   }
 
   async createUser(
     name: string,
     pin: string,
     roleId: number,
-    organizationId: number,
+    accountId: number,
     email?: string,
   ): Promise<User> {
     const userRepo = this.getUserRepo();
@@ -179,14 +308,14 @@ export class AuthService {
       roleId,
       pinHash,
       active: true,
-      organizationId,
+      accountId,
       isOwner: false,
     });
   }
 
-  async getUsersByOrganization(organizationId: number): Promise<User[]> {
+  async getUsersByAccount(accountId: number): Promise<User[]> {
     const userRepo = this.getUserRepo();
-    return await userRepo.findByOrganizationId(organizationId);
+    return await userRepo.findByAccountId(accountId);
   }
 
   private saveSessionToStorage(session: UserSession): void {
@@ -217,5 +346,155 @@ export class AuthService {
 
   private getUserRepo() {
     return this.platformService.isTauri() ? this.sqliteUserRepo : this.indexedDBUserRepo;
+  }
+
+  async isSetupComplete(): Promise<boolean> {
+    const count = await this.getUserRepo().count();
+    return count > 0;
+  }
+
+  async verifyOwnerPassword(password: string): Promise<boolean> {
+    if (!this.currentSession) return false;
+
+    const userRepo = this.getUserRepo();
+    // Verify against any owner in the current account
+    const users = await userRepo.findByAccountId(this.currentSession.accountId);
+    const owners = users.filter((u: User) => u.isOwner);
+
+    if (!owners.length) {
+      return false; // No owners found for this account
+    }
+
+    for (const owner of owners) {
+      if (!owner.passwordHash) {
+        continue; // Skip owners without a password set
+      }
+
+      const isMatch = await bcrypt.compare(password, owner.passwordHash);
+      if (isMatch) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if a user has the default PIN ("0000")
+   *
+   * Performance consideration: This method uses bcrypt.compare() which is computationally
+   * expensive. If this check is called frequently (e.g., on every page load or user selection),
+   * it could impact performance.
+   *
+   * Optimization option: Add a `hasDefaultPin: boolean` flag to the User entity that is:
+   * - Set to true during user creation if using DEFAULT_PIN
+   * - Set to false when PIN is changed via updateUserPin()
+   * This would avoid repeated bcrypt operations.
+   *
+   * Current implementation chosen for simplicity and to avoid schema changes.
+   * The method is currently called once per staff selection load, which is acceptable.
+   */
+  async checkHasDefaultPin(user: User): Promise<boolean> {
+    // Check if the user's PIN hash matches the hash for the default PIN
+    return await bcrypt.compare(this.DEFAULT_PIN, user.pinHash);
+  }
+
+  async updateUserPin(userId: number, newPin: string): Promise<void> {
+    const userRepo = this.getUserRepo();
+    const pinHash = await this.hashPin(newPin);
+
+    // Use targeted update to only modify the pinHash field
+    await userRepo.update(userId, { pinHash } as Partial<User>);
+  }
+
+  async updateUserProfile(userId: number, name?: string, email?: string): Promise<void> {
+    const userRepo = this.getUserRepo();
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const session = this.getCurrentSession();
+    if (!session || !session.user.isOwner) {
+      throw new Error('Only the account owner can update user profiles');
+    }
+
+    // Verify user belongs to same account
+    if (user.accountId !== session.accountId) {
+      throw new Error('User does not belong to your account');
+    }
+
+    const updates: Partial<User> = {};
+
+    if (name !== undefined) {
+      const sanitizedName = this.inputSanitizer.sanitizeName(name);
+      if (!ValidationUtils.isValidName(sanitizedName)) {
+        throw new Error('Invalid name');
+      }
+      updates.name = sanitizedName;
+    }
+
+    if (email !== undefined) {
+      if (email.trim() === '') {
+        // Allow empty email (optional field)
+        updates.email = undefined;
+      } else {
+        const sanitizedEmail = this.inputSanitizer.sanitizeEmail(email);
+        if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
+          throw new Error('Invalid email address');
+        }
+        updates.email = sanitizedEmail;
+      }
+    }
+
+    await userRepo.update(userId, updates);
+  }
+
+  async verifyAdminPin(pin: string): Promise<boolean> {
+    if (!this.currentSession) return false;
+
+    const userRepo = this.getUserRepo();
+    const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
+
+    const users = await userRepo.findByAccountId(this.currentSession.accountId);
+    const admins = users.filter((u: User) => u.roleId === adminRole.id);
+
+    for (const admin of admins) {
+      if (await bcrypt.compare(pin, admin.pinHash)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    const userRepo = this.getUserRepo();
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const session = this.getCurrentSession();
+    if (!session || !session.user.isOwner) {
+      throw new Error('Only the account owner can delete users');
+    }
+
+    // Verify user belongs to same account
+    if (user.accountId !== session.accountId) {
+      throw new Error('User does not belong to your account');
+    }
+
+    if (user.isOwner) {
+      throw new Error('Account owner cannot be deleted');
+    }
+
+    if (session.user.id === userId) {
+      throw new Error('You cannot delete your own profile');
+    }
+
+    await userRepo.delete(userId);
   }
 }

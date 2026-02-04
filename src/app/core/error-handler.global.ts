@@ -23,7 +23,13 @@ export class GlobalErrorHandler implements ErrorHandler {
       errorCode: this.categorizeError(error),
     };
 
-    logger.error(`Unhandled Exception: ${message}`, context);
+    // Wrap in try/catch to prevent infinite error loops if logger fails
+    try {
+      logger.error(`Unhandled Exception: ${message}`, context);
+    } catch (loggingError) {
+      // If logging fails, just continue - console.error below will still show the error
+      console.error('LoggerService.error failed in GlobalErrorHandler:', loggingError);
+    }
 
     // Allow the default console error to happen as well so developers see it
     console.error('GlobalErrorHandler caught:', error);

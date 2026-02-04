@@ -15,22 +15,24 @@ import { ValidationUtils } from '../../../shared/utilities/validation.utils';
   styleUrl: './register.component.css',
 })
 export class RegisterComponent {
-  organizationName = signal('');
-  organizationEmail = signal('');
-  ownerName = signal('');
-  ownerPin = signal('');
-  confirmPin = signal('');
+  accountEmail = signal('');
+  password = signal('');
+  confirmPassword = signal('');
   errorMessage = signal('');
   isLoading = signal(false);
   showPassword = signal(false);
   showConfirmPassword = signal(false);
 
   // Computed signals for validation
-  pinStrength = computed(() => ValidationUtils.calculatePinStrength(this.ownerPin()));
-  pinStrengthLabel = computed(() => ValidationUtils.getPinStrengthLabel(this.pinStrength()));
-  pinStrengthColor = computed(() => ValidationUtils.getPinStrengthColor(this.pinStrength()));
-  pinStrengthTextColor = computed(() => {
-    const strength = this.pinStrength();
+  passwordStrength = computed(() => ValidationUtils.calculatePasswordStrength(this.password()));
+  passwordStrengthLabel = computed(() =>
+    ValidationUtils.getPasswordStrengthLabel(this.passwordStrength()),
+  );
+  passwordStrengthColor = computed(() =>
+    ValidationUtils.getPasswordStrengthColor(this.passwordStrength()),
+  );
+  passwordStrengthTextColor = computed(() => {
+    const strength = this.passwordStrength();
     if (strength < 30) return 'text-red-500';
     if (strength < 60) return 'text-yellow-500';
     if (strength < 80) return 'text-blue-500';
@@ -38,11 +40,11 @@ export class RegisterComponent {
   });
 
   // Validation states
-  orgNameValid = computed(() => ValidationUtils.isValidName(this.organizationName()));
-  emailValid = computed(() => ValidationUtils.isValidEmail(this.organizationEmail()));
-  ownerNameValid = computed(() => ValidationUtils.isValidUsername(this.ownerName()));
-  pinValid = computed(() => ValidationUtils.validatePin(this.ownerPin()).valid);
-  pinsMatch = computed(() => this.ownerPin() === this.confirmPin() && this.confirmPin().length > 0);
+  emailValid = computed(() => ValidationUtils.isValidEmail(this.accountEmail()));
+  passwordValid = computed(() => this.password().length >= 8); // Basic length check for now, can be stricter
+  passwordsMatch = computed(
+    () => this.password() === this.confirmPassword() && this.confirmPassword().length > 0,
+  );
 
   constructor(
     private authService: AuthService,
@@ -55,25 +57,19 @@ export class RegisterComponent {
     this.errorMessage.set('');
 
     // Basic empty field check only
-    if (
-      !this.organizationName() ||
-      !this.organizationEmail() ||
-      !this.ownerName() ||
-      !this.ownerPin() ||
-      !this.confirmPin()
-    ) {
+    if (!this.accountEmail() || !this.password() || !this.confirmPassword()) {
       this.errorMessage.set('All fields are required');
       return;
     }
 
-    // PIN match check (client-side UX only)
-    if (this.ownerPin() !== this.confirmPin()) {
-      this.errorMessage.set('PINs do not match');
+    // Password match check
+    if (this.password() !== this.confirmPassword()) {
+      this.errorMessage.set('Passwords do not match');
       return;
     }
 
     // Sanitize email for rate limiting key
-    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.organizationEmail());
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.accountEmail());
 
     // Check rate limiting
     const rateLimitKey = `register:${sanitizedEmail}`;
@@ -90,20 +86,20 @@ export class RegisterComponent {
     try {
       // Auth service will handle all sanitization and validation
       await this.authService.register(
-        this.organizationName(),
-        this.organizationEmail(),
-        this.ownerName(),
-        this.ownerPin(),
+        this.accountEmail(),
+        undefined, // Username will be derived in service
+        undefined, // PIN will be defaulted in service
+        this.password(),
       );
 
       // Reset rate limiter on success
       this.rateLimiter.reset(rateLimitKey);
 
-      // Auto-login after registration
-      await this.authService.login(this.ownerName(), this.ownerPin());
+      // Auto-login using email
+      await this.authService.loginWithEmail(this.accountEmail(), this.password());
 
-      // Navigate to dashboard
-      this.router.navigate(['/dashboard']);
+      // Navigate to staff selection
+      this.router.navigate(['/staff-select']);
     } catch (error: any) {
       this.rateLimiter.recordAttempt(rateLimitKey);
       this.errorMessage.set(error?.message || 'Registration failed. Please try again.');

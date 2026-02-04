@@ -1,4 +1,4 @@
-export interface Organization {
+export interface Account {
   id: number;
   name: string;
   email: string;

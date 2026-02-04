@@ -14,8 +14,11 @@ import { RateLimiterService } from '../../../shared/utilities/rate-limiter.servi
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  username = signal('');
-  pin = signal('');
+  // Form Inputs
+  email = signal('');
+  password = signal('');
+
+  // UI State
   errorMessage = signal('');
   isLoading = signal(false);
 
@@ -29,32 +32,22 @@ export class LoginComponent {
   async onLogin() {
     this.errorMessage.set('');
 
-    if (!this.username() || !this.pin()) {
-      this.errorMessage.set('Please enter username and PIN');
+    if (!this.email() || !this.password()) {
+      this.errorMessage.set('Please enter email and password');
       return;
     }
 
-    // Sanitize inputs for rate limiting and authentication
-    const sanitizedUsername = this.inputSanitizer.sanitizeUsername(this.username());
-    const sanitizedPin = this.inputSanitizer.sanitizePin(this.pin());
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.email());
+    const rateLimitKey = `login:email:${sanitizedEmail}`;
 
-    // Check rate limiting using sanitized username
-    const rateLimitKey = `login:${sanitizedUsername}`;
-    if (!this.rateLimiter.isAllowed(rateLimitKey)) {
-      const remainingTime = this.rateLimiter.getBlockedTimeRemaining(rateLimitKey);
-      this.errorMessage.set(
-        `Too many login attempts. Please try again in ${Math.ceil(remainingTime / 60)} minutes.`,
-      );
-      return;
-    }
+    if (!this.checkRateLimit(rateLimitKey)) return;
 
     this.isLoading.set(true);
 
     try {
-      await this.authService.login(sanitizedUsername, sanitizedPin);
-      // Reset rate limiter on success
+      await this.authService.loginWithEmail(sanitizedEmail, this.password());
       this.rateLimiter.reset(rateLimitKey);
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/staff-select']);
     } catch (error: any) {
       this.rateLimiter.recordAttempt(rateLimitKey);
       this.errorMessage.set(error.message || 'Login failed');
@@ -63,14 +56,25 @@ export class LoginComponent {
     }
   }
 
-  onPinInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.pin.set(input.value);
+  checkRateLimit(key: string): boolean {
+    if (!this.rateLimiter.isAllowed(key)) {
+      const remainingTime = this.rateLimiter.getBlockedTimeRemaining(key);
+      this.errorMessage.set(
+        `Too many login attempts. Please try again in ${Math.ceil(remainingTime / 60)} minutes.`,
+      );
+      return false;
+    }
+    return true;
   }
 
-  onUsernameInput(event: Event) {
+  onEmailInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.username.set(input.value);
+    this.email.set(input.value);
+  }
+
+  onPasswordInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.password.set(input.value);
   }
 
   goToRegister() {

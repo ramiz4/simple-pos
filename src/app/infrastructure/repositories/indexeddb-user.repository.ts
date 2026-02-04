@@ -51,13 +51,29 @@ export class IndexedDBUserRepository implements BaseRepository<User> {
     });
   }
 
-  async findByOrganizationId(organizationId: number): Promise<User[]> {
+  async findByNameAndAccount(name: string, accountId: number): Promise<User | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
-      const index = store.index('organizationId');
-      const request = index.getAll(organizationId);
+      const index = store.index('accountName');
+      const request = index.get([accountId, name]);
+
+      request.onsuccess = () => {
+        const user = request.result;
+        resolve(user && user.active ? user : null);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async findByAccountId(accountId: number): Promise<User[]> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('accountId');
+      const request = index.getAll(accountId);
 
       request.onsuccess = () => resolve(request.result || []);
       request.onerror = () => reject(request.error);

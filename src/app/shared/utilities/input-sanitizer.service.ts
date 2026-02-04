@@ -85,7 +85,7 @@ export class InputSanitizerService {
   }
 
   /**
-   * Sanitize organization/user name - allows alphanumeric and common name characters
+   * Sanitize account/user name - allows alphanumeric and common name characters
    */
   sanitizeName(name: string): string {
     if (!name) return '';
