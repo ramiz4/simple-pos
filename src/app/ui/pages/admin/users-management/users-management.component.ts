@@ -174,15 +174,25 @@ export class UsersManagementComponent implements OnInit {
     this.isLoading.set(true);
 
     try {
+      // Update name and/or email
+      const nameChanged = this.editUserName() !== user.name;
+      const emailChanged = this.editUserEmail() !== (user.email || '');
+
+      if (nameChanged || emailChanged) {
+        await this.userManagementService.updateUserProfile(
+          user.id,
+          nameChanged ? this.editUserName() : undefined,
+          emailChanged ? this.editUserEmail() : undefined,
+        );
+      }
+
+      // Update PIN if provided
       if (this.editUserPin()) {
-        if (this.editUserPin().length < 4) {
-          throw new Error('PIN must be at least 4 digits');
+        if (this.editUserPin().length < 6) {
+          throw new Error('PIN must be at least 6 digits');
         }
         await this.authService.updateUserPin(user.id, this.editUserPin());
       }
-
-      // TODO: Implement name/email update via UserManagementService
-      // Currently only PIN updates are supported. Future enhancement needed for full user profile editing.
 
       this.successMessage.set('User updated successfully');
       await this.loadUsers();

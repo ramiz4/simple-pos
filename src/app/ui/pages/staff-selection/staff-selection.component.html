@@ -111,7 +111,7 @@
           type="password"
           [(ngModel)]="pinInput"
           class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0 mb-6"
-          maxlength="6"
+          maxlength="20"
           autofocus
           (keyup.enter)="verifyPin()"
         />
@@ -228,7 +228,7 @@
           </div>
           <h3 class="text-xl font-bold">Set Your Security PIN</h3>
           <p class="text-sm text-surface-500">
-            Please setup a 4-6 digit PIN for {{ currentUserName() }}.
+            Please setup a 6-20 digit PIN for {{ currentUserName() }}.
           </p>
         </div>
 
@@ -238,7 +238,7 @@
             [(ngModel)]="newPin"
             class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0"
             placeholder="PIN"
-            maxlength="6"
+            maxlength="20"
             autofocus
           />
           <input
@@ -246,7 +246,7 @@
             [(ngModel)]="confirmNewPin"
             class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0"
             placeholder="Confirm"
-            maxlength="6"
+            maxlength="20"
             (keyup.enter)="saveNewPin()"
           />
         </div>

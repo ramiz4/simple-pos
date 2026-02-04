@@ -391,6 +391,54 @@ export class AuthService {
     await userRepo.update(userId, { pinHash } as Partial<User>);
   }
 
+  async updateUserProfile(
+    userId: number,
+    name?: string,
+    email?: string,
+  ): Promise<void> {
+    const userRepo = this.getUserRepo();
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const session = this.getCurrentSession();
+    if (!session || !session.user.isOwner) {
+      throw new Error('Only the account owner can update user profiles');
+    }
+
+    // Verify user belongs to same account
+    if (user.accountId !== session.accountId) {
+      throw new Error('User does not belong to your account');
+    }
+
+    const updates: Partial<User> = {};
+
+    if (name !== undefined) {
+      const sanitizedName = this.inputSanitizer.sanitizeName(name);
+      if (!ValidationUtils.isValidName(sanitizedName)) {
+        throw new Error('Invalid name');
+      }
+      updates.name = sanitizedName;
+    }
+
+    if (email !== undefined) {
+      if (email.trim() === '') {
+        // Allow empty email (optional field)
+        updates.email = undefined;
+      } else {
+        const sanitizedEmail = this.inputSanitizer.sanitizeEmail(email);
+        if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
+          throw new Error('Invalid email address');
+        }
+        updates.email = sanitizedEmail;
+      }
+    }
+
+    await userRepo.update(userId, updates);
+  }
+
   async verifyAdminPin(pin: string): Promise<boolean> {
     if (!this.currentSession) return false;
 
