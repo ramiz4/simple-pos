@@ -38,9 +38,7 @@ describe('desktopLandingGuard', () => {
     it('should allow access to landing page when running on web platform', () => {
       platformService.isTauri.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() =>
-        desktopLandingGuard(null as any, null as any),
-      );
+      const result = TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       expect(result).toBe(true);
       expect(router.navigate).not.toHaveBeenCalled();
@@ -52,9 +50,7 @@ describe('desktopLandingGuard', () => {
       platformService.isTauri.mockReturnValue(true);
       authService.isLoggedIn.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() =>
-        desktopLandingGuard(null as any, null as any),
-      );
+      const result = TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       expect(result).toBe(false);
       expect(router.navigate).toHaveBeenCalledWith(['/login']);
@@ -67,9 +63,7 @@ describe('desktopLandingGuard', () => {
       platformService.isTauri.mockReturnValue(true);
       authService.isLoggedIn.mockReturnValue(true);
 
-      const result = TestBed.runInInjectionContext(() =>
-        desktopLandingGuard(null as any, null as any),
-      );
+      const result = TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       expect(result).toBe(false);
       expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
@@ -82,7 +76,7 @@ describe('desktopLandingGuard', () => {
       platformService.isTauri.mockReturnValue(false);
       authService.isLoggedIn.mockReturnValue(true);
 
-      TestBed.runInInjectionContext(() => desktopLandingGuard(null as any, null as any));
+      TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       // On web platform, authentication should not be checked
       expect(platformService.isTauri).toHaveBeenCalled();
@@ -93,7 +87,7 @@ describe('desktopLandingGuard', () => {
       platformService.isTauri.mockReturnValue(true);
       authService.isLoggedIn.mockReturnValue(false);
 
-      TestBed.runInInjectionContext(() => desktopLandingGuard(null as any, null as any));
+      TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       expect(platformService.isTauri).toHaveBeenCalled();
       expect(authService.isLoggedIn).toHaveBeenCalled();
@@ -105,9 +99,7 @@ describe('desktopLandingGuard', () => {
       platformService.isTauri.mockReturnValue(true);
       authService.isLoggedIn.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() =>
-        desktopLandingGuard(null as any, null as any),
-      );
+      const result = TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       expect(typeof result).toBe('boolean');
       expect(result).toBe(false);
@@ -116,9 +108,7 @@ describe('desktopLandingGuard', () => {
     it('should return boolean true when allowing access on web', () => {
       platformService.isTauri.mockReturnValue(false);
 
-      const result = TestBed.runInInjectionContext(() =>
-        desktopLandingGuard(null as any, null as any),
-      );
+      const result = TestBed.runInInjectionContext(() => desktopLandingGuard());
 
       expect(typeof result).toBe('boolean');
       expect(result).toBe(true);
