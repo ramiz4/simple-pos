@@ -7,13 +7,14 @@ import { AuthService } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { User } from '../../../domain/entities/user.interface';
 import { UserRoleEnum } from '../../../domain/enums';
+import { AutoFocusDirective } from '../../../shared/directives/auto-focus.directive';
 import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
 import { PlatformService } from '../../../shared/utilities/platform.service';
 
 @Component({
   selector: 'app-staff-selection',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AutoFocusDirective],
   templateUrl: './staff-selection.component.html',
 })
 export class StaffSelectionComponent implements OnInit {

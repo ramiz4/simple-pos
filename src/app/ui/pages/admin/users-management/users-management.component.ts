@@ -6,11 +6,12 @@ import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { UserManagementService } from '../../../../application/services/user-management.service';
 import { User } from '../../../../domain/entities/user.interface';
+import { AutoFocusDirective } from '../../../../shared/directives/auto-focus.directive';
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AutoFocusDirective],
   templateUrl: './users-management.component.html',
   styleUrl: './users-management.component.css',
 })
