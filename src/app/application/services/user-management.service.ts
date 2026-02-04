@@ -31,4 +31,8 @@ export class UserManagementService {
   async getAccountUsers(accountId: number): Promise<User[]> {
     return await this.authService.getUsersByAccount(accountId);
   }
+
+  async deleteUser(userId: number): Promise<void> {
+    await this.authService.deleteUser(userId);
+  }
 }

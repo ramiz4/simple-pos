@@ -25,6 +25,7 @@ export interface UserSession {
 export class AuthService {
   private currentSession: UserSession | null = null;
   private readonly SALT_ROUNDS = 10;
+  private readonly DEFAULT_PIN = '0000';
 
   constructor(
     private platformService: PlatformService,
@@ -193,8 +194,8 @@ export class AuthService {
     // Derive username from email if not provided (e.g. john@example.com -> john)
     const derivedUsername = ownerUsername ? ownerUsername : sanitizedEmail.split('@')[0];
     const sanitizedUsername = this.inputSanitizer.sanitizeUsername(derivedUsername);
-    // Default PIN to 0000 if not provided (Web registration flow)
-    const sanitizedPin = ownerPin ? this.inputSanitizer.sanitizePin(ownerPin) : '0000';
+    // Default PIN to DEFAULT_PIN if not provided (Web registration flow)
+    const sanitizedPin = ownerPin ? this.inputSanitizer.sanitizePin(ownerPin) : this.DEFAULT_PIN;
 
     // Validate inputs
     if (!ValidationUtils.isValidName(sanitizedAccountName)) {
@@ -335,8 +336,8 @@ export class AuthService {
   }
 
   async checkHasDefaultPin(user: User): Promise<boolean> {
-    // Check if the user's PIN hash matches the hash for "0000"
-    return await bcrypt.compare('0000', user.pinHash);
+    // Check if the user's PIN hash matches the hash for the default PIN
+    return await bcrypt.compare(this.DEFAULT_PIN, user.pinHash);
   }
 
   async updateUserPin(userId: number, newPin: string): Promise<void> {
@@ -368,5 +369,29 @@ export class AuthService {
     }
 
     return false;
+  }
+
+  async deleteUser(userId: number): Promise<void> {
+    const userRepo = this.getUserRepo();
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const session = this.getCurrentSession();
+    if (!session || !session.user.isOwner) {
+      throw new Error('Only the account owner can delete users');
+    }
+
+    if (user.isOwner) {
+      throw new Error('Account owner cannot be deleted');
+    }
+
+    if (session.user.id === userId) {
+      throw new Error('You cannot delete your own profile');
+    }
+
+    await userRepo.delete(userId);
   }
 }
