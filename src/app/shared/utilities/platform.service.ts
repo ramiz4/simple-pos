@@ -7,10 +7,16 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class PlatformService {
-  private _isTauri: boolean;
+  private readonly _isTauri: boolean;
 
   constructor() {
-    this._isTauri = '__TAURI__' in window;
+    // In Tauri v2, the presence of the documented global `__TAURI__` indicates
+    // that the app is running in a Tauri context:
+    // https://tauri.app/v2/reference/javascript/global-tauri/
+    this._isTauri =
+      typeof window !== 'undefined' &&
+      typeof (window as any).__TAURI__ === 'object' &&
+      (window as any).__TAURI__ !== null;
   }
 
   /**
