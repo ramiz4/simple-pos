@@ -1,0 +1,146 @@
+<div
+  class="min-h-screen bg-surface-50 flex items-center justify-center p-6 relative overflow-hidden"
+>
+  <!-- Background Decorations -->
+  <div
+    class="absolute -top-24 -left-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+  ></div>
+  <div
+    class="absolute -bottom-24 -right-24 w-96 h-96 primary-gradient rounded-full blur-3xl opacity-10 animate-float"
+    style="animation-delay: -1.5s"
+  ></div>
+
+  <div class="glass-card w-full max-w-md p-10 relative z-10 animate-scale-in">
+    <div class="text-center mb-10">
+      <div class="mb-6 flex justify-center">
+        <img
+          src="favicon.svg"
+          alt="Simple POS Logo"
+          class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
+        />
+      </div>
+      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Welcome</h1>
+      <p class="text-surface-500 font-medium">Let's set up your admin account to get started.</p>
+    </div>
+
+    <form (submit)="onSubmit(); $event.preventDefault()" class="space-y-6">
+      <!-- Username Input -->
+      <div class="space-y-2 animate-fade-in">
+        <label
+          for="username"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Username
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            id="username"
+            [value]="username()"
+            (input)="onUsernameInput($event)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            placeholder="admin"
+            [disabled]="isLoading()"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- PIN Input -->
+      <div class="space-y-2 animate-fade-in" style="animation-delay: 0.1s">
+        <label for="pin" class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1">
+          Create PIN
+        </label>
+        <div class="relative">
+          <input
+            type="password"
+            id="pin"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [value]="pin()"
+            (input)="onPinInput($event)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            placeholder="****"
+            maxlength="8"
+            [disabled]="isLoading()"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Confirm PIN Input -->
+      <div class="space-y-2 animate-fade-in" style="animation-delay: 0.2s">
+        <label
+          for="confirmPin"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Confirm PIN
+        </label>
+        <div class="relative">
+          <input
+            type="password"
+            id="confirmPin"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            [value]="confirmPin()"
+            (input)="onConfirmPinInput($event)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border border-surface-100 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            placeholder="****"
+            maxlength="8"
+            [disabled]="isLoading()"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage()) {
+        <div
+          class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100"
+        >
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        [disabled]="isLoading()"
+        class="neo-button w-full h-16 text-lg disabled:opacity-50 flex items-center justify-center gap-3 animate-fade-in"
+        style="animation-delay: 0.3s"
+      >
+        @if (isLoading()) {
+          <div
+            class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
+          ></div>
+          <span>Setting up...</span>
+        } @else {
+          <span>Create Account</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7l5 5m0 0l-5 5m5-5H6"
+            />
+          </svg>
+        }
+      </button>
+    </form>
+
+    <div
+      class="mt-12 pt-8 border-t border-surface-100 text-center animate-fade-in"
+      style="animation-delay: 0.4s"
+    >
+      <p class="text-[10px] font-black uppercase tracking-[0.2em] text-surface-300">
+        Simple POS System v1.3 • Setup Mode
+      </p>
+    </div>
+  </div>
+</div>
