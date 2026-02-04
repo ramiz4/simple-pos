@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AccountService } from '../../../application/services/account.service';
 import { AuthService } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { User } from '../../../domain/entities/user.interface';
 import { UserRoleEnum } from '../../../domain/enums';
+import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
+import { PlatformService } from '../../../shared/utilities/platform.service';
 
 @Component({
   selector: 'app-staff-selection',
@@ -30,13 +33,17 @@ export class StaffSelectionComponent implements OnInit {
   errorMessage = signal('');
   isLoading = signal(false);
   currentUserName = signal('');
+  isTauri = computed(() => this.platformService.isTauri());
 
   rolesMap = new Map<number, string>();
 
   constructor(
-    public authService: AuthService,
+    private authService: AuthService,
     private enumMappingService: EnumMappingService,
     private router: Router,
+    private accountService: AccountService,
+    private inputSanitizer: InputSanitizerService,
+    private platformService: PlatformService,
   ) {}
 
   async ngOnInit() {
@@ -63,20 +70,41 @@ export class StaffSelectionComponent implements OnInit {
   }
 
   async loadUsers() {
-    const session = this.authService.getCurrentSession();
-    if (session) {
-      this.currentUserName.set(session.user.name);
-      const users = await this.authService.getUsersByAccount(session.accountId);
-      this.users.set(users);
+    try {
+      const session = this.authService.getCurrentSession();
+      let accountId: number | undefined;
 
-      // Check if current user has default PIN and force setup
-      const currentUser = users.find((u: User) => u.id === session.user.id);
-      if (currentUser) {
-        const isDefault = await this.authService.checkHasDefaultPin(currentUser);
-        if (isDefault) {
-          this.showSetPinModal.set(true);
+      if (session) {
+        this.currentUserName.set(session.user.name);
+        accountId = session.accountId;
+      } else if (this.isTauri()) {
+        // In Tauri, if no session, try to find the default account
+        // Sort by id to get the earliest created account
+        const accounts = await this.accountService.getAllAccounts();
+        if (accounts.length > 0) {
+          const sortedAccounts = accounts.sort((a, b) => a.id - b.id);
+          accountId = sortedAccounts[0].id;
         }
       }
+
+      if (accountId !== undefined) {
+        const users = await this.authService.getUsersByAccount(accountId);
+        this.users.set(users);
+
+        if (session) {
+          // Check if current user has default PIN and force setup
+          const currentUser = users.find((u: User) => u.id === session.user.id);
+          if (currentUser) {
+            const isDefault = await this.authService.checkHasDefaultPin(currentUser);
+            if (isDefault) {
+              this.showSetPinModal.set(true);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      this.errorMessage.set('Failed to load users. Please try again.');
     }
   }
 
@@ -139,13 +167,14 @@ export class StaffSelectionComponent implements OnInit {
   }
 
   async verifyAdminPin() {
-    if (!this.pinInput()) return;
+    const sanitizedPin = this.inputSanitizer.sanitizePin(this.pinInput());
+    if (!sanitizedPin) return;
 
     this.isLoading.set(true);
     this.errorMessage.set('');
 
     try {
-      const isValid = await this.authService.verifyAdminPin(this.pinInput());
+      const isValid = await this.authService.verifyAdminPin(sanitizedPin);
       if (isValid) {
         this.authService.setStaffActive(true);
         this.closeModals();
@@ -200,6 +229,9 @@ export class StaffSelectionComponent implements OnInit {
         break;
       case UserRoleEnum.KITCHEN:
         this.router.navigate(['/kitchen']);
+        break;
+      case UserRoleEnum.DRIVER:
+        this.router.navigate(['/driver']);
         break;
       default:
         this.router.navigate(['/unauthorized']);
