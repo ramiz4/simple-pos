@@ -10,12 +10,13 @@ export class PlatformService {
   private readonly _isTauri: boolean;
 
   constructor() {
-    // In Tauri v2, __TAURI_INTERNALS__ is the most reliable internal marker
-    // that is injected even if globals are disabled.
+    // In Tauri v2, the presence of the documented global `__TAURI__` indicates
+    // that the app is running in a Tauri context:
+    // https://tauri.app/v2/reference/javascript/global-tauri/
     this._isTauri =
       typeof window !== 'undefined' &&
-      ((window as any).__TAURI_INTERNALS__ !== undefined ||
-        (window as any).__TAURI_IPC__ !== undefined);
+      typeof (window as any).__TAURI__ === 'object' &&
+      (window as any).__TAURI__ !== null;
   }
 
   /**
