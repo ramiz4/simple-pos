@@ -87,8 +87,8 @@ export class RegisterComponent {
       // Auth service will handle all sanitization and validation
       await this.authService.register(
         this.accountEmail(),
-        '', // Username will be derived in service
-        '', // PIN will be defaulted in service
+        undefined, // Username will be derived in service
+        undefined, // PIN will be defaulted in service
         this.password(),
       );
 

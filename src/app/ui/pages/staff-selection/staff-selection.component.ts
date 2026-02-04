@@ -79,10 +79,12 @@ export class StaffSelectionComponent implements OnInit {
         accountId = session.accountId;
       } else if (this.isTauri()) {
         // In Tauri, if no session, try to find the default account
-        // Sort by id to get the earliest created account
+        // Sort by createdAt to get the earliest created account
         const accounts = await this.accountService.getAllAccounts();
         if (accounts.length > 0) {
-          const sortedAccounts = accounts.sort((a, b) => a.id - b.id);
+          const sortedAccounts = accounts.sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          );
           accountId = sortedAccounts[0].id;
         }
       }
@@ -152,10 +154,18 @@ export class StaffSelectionComponent implements OnInit {
     this.errorMessage.set('');
 
     try {
+      // Sanitize PIN input before passing to auth service
+      const sanitizedPin = this.inputSanitizer.sanitizePin(this.pinInput());
+      if (!sanitizedPin) {
+        this.errorMessage.set('Invalid PIN format');
+        this.isLoading.set(false);
+        return;
+      }
+
       const session = this.authService.getCurrentSession();
       const newSession = await this.authService.login(
         this.selectedUser()!.name,
-        this.pinInput(),
+        sanitizedPin,
         session?.accountId,
       );
       this.navigateBasedOnRole(newSession.roleCode);

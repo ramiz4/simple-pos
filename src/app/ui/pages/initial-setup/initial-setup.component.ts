@@ -96,10 +96,10 @@ export class InitialSetupComponent {
       // 2. Automatically login after registration
       await this.authService.login(this.username(), this.pin());
 
-      // 3. Redirect to dashboard
-      this.router.navigate(['/dashboard']);
+      // 3. Redirect to staff-select page
+      this.router.navigate(['/staff-select']);
     } catch (error: any) {
-      // Error handling managed via UI message
+      // Display specific error message from the service
       this.errorMessage.set(error.message || 'Setup failed. Please try again.');
     } finally {
       this.isLoading.set(false);
