@@ -32,6 +32,14 @@ export class UserManagementService {
     return await this.authService.getUsersByAccount(accountId);
   }
 
+  async updateUserProfile(
+    userId: number,
+    name?: string,
+    email?: string,
+  ): Promise<void> {
+    await this.authService.updateUserProfile(userId, name, email);
+  }
+
   async deleteUser(userId: number): Promise<void> {
     await this.authService.deleteUser(userId);
   }

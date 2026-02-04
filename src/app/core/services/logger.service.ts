@@ -42,9 +42,10 @@ export class LoggerService {
     if (this.platformService.isTauri()) {
       try {
         await info(this.format(message, context));
-      } catch {
+      } catch (loggingError) {
         // Fallback to console if Tauri API fails
         console.log(`[INFO] ${message}`, context);
+        console.debug('Tauri logger failed:', loggingError);
       }
     } else {
       console.log(`[INFO] ${message}`, context);
@@ -57,9 +58,10 @@ export class LoggerService {
     if (this.platformService.isTauri()) {
       try {
         await warn(this.format(message, context));
-      } catch {
+      } catch (loggingError) {
         // Fallback to console if Tauri API fails
         console.warn(`[WARN] ${message}`, context);
+        console.debug('Tauri logger failed:', loggingError);
       }
     } else {
       console.warn(`[WARN] ${message}`, context);
@@ -72,9 +74,10 @@ export class LoggerService {
     if (this.platformService.isTauri()) {
       try {
         await error(this.format(message, context));
-      } catch {
+      } catch (loggingError) {
         // Fallback to console if Tauri API fails
         console.error(`[ERROR] ${message}`, context);
+        console.debug('Tauri logger failed:', loggingError);
       }
     } else {
       console.error(`[ERROR] ${message}`, context);

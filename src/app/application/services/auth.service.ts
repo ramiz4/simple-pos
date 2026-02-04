@@ -26,6 +26,8 @@ export class AuthService {
   private currentSession: UserSession | null = null;
   private readonly SALT_ROUNDS = 10;
   private readonly DEFAULT_PIN = '0000';
+  private readonly LOCAL_SETUP_DOMAIN = 'local.pos';
+  private readonly MAX_USERNAME_COLLISION_ATTEMPTS = 10;
 
   constructor(
     private platformService: PlatformService,
@@ -188,9 +190,28 @@ export class AuthService {
   ): Promise<{ user: User; account: Account }> {
     // Sanitize inputs
     const sanitizedEmail = this.inputSanitizer.sanitizeEmail(accountEmail);
-    // Derive account name from email if not provided
-    const accountName = sanitizedEmail.split('@')[0] + "'s Account";
+
+    // Derive account name from email with special handling for local setup emails
+    const [emailLocalPart, emailDomain] = sanitizedEmail.split('@');
+    let baseAccountNamePart = emailLocalPart;
+
+    if (emailDomain === this.LOCAL_SETUP_DOMAIN) {
+      // For local setup emails like owner_1234567890@local.pos, derive a friendlier name
+      const ownerPattern = /^owner(_\d+)?$/i;
+      if (ownerPattern.test(emailLocalPart)) {
+        baseAccountNamePart = 'Owner';
+      } else {
+        const cleanedLocalPart = emailLocalPart.replace(/_/g, ' ').replace(/\d+$/u, '').trim();
+        baseAccountNamePart = cleanedLocalPart || 'Account';
+      }
+    }
+
+    const accountName =
+      emailDomain === this.LOCAL_SETUP_DOMAIN
+        ? `${baseAccountNamePart} Account`
+        : `${emailLocalPart}'s Account`;
     const sanitizedAccountName = this.inputSanitizer.sanitizeName(accountName);
+
     // Derive username from email if not provided (e.g. john@example.com -> john)
     const derivedUsername = ownerUsername ? ownerUsername : sanitizedEmail.split('@')[0];
     const sanitizedUsername = this.inputSanitizer.sanitizeUsername(derivedUsername);
@@ -206,10 +227,10 @@ export class AuthService {
       throw new Error('Invalid email address');
     }
 
-    // Username validation (relaxed for derived usernames or enforce strict?)
-    // If derived from email, it might contain dots which isValidUsername might reject if strict.
-    // For now, let's assume standard username validation is enough, or we might need to be looser.
-    // Assuming isValidUsername allows basic chars.
+    // Validate username (whether provided explicitly or derived from email)
+    if (!ValidationUtils.isValidUsername(sanitizedUsername)) {
+      throw new Error('Invalid username');
+    }
 
     // Only validate PIN if it was provided by user. 0000 is a valid 4 digit pin technically but might fail strict "strength" checks if applied.
     // But here we just check format.
@@ -231,30 +252,44 @@ export class AuthService {
     const pinHash = await this.hashPin(sanitizedPin);
     const passwordHash = ownerPassword ? await this.hashPassword(ownerPassword) : undefined;
 
-    // Check if username exists, if so append random suffix?
-    // For simplicity, we trust simple derivation for now, but a robust system would handle collisions.
-    // Since this is "Create Account", collisions are less likely if triggered by unique email mostly?
-    // But Username is UNIQUE in DB.
-
-    // Attempt logic:
+    // Check for username collision and resolve by appending suffix
     let finalUsername = sanitizedUsername;
-    // Check existence?
-    // If collision, we might fail.
-    // Ideally we should check availability.
-    // BUT, for now let's proceed.
+    let suffix = 1;
 
-    const user = await userRepo.create({
-      name: finalUsername,
-      email: sanitizedEmail,
-      roleId: adminRole.id,
-      pinHash,
-      passwordHash,
-      active: true,
-      accountId: account.id,
-      isOwner: true,
-    });
+    for (let attempt = 0; attempt < this.MAX_USERNAME_COLLISION_ATTEMPTS; attempt++) {
+      try {
+        // Try to find existing user with same username in the new account
+        // Since account doesn't exist yet, we just try to create and catch unique constraint error
+        const user = await userRepo.create({
+          name: finalUsername,
+          email: sanitizedEmail,
+          roleId: adminRole.id,
+          pinHash,
+          passwordHash,
+          active: true,
+          accountId: account.id,
+          isOwner: true,
+        });
 
-    return { user, account };
+        return { user, account };
+      } catch (error: any) {
+        // Check if it's a uniqueness constraint error
+        if (
+          error.message &&
+          (error.message.includes('UNIQUE constraint') || error.message.includes('unique'))
+        ) {
+          // Append suffix and try again
+          finalUsername = `${sanitizedUsername}${suffix}`;
+          suffix++;
+        } else {
+          // Re-throw if it's a different error
+          throw error;
+        }
+      }
+    }
+
+    // If we exhausted all attempts, throw an error
+    throw new Error('Unable to create user. Please try a different username.');
   }
 
   async createUser(
@@ -322,19 +357,43 @@ export class AuthService {
     if (!this.currentSession) return false;
 
     const userRepo = this.getUserRepo();
-    // Assuming we want to verify against the *current account's owner*
-    // We need to find the user in this Account who has isOwner = true
-
+    // Verify against any owner in the current account
     const users = await userRepo.findByAccountId(this.currentSession.accountId);
-    const owner = users.find((u: User) => u.isOwner);
+    const owners = users.filter((u: User) => u.isOwner);
 
-    if (!owner || !owner.passwordHash) {
-      return false; // No owner or no password set
+    if (!owners.length) {
+      return false; // No owners found for this account
     }
 
-    return await bcrypt.compare(password, owner.passwordHash);
+    for (const owner of owners) {
+      if (!owner.passwordHash) {
+        continue; // Skip owners without a password set
+      }
+
+      const isMatch = await bcrypt.compare(password, owner.passwordHash);
+      if (isMatch) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
+  /**
+   * Check if a user has the default PIN ("0000")
+   *
+   * Performance consideration: This method uses bcrypt.compare() which is computationally
+   * expensive. If this check is called frequently (e.g., on every page load or user selection),
+   * it could impact performance.
+   *
+   * Optimization option: Add a `hasDefaultPin: boolean` flag to the User entity that is:
+   * - Set to true during user creation if using DEFAULT_PIN
+   * - Set to false when PIN is changed via updateUserPin()
+   * This would avoid repeated bcrypt operations.
+   *
+   * Current implementation chosen for simplicity and to avoid schema changes.
+   * The method is currently called once per staff selection load, which is acceptable.
+   */
   async checkHasDefaultPin(user: User): Promise<boolean> {
     // Check if the user's PIN hash matches the hash for the default PIN
     return await bcrypt.compare(this.DEFAULT_PIN, user.pinHash);
@@ -344,13 +403,52 @@ export class AuthService {
     const userRepo = this.getUserRepo();
     const pinHash = await this.hashPin(newPin);
 
-    // We need a partial update method in repo or just update the whole object?
-    // Repos usually have update(id, partial). Let's check userRepo interface if possible, or assume typical patterns.
-    // If not, we fetch, merge, save.
-    const user = await userRepo.findById(userId);
-    if (!user) throw new Error('User not found');
+    // Use targeted update to only modify the pinHash field
+    await userRepo.update(userId, { pinHash } as Partial<User>);
+  }
 
-    await userRepo.update(userId, { ...user, pinHash });
+  async updateUserProfile(userId: number, name?: string, email?: string): Promise<void> {
+    const userRepo = this.getUserRepo();
+    const user = await userRepo.findById(userId);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const session = this.getCurrentSession();
+    if (!session || !session.user.isOwner) {
+      throw new Error('Only the account owner can update user profiles');
+    }
+
+    // Verify user belongs to same account
+    if (user.accountId !== session.accountId) {
+      throw new Error('User does not belong to your account');
+    }
+
+    const updates: Partial<User> = {};
+
+    if (name !== undefined) {
+      const sanitizedName = this.inputSanitizer.sanitizeName(name);
+      if (!ValidationUtils.isValidName(sanitizedName)) {
+        throw new Error('Invalid name');
+      }
+      updates.name = sanitizedName;
+    }
+
+    if (email !== undefined) {
+      if (email.trim() === '') {
+        // Allow empty email (optional field)
+        updates.email = undefined;
+      } else {
+        const sanitizedEmail = this.inputSanitizer.sanitizeEmail(email);
+        if (!ValidationUtils.isValidEmail(sanitizedEmail)) {
+          throw new Error('Invalid email address');
+        }
+        updates.email = sanitizedEmail;
+      }
+    }
+
+    await userRepo.update(userId, updates);
   }
 
   async verifyAdminPin(pin: string): Promise<boolean> {
@@ -382,6 +480,11 @@ export class AuthService {
     const session = this.getCurrentSession();
     if (!session || !session.user.isOwner) {
       throw new Error('Only the account owner can delete users');
+    }
+
+    // Verify user belongs to same account
+    if (user.accountId !== session.accountId) {
+      throw new Error('User does not belong to your account');
     }
 
     if (user.isOwner) {

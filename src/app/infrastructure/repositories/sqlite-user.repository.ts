@@ -109,6 +109,27 @@ export class SQLiteUserRepository implements BaseRepository<User> {
     return this.db;
   }
 
+  /**
+   * BREAKING CHANGE: SQLite user table schema has been significantly modified
+   *
+   * Key changes from previous schema:
+   * 1. Email constraint: Changed from `email TEXT` (nullable, no uniqueness) to `email TEXT UNIQUE` (line 118)
+   *    - If existing databases have users with NULL emails or duplicate emails, migration will fail
+   * 2. Username uniqueness: Changed from globally unique `name TEXT NOT NULL UNIQUE` to
+   *    per-account unique via composite constraint `UNIQUE(accountId, name)` (line 125)
+   *    - The old schema had global unique constraint, now allows same name across accounts
+   * 3. Foreign key change: Changed from `FOREIGN KEY (organizationId) REFERENCES organization (id)`
+   *    to `FOREIGN KEY (accountId) REFERENCES account (id)` (line 127)
+   *    - The 'organization' table was renamed to 'account'
+   *    - This breaks existing foreign key relationships unless proper migration is performed
+   * 4. New fields added: passwordHash (line 121), isOwner (line 124)
+   *
+   * Migration considerations:
+   * - SQLite doesn't have easy ALTER TABLE for dropping constraints
+   * - Existing databases with old schema will have conflicts on upgrade
+   * - Tauri app should handle schema migrations or document that users need to reset local database
+   * - Consider implementing a migration script or version detection to handle schema evolution
+   */
   private async initTable(): Promise<void> {
     const db = await this.getDb();
     await db.execute(`

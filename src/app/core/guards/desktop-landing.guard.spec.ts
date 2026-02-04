@@ -63,10 +63,9 @@ describe('desktopLandingGuard', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/initial-setup']);
   });
 
-  it('should redirect to /staff-select if Tauri, setup complete, and logged in', async () => {
+  it('should redirect to /staff-select if Tauri and setup complete', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockResolvedValue(true);
-    authServiceSpy.isLoggedIn.mockReturnValue(true);
 
     const result = await executeGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot);
 
@@ -74,7 +73,7 @@ describe('desktopLandingGuard', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/staff-select']);
   });
 
-  it('should redirect to /staff-select if Tauri, setup complete, and NOT logged in', async () => {
+  it('should redirect to /staff-select if Tauri, setup complete (login status irrelevant)', async () => {
     platformServiceSpy.isTauri.mockReturnValue(true);
     authServiceSpy.isSetupComplete.mockResolvedValue(true);
     authServiceSpy.isLoggedIn.mockReturnValue(false);
