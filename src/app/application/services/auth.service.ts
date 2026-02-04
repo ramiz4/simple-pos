@@ -26,6 +26,8 @@ export class AuthService {
   private currentSession: UserSession | null = null;
   private readonly SALT_ROUNDS = 10;
   private readonly DEFAULT_PIN = '0000';
+  private readonly LOCAL_SETUP_DOMAIN = 'local.pos';
+  private readonly MAX_USERNAME_COLLISION_ATTEMPTS = 10;
 
   constructor(
     private platformService: PlatformService,
@@ -193,7 +195,7 @@ export class AuthService {
     const [emailLocalPart, emailDomain] = sanitizedEmail.split('@');
     let baseAccountNamePart = emailLocalPart;
 
-    if (emailDomain === 'local.pos') {
+    if (emailDomain === this.LOCAL_SETUP_DOMAIN) {
       // For local setup emails like owner_1234567890@local.pos, derive a friendlier name
       const ownerPattern = /^owner(_\d+)?$/i;
       if (ownerPattern.test(emailLocalPart)) {
@@ -205,7 +207,7 @@ export class AuthService {
     }
 
     const accountName =
-      emailDomain === 'local.pos'
+      emailDomain === this.LOCAL_SETUP_DOMAIN
         ? `${baseAccountNamePart} Account`
         : `${emailLocalPart}'s Account`;
     const sanitizedAccountName = this.inputSanitizer.sanitizeName(accountName);
@@ -253,9 +255,8 @@ export class AuthService {
     // Check for username collision and resolve by appending suffix
     let finalUsername = sanitizedUsername;
     let suffix = 1;
-    const maxAttempts = 10;
 
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    for (let attempt = 0; attempt < this.MAX_USERNAME_COLLISION_ATTEMPTS; attempt++) {
       try {
         // Try to find existing user with same username in the new account
         // Since account doesn't exist yet, we just try to create and catch unique constraint error
@@ -406,11 +407,7 @@ export class AuthService {
     await userRepo.update(userId, { pinHash } as Partial<User>);
   }
 
-  async updateUserProfile(
-    userId: number,
-    name?: string,
-    email?: string,
-  ): Promise<void> {
+  async updateUserProfile(userId: number, name?: string, email?: string): Promise<void> {
     const userRepo = this.getUserRepo();
     const user = await userRepo.findById(userId);
 

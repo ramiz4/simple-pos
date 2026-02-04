@@ -157,7 +157,7 @@ export class StaffSelectionComponent implements OnInit {
       // Sanitize PIN input before passing to auth service
       const sanitizedPin = this.inputSanitizer.sanitizePin(this.pinInput());
       if (!sanitizedPin) {
-        this.errorMessage.set('Invalid PIN format');
+        this.errorMessage.set('PIN must be 6-20 digits');
         this.isLoading.set(false);
         return;
       }
