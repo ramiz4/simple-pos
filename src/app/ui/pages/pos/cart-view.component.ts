@@ -506,7 +506,7 @@ export class CartViewComponent implements OnInit {
 
     // Validate this is a DINE_IN order
     const orderType = await this.enumMappingService.getEnumFromId(this.typeId);
-    if (orderType !== OrderTypeEnum.DINE_IN) {
+    if (orderType.code !== OrderTypeEnum.DINE_IN) {
       this.error.set('Place Order is only available for dine-in orders');
       return;
     }
