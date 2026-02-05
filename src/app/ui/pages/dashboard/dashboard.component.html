@@ -1,196 +1,192 @@
-<div class="min-h-screen bg-[#F8FAFC]">
-  <app-header title="Dashboard"></app-header>
-
-  <main class="max-w-7xl mx-auto p-6 animate-fade-in">
-    <!-- Welcome Header -->
-    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-      <div>
-        <h2 class="text-4xl font-black text-surface-900 tracking-tight mb-2">
-          Hello, {{ session?.user?.name }}
-        </h2>
-        <p class="text-surface-500 font-medium">Ready to serve some hungry customers?</p>
-      </div>
+<main class="max-w-7xl mx-auto p-6 animate-fade-in">
+  <!-- Welcome Header -->
+  <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div>
+      <h2 class="text-4xl font-black text-surface-900 tracking-tight mb-2">
+        Hello, {{ session?.user?.name }}
+      </h2>
+      <p class="text-surface-500 font-medium">Ready to serve some hungry customers?</p>
     </div>
+  </div>
 
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      @if (isCashier()) {
-        <a
-          routerLink="/pos"
-          class="glass-card p-8 group hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
-        >
-          <div class="relative z-10">
-            <div
-              class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
-            >
-              💰
-            </div>
-            <h3 class="text-2xl font-black text-surface-900 mb-2">New Order</h3>
-            <p class="text-surface-500 font-medium leading-relaxed">
-              Open POS, select tables, and create new orders.
-            </p>
-          </div>
+  <!-- Quick Actions -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+    @if (isCashier()) {
+      <a
+        routerLink="/pos"
+        class="glass-card p-8 group hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
+      >
+        <div class="relative z-10">
           <div
-            class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+            class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
           >
-            <div class="text-9xl">💰</div>
+            💰
           </div>
-        </a>
-      }
-
-      @if (isCashier()) {
-        <a
-          routerLink="/active-orders"
-          class="glass-card p-8 group hover:ring-4 hover:ring-blue-100 transition-all duration-300 relative overflow-hidden"
+          <h3 class="text-2xl font-black text-surface-900 mb-2">New Order</h3>
+          <p class="text-surface-500 font-medium leading-relaxed">
+            Open POS, select tables, and create new orders.
+          </p>
+        </div>
+        <div
+          class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
         >
-          <div class="relative z-10">
-            <div
-              class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
-            >
-              🧾
-            </div>
-            <h3 class="text-2xl font-black text-surface-900 mb-2">Active Orders</h3>
-            <p class="text-surface-500 font-medium leading-relaxed">
-              View active and served orders needing payment.
-            </p>
-          </div>
-          <div
-            class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
-          >
-            <div class="text-9xl">🧾</div>
-          </div>
-        </a>
-      }
+          <div class="text-9xl">💰</div>
+        </div>
+      </a>
+    }
 
-      @if (isKitchen()) {
-        <a
-          routerLink="/kitchen"
-          class="glass-card p-8 group hover:ring-4 hover:ring-orange-100 transition-all duration-300 relative overflow-hidden"
+    @if (isCashier()) {
+      <a
+        routerLink="/active-orders"
+        class="glass-card p-8 group hover:ring-4 hover:ring-blue-100 transition-all duration-300 relative overflow-hidden"
+      >
+        <div class="relative z-10">
+          <div
+            class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
+          >
+            🧾
+          </div>
+          <h3 class="text-2xl font-black text-surface-900 mb-2">Active Orders</h3>
+          <p class="text-surface-500 font-medium leading-relaxed">
+            View active and served orders needing payment.
+          </p>
+        </div>
+        <div
+          class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
         >
-          <div class="relative z-10">
-            <div
-              class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
-            >
-              👨‍🍳
-            </div>
-            <h3 class="text-2xl font-black text-surface-900 mb-2">Kitchen</h3>
-            <p class="text-surface-500 font-medium leading-relaxed">
-              Manage active orders and food preparation.
-            </p>
-          </div>
-          <div
-            class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
-          >
-            <div class="text-9xl">🍳</div>
-          </div>
-        </a>
-      }
+          <div class="text-9xl">🧾</div>
+        </div>
+      </a>
+    }
 
-      @if (isAdmin()) {
-        <a
-          routerLink="/admin"
-          class="glass-card p-8 group hover:ring-4 hover:ring-indigo-100 transition-all duration-300 relative overflow-hidden"
+    @if (isKitchen()) {
+      <a
+        routerLink="/kitchen"
+        class="glass-card p-8 group hover:ring-4 hover:ring-orange-100 transition-all duration-300 relative overflow-hidden"
+      >
+        <div class="relative z-10">
+          <div
+            class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
+          >
+            👨‍🍳
+          </div>
+          <h3 class="text-2xl font-black text-surface-900 mb-2">Kitchen</h3>
+          <p class="text-surface-500 font-medium leading-relaxed">
+            Manage active orders and food preparation.
+          </p>
+        </div>
+        <div
+          class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
         >
-          <div class="relative z-10">
-            <div
-              class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
-            >
-              ⚙️
-            </div>
-            <h3 class="text-2xl font-black text-surface-900 mb-2">Settings</h3>
-            <p class="text-surface-500 font-medium leading-relaxed">
-              Configure tables, products, and inventory.
-            </p>
-          </div>
-          <div
-            class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
-          >
-            <div class="text-9xl">⚙️</div>
-          </div>
-        </a>
-      }
-    </div>
+          <div class="text-9xl">🍳</div>
+        </div>
+      </a>
+    }
 
-    <!-- Stats / Info Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      @if (isAdmin()) {
-        <div class="glass-card p-8">
-          <h3
-            class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2"
+    @if (isAdmin()) {
+      <a
+        routerLink="/admin"
+        class="glass-card p-8 group hover:ring-4 hover:ring-indigo-100 transition-all duration-300 relative overflow-hidden"
+      >
+        <div class="relative z-10">
+          <div
+            class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform duration-500"
           >
-            <span>System Overview</span>
-            <span class="h-px grow bg-surface-100"></span>
-          </h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="p-4 bg-surface-50 rounded-2xl">
-              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
-                Status
-              </div>
-              <div class="font-bold text-green-600 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                Online & Ready
-              </div>
+            ⚙️
+          </div>
+          <h3 class="text-2xl font-black text-surface-900 mb-2">Settings</h3>
+          <p class="text-surface-500 font-medium leading-relaxed">
+            Configure tables, products, and inventory.
+          </p>
+        </div>
+        <div
+          class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+        >
+          <div class="text-9xl">⚙️</div>
+        </div>
+      </a>
+    }
+  </div>
+
+  <!-- Stats / Info Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    @if (isAdmin()) {
+      <div class="glass-card p-8">
+        <h3
+          class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2"
+        >
+          <span>System Overview</span>
+          <span class="h-px grow bg-surface-100"></span>
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="p-4 bg-surface-50 rounded-2xl">
+            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
+              Status
             </div>
-            <div class="p-4 bg-surface-50 rounded-2xl">
-              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
-                Database
-              </div>
-              <div class="font-bold text-surface-700">IndexedDB Local</div>
+            <div class="font-bold text-green-600 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              Online & Ready
             </div>
-            <div class="p-4 bg-surface-50 rounded-2xl">
-              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
-                Version
-              </div>
-              <div class="font-bold text-surface-700">v1.2.0-stable</div>
+          </div>
+          <div class="p-4 bg-surface-50 rounded-2xl">
+            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
+              Database
             </div>
-            <div class="p-4 bg-surface-50 rounded-2xl">
-              <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
-                Last Sync
-              </div>
-              <div class="font-bold text-surface-700">Just now</div>
+            <div class="font-bold text-surface-700">IndexedDB Local</div>
+          </div>
+          <div class="p-4 bg-surface-50 rounded-2xl">
+            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
+              Version
             </div>
+            <div class="font-bold text-surface-700">v1.2.0-stable</div>
+          </div>
+          <div class="p-4 bg-surface-50 rounded-2xl">
+            <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1">
+              Last Sync
+            </div>
+            <div class="font-bold text-surface-700">Just now</div>
           </div>
         </div>
-      }
+      </div>
+    }
 
-      @if (isAdmin()) {
-        <a
-          routerLink="/reports"
-          class="glass-card p-8 group relative overflow-hidden primary-gradient text-white border-none transition-all duration-300 hover:scale-[1.02]"
-        >
-          <div class="relative z-10 flex flex-col h-full">
-            <div class="text-xs font-black text-white/60 uppercase tracking-[0.2em] mb-8">
-              Quick Analytics
-            </div>
-            <div class="grow">
-              <h3 class="text-3xl font-black mb-2">View Reports</h3>
-              <p class="text-white/80 font-medium">
-                Check daily sales, performance, and export data.
-              </p>
-            </div>
-            <div class="mt-8 flex items-center gap-2 font-black">
-              <span>Enter Reports</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 group-hover:translate-x-2 transition-transform"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
-              </svg>
-            </div>
+    @if (isAdmin()) {
+      <a
+        routerLink="/reports"
+        class="glass-card p-8 group relative overflow-hidden primary-gradient text-white border-none transition-all duration-300 hover:scale-[1.02]"
+      >
+        <div class="relative z-10 flex flex-col h-full">
+          <div class="text-xs font-black text-white/60 uppercase tracking-[0.2em] mb-8">
+            Quick Analytics
           </div>
-          <div
-            class="absolute -right-12 -bottom-12 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"
-          ></div>
-        </a>
-      }
-    </div>
-  </main>
-</div>
+          <div class="grow">
+            <h3 class="text-3xl font-black mb-2">View Reports</h3>
+            <p class="text-white/80 font-medium">
+              Check daily sales, performance, and export data.
+            </p>
+          </div>
+          <div class="mt-8 flex items-center gap-2 font-black">
+            <span>Enter Reports</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 group-hover:translate-x-2 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </div>
+        </div>
+        <div
+          class="absolute -right-12 -bottom-12 w-64 h-64 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"
+        ></div>
+      </a>
+    }
+  </div>
+</main>
