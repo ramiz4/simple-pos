@@ -121,27 +121,30 @@ import { UserRoleEnum } from '../../../domain/enums';
 
           <!-- Mobile Quick Nav (Scrollable) -->
           <div
-            class="lg:hidden flex overflow-x-auto no-scrollbar py-2 px-1 gap-2 border-t border-surface-50"
+            class="lg:hidden flex overflow-x-auto no-scrollbar py-2 px-1 border-t border-surface-50"
           >
-            @for (item of menuItems(); track item.path) {
-              <a
-                [routerLink]="item.path"
-                #rla="routerLinkActive"
-                routerLinkActive
-                [routerLinkActiveOptions]="{
-                  exact: item.path === '/dashboard' || item.path === '/pos',
-                }"
-                class="px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider transition-all duration-300 whitespace-nowrap border border-surface-100 shadow-sm"
-                [class.bg-primary-600]="rla.isActive"
-                [class.text-white]="rla.isActive"
-                [class.shadow-lg]="rla.isActive"
-                [class.shadow-primary-100]="rla.isActive"
-                [class.bg-white]="!rla.isActive"
-                [class.text-surface-500]="!rla.isActive"
-              >
-                {{ item.label }}
-              </a>
-            }
+            <div
+              class="flex items-center gap-1 bg-surface-50 p-1 rounded-2xl border border-surface-100"
+            >
+              @for (item of menuItems(); track item.path) {
+                <a
+                  [routerLink]="item.path"
+                  #rla="routerLinkActive"
+                  routerLinkActive
+                  [routerLinkActiveOptions]="{
+                    exact: item.path === '/dashboard' || item.path === '/pos',
+                  }"
+                  class="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 hover:bg-white/50 whitespace-nowrap"
+                  [class.bg-white]="rla.isActive"
+                  [class.text-primary-600]="rla.isActive"
+                  [class.shadow-sm]="rla.isActive"
+                  [class.text-surface-600]="!rla.isActive"
+                  [class.hover:text-surface-900]="!rla.isActive"
+                >
+                  {{ item.label }}
+                </a>
+              }
+            </div>
           </div>
         </div>
       </header>
