@@ -34,191 +34,7 @@ interface ProductWithExtras extends Product {
     QuantitySelectorComponent,
     StatusBarComponent,
   ],
-  template: `
-    <main class="animate-fade-in pb-32">
-      <!-- Category Navbar -->
-      <div
-        class="sticky top-16 z-30 bg-white/80 backdrop-blur-md border-b border-surface-100 overflow-x-auto no-scrollbar"
-      >
-        <div class="max-w-7xl mx-auto px-4 py-3 flex gap-3 min-w-max">
-          @for (category of activeCategories(); track category.id) {
-            <button
-              (click)="selectCategory(category.id)"
-              [class]="getCategoryButtonClass(category.id)"
-            >
-              {{ category.name }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <div class="max-w-7xl mx-auto px-4 py-6">
-        <!-- Products Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          @for (product of filteredProducts(); track product.id) {
-            <app-product-card
-              [product]="product"
-              (select)="openProductModal($any($event))"
-            ></app-product-card>
-          }
-        </div>
-
-        @if (filteredProducts().length === 0) {
-          <div class="text-center py-20">
-            <div class="text-6xl mb-4">🍽️</div>
-            <p class="text-surface-500 text-lg font-bold">Nothing here yet</p>
-            <p class="text-surface-400">Try selecting a different category.</p>
-          </div>
-        }
-      </div>
-    </main>
-
-    <!-- Modern Cart Summary Bar -->
-    <app-status-bar
-      [itemCount]="totalItemCount()"
-      [subtotal]="displaySubtotal()"
-      [buttonLabel]="existingOrder() ? 'Manage Order' : 'View Cart'"
-      [canBeEmpty]="!!existingOrder()"
-      (action)="viewCart()"
-    ></app-status-bar>
-
-    <!-- Modern Product Modal -->
-    @if (isModalOpen()) {
-      <div
-        class="fixed inset-0 bg-surface-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-fade-in"
-        (click)="closeModal()"
-      >
-        <div
-          class="bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up"
-          (click)="$event.stopPropagation()"
-        >
-          <!-- Modal Header -->
-          <div class="relative h-48 sm:h-64 overflow-hidden shrink-0">
-            <div class="absolute inset-0 primary-gradient opacity-20"></div>
-            <div class="absolute inset-0 flex items-center justify-center text-8xl">🍽️</div>
-            <button
-              (click)="closeModal()"
-              class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center text-2xl hover:bg-white/40 transition-colors"
-            >
-              ×
-            </button>
-          </div>
-
-          <div class="p-8 overflow-y-auto grow">
-            <div class="mb-8">
-              <h2 class="text-3xl font-black text-surface-900 mb-1">
-                {{ selectedProduct()?.name }}
-              </h2>
-              <p class="text-primary-600 font-bold text-xl">
-                Base Price: €{{ (selectedProduct()?.price ?? 0).toFixed(2) }}
-              </p>
-            </div>
-
-            <!-- Variants Selection -->
-            @if (productVariants().length > 0) {
-              <div class="mb-8">
-                <label
-                  class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
-                  >Choose Variant</label
-                >
-                <div class="grid grid-cols-1 gap-3">
-                  @for (variant of productVariants(); track variant.id) {
-                    <button
-                      (click)="selectVariant(variant.id)"
-                      [class]="
-                        selectedVariantId() === variant.id
-                          ? 'ring-2 ring-primary-600 bg-primary-50/50'
-                          : 'bg-surface-50 hover:bg-surface-100'
-                      "
-                      class="flex items-center justify-between p-4 rounded-2xl transition-all text-left"
-                    >
-                      <span class="font-bold text-surface-900">{{ variant.name }}</span>
-                      <span class="text-primary-600 font-bold"
-                        >{{ variant.priceModifier >= 0 ? '+' : '' }}€{{
-                          variant.priceModifier.toFixed(2)
-                        }}</span
-                      >
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- Extras Selection -->
-            @if (productExtras().length > 0) {
-              <div class="mb-8">
-                <label
-                  class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
-                  >Add Extras</label
-                >
-                <div class="grid grid-cols-1 gap-3">
-                  @for (extra of productExtras(); track extra.id) {
-                    <button
-                      (click)="toggleExtra(extra.id)"
-                      [class]="
-                        isExtraSelected(extra.id)
-                          ? 'ring-2 ring-primary-600 bg-primary-50/50'
-                          : 'bg-surface-50 hover:bg-surface-100'
-                      "
-                      class="flex items-center justify-between p-4 rounded-2xl transition-all text-left"
-                    >
-                      <span class="font-bold text-surface-900">{{ extra.name }}</span>
-                      <span class="text-primary-600 font-bold">+€{{ extra.price.toFixed(2) }}</span>
-                    </button>
-                  }
-                </div>
-              </div>
-            }
-
-            <!-- Quantity & Notes -->
-            <div class="grid grid-cols-2 gap-4 mb-8">
-              <div>
-                <label
-                  class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
-                  >Quantity</label
-                >
-                <app-quantity-selector
-                  [quantity]="quantity()"
-                  (increase)="incrementQuantity()"
-                  (decrease)="decrementQuantity()"
-                ></app-quantity-selector>
-              </div>
-              <div>
-                <label
-                  class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
-                  >Notes</label
-                >
-                <input
-                  type="text"
-                  [ngModel]="notes()"
-                  (ngModelChange)="notes.set($event)"
-                  placeholder="Add instruction..."
-                  class="w-full h-14 px-4 bg-surface-50 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:outline-none font-medium placeholder:text-surface-300"
-                />
-              </div>
-            </div>
-
-            <!-- Price Summary & Add Button -->
-            <div
-              class="mt-auto pt-6 border-t border-surface-100 flex items-center justify-between gap-6"
-            >
-              <div>
-                <div class="text-surface-400 text-[10px] font-black uppercase tracking-widest">
-                  Total Price
-                </div>
-                <div class="text-3xl font-black text-surface-900">
-                  €{{ (calculatedUnitPrice() * quantity()).toFixed(2) }}
-                </div>
-              </div>
-              <button (click)="addToCart()" class="neo-button h-16 grow text-lg">
-                Add to Order
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    }
-  `,
+  templateUrl: './product-selection.component.html',
 })
 export class ProductSelectionComponent implements OnInit {
   // Query params
@@ -255,9 +71,11 @@ export class ProductSelectionComponent implements OnInit {
 
   filteredProducts = computed(() => {
     const categoryId = this.selectedCategoryId();
-    const products = this.products();
+    let products = this.products();
 
     if (!categoryId) return [];
+
+    products = products.concat(products).concat(products).concat(products).concat(products);
 
     return products.filter((p) => p.categoryId === categoryId && p.isAvailable);
   });
@@ -386,17 +204,6 @@ export class ProductSelectionComponent implements OnInit {
 
   selectCategory(categoryId: number): void {
     this.selectedCategoryId.set(categoryId);
-  }
-
-  getCategoryButtonClass(categoryId: number): string {
-    const isSelected = this.selectedCategoryId() === categoryId;
-    const baseClass =
-      'px-6 py-2 rounded-full font-black text-sm transition-all duration-300 whitespace-nowrap uppercase tracking-wider';
-
-    if (isSelected) {
-      return `${baseClass} primary-gradient text-white shadow-md shadow-primary-100 scale-105`;
-    }
-    return `${baseClass} text-surface-400 hover:text-surface-900 hover:bg-surface-50`;
   }
 
   async openProductModal(product: ProductWithExtras): Promise<void> {
