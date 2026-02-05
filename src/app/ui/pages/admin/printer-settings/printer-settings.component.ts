@@ -1,16 +1,21 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PrinterService } from '../../../../application/services/printer.service';
-import { HeaderComponent } from '../../../components/header/header.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
 @Component({
   selector: 'app-printer-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
   template: `
     <div class="min-h-screen bg-[#F8FAFC]">
-      <app-header title="Printer Settings" [showBackButton]="true"></app-header>
+      <app-admin-page-header
+        title="Printer Settings"
+        subtitle="Manage receipt and kitchen printer connections"
+        (back)="goBack()"
+      ></app-admin-page-header>
 
       <main class="p-6 max-w-4xl mx-auto animate-fade-in">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -137,7 +142,14 @@ export class PrinterSettingsComponent implements OnInit {
 
   status = signal<string | null>(null);
 
-  constructor(private printerService: PrinterService) {}
+  constructor(
+    private printerService: PrinterService,
+    private router: Router,
+  ) {}
+
+  goBack(): void {
+    this.router.navigate(['/admin']);
+  }
 
   ngOnInit(): void {
     // Load current config from service
