@@ -44,6 +44,14 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'staff-select', component: StaffSelectionComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [staffGuard] },
+  {
+    path: 'active-orders',
+    loadComponent: () =>
+      import('./ui/pages/active-orders/active-orders.component').then(
+        (m) => m.ActiveOrdersComponent,
+      ),
+    canActivate: [staffGuard],
+  },
   { path: 'unauthorized', component: UnauthorizedComponent },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
   { path: 'admin/tables', component: TablesManagementComponent, canActivate: [adminGuard] },

@@ -12,4 +12,5 @@ export interface Order {
   completedAt: string | null;
   userId: number; // FK to User
   cancelledReason: string | null;
+  customerName?: string;
 }

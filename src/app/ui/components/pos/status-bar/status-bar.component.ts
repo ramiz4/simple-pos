@@ -49,7 +49,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
           <button
             (click)="action.emit()"
-            [disabled]="itemCount === 0 && !allowEmpty"
+            [disabled]="itemCount === 0 && !canBeEmpty"
             class="neo-button h-14 px-8 disabled:opacity-50 disabled:grayscale transition-all flex items-center gap-2 whitespace-nowrap"
           >
             <span>{{ buttonLabel }}</span>
@@ -84,6 +84,6 @@ export class StatusBarComponent {
   @Input() itemCount: number = 0;
   @Input() subtotal: number = 0;
   @Input() buttonLabel: string = 'View Cart';
-  @Input() allowEmpty: boolean = false;
+  @Input() canBeEmpty: boolean = false;
   @Output() action = new EventEmitter<void>();
 }

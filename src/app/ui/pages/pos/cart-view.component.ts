@@ -293,7 +293,35 @@ import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
                 </div>
 
                 <div class="space-y-3">
+                  <!-- Customer Name Input for Non-Dine-In -->
+                  @if (isNameRequired() && cartItems().length > 0 && !existingOrder()) {
+                    <div class="mb-4 animate-fade-in">
+                      <label
+                        class="block text-xs font-bold text-surface-400 uppercase tracking-wider mb-2"
+                      >
+                        Customer Name / Address / Reference
+                      </label>
+                      <input
+                        type="text"
+                        [ngModel]="customerName()"
+                        (ngModelChange)="customerName.set($event)"
+                        placeholder="E.g. John Doe / 123 Main St / Order #123"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors"
+                      />
+                      @if (!customerName() && error() === 'Customer Name is required') {
+                        <p class="text-xs text-red-400 mt-1 font-bold">Required field</p>
+                      }
+                    </div>
+                  }
+
                   @if (cartItems().length > 0) {
+                    @if (error()) {
+                      <div
+                        class="p-4 bg-red-50 border border-red-100 text-red-500 rounded-xl text-xs font-bold animate-fade-in text-center mb-2"
+                      >
+                        {{ error() }}
+                      </div>
+                    }
                     <button
                       (click)="placeOrder()"
                       [disabled]="isSending()"
@@ -327,12 +355,12 @@ import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
                   <div class="space-y-2">
                     <button
                       (click)="proceedToPayment()"
-                      [disabled]="cartItems().length > 0"
+                      [disabled]="isDineIn() && cartItems().length > 0"
                       class="neo-button w-full h-16 text-lg disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
                     >
                       Pay Now
                     </button>
-                    @if (cartItems().length > 0) {
+                    @if (isDineIn() && cartItems().length > 0) {
                       <p class="text-[10px] text-primary-400 font-bold text-center animate-pulse">
                         ⚠️ Place order first to enable payment
                       </p>
@@ -403,6 +431,7 @@ export class CartViewComponent implements OnInit {
   // Query params
   private typeId?: number;
   private tableId?: number;
+  private orderId?: number;
 
   // Tip state
   tipInput = 0;
@@ -423,6 +452,10 @@ export class CartViewComponent implements OnInit {
   tipAmount = computed(() => this.cartService.tip());
   isDineIn = signal<boolean>(false);
 
+  // Takeaway/Delivery customer name
+  customerName = signal<string>('');
+  isNameRequired = computed(() => !this.isDineIn());
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -441,13 +474,14 @@ export class CartViewComponent implements OnInit {
     this.route.queryParams.subscribe(async (params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
+      this.orderId = params['orderId'] ? +params['orderId'] : undefined;
 
       if (this.typeId) {
         const type = await this.enumMappingService.getEnumFromId(this.typeId);
         this.isDineIn.set(type.code === OrderTypeEnum.DINE_IN);
       }
 
-      if (this.tableId) {
+      if (this.tableId || this.orderId) {
         await this.loadOrderData();
       }
     });
@@ -499,21 +533,26 @@ export class CartViewComponent implements OnInit {
   }
 
   async placeOrder(): Promise<void> {
-    if (!this.typeId || !this.tableId) {
+    if (!this.typeId) {
       this.error.set('Order information missing');
       return;
     }
 
     // Validate this is a DINE_IN order
-    const orderType = await this.enumMappingService.getEnumFromId(this.typeId);
-    if (orderType.code !== OrderTypeEnum.DINE_IN) {
-      this.error.set('Place Order is only available for dine-in orders');
-      return;
-    }
+    // const orderType = await this.enumMappingService.getEnumFromId(this.typeId);
+    // if (orderType.code !== OrderTypeEnum.DINE_IN) {
+    //   this.error.set('Place Order is only available for dine-in orders');
+    //   return;
+    // }
 
     const session = this.authService.getCurrentSession();
     if (!session) {
       this.error.set('User not authenticated');
+      return;
+    }
+
+    if (this.isNameRequired() && !this.customerName() && !this.orderId && !this.tableId) {
+      this.error.set('Customer Name is required');
       return;
     }
 
@@ -522,11 +561,19 @@ export class CartViewComponent implements OnInit {
       this.error.set(null);
 
       const items = this.cartItems();
-      const openOrder = await this.orderService.getOpenOrderByTable(this.tableId);
+
+      // Determine if there is an existing order to update
+      let openOrder: any = null;
+      if (this.orderId) {
+        openOrder = await this.orderService.getOrderById(this.orderId);
+      } else if (this.tableId) {
+        openOrder = await this.orderService.getOpenOrderByTable(this.tableId);
+      }
 
       if (openOrder) {
         // Add items to existing order
         await this.orderService.addItemsToOrder(openOrder.id, items);
+        this.orderId = openOrder.id; // Ensure we have the ID
       } else {
         // Create new OPEN order
         const statusId = await this.enumMappingService.getCodeTableId(
@@ -535,17 +582,20 @@ export class CartViewComponent implements OnInit {
         );
         const summary = this.cartService.getSummary();
 
-        await this.orderService.createOrder({
+        const newOrder = await this.orderService.createOrder({
           typeId: this.typeId,
           statusId,
-          tableId: this.tableId,
+          tableId: this.tableId || null,
           subtotal: summary.subtotal,
           tax: summary.tax,
           tip: summary.tip,
           total: summary.total,
           userId: session.user.id,
           items: items,
+          customerName: this.customerName(),
         });
+
+        this.orderId = newOrder.id;
       }
 
       // Clear cart and stay on page
@@ -553,6 +603,14 @@ export class CartViewComponent implements OnInit {
 
       // Reload data to show updated order state
       await this.loadOrderData();
+
+      // Update URL with orderId
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { orderId: this.orderId },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
 
       this.success.set('Order placed successfully!');
       setTimeout(() => this.success.set(null), 3000);
@@ -564,12 +622,19 @@ export class CartViewComponent implements OnInit {
   }
 
   private async loadOrderData(): Promise<void> {
-    if (!this.tableId) return;
+    if (!this.tableId && !this.orderId) return;
 
-    const order = await this.orderService.getOpenOrderByTable(this.tableId);
+    let order;
+    if (this.orderId) {
+      order = await this.orderService.getOrderById(this.orderId);
+    } else if (this.tableId) {
+      order = await this.orderService.getOpenOrderByTable(this.tableId);
+    }
+
     this.existingOrder.set(order);
 
     if (order) {
+      this.orderId = order.id; // Ensure we track it
       const items = await this.orderService.getOrderItems(order.id);
 
       // Enrich items with product details
@@ -596,6 +661,7 @@ export class CartViewComponent implements OnInit {
       queryParams: {
         typeId: this.typeId,
         tableId: this.tableId,
+        orderId: this.orderId,
       },
     });
   }
@@ -605,6 +671,7 @@ export class CartViewComponent implements OnInit {
       queryParams: {
         typeId: this.typeId,
         tableId: this.tableId,
+        orderId: this.orderId,
       },
     });
   }

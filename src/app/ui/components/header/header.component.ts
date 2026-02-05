@@ -43,7 +43,16 @@ export class HeaderComponent {
     this.updateService.applyUpdate();
   }
 
+  private isNavigatingBack = false;
+
   onBack() {
+    if (this.isNavigatingBack) return;
+
+    this.isNavigatingBack = true;
+    setTimeout(() => {
+      this.isNavigatingBack = false;
+    }, 500);
+
     if (this.back.observed) {
       this.back.emit();
     } else {
