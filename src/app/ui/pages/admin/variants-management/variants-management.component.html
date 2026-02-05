@@ -1,17 +1,11 @@
 <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-  <app-alert
-    *ngIf="successMessage"
-    [message]="successMessage"
-    type="success"
-    (close)="successMessage = ''"
-  ></app-alert>
+  @if (successMessage) {
+    <app-alert [message]="successMessage" type="success" (close)="successMessage = ''"></app-alert>
+  }
 
-  <app-alert
-    *ngIf="errorMessage"
-    [message]="errorMessage"
-    type="error"
-    (close)="errorMessage = ''"
-  ></app-alert>
+  @if (errorMessage) {
+    <app-alert [message]="errorMessage" type="error" (close)="errorMessage = ''"></app-alert>
+  }
 
   <!-- Main Content -->
   @if (!isFormOpen && !isDeleteConfirmOpen) {
@@ -88,108 +82,110 @@
 
   <!-- Add/Edit Modal -->
   <!-- Add/Edit Modal -->
-  <app-modal
-    *ngIf="isFormOpen"
-    (close)="closeForm()"
-    containerClass="max-w-xl"
-    [title]="editingId ? 'Edit Variant' : 'Add New Variant'"
-    subtitle="Define size variations and price adjustments"
-  >
-    <form id="variantForm" (ngSubmit)="saveVariant()" class="space-y-6 px-1">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Product -->
-        <div class="md:col-span-2 space-y-2">
-          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-            >Parent Product *</label
-          >
-          <select
-            [(ngModel)]="formData.productId"
-            name="productId"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-          >
-            <option [ngValue]="0">-- Select Product --</option>
-            @for (product of products; track product.id) {
-              <option [ngValue]="product.id">
-                {{ product.name }} (${{ product.price.toFixed(2) }})
-              </option>
-            }
-          </select>
+  @if (isFormOpen) {
+    <app-modal
+      (close)="closeForm()"
+      containerClass="max-w-xl"
+      [title]="editingId ? 'Edit Variant' : 'Add New Variant'"
+      subtitle="Define size variations and price adjustments"
+    >
+      <form id="variantForm" (ngSubmit)="saveVariant()" class="space-y-6 px-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Product -->
+          <div class="md:col-span-2 space-y-2">
+            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
+              >Parent Product *</label
+            >
+            <select
+              [(ngModel)]="formData.productId"
+              name="productId"
+              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
+            >
+              <option [ngValue]="0">-- Select Product --</option>
+              @for (product of products; track product.id) {
+                <option [ngValue]="product.id">
+                  {{ product.name }} (${{ product.price.toFixed(2) }})
+                </option>
+              }
+            </select>
+          </div>
+
+          <!-- Name -->
+          <div class="space-y-2">
+            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
+              >Variant Name *</label
+            >
+            <input
+              [(ngModel)]="formData.name"
+              name="name"
+              type="text"
+              placeholder="e.g., Small, Medium, Large"
+              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
+            />
+          </div>
+
+          <!-- Price Modifier -->
+          <div class="space-y-2">
+            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
+              >Price Adjustment ($)</label
+            >
+            <input
+              [(ngModel)]="formData.priceModifier"
+              name="priceModifier"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
+            />
+          </div>
         </div>
 
-        <!-- Name -->
-        <div class="space-y-2">
-          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-            >Variant Name *</label
+        <!-- Calculated Price Preview -->
+        @if (formData.productId) {
+          <div
+            class="backdrop-blur-md bg-purple-50/50 rounded-2xl p-5 border border-purple-100 flex items-center justify-between"
           >
-          <input
-            [(ngModel)]="formData.name"
-            name="name"
-            type="text"
-            placeholder="e.g., Small, Medium, Large"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-          />
-        </div>
+            <div>
+              <p class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">
+                Final Customer Price
+              </p>
+              <span class="text-3xl font-black text-purple-700">
+                ${{ getCalculatedPrice(formData.productId, formData.priceModifier).toFixed(2) }}
+              </span>
+            </div>
+            <div class="text-right">
+              <p class="text-xs text-purple-500 font-bold">Includes base price</p>
+              <p class="text-xs text-purple-500 font-bold">+ modifier</p>
+            </div>
+          </div>
+        }
+      </form>
 
-        <!-- Price Modifier -->
-        <div class="space-y-2">
-          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-            >Price Adjustment ($)</label
-          >
-          <input
-            [(ngModel)]="formData.priceModifier"
-            name="priceModifier"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-          />
-        </div>
-      </div>
-
-      <!-- Calculated Price Preview -->
-      @if (formData.productId) {
-        <div
-          class="backdrop-blur-md bg-purple-50/50 rounded-2xl p-5 border border-purple-100 flex items-center justify-between"
+      <div footer class="flex gap-4 w-full">
+        <button
+          type="button"
+          (click)="closeForm()"
+          class="flex-1 px-6 py-3 min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
         >
-          <div>
-            <p class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">
-              Final Customer Price
-            </p>
-            <span class="text-3xl font-black text-purple-700">
-              ${{ getCalculatedPrice(formData.productId, formData.priceModifier).toFixed(2) }}
-            </span>
-          </div>
-          <div class="text-right">
-            <p class="text-xs text-purple-500 font-bold">Includes base price</p>
-            <p class="text-xs text-purple-500 font-bold">+ modifier</p>
-          </div>
-        </div>
-      }
-    </form>
-
-    <div footer class="flex gap-4 w-full">
-      <button
-        type="button"
-        (click)="closeForm()"
-        class="flex-1 px-6 py-3 min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
-      >
-        Cancel
-      </button>
-      <button
-        form="variantForm"
-        type="submit"
-        class="flex-1 px-6 py-3 min-h-[44px] bg-linear-to-r from-purple-600 to-blue-600 hover:shadow-xl hover:shadow-purple-200 text-white rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
-      >
-        {{ editingId ? 'Update' : 'Create' }}
-      </button>
-    </div>
-  </app-modal>
+          Cancel
+        </button>
+        <button
+          form="variantForm"
+          type="submit"
+          class="flex-1 px-6 py-3 min-h-[44px] bg-linear-to-r from-purple-600 to-blue-600 hover:shadow-xl hover:shadow-purple-200 text-white rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
+        >
+          {{ editingId ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </app-modal>
+  }
 
   <!-- Delete Confirmation -->
-  <app-confirm-delete-modal
-    *ngIf="isDeleteConfirmOpen"
-    [itemName]="deleteConfirmName"
-    (confirm)="confirmDelete()"
-    (cancel)="closeDeleteConfirm()"
-  ></app-confirm-delete-modal>
+  @if (isDeleteConfirmOpen) {
+    <app-confirm-delete-modal
+      [itemName]="deleteConfirmName"
+      (confirm)="confirmDelete()"
+      (cancel)="closeDeleteConfirm()"
+    ></app-confirm-delete-modal>
+  }
 </main>
