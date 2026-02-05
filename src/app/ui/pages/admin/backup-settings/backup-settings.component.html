@@ -1,0 +1,501 @@
+<div class="animate-fade-in pb-20">
+  <div class="max-w-4xl mx-auto space-y-8">
+    <!-- Health Status -->
+    <div
+      class="glass-card p-6 flex items-center gap-6 animate-slide-up"
+      [class.border-emerald-200]="health().status === 'healthy'"
+      [class.bg-emerald-50/50]="health().status === 'healthy'"
+      [class.border-amber-200]="health().status === 'warning'"
+      [class.bg-amber-50/50]="health().status === 'warning'"
+      [class.border-rose-200]="health().status === 'critical'"
+      [class.bg-rose-50/50]="health().status === 'critical'"
+    >
+      <div
+        class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner"
+        [class.bg-emerald-100]="health().status === 'healthy'"
+        [class.bg-amber-100]="health().status === 'warning'"
+        [class.bg-rose-100]="health().status === 'critical'"
+      >
+        @if (health().status === 'healthy') {
+          <span class="animate-float">✅</span>
+        } @else if (health().status === 'warning') {
+          <span class="animate-float">⚠️</span>
+        } @else {
+          <span class="animate-float">❌</span>
+        }
+      </div>
+      <div class="flex-1">
+        <h3 class="text-xl font-black text-surface-900 leading-tight">
+          {{ health().message }}
+        </h3>
+        @if (health().lastBackupAge !== undefined) {
+          <p class="text-sm font-bold text-surface-500 uppercase tracking-widest mt-1">
+            Last backup: {{ formatAge(health().lastBackupAge!) }} ago
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Configuration -->
+      <div class="glass-card p-8 space-y-6 animate-slide-up" style="animation-delay: 0.1s">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-primary-100 rounded-lg text-primary-600">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-black text-surface-900 tracking-tight">Configuration</h2>
+        </div>
+
+        <div class="space-y-4">
+          <label
+            class="flex items-center gap-4 group cursor-pointer p-4 rounded-2xl bg-white/40 border border-white/60 hover:bg-white/60 transition-all"
+          >
+            <div class="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                [(ngModel)]="config().enabled"
+                (change)="onConfigChange()"
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-surface-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"
+              ></div>
+            </div>
+            <span class="font-bold text-surface-700">Automated Backups</span>
+          </label>
+
+          <div class="space-y-2">
+            <label class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+              >Frequency</label
+            >
+            <select
+              [(ngModel)]="config().frequency"
+              (change)="onConfigChange()"
+              class="w-full bg-white/50 border border-white/60 rounded-2xl p-4 font-bold text-surface-800 focus:ring-2 focus:ring-primary-500 transition-all outline-none appearance-none"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          @if (config().frequency === 'custom') {
+            <div class="space-y-2 animate-scale-in">
+              <label class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+                >Interval (hours)</label
+              >
+              <input
+                type="number"
+                [(ngModel)]="config().customIntervalHours"
+                (change)="onConfigChange()"
+                min="1"
+                max="168"
+                class="w-full bg-white/50 border border-white/60 rounded-2xl p-4 font-bold text-surface-800 focus:ring-2 focus:ring-primary-500 transition-all outline-none"
+              />
+            </div>
+          }
+
+          <div class="space-y-2">
+            <label class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+              >Retention Count</label
+            >
+            <input
+              type="number"
+              [(ngModel)]="config().retentionCount"
+              (change)="onConfigChange()"
+              min="1"
+              max="30"
+              class="w-full bg-white/50 border border-white/60 rounded-2xl p-4 font-bold text-surface-800 focus:ring-2 focus:ring-primary-500 transition-all outline-none"
+            />
+          </div>
+
+          <label
+            class="flex items-center gap-4 group cursor-pointer p-4 rounded-2xl bg-white/40 border border-white/60 hover:bg-white/60 transition-all"
+          >
+            <div class="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                [(ngModel)]="config().encryptBackups"
+                (change)="onConfigChange()"
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-surface-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"
+              ></div>
+            </div>
+            <span class="font-bold text-surface-700">Encrypt Backups</span>
+          </label>
+
+          @if (config().encryptBackups) {
+            <div class="space-y-2 animate-scale-in">
+              <label class="text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+                >Encryption Password</label
+              >
+              <input
+                type="password"
+                [(ngModel)]="config().password"
+                (change)="onConfigChange()"
+                placeholder="••••••••"
+                class="w-full bg-white/50 border border-white/60 rounded-2xl p-4 font-bold text-surface-800 focus:ring-2 focus:ring-primary-500 transition-all outline-none"
+              />
+            </div>
+          }
+        </div>
+
+        <div class="pt-4">
+          <button
+            (click)="triggerManualBackup()"
+            class="neo-button w-full flex items-center justify-center gap-3 disabled:opacity-50 disabled:scale-100"
+            [disabled]="isBackingUp()"
+          >
+            @if (isBackingUp()) {
+              <svg
+                class="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              <span>Backing up...</span>
+            } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <span>Trigger Backup Now</span>
+            }
+          </button>
+
+          @if (scheduledBackupService.nextBackupTime()) {
+            <p
+              class="text-[10px] font-black text-surface-400 uppercase tracking-widest text-center mt-4"
+            >
+              Next schedule: {{ formatTimestamp(scheduledBackupService.nextBackupTime()!) }}
+            </p>
+          }
+        </div>
+      </div>
+
+      <!-- Storage Info -->
+      <div class="glass-card p-8 space-y-8 animate-slide-up" style="animation-delay: 0.2s">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+              />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-black text-surface-900 tracking-tight">Storage</h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white/40 border border-white/60 p-6 rounded-3xl text-center space-y-1">
+            <p class="text-[10px] font-black text-surface-400 uppercase tracking-widest">
+              Total Backups
+            </p>
+            <p class="text-3xl font-black text-primary-600 tracking-tight">
+              {{ backupHistory().length }}
+            </p>
+          </div>
+          <div class="bg-white/40 border border-white/60 p-6 rounded-3xl text-center space-y-1">
+            <p class="text-[10px] font-black text-surface-400 uppercase tracking-widest">
+              Storage Used
+            </p>
+            <p class="text-3xl font-black text-blue-600 tracking-tight">
+              {{ formatBytes(totalStorage()) }}
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4">
+          <button
+            (click)="clearAllBackups()"
+            class="w-full glass-button p-4 text-rose-600 hover:bg-rose-50 border-rose-100 flex items-center justify-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+            <span>Clear All Backups</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Backup History -->
+    <div class="glass-card p-8 space-y-6 animate-slide-up" style="animation-delay: 0.3s">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-amber-100 rounded-lg text-amber-600">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-black text-surface-900 tracking-tight">Backup History</h2>
+        </div>
+        <span
+          class="px-4 py-1.5 bg-surface-100 rounded-full text-[10px] font-black text-surface-500 uppercase tracking-widest"
+        >
+          {{ backupHistory().length }} Archives
+        </span>
+      </div>
+
+      @if (backupHistory().length === 0) {
+        <div
+          class="bg-white/40 border border-dashed border-surface-200 rounded-3xl p-12 text-center"
+        >
+          <div
+            class="w-16 h-16 bg-surface-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-surface-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10 w-10"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <p class="font-bold text-surface-500">No backup records found</p>
+        </div>
+      } @else {
+        <div class="space-y-4">
+          @for (backup of backupHistory(); track backup.id) {
+            <div
+              class="group bg-white/40 border border-white/60 p-4 rounded-3xl hover:bg-white/60 transition-all flex flex-col md:flex-row md:items-center gap-6"
+              [class.border-rose-100]="backup.status === 'failed'"
+            >
+              <div
+                class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
+                [class.bg-emerald-100]="backup.status === 'success'"
+                [class.text-emerald-600]="backup.status === 'success'"
+                [class.bg-rose-100]="backup.status === 'failed'"
+                [class.text-rose-600]="backup.status === 'failed'"
+                [class.bg-amber-100]="backup.status === 'in_progress'"
+                [class.text-amber-600]="backup.status === 'in_progress'"
+              >
+                @if (backup.status === 'success') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                } @else if (backup.status === 'failed') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                } @else {
+                  <svg
+                    class="animate-spin h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                }
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <h4 class="font-black text-surface-900 truncate">{{ backup.filename }}</h4>
+                  @if (backup.encrypted) {
+                    <span class="shrink-0 text-amber-500" title="Encrypted">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  }
+                </div>
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                  <span class="text-[10px] font-black text-surface-400 uppercase tracking-widest">{{
+                    formatTimestamp(backup.createdAt)
+                  }}</span>
+                  <span class="w-1 h-1 bg-surface-200 rounded-full"></span>
+                  <span class="text-[10px] font-black text-surface-400 uppercase tracking-widest">{{
+                    formatBytes(backup.size)
+                  }}</span>
+                  <span class="w-1 h-1 bg-surface-200 rounded-full"></span>
+                  <span class="text-[10px] font-black text-surface-400 uppercase tracking-widest"
+                    >{{ backup.itemCount }} Items</span
+                  >
+                </div>
+                @if (backup.error) {
+                  <p
+                    class="text-xs font-bold text-rose-500 mt-2 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-100 inline-block"
+                  >
+                    Error: {{ backup.error }}
+                  </p>
+                }
+              </div>
+
+              <div
+                class="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <button
+                  (click)="restoreBackup(backup)"
+                  class="glass-button px-4 py-2 text-primary-600 hover:bg-primary-50 border-primary-100 flex items-center gap-2"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  <span>Restore</span>
+                </button>
+                <button
+                  (click)="deleteBackup(backup.id)"
+                  class="glass-button px-4 py-2 text-rose-600 hover:bg-rose-50 border-rose-100"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
