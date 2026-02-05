@@ -1,3 +1,9 @@
+# [1.10.0](https://github.com/ramiz4/simple-pos/compare/v1.9.1...v1.10.0) (2026-02-05)
+
+### Features
+
+- **admin:** overhaul backup settings UI with glassmorphism and tailwind ([8ec80d1](https://github.com/ramiz4/simple-pos/commit/8ec80d1b3e4297e34ef8e1234b26e3ecab6a33cc))
+
 ## [1.9.1](https://github.com/ramiz4/simple-pos/compare/v1.9.0...v1.9.1) (2026-02-05)
 
 ### Bug Fixes
