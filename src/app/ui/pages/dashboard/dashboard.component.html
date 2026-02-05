@@ -10,29 +10,13 @@
         </h2>
         <p class="text-surface-500 font-medium">Ready to serve some hungry customers?</p>
       </div>
-
-      @if (session) {
-        <div class="glass-card px-6 py-4 flex items-center gap-4 bg-white/40!">
-          <div
-            class="w-12 h-12 rounded-2xl primary-gradient flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary-200"
-          >
-            {{ session.user.name.charAt(0).toUpperCase() }}
-          </div>
-          <div>
-            <div class="text-[10px] font-black uppercase tracking-widest text-surface-400">
-              Current Role
-            </div>
-            <div class="font-black text-surface-900">{{ session.roleCode }}</div>
-          </div>
-        </div>
-      }
     </div>
 
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
       @if (isCashier()) {
         <a
-          routerLink="/pos/order-type"
+          routerLink="/pos"
           class="glass-card p-8 group hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
         >
           <div class="relative z-10">

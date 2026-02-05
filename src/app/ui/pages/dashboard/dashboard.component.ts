@@ -28,7 +28,7 @@ export class DashboardComponent {
   }
 
   isKitchen(): boolean {
-    return this.authService.hasAnyRole([UserRoleEnum.KITCHEN]);
+    return this.authService.hasAnyRole([UserRoleEnum.KITCHEN, UserRoleEnum.ADMIN]);
   }
 
   isCashier(): boolean {

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AuthService, UserSession } from '../../../application/services/auth.service';
 import { AdminPageHeaderComponent } from '../../components/admin/page-header/page-header.component';
 
@@ -59,26 +59,21 @@ export class AdminDashboardComponent {
       route: '/admin/backup',
       description: 'Backup & Restore Data',
     },
+    {
+      name: 'Backup Settings',
+      icon: '⚙️',
+      route: '/admin/backup-settings',
+      description: 'Configure Auto-Backups',
+    },
+    {
+      name: 'Error Logs',
+      icon: '🪵',
+      route: '/admin/error-log',
+      description: 'System Health & Logs',
+    },
   ];
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-  ) {
+  constructor(private authService: AuthService) {
     this.session = this.authService.getCurrentSession();
-  }
-
-  onLock() {
-    this.authService.setStaffActive(false);
-    this.router.navigate(['/staff-select']);
-  }
-
-  onLogout() {
-    this.authService.logout();
-    this.router.navigate(['/login']);
-  }
-
-  onBackToDashboard() {
-    this.router.navigate(['/dashboard']);
   }
 }
