@@ -74,6 +74,8 @@ export class OrderService {
           quantity: cartItem.quantity,
           unitPrice: cartItem.unitPrice,
           notes: cartItem.notes,
+          statusId: data.statusId,
+          createdAt: new Date().toISOString(),
         });
 
         // Create order item extras
@@ -91,10 +93,7 @@ export class OrderService {
       const orderStatus = await this.enumMappingService.getEnumFromId(data.statusId);
 
       if (orderType.code === OrderTypeEnum.DINE_IN && data.tableId) {
-        if (
-          orderStatus.code === OrderStatusEnum.PAID ||
-          orderStatus.code === OrderStatusEnum.COMPLETED
-        ) {
+        if (orderStatus.code === OrderStatusEnum.COMPLETED) {
           const freeStatusId = await this.enumMappingService.getCodeTableId(
             'TABLE_STATUS',
             TableStatusEnum.FREE,
@@ -116,6 +115,93 @@ export class OrderService {
     }
   }
 
+  async getOpenOrderByTable(tableId: number): Promise<Order | null> {
+    const orderRepo = this.getOrderRepo();
+    const allOrders = await orderRepo.findByTable(tableId);
+
+    // Get status IDs to exclude
+    const completedStatus = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.COMPLETED,
+    );
+    const cancelledStatus = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.CANCELLED,
+    );
+
+    const activeOrders = allOrders.filter(
+      (o) => o.statusId !== completedStatus && o.statusId !== cancelledStatus,
+    );
+
+    if (activeOrders.length === 0) return null;
+
+    // Return the latest one but maybe with summed totals for display?
+    // For now, let's keep the single order logic but ensure we find it.
+    // If there are multiple, they should probably have been merged, but we'll return the latest one.
+    return activeOrders.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    )[0];
+  }
+
+  async addItemsToOrder(orderId: number, items: CartItem[]): Promise<Order> {
+    const orderRepo = this.getOrderRepo();
+    const orderItemRepo = this.getOrderItemRepo();
+    const orderItemExtraRepo = this.getOrderItemExtraRepo();
+
+    const order = await orderRepo.findById(orderId);
+    if (!order) throw new Error(`Order ${orderId} not found`);
+
+    let additionalSubtotal = 0;
+
+    const openStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.OPEN,
+    );
+
+    for (const cartItem of items) {
+      const orderItem = await orderItemRepo.create({
+        orderId: order.id,
+        productId: cartItem.productId,
+        variantId: cartItem.variantId,
+        quantity: cartItem.quantity,
+        unitPrice: cartItem.unitPrice,
+        notes: cartItem.notes,
+        statusId: openStatusId,
+        createdAt: new Date().toISOString(),
+      });
+
+      additionalSubtotal += cartItem.lineTotal;
+
+      for (const extraId of cartItem.extraIds) {
+        await orderItemExtraRepo.create({
+          orderId: order.id,
+          orderItemId: orderItem.id,
+          extraId,
+        });
+      }
+    }
+
+    // Update order totals
+    const newSubtotal = order.subtotal + additionalSubtotal;
+    // Recalculate tax (tax-inclusive pricing: tax = subtotal * rate / (1 + rate))
+    // We get the tax rate from the cart service or a constant.
+    // In this app, it's 18% as seen in cart.service.ts
+    const TAX_RATE = 0.18;
+    const newTax = (newSubtotal * TAX_RATE) / (1 + TAX_RATE);
+    const newTotal = newSubtotal + order.tip;
+
+    const updatedOrder = await orderRepo.update(orderId, {
+      subtotal: newSubtotal,
+      tax: newTax,
+      total: newTotal,
+    });
+
+    // Update order status based on items (e.g., if it was READY/SERVED, pull it back to PREPARING)
+    await this.checkAndUpdateOrderStatusByItems(orderId);
+
+    return (await orderRepo.findById(orderId)) || updatedOrder;
+  }
+
   async getOrderById(id: number): Promise<Order | null> {
     return await this.getOrderRepo().findById(id);
   }
@@ -125,7 +211,28 @@ export class OrderService {
   }
 
   async getActiveOrders(): Promise<Order[]> {
-    return await this.getOrderRepo().findActiveOrders();
+    const orders = await this.getOrderRepo().findActiveOrders();
+
+    const completedStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.COMPLETED,
+    );
+    const cancelledStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.CANCELLED,
+    );
+    const servedStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.SERVED,
+    );
+
+    // For the kitchen view, we exclude orders that are already served, completed, or cancelled
+    return orders.filter(
+      (o) =>
+        o.statusId !== completedStatusId &&
+        o.statusId !== cancelledStatusId &&
+        o.statusId !== servedStatusId,
+    );
   }
 
   async getOrdersByStatus(statusEnum: OrderStatusEnum): Promise<Order[]> {
@@ -213,6 +320,89 @@ export class OrderService {
   async getOrderItemExtras(orderItemId: number): Promise<number[]> {
     const extras = await this.getOrderItemExtraRepo().findByOrderItemId(orderItemId);
     return extras.map((e) => e.extraId);
+  }
+
+  async updateOrderItemStatus(itemId: number, statusId: number): Promise<OrderItem> {
+    const orderItemRepo = this.getOrderItemRepo();
+    const updatedItem = await orderItemRepo.update(itemId, { statusId });
+
+    // After updating an item, check if we should update the whole order status
+    await this.checkAndUpdateOrderStatusByItems(updatedItem.orderId);
+
+    return updatedItem;
+  }
+
+  private async checkAndUpdateOrderStatusByItems(orderId: number): Promise<void> {
+    const orderRepo = this.getOrderRepo();
+    const orderItemRepo = this.getOrderItemRepo();
+    const items = await orderItemRepo.findByOrderId(orderId);
+
+    if (items.length === 0) return;
+
+    const readyStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.READY,
+    );
+    const preparingStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.PREPARING,
+    );
+
+    const allReady = items.every((item) => item.statusId === readyStatusId);
+    const anyStartedOrPending = items.some(
+      (item) =>
+        item.statusId === preparingStatusId ||
+        item.statusId === readyStatusId ||
+        item.statusId !== readyStatusId,
+    );
+
+    const order = await orderRepo.findById(orderId);
+    if (!order) return;
+
+    const currentStatus = await this.enumMappingService.getEnumFromId(order.statusId);
+
+    if (allReady) {
+      const orderType = await this.enumMappingService.getEnumFromId(order.typeId);
+
+      if (orderType.code === OrderTypeEnum.DINE_IN) {
+        // For Dine-In: If all items are ready, it's considered SERVED (out of kitchen, but table active)
+        // Unless it's already paid, then it's COMPLETED
+        if (currentStatus.code === OrderStatusEnum.COMPLETED) {
+          // Already completed, nothing to do
+        } else if (
+          currentStatus.code !== OrderStatusEnum.SERVED &&
+          currentStatus.code !== OrderStatusEnum.COMPLETED
+        ) {
+          const servedStatusId = await this.enumMappingService.getCodeTableId(
+            'ORDER_STATUS',
+            OrderStatusEnum.SERVED,
+          );
+          await this.updateOrderStatus(orderId, servedStatusId);
+        }
+      } else {
+        // For Takeaway/Delivery: All items ready means the order is COMPLETED
+        if (currentStatus.code !== OrderStatusEnum.COMPLETED) {
+          await this.completeOrder(orderId);
+        }
+      }
+    } else {
+      // Not all items are ready. Check if we need to pull back from advanced statuses.
+      if (
+        currentStatus.code === OrderStatusEnum.READY ||
+        currentStatus.code === OrderStatusEnum.SERVED ||
+        currentStatus.code === OrderStatusEnum.OUT_FOR_DELIVERY
+      ) {
+        await this.updateOrderStatus(orderId, preparingStatusId);
+      } else if (currentStatus.code === OrderStatusEnum.OPEN) {
+        // If it's a new/paid order and items are started, move to preparing
+        const anyStarted = items.some(
+          (item) => item.statusId === preparingStatusId || item.statusId === readyStatusId,
+        );
+        if (anyStarted) {
+          await this.updateOrderStatus(orderId, preparingStatusId);
+        }
+      }
+    }
   }
 
   private getOrderRepo() {

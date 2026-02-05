@@ -6,15 +6,16 @@ import { CartService } from '../../../application/services/cart.service';
 import { CategoryService } from '../../../application/services/category.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { ExtraService } from '../../../application/services/extra.service';
+import { OrderService } from '../../../application/services/order.service';
 import { ProductExtraService } from '../../../application/services/product-extra.service';
 import { ProductService } from '../../../application/services/product.service';
 import { TableService } from '../../../application/services/table.service';
 import { VariantService } from '../../../application/services/variant.service';
 import { CartItem } from '../../../domain/dtos/cart.dto';
+import { Order, Variant } from '../../../domain/entities';
 import { Category } from '../../../domain/entities/category.interface';
 import { Extra } from '../../../domain/entities/extra.interface';
 import { Product } from '../../../domain/entities/product.interface';
-import { Variant } from '../../../domain/entities/variant.interface';
 import { HeaderComponent } from '../../components/header/header.component';
 import { ProductCardComponent } from '../../components/pos/product-card/product-card.component';
 import { QuantitySelectorComponent } from '../../components/pos/quantity-selector/quantity-selector.component';
@@ -79,8 +80,10 @@ interface ProductWithExtras extends Product {
 
       <!-- Modern Cart Summary Bar -->
       <app-status-bar
-        [itemCount]="cartSummary().itemCount"
-        [subtotal]="cartSummary().subtotal"
+        [itemCount]="totalItemCount()"
+        [subtotal]="displaySubtotal()"
+        [buttonLabel]="existingOrder() ? 'Manage Order' : 'View Cart'"
+        [allowEmpty]="!!existingOrder()"
         (action)="viewCart()"
       ></app-status-bar>
 
@@ -234,6 +237,8 @@ export class ProductSelectionComponent implements OnInit {
   categories = signal<Category[]>([]);
   products = signal<ProductWithExtras[]>([]);
   allExtras = signal<Extra[]>([]);
+  existingOrder = signal<Order | null>(null);
+  existingOrderItemCount = signal(0);
 
   // UI state signals
   selectedCategoryId = signal<number | null>(null);
@@ -289,6 +294,16 @@ export class ProductSelectionComponent implements OnInit {
 
   cartSummary = computed(() => this.cartService.getSummary());
 
+  displaySubtotal = computed(() => {
+    const cartSubtotal = this.cartSummary().subtotal;
+    const existingTotal = this.existingOrder()?.subtotal ?? 0;
+    return cartSubtotal + existingTotal;
+  });
+
+  totalItemCount = computed(() => {
+    return this.cartSummary().itemCount + this.existingOrderItemCount();
+  });
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -300,16 +315,24 @@ export class ProductSelectionComponent implements OnInit {
     private cartService: CartService,
     private tableService: TableService,
     private enumMappingService: EnumMappingService,
+    private orderService: OrderService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    // Get query params
-    this.route.queryParams.subscribe((params) => {
+    // Get query params and load data
+    this.route.queryParams.subscribe(async (params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
-    });
 
-    await this.loadData();
+      // Ensure context is set in case of direct navigation or refresh
+      if (this.tableId) {
+        this.cartService.setContext(this.tableId);
+      } else if (this.typeId) {
+        // Handle other types if necessary
+      }
+
+      await this.loadData();
+    });
   }
 
   async loadData(): Promise<void> {
@@ -337,6 +360,19 @@ export class ProductSelectionComponent implements OnInit {
 
       this.products.set(productsWithExtras);
 
+      // Load existing order if tableId is present
+      if (this.tableId) {
+        const order = await this.orderService.getOpenOrderByTable(this.tableId);
+        this.existingOrder.set(order);
+        if (order) {
+          const items = await this.orderService.getOrderItems(order.id);
+          const count = items.reduce((sum, item) => sum + item.quantity, 0);
+          this.existingOrderItemCount.set(count);
+        } else {
+          this.existingOrderItemCount.set(0);
+        }
+      }
+
       // Select first active category by default
       const firstCategory = this.activeCategories()[0];
       if (firstCategory) {
@@ -357,7 +393,7 @@ export class ProductSelectionComponent implements OnInit {
       'px-6 py-2 rounded-full font-black text-sm transition-all duration-300 whitespace-nowrap uppercase tracking-wider';
 
     if (isSelected) {
-      return `${baseClass} primary-gradient text-white shadow-lg shadow-primary-200 scale-105`;
+      return `${baseClass} primary-gradient text-white shadow-md shadow-primary-100 scale-105`;
     }
     return `${baseClass} text-surface-400 hover:text-surface-900 hover:bg-surface-50`;
   }
@@ -440,30 +476,7 @@ export class ProductSelectionComponent implements OnInit {
     };
 
     this.cartService.addItem(cartItem);
-
-    // Update table status if this is a dine-in order
-    this.updateTableStatusIfNecessary();
-
     this.closeModal();
-  }
-
-  private async updateTableStatusIfNecessary(): Promise<void> {
-    if (this.tableId) {
-      try {
-        const table = await this.tableService.getById(this.tableId);
-        const freeStatusId = await this.enumMappingService.getCodeTableId('TABLE_STATUS', 'FREE');
-
-        if (table && table.statusId === freeStatusId) {
-          const occupiedStatusId = await this.enumMappingService.getCodeTableId(
-            'TABLE_STATUS',
-            'OCCUPIED',
-          );
-          await this.tableService.updateTableStatus(this.tableId, occupiedStatusId);
-        }
-      } catch (error) {
-        console.error('Error updating table status:', error);
-      }
-    }
   }
 
   viewCart(): void {
