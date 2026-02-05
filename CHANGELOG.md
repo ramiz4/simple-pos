@@ -1,3 +1,14 @@
+# [1.8.0](https://github.com/ramiz4/simple-pos/compare/v1.7.0...v1.8.0) (2026-02-05)
+
+### Bug Fixes
+
+- **routing:** resolve memory leak and initial load state in AdminShell ([35c11c0](https://github.com/ramiz4/simple-pos/commit/35c11c094aa1c49c64da685814cfd8caa628f887))
+- **ui:** display table name/number instead of ID in Active Orders ([9a304e6](https://github.com/ramiz4/simple-pos/commit/9a304e661b1502db334762633e9c51528bf18f92))
+
+### Features
+
+- **routing:** introduce Admin and POS feature shells and domain-oriented route definitions ([5323cb0](https://github.com/ramiz4/simple-pos/commit/5323cb07bd3495bd53cbf99e0501663cf01f2682))
+
 # [1.7.0](https://github.com/ramiz4/simple-pos/compare/v1.6.0...v1.7.0) (2026-02-05)
 
 ### Bug Fixes
