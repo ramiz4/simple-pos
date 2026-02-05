@@ -150,12 +150,12 @@ export class TableSelectionComponent implements OnInit {
   isTableFree(table: Table): boolean {
     const freeId = this.freeStatusId();
     if (freeId === null) return false;
-    return table.statusId == freeId;
+    return table.statusId === freeId;
   }
 
   getTableStatus(table: Table): string {
     const freeId = this.freeStatusId();
-    if (freeId !== null && table.statusId == freeId) {
+    if (freeId !== null && table.statusId === freeId) {
       return 'Available';
     }
     return 'Occupied';

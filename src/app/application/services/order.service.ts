@@ -133,14 +133,20 @@ export class OrderService {
       (o) => o.statusId !== completedStatus && o.statusId !== cancelledStatus,
     );
 
-    if (activeOrders.length === 0) return null;
+    if (activeOrders.length === 0) {
+      return null;
+    }
 
-    // Return the latest one but maybe with summed totals for display?
-    // For now, let's keep the single order logic but ensure we find it.
-    // If there are multiple, they should probably have been merged, but we'll return the latest one.
-    return activeOrders.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    )[0];
+    if (activeOrders.length > 1) {
+      // Invariant violation: this service expects at most one active order per table.
+      // Surface this as an error so it can be investigated and resolved instead of being silently hidden.
+      throw new Error(
+        `Multiple active orders (${activeOrders.length}) found for table ${tableId}. Expected at most one.`,
+      );
+    }
+
+    // Exactly one active order found for this table.
+    return activeOrders[0];
   }
 
   async addItemsToOrder(orderId: number, items: CartItem[]): Promise<Order> {
@@ -343,18 +349,8 @@ export class OrderService {
       'ORDER_STATUS',
       OrderStatusEnum.READY,
     );
-    const preparingStatusId = await this.enumMappingService.getCodeTableId(
-      'ORDER_STATUS',
-      OrderStatusEnum.PREPARING,
-    );
 
     const allReady = items.every((item) => item.statusId === readyStatusId);
-    const anyStartedOrPending = items.some(
-      (item) =>
-        item.statusId === preparingStatusId ||
-        item.statusId === readyStatusId ||
-        item.statusId !== readyStatusId,
-    );
 
     const order = await orderRepo.findById(orderId);
     if (!order) return;
