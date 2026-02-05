@@ -1,52 +1,40 @@
 <div class="min-h-screen bg-linear-to-br from-purple-50 to-blue-50">
-  <nav class="backdrop-blur-md bg-white/80 shadow-lg border-b border-white/20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex items-center space-x-4">
-          <h1
-            class="text-xl font-bold bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"
+  <app-admin-page-header title="Admin Dashboard" [showBackButton]="false">
+    <div actions class="flex items-center space-x-2">
+      @if (session) {
+        <div class="text-xs hidden md:block mr-2">
+          <span class="text-gray-600">Welcome,</span>
+          <span class="font-semibold text-gray-800 ml-1">{{ session.user.name }}</span>
+        </div>
+        <button
+          (click)="onBackToDashboard()"
+          class="px-4 py-2 min-h-[44px] backdrop-blur-md bg-white/80 hover:bg-white text-gray-700 rounded-lg transition shadow-sm border border-gray-200 text-sm font-bold"
+        >
+          Portal
+        </button>
+        <button
+          (click)="onLock()"
+          class="px-4 py-2 min-h-[44px] bg-linear-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition shadow-md flex items-center gap-2 text-sm font-bold"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            Admin Dashboard
-          </h1>
-        </div>
-        <div class="flex items-center space-x-4">
-          @if (session) {
-            <div class="text-sm hidden md:block">
-              <span class="text-gray-600">Welcome,</span>
-              <span class="font-semibold text-gray-800 ml-1">{{ session.user.name }}</span>
-              <span class="text-gray-500 ml-2">({{ session.roleCode }})</span>
-            </div>
-            <button
-              (click)="onBackToDashboard()"
-              class="px-4 py-2 backdrop-blur-md bg-white/80 hover:bg-white text-gray-700 rounded-lg transition shadow-sm border border-gray-200"
-            >
-              Back
-            </button>
-            <button
-              (click)="onLock()"
-              class="px-4 py-2 bg-linear-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg transition shadow-md flex items-center gap-2"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-              Lock
-            </button>
-          }
-        </div>
-      </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+          Lock
+        </button>
+      }
     </div>
-  </nav>
+  </app-admin-page-header>
 
   <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
