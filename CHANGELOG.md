@@ -1,3 +1,9 @@
+# [1.11.0](https://github.com/ramiz4/simple-pos/compare/v1.10.0...v1.11.0) (2026-02-05)
+
+### Features
+
+- modernize product category filter with fixed positioning and improved UX ([d78a5db](https://github.com/ramiz4/simple-pos/commit/d78a5dbd909577f0ddda8ac99e82fb153a95dc72))
+
 # [1.10.0](https://github.com/ramiz4/simple-pos/compare/v1.9.1...v1.10.0) (2026-02-05)
 
 ### Features
