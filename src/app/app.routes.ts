@@ -3,9 +3,10 @@ import { LandingComponent } from './ui/pages/landing/landing.component';
 
 import { authGuard } from './core/guards/auth.guard';
 import { desktopLandingGuard } from './core/guards/desktop-landing.guard';
-import { adminGuard, kitchenGuard } from './core/guards/role.guard';
+import { adminGuard } from './core/guards/role.guard';
 import { setupGuard } from './core/guards/setup.guard';
 import { staffGuard } from './core/guards/staff.guard';
+import { PosShellComponent } from './ui/layouts/pos-shell/pos-shell.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent, canActivate: [desktopLandingGuard] },
@@ -36,18 +37,41 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'dashboard',
-    loadComponent: () =>
-      import('./ui/pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    path: '',
+    component: PosShellComponent,
     canActivate: [staffGuard],
-  },
-  {
-    path: 'active-orders',
-    loadComponent: () =>
-      import('./ui/pages/active-orders/active-orders.component').then(
-        (m) => m.ActiveOrdersComponent,
-      ),
-    canActivate: [staffGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./ui/pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+        data: { title: 'Dashboard' },
+      },
+      {
+        path: 'active-orders',
+        loadComponent: () =>
+          import('./ui/pages/active-orders/active-orders.component').then(
+            (m) => m.ActiveOrdersComponent,
+          ),
+        data: { title: 'Active Orders' },
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./ui/pages/reports/reports.component').then((m) => m.ReportsComponent),
+        data: { title: 'Reports' },
+      },
+      {
+        path: 'kitchen',
+        loadComponent: () =>
+          import('./ui/pages/kitchen/kitchen-view.component').then((m) => m.KitchenViewComponent),
+        data: { title: 'Kitchen' },
+      },
+      {
+        path: 'pos',
+        loadChildren: () => import('./ui/routes/pos.routes').then((m) => m.POS_ROUTES),
+      },
+    ],
   },
   {
     path: 'unauthorized',
@@ -62,24 +86,5 @@ export const routes: Routes = [
     canActivate: [adminGuard],
   },
 
-  // Lazy Loaded POS Routes
-  {
-    path: 'pos',
-    loadChildren: () => import('./ui/routes/pos.routes').then((m) => m.POS_ROUTES),
-    canActivate: [staffGuard],
-  },
-
-  {
-    path: 'reports',
-    loadComponent: () =>
-      import('./ui/pages/reports/reports.component').then((m) => m.ReportsComponent),
-    canActivate: [staffGuard],
-  },
-  {
-    path: 'kitchen',
-    loadComponent: () =>
-      import('./ui/pages/kitchen/kitchen-view.component').then((m) => m.KitchenViewComponent),
-    canActivate: [kitchenGuard],
-  },
   { path: '**', redirectTo: '' },
 ];
