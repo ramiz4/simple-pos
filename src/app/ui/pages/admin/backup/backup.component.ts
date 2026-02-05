@@ -2,15 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BackupService } from '../../../../application/services/backup.service';
-import { HeaderComponent } from '../../../components/header/header.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
 @Component({
   selector: 'app-backup',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
   template: `
     <div class="min-h-screen bg-[#F8FAFC]">
-      <app-header title="Backup & Restore" [showBackButton]="true"></app-header>
+      <app-admin-page-header
+        title="Backup & Restore"
+        subtitle="Download backups or restore from an existing database file"
+      ></app-admin-page-header>
 
       <main class="p-6 max-w-4xl mx-auto animate-fade-in">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">

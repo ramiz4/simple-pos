@@ -1,16 +1,30 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ProductService } from '../../../../application/services/product.service';
 import { VariantService } from '../../../../application/services/variant.service';
 import { Product } from '../../../../domain/entities/product.interface';
 import { Variant } from '../../../../domain/entities/variant.interface';
+import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
+import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
+import { AlertComponent } from '../../../components/shared/alert/alert.component';
+import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
 @Component({
   selector: 'app-variants-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AlertComponent,
+    ModalComponent,
+    AdminPageHeaderComponent,
+    ManagementListComponent,
+    ConfirmDeleteModalComponent,
+  ],
   templateUrl: './variants-management.component.html',
   styleUrls: ['./variants-management.component.css'],
 })
@@ -35,7 +49,6 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
   constructor(
     private variantService: VariantService,
     private productService: ProductService,
-    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -206,9 +219,5 @@ export class VariantsManagementComponent implements OnInit, OnDestroy {
   getCalculatedPrice(productId: number, priceModifier: number): number {
     const product = this.products.find((p: Product) => p.id === productId);
     return (product?.price || 0) + priceModifier;
-  }
-
-  onBackToDashboard() {
-    this.router.navigate(['/admin']);
   }
 }

@@ -236,7 +236,7 @@ export class StaffSelectionComponent implements OnInit {
         this.router.navigate(['/admin']);
         break;
       case UserRoleEnum.CASHIER:
-        this.router.navigate(['/pos/order-type']);
+        this.router.navigate(['/pos']);
         break;
       case UserRoleEnum.KITCHEN:
         this.router.navigate(['/kitchen']);

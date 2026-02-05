@@ -221,7 +221,7 @@ export class PaymentComponent implements OnInit {
     });
 
     if (this.cartService.isEmpty()) {
-      this.router.navigate(['/pos/order-type']);
+      this.router.navigate(['/pos']);
     }
   }
 
@@ -308,6 +308,6 @@ export class PaymentComponent implements OnInit {
   }
 
   startNewOrder(): void {
-    this.router.navigate(['/pos/order-type']);
+    this.router.navigate(['/pos']);
   }
 }

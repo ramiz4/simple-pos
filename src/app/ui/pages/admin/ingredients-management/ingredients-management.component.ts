@@ -1,14 +1,28 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { IngredientService } from '../../../../application/services/ingredient.service';
 import { Ingredient } from '../../../../domain/entities/ingredient.interface';
+import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
+import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
+import { AlertComponent } from '../../../components/shared/alert/alert.component';
+import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
 @Component({
   selector: 'app-ingredients-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AlertComponent,
+    ModalComponent,
+    AdminPageHeaderComponent,
+    ManagementListComponent,
+    ConfirmDeleteModalComponent,
+  ],
   templateUrl: './ingredients-management.component.html',
   styleUrls: ['./ingredients-management.component.css'],
 })
@@ -32,7 +46,6 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
 
   constructor(
     private ingredientService: IngredientService,
-    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -177,9 +190,5 @@ export class IngredientsManagementComponent implements OnInit, OnDestroy {
       return 'Low Stock';
     }
     return 'In Stock';
-  }
-
-  onBackToDashboard() {
-    this.router.navigate(['/admin']);
   }
 }

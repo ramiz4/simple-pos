@@ -28,5 +28,5 @@ export const roleGuard = (allowedRoles: UserRoleEnum[]): CanActivateFn => {
 };
 
 export const adminGuard: CanActivateFn = roleGuard([UserRoleEnum.ADMIN]);
-export const kitchenGuard: CanActivateFn = roleGuard([UserRoleEnum.KITCHEN]);
+export const kitchenGuard: CanActivateFn = roleGuard([UserRoleEnum.KITCHEN, UserRoleEnum.ADMIN]);
 export const cashierGuard: CanActivateFn = roleGuard([UserRoleEnum.CASHIER, UserRoleEnum.ADMIN]);

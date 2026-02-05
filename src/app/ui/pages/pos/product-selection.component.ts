@@ -16,6 +16,9 @@ import { Extra } from '../../../domain/entities/extra.interface';
 import { Product } from '../../../domain/entities/product.interface';
 import { Variant } from '../../../domain/entities/variant.interface';
 import { HeaderComponent } from '../../components/header/header.component';
+import { ProductCardComponent } from '../../components/pos/product-card/product-card.component';
+import { QuantitySelectorComponent } from '../../components/pos/quantity-selector/quantity-selector.component';
+import { StatusBarComponent } from '../../components/pos/status-bar/status-bar.component';
 
 interface ProductWithExtras extends Product {
   availableExtras: Extra[];
@@ -24,7 +27,14 @@ interface ProductWithExtras extends Product {
 @Component({
   selector: 'app-product-selection',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    HeaderComponent,
+    ProductCardComponent,
+    QuantitySelectorComponent,
+    StatusBarComponent,
+  ],
   template: `
     <div class="min-h-screen bg-[#F8FAFC]">
       <app-header title="Menu" [showBackButton]="true" (back)="goBack()"></app-header>
@@ -50,50 +60,10 @@ interface ProductWithExtras extends Product {
           <!-- Products Grid -->
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             @for (product of filteredProducts(); track product.id) {
-              <button
-                (click)="openProductModal(product)"
-                class="glass-card group flex flex-col items-start overflow-hidden hover:ring-2 hover:ring-primary-400 transition-all duration-300"
-              >
-                <div class="w-full aspect-4/3 relative overflow-hidden bg-surface-100">
-                  <div
-                    class="absolute inset-0 primary-gradient opacity-10 group-hover:opacity-20 transition-opacity"
-                  ></div>
-                  <div
-                    class="absolute inset-0 flex items-center justify-center text-4xl group-hover:scale-110 transition-transform duration-500"
-                  >
-                    🍽️
-                  </div>
-                </div>
-
-                <div class="p-4 w-full text-left">
-                  <h3 class="font-black text-surface-900 leading-tight mb-1 line-clamp-2">
-                    {{ product.name }}
-                  </h3>
-                  <div class="flex items-center justify-between mt-auto">
-                    <span class="text-lg font-black text-primary-600"
-                      >€{{ product.price.toFixed(2) }}</span
-                    >
-                    <div
-                      class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-colors"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </button>
+              <app-product-card
+                [product]="product"
+                (select)="openProductModal($any($event))"
+              ></app-product-card>
             }
           </div>
 
@@ -108,71 +78,11 @@ interface ProductWithExtras extends Product {
       </main>
 
       <!-- Modern Cart Summary Bar -->
-      <div class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-8 sm:pb-4 pointer-events-none">
-        <div class="max-w-4xl mx-auto pointer-events-auto">
-          <div
-            class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-4 shadow-2xl flex items-center justify-between gap-6 translate-y-0 animate-slide-up"
-          >
-            <div class="flex items-center gap-4">
-              <div
-                class="w-12 h-12 rounded-2xl primary-gradient flex items-center justify-center text-white relative"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                  />
-                </svg>
-                @if (cartSummary().itemCount > 0) {
-                  <span
-                    class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 border-2 border-surface-900 text-[10px] font-black flex items-center justify-center text-white"
-                  >
-                    {{ cartSummary().itemCount }}
-                  </span>
-                }
-              </div>
-              <div>
-                <div class="text-surface-400 text-[10px] font-black uppercase tracking-widest">
-                  Subtotal
-                </div>
-                <div class="text-2xl font-black text-white leading-none">
-                  €{{ cartSummary().subtotal.toFixed(2) }}
-                </div>
-              </div>
-            </div>
-
-            <button
-              (click)="viewCart()"
-              [disabled]="cartSummary().itemCount === 0"
-              class="neo-button h-14 px-8 disabled:opacity-50 disabled:grayscale transition-all flex items-center gap-2 whitespace-nowrap"
-            >
-              <span>View Cart</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-status-bar
+        [itemCount]="cartSummary().itemCount"
+        [subtotal]="cartSummary().subtotal"
+        (action)="viewCart()"
+      ></app-status-bar>
 
       <!-- Modern Product Modal -->
       @if (isModalOpen()) {
@@ -271,21 +181,11 @@ interface ProductWithExtras extends Product {
                     class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
                     >Quantity</label
                   >
-                  <div class="flex items-center gap-3 bg-surface-50 p-2 rounded-2xl">
-                    <button
-                      (click)="decrementQuantity()"
-                      class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center font-black text-primary-600 active:scale-95 transition-transform"
-                    >
-                      −
-                    </button>
-                    <span class="grow text-center font-black text-xl">{{ quantity() }}</span>
-                    <button
-                      (click)="incrementQuantity()"
-                      class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center font-black text-primary-600 active:scale-95 transition-transform"
-                    >
-                      +
-                    </button>
-                  </div>
+                  <app-quantity-selector
+                    [quantity]="quantity()"
+                    (increase)="incrementQuantity()"
+                    (decrease)="decrementQuantity()"
+                  ></app-quantity-selector>
                 </div>
                 <div>
                   <label
@@ -581,7 +481,7 @@ export class ProductSelectionComponent implements OnInit {
         queryParams: { typeId: this.typeId },
       });
     } else {
-      this.router.navigate(['/pos/order-type']);
+      this.router.navigate(['/pos']);
     }
   }
 }

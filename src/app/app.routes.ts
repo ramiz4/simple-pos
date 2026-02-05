@@ -78,7 +78,7 @@ export const routes: Routes = [
       ),
     canActivate: [adminGuard],
   },
-  { path: 'pos/order-type', component: OrderTypeSelectionComponent, canActivate: [staffGuard] },
+  { path: 'pos', component: OrderTypeSelectionComponent, canActivate: [staffGuard] },
   { path: 'pos/table-selection', component: TableSelectionComponent, canActivate: [staffGuard] },
   {
     path: 'pos/product-selection',

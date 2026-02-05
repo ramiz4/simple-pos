@@ -5,186 +5,193 @@ import {
   BackupMetadata,
   ScheduledBackupService,
 } from '../../../../application/services/scheduled-backup.service';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
 @Component({
   selector: 'app-backup-settings',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
   template: `
-    <div class="backup-settings-container">
-      <div class="header">
-        <h1>Automated Backup Settings</h1>
-      </div>
+    <div class="min-h-screen bg-[#F8FAFC]">
+      <app-admin-page-header
+        title="Backup Settings"
+        subtitle="Configure automated and manual database backups"
+      ></app-admin-page-header>
 
-      <!-- Health Status -->
-      <div class="health-status" [class]="'status-' + health().status">
-        <div class="status-icon">
-          @if (health().status === 'healthy') {
-            <span>✅</span>
-          } @else if (health().status === 'warning') {
-            <span>⚠️</span>
-          } @else {
-            <span>❌</span>
-          }
-        </div>
-        <div class="status-info">
-          <div class="status-message">{{ health().message }}</div>
-          @if (health().lastBackupAge !== undefined) {
-            <div class="status-detail">
-              Last backup: {{ formatAge(health().lastBackupAge!) }} ago
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Configuration -->
-      <div class="config-section">
-        <h2>Configuration</h2>
-
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="config().enabled" (change)="onConfigChange()" />
-            <span>Enable Automated Backups</span>
-          </label>
-        </div>
-
-        <div class="form-group">
-          <label>Backup Frequency</label>
-          <select [(ngModel)]="config().frequency" (change)="onConfigChange()">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="custom">Custom</option>
-          </select>
-        </div>
-
-        @if (config().frequency === 'custom') {
-          <div class="form-group">
-            <label>Custom Interval (hours)</label>
-            <input
-              type="number"
-              [(ngModel)]="config().customIntervalHours"
-              (change)="onConfigChange()"
-              min="1"
-              max="168"
-            />
-          </div>
-        }
-
-        <div class="form-group">
-          <label>Number of Backups to Retain</label>
-          <input
-            type="number"
-            [(ngModel)]="config().retentionCount"
-            (change)="onConfigChange()"
-            min="1"
-            max="30"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              [(ngModel)]="config().encryptBackups"
-              (change)="onConfigChange()"
-            />
-            <span>Encrypt Backups</span>
-          </label>
-        </div>
-
-        @if (config().encryptBackups) {
-          <div class="form-group">
-            <label>Encryption Password</label>
-            <input
-              type="password"
-              [(ngModel)]="config().password"
-              (change)="onConfigChange()"
-              placeholder="Enter encryption password"
-            />
-          </div>
-        }
-
-        <div class="form-actions">
-          <button (click)="triggerManualBackup()" class="btn-primary" [disabled]="isBackingUp()">
-            @if (isBackingUp()) {
-              <span>⏳ Backing up...</span>
+      <main class="p-6 max-w-4xl mx-auto animate-fade-in pb-20">
+        <!-- Health Status -->
+        <div class="health-status" [class]="'status-' + health().status">
+          <div class="status-icon">
+            @if (health().status === 'healthy') {
+              <span>✅</span>
+            } @else if (health().status === 'warning') {
+              <span>⚠️</span>
             } @else {
-              <span>🔄 Trigger Backup Now</span>
+              <span>❌</span>
             }
-          </button>
-        </div>
-
-        @if (scheduledBackupService.nextBackupTime()) {
-          <div class="next-backup-info">
-            Next scheduled backup: {{ formatTimestamp(scheduledBackupService.nextBackupTime()!) }}
           </div>
-        }
-      </div>
-
-      <!-- Storage Info -->
-      <div class="storage-section">
-        <h2>Storage</h2>
-        <div class="storage-info">
-          <div class="storage-stat">
-            <span class="stat-label">Total Backups:</span>
-            <span class="stat-value">{{ backupHistory().length }}</span>
-          </div>
-          <div class="storage-stat">
-            <span class="stat-label">Storage Used:</span>
-            <span class="stat-value">{{ formatBytes(totalStorage()) }}</span>
-          </div>
-        </div>
-        <button (click)="clearAllBackups()" class="btn-danger">🗑️ Clear All Backups</button>
-      </div>
-
-      <!-- Backup History -->
-      <div class="history-section">
-        <h2>Backup History</h2>
-
-        @if (backupHistory().length === 0) {
-          <div class="empty-state">
-            <p>No backups found</p>
-          </div>
-        } @else {
-          <div class="backup-list">
-            @for (backup of backupHistory(); track backup.id) {
-              <div class="backup-item" [class]="'status-' + backup.status">
-                <div class="backup-header">
-                  <div class="backup-info">
-                    <div class="backup-filename">{{ backup.filename }}</div>
-                    <div class="backup-meta">
-                      {{ formatTimestamp(backup.createdAt) }} • {{ formatBytes(backup.size) }} •
-                      {{ backup.itemCount }} items
-                      @if (backup.encrypted) {
-                        • 🔒 Encrypted
-                      }
-                    </div>
-                  </div>
-                  <div class="backup-status">
-                    @if (backup.status === 'success') {
-                      <span class="status-badge success">✓ Success</span>
-                    } @else if (backup.status === 'failed') {
-                      <span class="status-badge failed">✗ Failed</span>
-                    } @else {
-                      <span class="status-badge in-progress">⏳ In Progress</span>
-                    }
-                  </div>
-                </div>
-
-                @if (backup.error) {
-                  <div class="backup-error">Error: {{ backup.error }}</div>
-                }
-
-                <div class="backup-actions">
-                  <button (click)="restoreBackup(backup)" class="btn-secondary">↩️ Restore</button>
-                  <button (click)="deleteBackup(backup.id)" class="btn-danger-small">
-                    🗑️ Delete
-                  </button>
-                </div>
+          <div class="status-info">
+            <div class="status-message">{{ health().message }}</div>
+            @if (health().lastBackupAge !== undefined) {
+              <div class="status-detail">
+                Last backup: {{ formatAge(health().lastBackupAge!) }} ago
               </div>
             }
           </div>
-        }
-      </div>
+        </div>
+
+        <!-- Configuration -->
+        <div class="config-section">
+          <h2>Configuration</h2>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="config().enabled" (change)="onConfigChange()" />
+              <span>Enable Automated Backups</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>Backup Frequency</label>
+            <select [(ngModel)]="config().frequency" (change)="onConfigChange()">
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          @if (config().frequency === 'custom') {
+            <div class="form-group">
+              <label>Custom Interval (hours)</label>
+              <input
+                type="number"
+                [(ngModel)]="config().customIntervalHours"
+                (change)="onConfigChange()"
+                min="1"
+                max="168"
+              />
+            </div>
+          }
+
+          <div class="form-group">
+            <label>Number of Backups to Retain</label>
+            <input
+              type="number"
+              [(ngModel)]="config().retentionCount"
+              (change)="onConfigChange()"
+              min="1"
+              max="30"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [(ngModel)]="config().encryptBackups"
+                (change)="onConfigChange()"
+              />
+              <span>Encrypt Backups</span>
+            </label>
+          </div>
+
+          @if (config().encryptBackups) {
+            <div class="form-group">
+              <label>Encryption Password</label>
+              <input
+                type="password"
+                [(ngModel)]="config().password"
+                (change)="onConfigChange()"
+                placeholder="Enter encryption password"
+              />
+            </div>
+          }
+
+          <div class="form-actions">
+            <button (click)="triggerManualBackup()" class="btn-primary" [disabled]="isBackingUp()">
+              @if (isBackingUp()) {
+                <span>⏳ Backing up...</span>
+              } @else {
+                <span>🔄 Trigger Backup Now</span>
+              }
+            </button>
+          </div>
+
+          @if (scheduledBackupService.nextBackupTime()) {
+            <div class="next-backup-info">
+              Next scheduled backup: {{ formatTimestamp(scheduledBackupService.nextBackupTime()!) }}
+            </div>
+          }
+        </div>
+
+        <!-- Storage Info -->
+        <div class="storage-section">
+          <h2>Storage</h2>
+          <div class="storage-info">
+            <div class="storage-stat">
+              <span class="stat-label">Total Backups:</span>
+              <span class="stat-value">{{ backupHistory().length }}</span>
+            </div>
+            <div class="storage-stat">
+              <span class="stat-label">Storage Used:</span>
+              <span class="stat-value">{{ formatBytes(totalStorage()) }}</span>
+            </div>
+          </div>
+          <button (click)="clearAllBackups()" class="btn-danger">🗑️ Clear All Backups</button>
+        </div>
+
+        <!-- Backup History -->
+        <div class="history-section">
+          <h2>Backup History</h2>
+
+          @if (backupHistory().length === 0) {
+            <div class="empty-state">
+              <p>No backups found</p>
+            </div>
+          } @else {
+            <div class="backup-list">
+              @for (backup of backupHistory(); track backup.id) {
+                <div class="backup-item" [class]="'status-' + backup.status">
+                  <div class="backup-header">
+                    <div class="backup-info">
+                      <div class="backup-filename">{{ backup.filename }}</div>
+                      <div class="backup-meta">
+                        {{ formatTimestamp(backup.createdAt) }} • {{ formatBytes(backup.size) }} •
+                        {{ backup.itemCount }} items
+                        @if (backup.encrypted) {
+                          • 🔒 Encrypted
+                        }
+                      </div>
+                    </div>
+                    <div class="backup-status">
+                      @if (backup.status === 'success') {
+                        <span class="status-badge success">✓ Success</span>
+                      } @else if (backup.status === 'failed') {
+                        <span class="status-badge failed">✗ Failed</span>
+                      } @else {
+                        <span class="status-badge in-progress">⏳ In Progress</span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (backup.error) {
+                    <div class="backup-error">Error: {{ backup.error }}</div>
+                  }
+
+                  <div class="backup-actions">
+                    <button (click)="restoreBackup(backup)" class="btn-secondary">
+                      ↩️ Restore
+                    </button>
+                    <button (click)="deleteBackup(backup.id)" class="btn-danger-small">
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </main>
     </div>
   `,
   styles: [
