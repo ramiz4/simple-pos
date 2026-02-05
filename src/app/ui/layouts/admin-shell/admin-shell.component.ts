@@ -4,17 +4,89 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { AdminPageHeaderComponent } from '../../components/admin/page-header/page-header.component';
+import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-admin-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminPageHeaderComponent],
+  imports: [CommonModule, RouterModule, AdminPageHeaderComponent, AdminSidebarComponent],
   template: `
-    <div class="min-h-screen bg-linear-to-br from-purple-50 to-blue-50">
-      <app-admin-page-header [title]="title()" [subtitle]="subtitle()"></app-admin-page-header>
-      <router-outlet></router-outlet>
+    <div class="min-h-screen bg-linear-to-br from-purple-50 to-blue-50 flex">
+      <!-- Sidebar Navigation -->
+      <app-admin-sidebar [(isOpen)]="isSidebarOpen" class="shrink-0"></app-admin-sidebar>
+
+      <!-- Main Content Area -->
+      <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        <!-- Top Header (Mobile Toggle + Page Title) -->
+        <header
+          class="lg:hidden h-16 bg-white/70 backdrop-blur-md border-b border-white/20 flex items-center px-4 gap-4"
+        >
+          <button
+            (click)="isSidebarOpen = true"
+            class="p-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16m-7 6h7"
+              />
+            </svg>
+          </button>
+          <div class="truncate">
+            <h1 class="text-sm font-black tracking-tight text-gray-900 leading-none truncate">
+              {{ title() }}
+            </h1>
+            @if (subtitle()) {
+              <p
+                class="text-[8px] text-gray-500 font-bold uppercase tracking-widest leading-none mt-1 truncate"
+              >
+                {{ subtitle() }}
+              </p>
+            }
+          </div>
+        </header>
+
+        <!-- Desktop/Common Header -->
+        <app-admin-page-header
+          [title]="title()"
+          [subtitle]="subtitle()"
+          class="hidden lg:block shrink-0"
+        ></app-admin-page-header>
+
+        <!-- Dynamic Content -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar relative">
+          <div class="max-w-7xl mx-auto pb-12">
+            <router-outlet></router-outlet>
+          </div>
+        </main>
+      </div>
     </div>
   `,
+  styles: [
+    `
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+    `,
+  ],
 })
 export class AdminShellComponent implements OnInit {
   private router = inject(Router);
@@ -22,6 +94,7 @@ export class AdminShellComponent implements OnInit {
 
   title = signal('');
   subtitle = signal('');
+  isSidebarOpen = false;
 
   constructor() {
     // Listen for future navigation events
