@@ -91,11 +91,7 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
        INNER JOIN code_table ct ON o.statusId = ct.id
        WHERE ct.code NOT IN (?, ?, ?)
        ORDER BY o.createdAt DESC`,
-      [
-        OrderStatusEnum.COMPLETED,
-        OrderStatusEnum.CANCELLED,
-        OrderStatusEnum.SERVED,
-      ],
+      [OrderStatusEnum.COMPLETED, OrderStatusEnum.CANCELLED, OrderStatusEnum.SERVED],
     );
   }
 
