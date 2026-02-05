@@ -1,3 +1,9 @@
+## [1.9.1](https://github.com/ramiz4/simple-pos/compare/v1.9.0...v1.9.1) (2026-02-05)
+
+### Bug Fixes
+
+- **admin:** adjust shell layout to prevent content overlap with fixed sidebar ([55fecfc](https://github.com/ramiz4/simple-pos/commit/55fecfcd827b87c01a6a4f1e388a525df5055c1d))
+
 # [1.9.0](https://github.com/ramiz4/simple-pos/compare/v1.8.0...v1.9.0) (2026-02-05)
 
 ### Features
