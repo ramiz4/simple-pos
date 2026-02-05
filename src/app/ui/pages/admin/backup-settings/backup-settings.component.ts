@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   BackupMetadata,
   ScheduledBackupService,
@@ -17,7 +16,6 @@ import { AdminPageHeaderComponent } from '../../../components/admin/page-header/
       <app-admin-page-header
         title="Backup Settings"
         subtitle="Configure automated and manual database backups"
-        (back)="goBack()"
       ></app-admin-page-header>
 
       <main class="p-6 max-w-4xl mx-auto animate-fade-in pb-20">
@@ -491,16 +489,9 @@ export class BackupSettingsComponent {
   backupHistory;
   isBackingUp = signal(false);
 
-  constructor(
-    public scheduledBackupService: ScheduledBackupService,
-    private router: Router,
-  ) {
+  constructor(public scheduledBackupService: ScheduledBackupService) {
     this.config = this.scheduledBackupService.config;
     this.backupHistory = this.scheduledBackupService.backupHistory;
-  }
-
-  goBack(): void {
-    this.router.navigate(['/admin']);
   }
 
   health() {

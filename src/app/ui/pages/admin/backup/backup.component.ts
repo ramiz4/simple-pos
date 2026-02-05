@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { BackupService } from '../../../../application/services/backup.service';
 import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
@@ -14,7 +13,6 @@ import { AdminPageHeaderComponent } from '../../../components/admin/page-header/
       <app-admin-page-header
         title="Backup & Restore"
         subtitle="Download backups or restore from an existing database file"
-        (back)="goBack()"
       ></app-admin-page-header>
 
       <main class="p-6 max-w-4xl mx-auto animate-fade-in">
@@ -217,14 +215,7 @@ export class BackupComponent {
   statusMessage = signal<string | null>(null);
   statusType = signal<'success' | 'error'>('success');
 
-  constructor(
-    private backupService: BackupService,
-    private router: Router,
-  ) {}
-
-  goBack(): void {
-    this.router.navigate(['/admin']);
-  }
+  constructor(private backupService: BackupService) {}
 
   async createBackup() {
     try {

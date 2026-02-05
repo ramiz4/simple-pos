@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { UserManagementService } from '../../../../application/services/user-management.service';
@@ -57,18 +57,14 @@ export class UsersManagementComponent implements OnInit {
     private userManagementService: UserManagementService,
     private authService: AuthService,
     private enumMappingService: EnumMappingService,
-    private router: Router,
   ) {}
 
   async ngOnInit() {
     const session = this.authService.getCurrentSession();
-    if (!session) {
-      this.router.navigate(['/login']);
-      return;
+    if (session) {
+      this.accountId = session.accountId;
+      this.currentUserIsOwner.set(session.user.isOwner);
     }
-
-    this.accountId = session.accountId;
-    this.currentUserIsOwner.set(session.user.isOwner);
     await this.loadRoleMap();
     await this.loadUsers();
   }
@@ -257,9 +253,5 @@ export class UsersManagementComponent implements OnInit {
 
   getRoleDisplay(roleId: number): string {
     return this.roleMap().get(roleId) || 'Unknown';
-  }
-
-  goBack() {
-    this.router.navigate(['/admin']);
   }
 }

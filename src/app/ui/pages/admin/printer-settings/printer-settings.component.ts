@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { PrinterService } from '../../../../application/services/printer.service';
 import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
@@ -14,7 +13,6 @@ import { AdminPageHeaderComponent } from '../../../components/admin/page-header/
       <app-admin-page-header
         title="Printer Settings"
         subtitle="Manage receipt and kitchen printer connections"
-        (back)="goBack()"
       ></app-admin-page-header>
 
       <main class="p-6 max-w-4xl mx-auto animate-fade-in">
@@ -142,14 +140,7 @@ export class PrinterSettingsComponent implements OnInit {
 
   status = signal<string | null>(null);
 
-  constructor(
-    private printerService: PrinterService,
-    private router: Router,
-  ) {}
-
-  goBack(): void {
-    this.router.navigate(['/admin']);
-  }
+  constructor(private printerService: PrinterService) {}
 
   ngOnInit(): void {
     // Load current config from service

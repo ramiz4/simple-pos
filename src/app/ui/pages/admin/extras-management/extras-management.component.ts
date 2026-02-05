@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ExtraService } from '../../../../application/services/extra.service';
 import { Extra } from '../../../../domain/entities/extra.interface';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
 import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
 import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 import { AlertComponent } from '../../../components/shared/alert/alert.component';
+import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
 @Component({
   selector: 'app-extras-management',
@@ -17,6 +18,7 @@ import { AlertComponent } from '../../../components/shared/alert/alert.component
     FormsModule,
     RouterModule,
     AlertComponent,
+    ModalComponent,
     AdminPageHeaderComponent,
     ManagementListComponent,
     ConfirmDeleteModalComponent,
@@ -42,7 +44,6 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
 
   constructor(
     private extraService: ExtraService,
-    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -164,9 +165,5 @@ export class ExtrasManagementComponent implements OnInit, OnDestroy {
       this.errorMessage = 'Failed to delete extra';
       console.error('Delete error:', error);
     }
-  }
-
-  onBackToDashboard() {
-    this.router.navigate(['/admin']);
   }
 }
