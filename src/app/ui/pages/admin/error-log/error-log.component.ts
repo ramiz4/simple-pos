@@ -1,36 +1,33 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { ErrorLogEntry, LoggerService } from '../../../../core/services/logger.service';
-import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
 @Component({
   selector: 'app-error-log',
   standalone: true,
-  imports: [CommonModule, AdminPageHeaderComponent],
+  imports: [CommonModule],
   template: `
-    <div class="min-h-screen bg-[#F8FAFC]">
-      <app-admin-page-header title="Error Logs">
-        <div actions class="flex items-center gap-2">
-          <button
-            (click)="refreshLogs()"
-            class="px-3 py-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors"
-          >
-            <span>🔄</span> Refresh
-          </button>
-          <button
-            (click)="exportLogs()"
-            class="px-3 py-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors"
-          >
-            <span>📥</span> Export
-          </button>
-          <button
-            (click)="clearLogs()"
-            class="px-3 py-1.5 bg-red-600 shadow-sm text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-colors"
-          >
-            <span>🗑️</span> Clear All
-          </button>
-        </div>
-      </app-admin-page-header>
+    <div class="animate-fade-in pb-20">
+      <div class="flex justify-end gap-3 mb-6">
+        <button
+          (click)="refreshLogs()"
+          class="px-4 py-2 bg-white/60 backdrop-blur-md border border-gray-200 rounded-2xl text-sm font-bold hover:bg-white hover:shadow-md transition-all active:scale-95 flex items-center gap-2"
+        >
+          <span>🔄</span> Refresh
+        </button>
+        <button
+          (click)="exportLogs()"
+          class="px-4 py-2 bg-white/60 backdrop-blur-md border border-gray-200 rounded-2xl text-sm font-bold hover:bg-white hover:shadow-md transition-all active:scale-95 flex items-center gap-2"
+        >
+          <span>📥</span> Export
+        </button>
+        <button
+          (click)="clearLogs()"
+          class="px-4 py-2 bg-red-500 text-white rounded-2xl text-sm font-bold hover:bg-red-600 shadow-lg shadow-red-100 transition-all active:scale-95 flex items-center gap-2"
+        >
+          <span>🗑️</span> Clear All
+        </button>
+      </div>
 
       <div class="stats-grid">
         <div class="stat-card">

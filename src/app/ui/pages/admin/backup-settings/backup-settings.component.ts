@@ -5,19 +5,13 @@ import {
   BackupMetadata,
   ScheduledBackupService,
 } from '../../../../application/services/scheduled-backup.service';
-import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
 @Component({
   selector: 'app-backup-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminPageHeaderComponent],
+  imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-[#F8FAFC]">
-      <app-admin-page-header
-        title="Backup Settings"
-        subtitle="Configure automated and manual database backups"
-      ></app-admin-page-header>
-
+    <div class="animate-fade-in pb-20">
       <main class="p-6 max-w-4xl mx-auto animate-fade-in pb-20">
         <!-- Health Status -->
         <div class="health-status" [class]="'status-' + health().status">
