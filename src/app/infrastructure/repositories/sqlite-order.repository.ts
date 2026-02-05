@@ -89,8 +89,9 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
     return await db.select<Order[]>(
       `SELECT o.* FROM "order" o
        INNER JOIN code_table ct ON o.statusId = ct.id
-       WHERE ct.code NOT IN ('${OrderStatusEnum.COMPLETED}', '${OrderStatusEnum.CANCELLED}', '${OrderStatusEnum.SERVED}')
+       WHERE ct.code NOT IN (?, ?, ?)
        ORDER BY o.createdAt DESC`,
+      [OrderStatusEnum.COMPLETED, OrderStatusEnum.CANCELLED, OrderStatusEnum.SERVED],
     );
   }
 

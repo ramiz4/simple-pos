@@ -255,15 +255,14 @@ export class PaymentComponent implements OnInit {
 
       if (!order) {
         // Create new order (current behavior for other types or if no existing DINE_IN order)
-        const summary = this.cartService.getSummary();
         order = await this.orderService.createOrder({
           typeId: this.typeId,
           statusId: completedStatusId,
           tableId: this.tableId || null,
-          subtotal: summary.subtotal,
-          tax: summary.tax,
-          tip: summary.tip,
-          total: summary.total,
+          subtotal: this.grandSubtotal(),
+          tax: this.grandTax(),
+          tip: this.grandTip(),
+          total: this.grandTotal(),
           userId: session.user.id,
           items: cartItems,
         });

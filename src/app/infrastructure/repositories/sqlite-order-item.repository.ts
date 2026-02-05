@@ -115,9 +115,13 @@ export class SQLiteOrderItemRepository implements BaseRepository<OrderItem> {
     // Migration for existing tables
     try {
       await db.execute('ALTER TABLE order_item ADD COLUMN statusId INTEGER');
-    } catch {}
+    } catch (error: unknown) {
+      console.error('Failed to add statusId column to order_item table:', error);
+    }
     try {
       await db.execute('ALTER TABLE order_item ADD COLUMN createdAt TEXT');
-    } catch {}
+    } catch (error: unknown) {
+      console.error('Failed to add createdAt column to order_item table:', error);
+    }
   }
 }

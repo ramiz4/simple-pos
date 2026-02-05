@@ -504,6 +504,13 @@ export class CartViewComponent implements OnInit {
       return;
     }
 
+    // Validate this is a DINE_IN order
+    const orderType = await this.enumMappingService.getEnumFromId(this.typeId);
+    if (orderType.code !== OrderTypeEnum.DINE_IN) {
+      this.error.set('Place Order is only available for dine-in orders');
+      return;
+    }
+
     const session = this.authService.getCurrentSession();
     if (!session) {
       this.error.set('User not authenticated');
@@ -517,12 +524,9 @@ export class CartViewComponent implements OnInit {
       const items = this.cartItems();
       const openOrder = await this.orderService.getOpenOrderByTable(this.tableId);
 
-      let orderId: number;
-
       if (openOrder) {
         // Add items to existing order
-        const updatedOrder = await this.orderService.addItemsToOrder(openOrder.id, items);
-        orderId = updatedOrder.id;
+        await this.orderService.addItemsToOrder(openOrder.id, items);
       } else {
         // Create new OPEN order
         const statusId = await this.enumMappingService.getCodeTableId(
@@ -531,7 +535,7 @@ export class CartViewComponent implements OnInit {
         );
         const summary = this.cartService.getSummary();
 
-        const newOrder = await this.orderService.createOrder({
+        await this.orderService.createOrder({
           typeId: this.typeId,
           statusId,
           tableId: this.tableId,
@@ -542,7 +546,6 @@ export class CartViewComponent implements OnInit {
           userId: session.user.id,
           items: items,
         });
-        orderId = newOrder.id;
       }
 
       // Clear cart and stay on page
