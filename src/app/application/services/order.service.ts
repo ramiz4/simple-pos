@@ -349,6 +349,10 @@ export class OrderService {
       'ORDER_STATUS',
       OrderStatusEnum.READY,
     );
+    const preparingStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.PREPARING,
+    );
 
     const allReady = items.every((item) => item.statusId === readyStatusId);
 
