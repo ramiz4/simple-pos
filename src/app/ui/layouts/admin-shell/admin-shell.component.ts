@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
-import { filter, map, mergeMap } from 'rxjs/operators';
+import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { AdminPageHeaderComponent } from '../../components/admin/page-header/page-header.component';
 
 @Component({
@@ -22,7 +23,9 @@ export class AdminShellComponent implements OnInit {
   title = signal('');
   subtitle = signal('');
 
-  ngOnInit() {
+  constructor() {
+    // Listen for future navigation events
+    // Setup in constructor to satisfy takeUntilDestroyed injection context
     this.router.events
       .pipe(
         filter((event) => event instanceof NavigationEnd),
@@ -32,10 +35,23 @@ export class AdminShellComponent implements OnInit {
           return route;
         }),
         mergeMap((route) => route.data),
+        takeUntilDestroyed(),
       )
-      .subscribe((data) => {
-        this.title.set(data['title'] || 'Admin Portal');
-        this.subtitle.set(data['subtitle'] || '');
-      });
+      .subscribe((data) => this.updateHeader(data));
+  }
+
+  ngOnInit() {
+    // Handle initial state manually as NavigationEnd already happened
+    let currentRoute = this.activatedRoute;
+    while (currentRoute.firstChild) {
+      currentRoute = currentRoute.firstChild;
+    }
+    // We only need the first emission for the initial load
+    currentRoute.data.pipe(take(1)).subscribe((data) => this.updateHeader(data));
+  }
+
+  private updateHeader(data: any) {
+    this.title.set(data['title'] || 'Admin Portal');
+    this.subtitle.set(data['subtitle'] || '');
   }
 }
