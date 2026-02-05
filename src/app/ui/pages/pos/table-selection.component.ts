@@ -15,11 +15,7 @@ import { CartService } from '../../../application/services/cart.service';
   imports: [CommonModule, HeaderComponent],
   template: `
     <div class="min-h-screen bg-[#F8FAFC]">
-      <app-header
-        title="Select Table"
-        [showBackButton]="true"
-        backRoute="/pos/order-type"
-      ></app-header>
+      <app-header title="Select Table" [showBackButton]="true" backRoute="/pos"></app-header>
 
       <main class="p-6 max-w-7xl mx-auto animate-fade-in">
         <div class="mb-12 text-center">
@@ -176,6 +172,6 @@ export class TableSelectionComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/pos/order-type']);
+    this.router.navigate(['/pos']);
   }
 }

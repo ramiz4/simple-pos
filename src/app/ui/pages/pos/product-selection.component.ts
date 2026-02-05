@@ -481,7 +481,7 @@ export class ProductSelectionComponent implements OnInit {
         queryParams: { typeId: this.typeId },
       });
     } else {
-      this.router.navigate(['/pos/order-type']);
+      this.router.navigate(['/pos']);
     }
   }
 }
