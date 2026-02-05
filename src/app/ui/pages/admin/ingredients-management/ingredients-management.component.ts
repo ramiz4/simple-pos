@@ -6,7 +6,6 @@ import { IngredientService } from '../../../../application/services/ingredient.s
 import { Ingredient } from '../../../../domain/entities/ingredient.interface';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
 import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
-import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 import { AlertComponent } from '../../../components/shared/alert/alert.component';
 import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
@@ -19,7 +18,6 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
     RouterModule,
     AlertComponent,
     ModalComponent,
-    AdminPageHeaderComponent,
     ManagementListComponent,
     ConfirmDeleteModalComponent,
   ],
