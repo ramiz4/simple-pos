@@ -24,7 +24,7 @@ import { CartService } from '../../../application/services/cart.service';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
           <!-- Dine In -->
           <button
-            (click)="selectOrderType('DINE_IN')"
+            (click)="selectOrderType(OrderType.DINE_IN)"
             class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
             <div class="relative z-10">
@@ -47,7 +47,7 @@ import { CartService } from '../../../application/services/cart.service';
 
           <!-- Takeaway -->
           <button
-            (click)="selectOrderType('TAKEAWAY')"
+            (click)="selectOrderType(OrderType.TAKEAWAY)"
             class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
             <div class="relative z-10">
@@ -70,7 +70,7 @@ import { CartService } from '../../../application/services/cart.service';
 
           <!-- Delivery -->
           <button
-            (click)="selectOrderType('DELIVERY')"
+            (click)="selectOrderType(OrderType.DELIVERY)"
             class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
             <div class="relative z-10">
@@ -96,13 +96,15 @@ import { CartService } from '../../../application/services/cart.service';
   `,
 })
 export class OrderTypeSelectionComponent {
+  readonly OrderType = OrderTypeEnum;
+
   constructor(
     private router: Router,
     private enumMappingService: EnumMappingService,
     private cartService: CartService,
   ) {}
 
-  async selectOrderType(type: string): Promise<void> {
+  async selectOrderType(type: OrderTypeEnum): Promise<void> {
     const typeId = await this.enumMappingService.getCodeTableId('ORDER_TYPE', type);
 
     if (type === OrderTypeEnum.DINE_IN) {

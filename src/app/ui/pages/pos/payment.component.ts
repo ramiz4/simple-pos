@@ -6,7 +6,7 @@ import { CartService } from '../../../application/services/cart.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { OrderService } from '../../../application/services/order.service';
 import { PrinterService } from '../../../application/services/printer.service';
-import { OrderStatusEnum } from '../../../domain/enums';
+import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
 import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
@@ -36,20 +36,20 @@ import { HeaderComponent } from '../../components/header/header.component';
               <div class="space-y-4">
                 <div class="flex justify-between items-center text-white/60">
                   <span class="font-medium">Subtotal</span>
-                  <span class="font-bold">€{{ summary().subtotal.toFixed(2) }}</span>
+                  <span class="font-bold">€{{ grandSubtotal().toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between items-center text-white/60">
                   <span class="font-medium">VAT (18%)</span>
-                  <span class="font-bold">€{{ summary().tax.toFixed(2) }}</span>
+                  <span class="font-bold">€{{ grandTax().toFixed(2) }}</span>
                 </div>
                 <div class="flex justify-between items-center text-primary-400">
                   <span class="font-medium">Tip</span>
-                  <span class="font-bold">€{{ summary().tip.toFixed(2) }}</span>
+                  <span class="font-bold">€{{ grandTip().toFixed(2) }}</span>
                 </div>
                 <div class="pt-6 mt-6 border-t border-white/10 flex justify-between items-center">
                   <span class="text-xl font-black text-white">Total</span>
                   <span class="text-4xl font-black text-primary-400"
-                    >€{{ summary().total.toFixed(2) }}</span
+                    >€{{ grandTotal().toFixed(2) }}</span
                   >
                 </div>
               </div>
@@ -138,52 +138,29 @@ import { HeaderComponent } from '../../components/header/header.component';
               </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              <button
-                (click)="printReceipt()"
-                [disabled]="printing()"
-                class="h-16 rounded-2xl bg-white border-2 border-surface-100 font-black text-surface-900 hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            <button
+              (click)="printReceipt()"
+              [disabled]="printing()"
+              class="w-full h-16 rounded-2xl bg-white border-2 border-surface-100 font-black text-surface-900 hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-                  />
-                </svg>
-                <span>Print Receipt</span>
-              </button>
-              <button
-                (click)="printKitchenTicket()"
-                [disabled]="printing()"
-                class="h-16 rounded-2xl bg-white border-2 border-surface-100 font-black text-surface-900 hover:border-orange-400 hover:text-orange-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-                  />
-                </svg>
-                <span>Kitchen Ticket</span>
-              </button>
-            </div>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
+              </svg>
+              <span>Print Receipt</span>
+            </button>
 
-            <button (click)="startNewOrder()" class="neo-button w-full h-16 text-lg">
+            <button (click)="startNewOrder()" class="neo-button w-full h-16 mt-8 text-lg">
               Start Next Order
             </button>
           </div>
@@ -202,7 +179,13 @@ export class PaymentComponent implements OnInit {
   error = signal<string | null>(null);
   orderNumber = signal<string>('');
   createdOrderId = signal<number | null>(null);
+  existingOrder = signal<any | null>(null);
   summary = computed(() => this.cartService.getSummary());
+
+  grandSubtotal = computed(() => (this.existingOrder()?.subtotal || 0) + this.summary().subtotal);
+  grandTax = computed(() => (this.existingOrder()?.tax || 0) + this.summary().tax);
+  grandTip = computed(() => (this.existingOrder()?.tip || 0) + this.summary().tip);
+  grandTotal = computed(() => (this.existingOrder()?.total || 0) + this.summary().total);
 
   constructor(
     private router: Router,
@@ -214,15 +197,22 @@ export class PaymentComponent implements OnInit {
     private authService: AuthService,
   ) {}
 
-  ngOnInit(): void {
-    this.route.queryParams.subscribe((params) => {
+  async ngOnInit(): Promise<void> {
+    this.route.queryParams.subscribe(async (params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
-    });
 
-    if (this.cartService.isEmpty()) {
-      this.router.navigate(['/pos']);
-    }
+      const type = this.typeId ? await this.enumMappingService.getEnumFromId(this.typeId) : null;
+
+      if (type?.code === OrderTypeEnum.DINE_IN && this.tableId) {
+        const order = await this.orderService.getOpenOrderByTable(this.tableId);
+        this.existingOrder.set(order);
+      }
+
+      if (this.cartService.isEmpty() && !this.existingOrder()) {
+        this.router.navigate(['/pos']);
+      }
+    });
   }
 
   async confirmPayment(): Promise<void> {
@@ -241,23 +231,42 @@ export class PaymentComponent implements OnInit {
       this.processing.set(true);
       this.error.set(null);
 
-      const statusId = await this.enumMappingService.getCodeTableId(
+      const completedStatusId = await this.enumMappingService.getCodeTableId(
         'ORDER_STATUS',
-        OrderStatusEnum.PAID,
+        OrderStatusEnum.COMPLETED,
       );
-      const summary = this.cartService.getSummary();
 
-      const order = await this.orderService.createOrder({
-        typeId: this.typeId,
-        statusId,
-        tableId: this.tableId || null,
-        subtotal: summary.subtotal,
-        tax: summary.tax,
-        tip: summary.tip,
-        total: summary.total,
-        userId: session.user.id,
-        items: this.cartService.cart(),
-      });
+      let order;
+      const cartItems = this.cartService.cart();
+      const type = await this.enumMappingService.getEnumFromId(this.typeId);
+
+      if (type.code === OrderTypeEnum.DINE_IN && this.tableId) {
+        const existingOrder = await this.orderService.getOpenOrderByTable(this.tableId);
+
+        if (existingOrder) {
+          // Add remaining items in cart to the order if any
+          if (cartItems.length > 0) {
+            await this.orderService.addItemsToOrder(existingOrder.id, cartItems);
+          }
+          // Mark as COMPLETED
+          order = await this.orderService.updateOrderStatus(existingOrder.id, completedStatusId);
+        }
+      }
+
+      if (!order) {
+        // Create new order (current behavior for other types or if no existing DINE_IN order)
+        order = await this.orderService.createOrder({
+          typeId: this.typeId,
+          statusId: completedStatusId,
+          tableId: this.tableId || null,
+          subtotal: this.grandSubtotal(),
+          tax: this.grandTax(),
+          tip: this.grandTip(),
+          total: this.grandTotal(),
+          userId: session.user.id,
+          items: cartItems,
+        });
+      }
 
       this.orderNumber.set(order.orderNumber);
       this.createdOrderId.set(order.id);

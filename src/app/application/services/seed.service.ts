@@ -75,12 +75,6 @@ export class SeedService {
     },
     {
       codeType: 'ORDER_STATUS',
-      code: OrderStatusEnum.PAID,
-      sortOrder: 2,
-      translations: { en: 'Paid', sq: 'I Paguar' },
-    },
-    {
-      codeType: 'ORDER_STATUS',
       code: OrderStatusEnum.PREPARING,
       sortOrder: 3,
       translations: { en: 'Preparing', sq: 'Në Përgatitje' },
@@ -99,14 +93,20 @@ export class SeedService {
     },
     {
       codeType: 'ORDER_STATUS',
-      code: OrderStatusEnum.COMPLETED,
+      code: OrderStatusEnum.SERVED,
       sortOrder: 6,
+      translations: { en: 'Served', sq: 'I Shërbyer' },
+    },
+    {
+      codeType: 'ORDER_STATUS',
+      code: OrderStatusEnum.COMPLETED,
+      sortOrder: 7,
       translations: { en: 'Completed', sq: 'I Përfunduar' },
     },
     {
       codeType: 'ORDER_STATUS',
       code: OrderStatusEnum.CANCELLED,
-      sortOrder: 7,
+      sortOrder: 8,
       translations: { en: 'Cancelled', sq: 'I Anuluar' },
     },
 

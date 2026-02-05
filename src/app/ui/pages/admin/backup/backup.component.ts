@@ -67,7 +67,7 @@ import { AdminPageHeaderComponent } from '../../../components/admin/page-header/
               <button
                 (click)="createBackup()"
                 [disabled]="processing()"
-                class="w-full h-16 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-blue-200"
+                class="w-full h-16 rounded-2xl bg-blue-600 text-white font-black hover:bg-blue-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-md"
               >
                 @if (processing() && action() === 'backup') {
                   <div
@@ -157,7 +157,7 @@ import { AdminPageHeaderComponent } from '../../../components/admin/page-header/
               <button
                 (click)="restoreBackup()"
                 [disabled]="processing() || !selectedFile()"
-                class="w-full h-16 rounded-2xl bg-orange-500 text-white font-black hover:bg-orange-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-lg shadow-orange-200"
+                class="w-full h-16 rounded-2xl bg-orange-500 text-white font-black hover:bg-orange-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50 shadow-md"
               >
                 @if (processing() && action() === 'restore') {
                   <div

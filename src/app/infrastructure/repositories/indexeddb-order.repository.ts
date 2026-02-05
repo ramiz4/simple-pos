@@ -110,6 +110,14 @@ export class IndexedDBOrderRepository implements BaseRepository<Order> {
     return allOrders.filter((order) => order.tableId === tableId);
   }
 
+  async findByTableAndStatus(tableId: number, statusIds: number[]): Promise<Order | null> {
+    const allOrders = await this.findAll();
+    const filtered = allOrders
+      .filter((order) => order.tableId === tableId && statusIds.includes(order.statusId))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return filtered.length > 0 ? filtered[0] : null;
+  }
+
   async getNextOrderNumber(): Promise<string> {
     const allOrders = await this.findAll();
     const today = new Date().toISOString().split('T')[0].replace(/-/g, '');

@@ -50,7 +50,6 @@ describe('Phase 3: Core POS Flow', () => {
   let takeawayTypeId: number;
   let deliveryTypeId: number;
   let openStatusId: number;
-  let paidStatusId: number;
   let preparingStatusId: number;
   let readyStatusId: number;
   let completedStatusId: number;
@@ -117,7 +116,6 @@ describe('Phase 3: Core POS Flow', () => {
     takeawayTypeId = await enumMappingService.getCodeTableId('ORDER_TYPE', OrderTypeEnum.TAKEAWAY);
     deliveryTypeId = await enumMappingService.getCodeTableId('ORDER_TYPE', OrderTypeEnum.DELIVERY);
     openStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.OPEN);
-    paidStatusId = await enumMappingService.getCodeTableId('ORDER_STATUS', OrderStatusEnum.PAID);
     preparingStatusId = await enumMappingService.getCodeTableId(
       'ORDER_STATUS',
       OrderStatusEnum.PREPARING,
@@ -209,19 +207,19 @@ describe('Phase 3: Core POS Flow', () => {
     it('should create a DINE_IN order with table', async () => {
       const tableId = await createFreeTable();
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      const orderData = await createOrderData(dineInTypeId, completedStatusId, tableId, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
 
       expect(order.id).toBeDefined();
       expect(order.typeId).toBe(dineInTypeId);
       expect(order.tableId).toBe(tableId);
-      expect(order.statusId).toBe(paidStatusId);
+      expect(order.statusId).toBe(completedStatusId);
     });
 
     it('should create a TAKEAWAY order without table', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
 
@@ -232,7 +230,7 @@ describe('Phase 3: Core POS Flow', () => {
 
     it('should create a DELIVERY order without table', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(deliveryTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(deliveryTypeId, completedStatusId, null, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
 
@@ -243,7 +241,7 @@ describe('Phase 3: Core POS Flow', () => {
   });
 
   describe('Table Selection & Management', () => {
-    it('should set table to FREE when creating DINE_IN order with PAID status', async () => {
+    it('should set table to FREE when creating DINE_IN order with COMPLETED status', async () => {
       const tableId = await createFreeTable();
 
       // Verify table is FREE initially
@@ -251,10 +249,10 @@ describe('Phase 3: Core POS Flow', () => {
       expect(tableBefore?.statusId).toBe(freeStatusId);
 
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      const orderData = await createOrderData(dineInTypeId, completedStatusId, tableId, [cartItem]);
       await orderService.createOrder(orderData);
 
-      // Verify table is FREE (because order status is PAID)
+      // Verify table is FREE (because order status is COMPLETED)
       const tableAfter = await tableService.getById(tableId);
       expect(tableAfter?.statusId).toBe(freeStatusId);
     });
@@ -312,7 +310,7 @@ describe('Phase 3: Core POS Flow', () => {
         notes: null,
       };
 
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
 
       const orderItems = await orderService.getOrderItems(order.id);
@@ -348,7 +346,7 @@ describe('Phase 3: Core POS Flow', () => {
         notes: null,
       };
 
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
 
       const orderItems = await orderService.getOrderItems(order.id);
@@ -378,7 +376,7 @@ describe('Phase 3: Core POS Flow', () => {
         notes: null,
       };
 
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
 
       const orderItems = await orderService.getOrderItems(order.id);
@@ -419,7 +417,7 @@ describe('Phase 3: Core POS Flow', () => {
         notes: null,
       };
 
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
 
       expect(order.subtotal).toBeCloseTo(subtotal, 2);
@@ -429,36 +427,36 @@ describe('Phase 3: Core POS Flow', () => {
   });
 
   describe('Payment Processing', () => {
-    it('should process cash payment and set status to PAID', async () => {
+    it('should process cash payment and set status to COMPLETED', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
 
-      expect(order.statusId).toBe(paidStatusId);
+      expect(order.statusId).toBe(completedStatusId);
       expect(order.total).toBeGreaterThan(0);
     });
 
     it('should persist order after payment', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
       const createdOrder = await orderService.createOrder(orderData);
       const retrievedOrder = await orderService.getOrderById(createdOrder.id);
 
       expect(retrievedOrder).toBeDefined();
       expect(retrievedOrder?.id).toBe(createdOrder.id);
-      expect(retrievedOrder?.statusId).toBe(paidStatusId);
+      expect(retrievedOrder?.statusId).toBe(completedStatusId);
     });
   });
 
   describe('Order Status Transitions', () => {
-    it('should transition from PAID to PREPARING', async () => {
+    it('should transition from COMPLETED to PREPARING', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
-      expect(order.statusId).toBe(paidStatusId);
+      expect(order.statusId).toBe(completedStatusId);
 
       const updatedOrder = await orderService.updateOrderStatus(order.id, preparingStatusId);
       expect(updatedOrder.statusId).toBe(preparingStatusId);
@@ -466,7 +464,7 @@ describe('Phase 3: Core POS Flow', () => {
 
     it('should transition from PREPARING to READY', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
       await orderService.updateOrderStatus(order.id, preparingStatusId);
@@ -477,7 +475,7 @@ describe('Phase 3: Core POS Flow', () => {
 
     it('should transition from READY to COMPLETED', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
       const order = await orderService.createOrder(orderData);
       await orderService.updateOrderStatus(order.id, preparingStatusId);
@@ -501,13 +499,13 @@ describe('Phase 3: Core POS Flow', () => {
       expect(cancelledOrder.completedAt).not.toBeNull();
     });
 
-    it('should complete full order lifecycle: PAID → PREPARING → READY → COMPLETED', async () => {
+    it('should complete full order lifecycle: COMPLETED → PREPARING → READY → COMPLETED', async () => {
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
 
-      // Create order with PAID status
+      // Create order with COMPLETED status
       const order = await orderService.createOrder(orderData);
-      expect(order.statusId).toBe(paidStatusId);
+      expect(order.statusId).toBe(completedStatusId);
 
       // Move to PREPARING
       let currentOrder = await orderService.updateOrderStatus(order.id, preparingStatusId);
@@ -589,7 +587,7 @@ describe('Phase 3: Core POS Flow', () => {
 
       // Create TAKEAWAY order (no table)
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       await orderService.createOrder(orderData);
 
       // Verify no table status changed
@@ -605,7 +603,7 @@ describe('Phase 3: Core POS Flow', () => {
     it('should filter orders by PREPARING status', async () => {
       // Create an order and move it to PREPARING
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
       await orderService.updateOrderStatus(order.id, preparingStatusId);
 
@@ -619,7 +617,7 @@ describe('Phase 3: Core POS Flow', () => {
     it('should update order status from kitchen view', async () => {
       // Create order and move to PREPARING
       const cartItem = await createTestCartItem();
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
       await orderService.updateOrderStatus(order.id, preparingStatusId);
 
@@ -642,21 +640,27 @@ describe('Phase 3: Core POS Flow', () => {
     it('should display correct orders for kitchen staff', async () => {
       // Create multiple orders with different statuses
       const cartItem1 = await createTestCartItem();
-      const order1Data = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem1]);
+      const order1Data = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem1,
+      ]);
       const order1 = await orderService.createOrder(order1Data);
 
       const cartItem2 = await createTestCartItem();
-      const order2Data = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem2]);
+      const order2Data = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem2,
+      ]);
       const order2 = await orderService.createOrder(order2Data);
 
       const cartItem3 = await createTestCartItem();
-      const order3Data = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem3]);
+      const order3Data = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem3,
+      ]);
       const order3 = await orderService.createOrder(order3Data);
 
       // Move orders to different statuses
       await orderService.updateOrderStatus(order1.id, preparingStatusId);
       await orderService.updateOrderStatus(order2.id, preparingStatusId);
-      // order3 stays in PAID status
+      // order3 stays in COMPLETED status
 
       // Kitchen should only see PREPARING orders
       const kitchenOrders = await orderService.getOrdersByStatus(OrderStatusEnum.PREPARING);
@@ -691,7 +695,7 @@ describe('Phase 3: Core POS Flow', () => {
         notes: 'Test order',
       };
 
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       const order = await orderService.createOrder(orderData);
 
       // Verify order created
@@ -717,7 +721,9 @@ describe('Phase 3: Core POS Flow', () => {
       const createdOrders = [];
       for (let i = 0; i < 3; i++) {
         const cartItem = await createTestCartItem();
-        const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+        const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [
+          cartItem,
+        ]);
         const order = await orderService.createOrder(orderData);
         createdOrders.push(order);
       }
@@ -740,11 +746,15 @@ describe('Phase 3: Core POS Flow', () => {
 
     it('should generate unique order numbers', async () => {
       const cartItem1 = await createTestCartItem();
-      const orderData1 = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem1]);
+      const orderData1 = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem1,
+      ]);
       const order1 = await orderService.createOrder(orderData1);
 
       const cartItem2 = await createTestCartItem();
-      const orderData2 = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem2]);
+      const orderData2 = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem2,
+      ]);
       const order2 = await orderService.createOrder(orderData2);
 
       expect(order1.orderNumber).toBeDefined();
@@ -778,7 +788,7 @@ describe('Phase 3: Core POS Flow', () => {
         notes: 'Special instructions',
       };
 
-      const orderData = await createOrderData(dineInTypeId, paidStatusId, tableId, [cartItem]);
+      const orderData = await createOrderData(dineInTypeId, completedStatusId, tableId, [cartItem]);
       const createdOrder = await orderService.createOrder(orderData);
 
       // Retrieve order and verify all data persisted
@@ -858,7 +868,7 @@ describe('Phase 3: Core POS Flow', () => {
       expect(cartService.isEmpty()).toBe(false);
 
       // Create order using cart items
-      const orderData = await createOrderData(takeawayTypeId, paidStatusId, null, [cartItem]);
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
       await orderService.createOrder(orderData);
 
       // Simulate clearing cart after order

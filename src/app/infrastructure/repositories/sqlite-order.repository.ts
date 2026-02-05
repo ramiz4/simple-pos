@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import Database from '@tauri-apps/plugin-sql';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { Order } from '../../domain/entities/order.interface';
+import { OrderStatusEnum } from '../../domain/enums';
 
 @Injectable({
   providedIn: 'root',
@@ -88,8 +89,9 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
     return await db.select<Order[]>(
       `SELECT o.* FROM "order" o
        INNER JOIN code_table ct ON o.statusId = ct.id
-       WHERE ct.code NOT IN ('COMPLETED', 'CANCELLED')
+       WHERE ct.code NOT IN (?, ?, ?)
        ORDER BY o.createdAt DESC`,
+      [OrderStatusEnum.COMPLETED, OrderStatusEnum.CANCELLED, OrderStatusEnum.SERVED],
     );
   }
 
@@ -107,6 +109,16 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
       'SELECT * FROM "order" WHERE tableId = ? ORDER BY createdAt DESC',
       [tableId],
     );
+  }
+
+  async findByTableAndStatus(tableId: number, statusIds: number[]): Promise<Order | null> {
+    const db = await this.getDb();
+    const placeholders = statusIds.map(() => '?').join(',');
+    const results = await db.select<Order[]>(
+      `SELECT * FROM "order" WHERE tableId = ? AND statusId IN (${placeholders}) ORDER BY createdAt DESC LIMIT 1`,
+      [tableId, ...statusIds],
+    );
+    return results.length > 0 ? results[0] : null;
   }
 
   async getNextOrderNumber(): Promise<string> {

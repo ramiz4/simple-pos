@@ -8,6 +8,7 @@ import {
   RevenueByTypeReport,
   ZReport,
 } from '../../../application/services/reporting.service';
+import { OrderTypeEnum } from '../../../domain/enums';
 import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
@@ -18,6 +19,7 @@ import { HeaderComponent } from '../../components/header/header.component';
   styleUrls: ['./reports.component.css'],
 })
 export class ReportsComponent implements OnInit {
+  readonly OrderType = OrderTypeEnum;
   loading = signal(false);
   error = signal<string | null>(null);
   success = signal<string | null>(null);

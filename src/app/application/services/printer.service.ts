@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { invoke } from '@tauri-apps/api/core';
 import { Extra, Order, OrderItem, Product, Table, User, Variant } from '../../domain/entities';
+import { OrderStatusEnum } from '../../domain/enums';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { EnumMappingService } from './enum-mapping.service';
 import { ExtraService } from './extra.service';
@@ -47,6 +48,7 @@ export interface KitchenTicketData {
     extras: Extra[];
     quantity: number;
     notes: string | null;
+    status: string; // Status code
   }>;
   table: Table | null;
 }
@@ -218,12 +220,15 @@ export class PrinterService {
         const extraIds = await this.orderService.getOrderItemExtras(item.id);
         const extras = await Promise.all(extraIds.map((id) => this.extraService.getById(id)));
 
+        const status = await this.enumMappingService.getEnumFromId(item.statusId);
+
         return {
           product: product!,
           variant,
           extras: extras.filter((e: Extra | null): e is Extra => e !== null),
           quantity: item.quantity,
           notes: item.notes,
+          status: status.code,
         };
       }),
     );
@@ -481,7 +486,7 @@ export class PrinterService {
    * Print via web browser print API
    */
   private async printViaWeb(htmlContent: string): Promise<void> {
-    const printWindow = window.open('', '_blank', 'width=300,height=600');
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
 
     if (!printWindow) {
       throw new Error('Failed to open print window. Please allow popups.');
@@ -666,7 +671,7 @@ export class PrinterService {
     for (const item of data.items) {
       lines.push('<div class="item" style="border-bottom: 1px solid #eee; padding-bottom: 8px;">');
       lines.push(
-        `<div class="large bold" style="font-size: 20px;">${item.quantity}x ${item.product.name.toUpperCase()}</div>`,
+        `<div class="large bold" style="font-size: 20px;">${item.quantity}x ${item.product.name.toUpperCase()} ${item.status === OrderStatusEnum.READY ? '<span style="color: #22c55e;">(DONE)</span>' : ''}</div>`,
       );
 
       if (item.variant) {

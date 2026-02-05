@@ -281,7 +281,7 @@
               <div class="md:col-span-2 flex gap-3">
                 <button
                   (click)="loadRevenueByType()"
-                  class="flex-1 h-12 bg-primary-600 text-white rounded-xl font-black shadow-lg shadow-primary-100 hover:bg-primary-700 transition-all"
+                  class="flex-1 h-12 bg-primary-600 text-white rounded-xl font-black shadow-md hover:bg-primary-700 transition-all"
                 >
                   Generate Analysis
                 </button>
@@ -301,9 +301,9 @@
               @for (item of revenueByType(); track item.orderType) {
                 <div
                   class="glass-card p-6 border-l-4"
-                  [class.border-l-primary-500]="item.orderType === 'DINE_IN'"
-                  [class.border-l-orange-500]="item.orderType === 'TAKEAWAY'"
-                  [class.border-l-blue-500]="item.orderType === 'DELIVERY'"
+                  [class.border-l-primary-500]="item.orderType === OrderType.DINE_IN"
+                  [class.border-l-orange-500]="item.orderType === OrderType.TAKEAWAY"
+                  [class.border-l-blue-500]="item.orderType === OrderType.DELIVERY"
                 >
                   <div class="flex justify-between items-center mb-4">
                     <span

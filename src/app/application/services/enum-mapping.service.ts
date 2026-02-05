@@ -40,6 +40,9 @@ export class EnumMappingService {
   }
 
   async getEnumFromId(id: number): Promise<{ codeType: string; code: string }> {
+    if (id === undefined || id === null) {
+      throw new Error('getEnumFromId: id is required');
+    }
     if (this.reverseCache.has(id)) {
       return this.reverseCache.get(id)!;
     }
@@ -68,6 +71,9 @@ export class EnumMappingService {
   }
 
   async getTranslation(id: number, language: string): Promise<string> {
+    if (id === undefined || id === null) {
+      return '';
+    }
     const translationRepo = this.getCodeTranslationRepo();
     const translation = await translationRepo.findByCodeTableIdAndLanguage(id, language);
     return translation?.label || '';

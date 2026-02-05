@@ -88,9 +88,9 @@ describe('ReportingService', () => {
   describe('getRevenueByOrderType', () => {
     it('should breakdown revenue by order type', async () => {
       // Setup mocks
-      const paidId = 200;
+      const completedId = 200;
       enumMappingService.getCodeTableId.mockImplementation(async (type: string, val: any) => {
-        if (val === OrderStatusEnum.PAID) return paidId;
+        if (val === OrderStatusEnum.COMPLETED) return completedId;
         return 0;
       });
 
@@ -102,9 +102,9 @@ describe('ReportingService', () => {
       });
 
       const orders = [
-        createMockOrder(1, 100, paidId, 1), // Dine-in
-        createMockOrder(2, 50, paidId, 1), // Dine-in
-        createMockOrder(3, 30, paidId, 2), // Takeaway
+        createMockOrder(1, 100, completedId, 1), // Dine-in
+        createMockOrder(2, 50, completedId, 1), // Dine-in
+        createMockOrder(3, 30, completedId, 2), // Takeaway
       ];
 
       orderService.getAllOrders.mockResolvedValue(orders);
