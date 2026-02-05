@@ -1,3 +1,14 @@
+# [1.6.0](https://github.com/ramiz4/simple-pos/compare/v1.5.0...v1.6.0) (2026-02-05)
+
+### Bug Fixes
+
+- address code review feedback on validation, type safety, and code quality ([b7a7398](https://github.com/ramiz4/simple-pos/commit/b7a7398c417f6a882c7470c8e833d70577b147b4))
+- **pos:** resolve table status inconsistencies and improve cart workflow ([37bc2a7](https://github.com/ramiz4/simple-pos/commit/37bc2a7bcbdf787d789bb1755f549c53c0c4d451))
+
+### Features
+
+- **ui:** refine kitchen view and soften system-wide aesthetics ([66df6c3](https://github.com/ramiz4/simple-pos/commit/66df6c36ccdf68c3db07bce22dbb70671c89ae28))
+
 # [1.5.0](https://github.com/ramiz4/simple-pos/compare/v1.4.0...v1.5.0) (2026-02-05)
 
 ### Bug Fixes
