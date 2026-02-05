@@ -7,17 +7,12 @@ import { EnumMappingService } from '../../../application/services/enum-mapping.s
 import { OrderService } from '../../../application/services/order.service';
 import { PrinterService } from '../../../application/services/printer.service';
 import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
-import { HeaderComponent } from '../../components/header/header.component';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule],
   template: `
-    @if (!processing() && !completed()) {
-      <app-header title="Checkout" [showBackButton]="true" (back)="goBack()"></app-header>
-    }
-
     <main class="p-6 max-w-2xl mx-auto animate-fade-in">
       @if (!processing() && !completed()) {
         <div class="mb-10 text-center">

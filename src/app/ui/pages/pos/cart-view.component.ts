@@ -6,7 +6,6 @@ import { CartService } from '../../../application/services/cart.service';
 import { ProductService } from '../../../application/services/product.service';
 import { VariantService } from '../../../application/services/variant.service';
 import { OrderItem } from '../../../domain/entities/order-item.interface';
-import { HeaderComponent } from '../../components/header/header.component';
 
 interface EnrichedOrderItem extends OrderItem {
   productName: string;
@@ -23,10 +22,8 @@ import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
 @Component({
   selector: 'app-cart-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, HeaderComponent],
+  imports: [CommonModule, FormsModule],
   template: `
-    <app-header title="Your Order" [showBackButton]="true" (back)="backToProducts()"></app-header>
-
     <main class="p-6 max-w-4xl mx-auto animate-fade-in pb-32">
       <!-- Empty Cart State -->
       @if (isEmpty()) {

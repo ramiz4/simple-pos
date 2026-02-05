@@ -5,17 +5,14 @@ import { EnumMappingService } from '../../../application/services/enum-mapping.s
 import { TableService } from '../../../application/services/table.service';
 import { Table } from '../../../domain/entities';
 import { TableStatusEnum } from '../../../domain/enums';
-import { HeaderComponent } from '../../components/header/header.component';
 
 import { CartService } from '../../../application/services/cart.service';
 
 @Component({
   selector: 'app-table-selection',
   standalone: true,
-  imports: [CommonModule, HeaderComponent],
+  imports: [CommonModule],
   template: `
-    <app-header title="Select Table" [showBackButton]="true" backRoute="/pos"></app-header>
-
     <main class="p-6 max-w-7xl mx-auto animate-fade-in">
       <div class="mb-12 text-center">
         <h2 class="text-3xl font-black text-surface-900 mb-2">Where are they sitting?</h2>
@@ -190,9 +187,5 @@ export class TableSelectionComponent implements OnInit {
         tableId: table.id,
       },
     });
-  }
-
-  goBack(): void {
-    this.router.navigate(['/pos']);
   }
 }
