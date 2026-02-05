@@ -22,6 +22,7 @@ export interface CreateOrderData {
   total: number;
   userId: number;
   items: CartItem[];
+  customerName?: string;
 }
 
 @Injectable({
@@ -63,6 +64,7 @@ export class OrderService {
         completedAt: null,
         userId: data.userId,
         cancelledReason: null,
+        customerName: data.customerName,
       });
 
       // Create order items
@@ -241,6 +243,24 @@ export class OrderService {
     );
   }
 
+  async getActiveAndServedOrders(): Promise<Order[]> {
+    const orders = await this.getOrderRepo().findActiveOrders();
+
+    const completedStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.COMPLETED,
+    );
+    const cancelledStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.CANCELLED,
+    );
+
+    // Active & Served orders (excludes only COMPLETED and CANCELLED)
+    return orders.filter(
+      (o) => o.statusId !== completedStatusId && o.statusId !== cancelledStatusId,
+    );
+  }
+
   async getOrdersByStatus(statusEnum: OrderStatusEnum): Promise<Order[]> {
     const statusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', statusEnum);
     return await this.getOrderRepo().findByStatus(statusId);
@@ -380,9 +400,17 @@ export class OrderService {
           await this.updateOrderStatus(orderId, servedStatusId);
         }
       } else {
-        // For Takeaway/Delivery: All items ready means the order is COMPLETED
-        if (currentStatus.code !== OrderStatusEnum.COMPLETED) {
-          await this.completeOrder(orderId);
+        // For Takeaway/Delivery: All items ready means the order is SERVED (Ready for Pickup/Delivery)
+        // It will be moved to COMPLETED after payment
+        if (
+          currentStatus.code !== OrderStatusEnum.SERVED &&
+          currentStatus.code !== OrderStatusEnum.COMPLETED
+        ) {
+          const servedStatusId = await this.enumMappingService.getCodeTableId(
+            'ORDER_STATUS',
+            OrderStatusEnum.SERVED,
+          );
+          await this.updateOrderStatus(orderId, servedStatusId);
         }
       }
     } else {

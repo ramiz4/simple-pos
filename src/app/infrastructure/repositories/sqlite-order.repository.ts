@@ -24,8 +24,8 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
   async create(entity: Omit<Order, 'id'>): Promise<Order> {
     const db = await this.getDb();
     const result = await db.execute(
-      `INSERT INTO "order" (orderNumber, typeId, statusId, tableId, subtotal, tax, tip, total, createdAt, completedAt, userId, cancelledReason)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO "order" (orderNumber, typeId, statusId, tableId, subtotal, tax, tip, total, createdAt, completedAt, userId, cancelledReason, customerName)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         entity.orderNumber,
         entity.typeId,
@@ -39,6 +39,7 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
         entity.completedAt,
         entity.userId,
         entity.cancelledReason,
+        entity.customerName || null,
       ],
     );
     const id = result.lastInsertId ?? Date.now();
@@ -53,7 +54,7 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
     const updated = { ...existing, ...entity };
     await db.execute(
       `UPDATE "order" SET orderNumber = ?, typeId = ?, statusId = ?, tableId = ?, subtotal = ?, tax = ?, tip = ?, total = ?,
-       createdAt = ?, completedAt = ?, userId = ?, cancelledReason = ? WHERE id = ?`,
+       createdAt = ?, completedAt = ?, userId = ?, cancelledReason = ?, customerName = ? WHERE id = ?`,
       [
         updated.orderNumber,
         updated.typeId,
@@ -67,6 +68,7 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
         updated.completedAt,
         updated.userId,
         updated.cancelledReason,
+        updated.customerName || null,
         id,
       ],
     );
@@ -157,11 +159,18 @@ export class SQLiteOrderRepository implements BaseRepository<Order> {
         completedAt TEXT,
         userId INTEGER NOT NULL,
         cancelledReason TEXT,
+        customerName TEXT,
         FOREIGN KEY (typeId) REFERENCES code_table (id),
         FOREIGN KEY (statusId) REFERENCES code_table (id),
         FOREIGN KEY (tableId) REFERENCES "table" (id),
         FOREIGN KEY (userId) REFERENCES user (id)
       )
     `);
+
+    try {
+      await db.execute('ALTER TABLE "order" ADD COLUMN customerName TEXT');
+    } catch (e) {
+      // Column likely already exists
+    }
   }
 }
