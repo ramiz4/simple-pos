@@ -160,8 +160,8 @@ import { HeaderComponent } from '../../components/header/header.component';
               <span>Print Receipt</span>
             </button>
 
-            <button (click)="startNewOrder()" class="neo-button w-full h-16 mt-8 text-lg">
-              Start Next Order
+            <button (click)="goToDashboard()" class="neo-button w-full h-16 mt-8 text-lg">
+              Back To Dashboard
             </button>
           </div>
         }
@@ -172,6 +172,7 @@ import { HeaderComponent } from '../../components/header/header.component';
 export class PaymentComponent implements OnInit {
   private typeId?: number;
   private tableId?: number;
+  private orderId?: number;
 
   processing = signal(false);
   completed = signal(false);
@@ -201,15 +202,22 @@ export class PaymentComponent implements OnInit {
     this.route.queryParams.subscribe(async (params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
+      this.orderId = params['orderId'] ? +params['orderId'] : undefined;
 
       const type = this.typeId ? await this.enumMappingService.getEnumFromId(this.typeId) : null;
 
-      if (type?.code === OrderTypeEnum.DINE_IN && this.tableId) {
+      if (this.orderId) {
+        // If orderId is provided, load that specific order
+        const order = await this.orderService.getOrderById(this.orderId);
+        this.existingOrder.set(order);
+      } else if (type?.code === OrderTypeEnum.DINE_IN && this.tableId) {
+        // Fallback to table lookup for Dine In
         const order = await this.orderService.getOpenOrderByTable(this.tableId);
         this.existingOrder.set(order);
       }
 
-      if (this.cartService.isEmpty() && !this.existingOrder()) {
+      // If no items in cart and no existing order (and not currently completed), return to POS
+      if (this.cartService.isEmpty() && !this.existingOrder() && !this.completed()) {
         this.router.navigate(['/pos']);
       }
     });
@@ -240,7 +248,17 @@ export class PaymentComponent implements OnInit {
       const cartItems = this.cartService.cart();
       const type = await this.enumMappingService.getEnumFromId(this.typeId);
 
-      if (type.code === OrderTypeEnum.DINE_IN && this.tableId) {
+      if (this.orderId) {
+        // If we have an explicit order ID (e.g. Takeaway that was just placed), use it
+        const existingOrder = await this.orderService.getOrderById(this.orderId);
+
+        if (existingOrder) {
+          if (cartItems.length > 0) {
+            await this.orderService.addItemsToOrder(existingOrder.id, cartItems);
+          }
+          order = await this.orderService.updateOrderStatus(existingOrder.id, completedStatusId);
+        }
+      } else if (type.code === OrderTypeEnum.DINE_IN && this.tableId) {
         const existingOrder = await this.orderService.getOpenOrderByTable(this.tableId);
 
         if (existingOrder) {
@@ -312,11 +330,12 @@ export class PaymentComponent implements OnInit {
       queryParams: {
         typeId: this.typeId,
         tableId: this.tableId,
+        orderId: this.orderId,
       },
     });
   }
 
-  startNewOrder(): void {
-    this.router.navigate(['/pos']);
+  goToDashboard(): void {
+    this.router.navigate(['/dashboard']);
   }
 }

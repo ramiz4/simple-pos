@@ -83,7 +83,7 @@ interface ProductWithExtras extends Product {
         [itemCount]="totalItemCount()"
         [subtotal]="displaySubtotal()"
         [buttonLabel]="existingOrder() ? 'Manage Order' : 'View Cart'"
-        [allowEmpty]="!!existingOrder()"
+        [canBeEmpty]="!!existingOrder()"
         (action)="viewCart()"
       ></app-status-bar>
 
@@ -232,6 +232,7 @@ export class ProductSelectionComponent implements OnInit {
   // Query params
   private typeId?: number;
   private tableId?: number;
+  private orderId?: number;
 
   // Data signals
   categories = signal<Category[]>([]);
@@ -323,6 +324,7 @@ export class ProductSelectionComponent implements OnInit {
     this.route.queryParams.subscribe(async (params) => {
       this.typeId = params['typeId'] ? +params['typeId'] : undefined;
       this.tableId = params['tableId'] ? +params['tableId'] : undefined;
+      this.orderId = params['orderId'] ? +params['orderId'] : undefined;
 
       // Ensure context is set in case of direct navigation or refresh
       if (this.tableId) {
@@ -360,17 +362,24 @@ export class ProductSelectionComponent implements OnInit {
 
       this.products.set(productsWithExtras);
 
-      // Load existing order if tableId is present
-      if (this.tableId) {
+      // Load existing order if tableId or orderId is present
+      if (this.orderId) {
+        const order = await this.orderService.getOrderById(this.orderId);
+        this.existingOrder.set(order);
+      } else if (this.tableId) {
         const order = await this.orderService.getOpenOrderByTable(this.tableId);
         this.existingOrder.set(order);
-        if (order) {
-          const items = await this.orderService.getOrderItems(order.id);
-          const count = items.reduce((sum, item) => sum + item.quantity, 0);
-          this.existingOrderItemCount.set(count);
-        } else {
-          this.existingOrderItemCount.set(0);
-        }
+      }
+
+      const order = this.existingOrder();
+      if (order) {
+        // Ensure we track the ID if we loaded by table
+        this.orderId = order.id;
+        const items = await this.orderService.getOrderItems(order.id);
+        const count = items.reduce((sum, item) => sum + item.quantity, 0);
+        this.existingOrderItemCount.set(count);
+      } else {
+        this.existingOrderItemCount.set(0);
       }
 
       // Select first active category by default
@@ -484,15 +493,29 @@ export class ProductSelectionComponent implements OnInit {
       queryParams: {
         typeId: this.typeId,
         tableId: this.tableId,
+        orderId: this.orderId,
       },
     });
   }
 
-  goBack(): void {
+  async goBack(): Promise<void> {
     if (this.typeId) {
-      this.router.navigate(['/pos/table-selection'], {
-        queryParams: { typeId: this.typeId },
-      });
+      const type = await this.enumMappingService.getEnumFromId(this.typeId);
+      // Only go to table selection if Dine In
+      // Actually we need to import OrderTypeEnum or correct imports?
+      // It is not imported in the original file, let's look at imports.
+      // OrderTypeEnum is NOT imported in the original file view I saw.
+      // I can check if tableId is set, or better, fetch the type.
+      // Or simply: if tableId was passed, go back to table selection. If not, go to order type selection.
+
+      if (this.tableId) {
+        this.router.navigate(['/pos/table-selection'], {
+          queryParams: { typeId: this.typeId },
+        });
+      } else {
+        // Assume Order Type Selection
+        this.router.navigate(['/pos/order-type']);
+      }
     } else {
       this.router.navigate(['/pos']);
     }
