@@ -3,8 +3,13 @@ import { Component, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { OrderService } from '../../../application/services/order.service';
+import { TableService } from '../../../application/services/table.service';
 import { Order } from '../../../domain/entities/order.interface';
 import { HeaderComponent } from '../../components/header/header.component';
+
+interface EnrichedOrder extends Order {
+  tableName?: string;
+}
 
 @Component({
   selector: 'app-active-orders',
@@ -13,7 +18,7 @@ import { HeaderComponent } from '../../components/header/header.component';
   templateUrl: './active-orders.component.html',
 })
 export class ActiveOrdersComponent implements OnInit {
-  orders = signal<Order[]>([]);
+  orders = signal<EnrichedOrder[]>([]);
   orderStatuses = signal<Record<number, string>>({});
   orderTypes = signal<Record<number, string>>({});
   isLoading = signal<boolean>(true);
@@ -21,6 +26,7 @@ export class ActiveOrdersComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private enumMappingService: EnumMappingService,
+    private tableService: TableService,
     private router: Router,
   ) {}
 
@@ -50,7 +56,21 @@ export class ActiveOrdersComponent implements OnInit {
 
       this.orderStatuses.set(statusMap);
       this.orderTypes.set(typeMap);
-      this.orders.set(orders);
+
+      // Enrich with table names
+      const enrichedOrders: EnrichedOrder[] = await Promise.all(
+        orders.map(async (order) => {
+          let tableName = undefined;
+          if (order.tableId) {
+            const table = await this.tableService.getById(order.tableId);
+            const rawName = table?.number || table?.name || order.tableId;
+            tableName = rawName.toString();
+          }
+          return { ...order, tableName };
+        }),
+      );
+
+      this.orders.set(enrichedOrders);
     } catch (error) {
       console.error('Failed to load orders', error);
     } finally {

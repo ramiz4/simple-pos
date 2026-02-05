@@ -14,94 +14,92 @@ import { CartService } from '../../../application/services/cart.service';
   standalone: true,
   imports: [CommonModule, HeaderComponent],
   template: `
-    <div class="min-h-screen bg-[#F8FAFC]">
-      <app-header title="Select Table" [showBackButton]="true" backRoute="/pos"></app-header>
+    <app-header title="Select Table" [showBackButton]="true" backRoute="/pos"></app-header>
 
-      <main class="p-6 max-w-7xl mx-auto animate-fade-in">
-        <div class="mb-12 text-center">
-          <h2 class="text-3xl font-black text-surface-900 mb-2">Where are they sitting?</h2>
-          <p class="text-surface-500 font-medium">
-            Select an available or occupied table to manage its order.
+    <main class="p-6 max-w-7xl mx-auto animate-fade-in">
+      <div class="mb-12 text-center">
+        <h2 class="text-3xl font-black text-surface-900 mb-2">Where are they sitting?</h2>
+        <p class="text-surface-500 font-medium">
+          Select an available or occupied table to manage its order.
+        </p>
+      </div>
+
+      @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center py-20 animate-pulse">
+          <div
+            class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"
+          ></div>
+          <p class="text-surface-500 font-bold uppercase tracking-widest text-xs">
+            Checking tables...
           </p>
         </div>
-
-        @if (isLoading()) {
-          <div class="flex flex-col items-center justify-center py-20 animate-pulse">
-            <div
-              class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"
-            ></div>
-            <p class="text-surface-500 font-bold uppercase tracking-widest text-xs">
-              Checking tables...
-            </p>
-          </div>
-        } @else {
-          <!-- Tables Grid -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            @for (table of tables(); track table.id) {
-              <button
-                (click)="selectTable(table)"
-                [class]="getTableButtonClass(table)"
-                class="relative overflow-hidden group transition-all duration-300"
-              >
-                <div class="p-6 relative z-10">
-                  <div class="flex justify-between items-start mb-4">
-                    <div
-                      class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center font-black text-surface-400 group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors"
-                    >
-                      #{{ table.number }}
-                    </div>
-                    <div
-                      [class]="getStatusClass(table)"
-                      class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md"
-                    >
-                      {{ getTableStatus(table) }}
-                    </div>
+      } @else {
+        <!-- Tables Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          @for (table of tables(); track table.id) {
+            <button
+              (click)="selectTable(table)"
+              [class]="getTableButtonClass(table)"
+              class="relative overflow-hidden group transition-all duration-300"
+            >
+              <div class="p-6 relative z-10">
+                <div class="flex justify-between items-start mb-4">
+                  <div
+                    class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center font-black text-surface-400 group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors"
+                  >
+                    #{{ table.number }}
                   </div>
-
-                  <h3 class="text-lg font-black text-surface-900 mb-1">{{ table.name }}</h3>
-                  <div class="flex items-center gap-1 text-surface-400 font-medium text-sm">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                      />
-                    </svg>
-                    {{ table.seats }} seats
+                  <div
+                    [class]="getStatusClass(table)"
+                    class="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md"
+                  >
+                    {{ getTableStatus(table) }}
                   </div>
                 </div>
 
-                <!-- Decorative element -->
-                @if (isTableFree(table)) {
-                  <div
-                    class="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
-                  ></div>
-                } @else {
-                  <div
-                    class="absolute -right-4 -bottom-4 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
-                  ></div>
-                }
-              </button>
-            }
-          </div>
+                <h3 class="text-lg font-black text-surface-900 mb-1">{{ table.name }}</h3>
+                <div class="flex items-center gap-1 text-surface-400 font-medium text-sm">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                  {{ table.seats }} seats
+                </div>
+              </div>
 
-          @if (tables().length === 0) {
-            <div class="text-center py-20 glass-card">
-              <div class="text-6xl mb-4">🏜️</div>
-              <p class="text-surface-500 text-lg font-bold">No tables found</p>
-              <p class="text-surface-400">Please add tables in the admin panel.</p>
-            </div>
+              <!-- Decorative element -->
+              @if (isTableFree(table)) {
+                <div
+                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
+                ></div>
+              } @else {
+                <div
+                  class="absolute -right-4 -bottom-4 w-24 h-24 bg-orange-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"
+                ></div>
+              }
+            </button>
           }
+        </div>
+
+        @if (tables().length === 0) {
+          <div class="text-center py-20 glass-card">
+            <div class="text-6xl mb-4">🏜️</div>
+            <p class="text-surface-500 text-lg font-bold">No tables found</p>
+            <p class="text-surface-400">Please add tables in the admin panel.</p>
+          </div>
         }
-      </main>
-    </div>
+      }
+    </main>
   `,
 })
 export class TableSelectionComponent implements OnInit {
