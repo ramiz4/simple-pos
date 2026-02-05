@@ -3,13 +3,12 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
-import { AdminPageHeaderComponent } from '../../components/admin/page-header/page-header.component';
 import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-admin-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminPageHeaderComponent, AdminSidebarComponent],
+  imports: [CommonModule, RouterModule, AdminSidebarComponent],
   template: `
     <div class="min-h-screen bg-linear-to-br from-purple-50 to-blue-50 flex">
       <!-- Sidebar Navigation -->
@@ -54,16 +53,25 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
           </div>
         </header>
 
-        <!-- Desktop/Common Header -->
-        <app-admin-page-header
-          [title]="title()"
-          [subtitle]="subtitle()"
-          class="hidden lg:block shrink-0"
-        ></app-admin-page-header>
-
-        <!-- Dynamic Content -->
+        <!-- Main Dynamic Content -->
         <main class="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar relative">
           <div class="max-w-7xl mx-auto pb-12">
+            <!-- Page Title Area (Moved from Header) -->
+            <div class="mb-8">
+              <h1
+                class="text-3xl lg:text-4xl font-black bg-linear-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent tracking-tight"
+              >
+                {{ title() }}
+              </h1>
+              @if (subtitle()) {
+                <p
+                  class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mt-2"
+                >
+                  {{ subtitle() }}
+                </p>
+              }
+            </div>
+
             <router-outlet></router-outlet>
           </div>
         </main>
