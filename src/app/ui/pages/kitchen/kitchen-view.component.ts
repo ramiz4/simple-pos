@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, UserSession } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { ExtraService } from '../../../application/services/extra.service';
 import { OrderService } from '../../../application/services/order.service';
+import { PrinterService } from '../../../application/services/printer.service';
 import { ProductService } from '../../../application/services/product.service';
 import { TableService } from '../../../application/services/table.service';
 import { VariantService } from '../../../application/services/variant.service';
@@ -17,11 +18,14 @@ interface KitchenOrderItem {
   product: Product;
   variant: Variant | null;
   extras: Extra[];
+  itemStatus: string;
+  itemStatusCode: string;
 }
 
 interface KitchenOrder {
   order: Order;
   orderType: string;
+  orderTypeCode: string;
   orderStatus: string;
   orderStatusCode: string;
   items: KitchenOrderItem[];
@@ -39,15 +43,68 @@ interface KitchenOrder {
       <!-- Main Content -->
       <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="px-4 py-6 sm:px-0">
-          <!-- Refresh Button -->
-          <div class="mb-4 flex justify-between items-center">
-            <h2 class="text-2xl font-bold text-gray-800">Active Orders</h2>
+          <!-- Filter & Refresh -->
+          <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
+                {{ filterTitle() }} Orders
+              </h2>
+              <div class="flex bg-gray-100 p-1 rounded-xl shadow-inner">
+                <button
+                  (click)="setFilter('ACTIVE')"
+                  [class.bg-white]="currentFilter() === 'ACTIVE'"
+                  [class.text-blue-600]="currentFilter() === 'ACTIVE'"
+                  [class.shadow-sm]="currentFilter() === 'ACTIVE'"
+                  [class.text-gray-500]="currentFilter() !== 'ACTIVE'"
+                  class="px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 hover:text-blue-500"
+                >
+                  Active
+                </button>
+                <button
+                  (click)="setFilter(OrderStatus.SERVED)"
+                  [class.bg-white]="currentFilter() === OrderStatus.SERVED"
+                  [class.text-blue-600]="currentFilter() === OrderStatus.SERVED"
+                  [class.shadow-sm]="currentFilter() === OrderStatus.SERVED"
+                  [class.text-gray-500]="currentFilter() !== OrderStatus.SERVED"
+                  class="px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 hover:text-blue-500"
+                >
+                  Served
+                </button>
+                <button
+                  (click)="setFilter(OrderStatus.COMPLETED)"
+                  [class.bg-white]="currentFilter() === OrderStatus.COMPLETED"
+                  [class.text-blue-600]="currentFilter() === OrderStatus.COMPLETED"
+                  [class.shadow-sm]="currentFilter() === OrderStatus.COMPLETED"
+                  [class.text-gray-500]="currentFilter() !== OrderStatus.COMPLETED"
+                  class="px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 hover:text-blue-500"
+                >
+                  Completed
+                </button>
+                <button
+                  (click)="setFilter('ALL')"
+                  [class.bg-white]="currentFilter() === 'ALL'"
+                  [class.text-blue-600]="currentFilter() === 'ALL'"
+                  [class.shadow-sm]="currentFilter() === 'ALL'"
+                  [class.text-gray-500]="currentFilter() !== 'ALL'"
+                  class="px-4 py-2 rounded-lg text-sm font-bold transition-all duration-200 hover:text-blue-500"
+                >
+                  All
+                </button>
+              </div>
+            </div>
+
             <button
               (click)="loadOrders()"
               [disabled]="isLoading()"
-              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition disabled:opacity-50"
+              class="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
             >
-              {{ isLoading() ? '⏳ Loading...' : '🔄 Refresh' }}
+              @if (isLoading()) {
+                <span class="animate-spin text-lg">⌛</span>
+                <span>Loading...</span>
+              } @else {
+                <span class="text-lg">🔄</span>
+                <span>Refresh</span>
+              }
             </button>
           </div>
 
@@ -58,10 +115,13 @@ interface KitchenOrder {
           }
 
           @if (orders().length === 0 && !isLoading()) {
-            <div class="bg-white rounded-lg shadow p-12 text-center">
-              <div class="text-6xl mb-4">✅</div>
-              <h3 class="text-2xl font-bold text-gray-800 mb-2">All Clear!</h3>
-              <p class="text-gray-600">No active orders in the kitchen</p>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+              <div class="text-7xl mb-6 grayscale opacity-20">📋</div>
+              <h3 class="text-2xl font-bold text-gray-900 mb-2">No orders found</h3>
+              <p class="text-gray-500 max-w-xs mx-auto">
+                There are no orders matching the current filter:
+                <span class="font-semibold">{{ currentFilter() | titlecase }}</span>
+              </p>
             </div>
           }
 
@@ -88,34 +148,71 @@ interface KitchenOrder {
                   </div>
                 </div>
 
-                <!-- Order Items -->
-                <div class="p-4 space-y-3 max-h-64 overflow-y-auto">
+                <div class="p-4 space-y-4 max-h-[400px] overflow-y-auto">
                   @for (orderItem of order.items; track orderItem.item.id) {
-                    <div class="border-b border-gray-200 pb-3 last:border-b-0">
+                    <div
+                      class="relative bg-white border border-gray-100 rounded-xl p-3 shadow-sm transition-all"
+                      [class.opacity-60]="orderItem.itemStatusCode === OrderStatus.READY"
+                    >
                       <div class="flex items-start">
                         <div
-                          class="shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm"
+                          class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
+                          [class.bg-orange-500]="orderItem.itemStatusCode !== OrderStatus.READY"
+                          [class.text-white]="orderItem.itemStatusCode !== OrderStatus.READY"
+                          [class.bg-gray-200]="orderItem.itemStatusCode === OrderStatus.READY"
+                          [class.text-gray-500]="orderItem.itemStatusCode === OrderStatus.READY"
                         >
                           {{ orderItem.item.quantity }}
                         </div>
                         <div class="ml-3 flex-1">
-                          <div class="font-semibold text-gray-800">
-                            {{ orderItem.product.name }}
+                          <div class="flex justify-between items-start">
+                            <div
+                              class="font-bold text-gray-800"
+                              [class.line-through]="orderItem.itemStatusCode === OrderStatus.READY"
+                            >
+                              {{ orderItem.product.name }}
+                            </div>
+                            @if (orderItem.itemStatusCode === OrderStatus.READY) {
+                              <span
+                                class="text-[10px] font-black uppercase tracking-widest text-green-600 bg-green-50 px-2 py-0.5 rounded-full"
+                                >Done</span
+                              >
+                            } @else if (orderItem.itemStatusCode === OrderStatus.PREPARING) {
+                              <span
+                                class="text-[10px] font-black uppercase tracking-widest text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full animate-pulse"
+                                >Preparing</span
+                              >
+                            }
                           </div>
+
                           @if (orderItem.variant) {
-                            <div class="text-sm text-gray-600">
+                            <div class="text-xs text-gray-500 mt-0.5">
                               Size: {{ orderItem.variant.name }}
                             </div>
                           }
                           @for (extra of orderItem.extras; track extra.id) {
-                            <div class="text-sm text-gray-600">+ {{ extra.name }}</div>
+                            <div class="text-xs text-gray-500">+ {{ extra.name }}</div>
                           }
                           @if (orderItem.item.notes) {
-                            <div class="text-sm text-orange-600 font-semibold mt-1">
-                              📝 {{ orderItem.item.notes }}
+                            <div class="text-xs text-orange-600 font-bold mt-1 italic">
+                              "{{ orderItem.item.notes }}"
                             </div>
                           }
+
+                          <div class="mt-3 flex gap-2">
+                            @if (orderItem.itemStatusCode !== OrderStatus.READY) {
+                              <button
+                                (click)="markItemAsReady(orderItem.item.id)"
+                                class="text-[10px] font-bold bg-green-100 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-200 transition"
+                              >
+                                DONE
+                              </button>
+                            }
+                          </div>
                         </div>
+                      </div>
+                      <div class="absolute top-2 right-2 text-[8px] text-gray-300 font-medium">
+                        {{ formatItemTime(orderItem.item.createdAt) }}
                       </div>
                     </div>
                   }
@@ -123,49 +220,25 @@ interface KitchenOrder {
 
                 <!-- Order Actions -->
                 <div class="p-4 bg-gray-50 border-t border-gray-200">
-                  <div class="text-sm text-gray-600 mb-3 text-center">
-                    Status: <span class="font-semibold">{{ order.orderStatus }}</span>
+                  <div class="flex items-center justify-between px-1">
+                    <span class="text-xs text-gray-400"
+                      >Status:
+                      <span class="font-bold text-gray-700 uppercase tracking-wider">{{
+                        order.orderStatus
+                      }}</span></span
+                    >
+                    <span class="text-xs text-gray-400 font-bold"
+                      >{{ order.items.length }} Items</span
+                    >
                   </div>
-                  <div class="space-y-2">
-                    @if (canMarkAsPreparing(order.order)) {
-                      <button
-                        (click)="markAsPreparing(order.order.id)"
-                        [disabled]="processingOrderId() === order.order.id"
-                        class="w-full py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-semibold transition disabled:opacity-50"
-                      >
-                        {{
-                          processingOrderId() === order.order.id
-                            ? '⏳ Processing...'
-                            : '👨‍🍳 Start Preparing'
-                        }}
-                      </button>
-                    }
-                    @if (canMarkAsReady(order.order)) {
-                      <button
-                        (click)="markAsReady(order.order.id)"
-                        [disabled]="processingOrderId() === order.order.id"
-                        class="w-full py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-semibold transition disabled:opacity-50"
-                      >
-                        {{
-                          processingOrderId() === order.order.id
-                            ? '⏳ Processing...'
-                            : '✅ Mark as Ready'
-                        }}
-                      </button>
-                    }
-                    @if (canMarkAsCompleted(order.order)) {
-                      <button
-                        (click)="markAsCompleted(order.order.id)"
-                        [disabled]="processingOrderId() === order.order.id"
-                        class="w-full py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition disabled:opacity-50"
-                      >
-                        {{
-                          processingOrderId() === order.order.id
-                            ? '⏳ Processing...'
-                            : '🎉 Mark as Completed'
-                        }}
-                      </button>
-                    }
+                  <div class="mt-4 flex gap-2">
+                    <button
+                      (click)="printTicket(order.order.id)"
+                      class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                    >
+                      <span>🖨️</span>
+                      Print Ticket
+                    </button>
                   </div>
                 </div>
               </div>
@@ -178,6 +251,26 @@ interface KitchenOrder {
   styles: [],
 })
 export class KitchenViewComponent implements OnInit, OnDestroy {
+  readonly OrderStatus = OrderStatusEnum;
+
+  currentFilter = signal<OrderStatusEnum.COMPLETED | OrderStatusEnum.SERVED | 'ACTIVE' | 'ALL'>(
+    'ACTIVE',
+  );
+  filterTitle = computed(() => {
+    switch (this.currentFilter()) {
+      case 'ACTIVE':
+        return 'Active';
+      case this.OrderStatus.COMPLETED:
+        return 'Completed';
+      case this.OrderStatus.SERVED:
+        return 'Served';
+      case 'ALL':
+        return 'All';
+      default:
+        return 'Orders';
+    }
+  });
+
   orders = signal<KitchenOrder[]>([]);
   isLoading = signal(false);
   error = signal<string | null>(null);
@@ -194,6 +287,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     private extraService: ExtraService,
     private tableService: TableService,
     private authService: AuthService,
+    private printerService: PrinterService,
     private router: Router,
   ) {
     this.session = this.authService.getCurrentSession();
@@ -219,12 +313,21 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     this.error.set(null);
 
     try {
-      // Get all active orders (not completed or cancelled)
-      const activeOrders = await this.orderService.getActiveOrders();
+      let fetchedOrders: Order[] = [];
+
+      if (this.currentFilter() === 'ACTIVE') {
+        fetchedOrders = await this.orderService.getActiveOrders();
+      } else if (this.currentFilter() === OrderStatusEnum.COMPLETED) {
+        fetchedOrders = await this.orderService.getOrdersByStatus(OrderStatusEnum.COMPLETED);
+      } else if (this.currentFilter() === OrderStatusEnum.SERVED) {
+        fetchedOrders = await this.orderService.getOrdersByStatus(OrderStatusEnum.SERVED);
+      } else {
+        fetchedOrders = await this.orderService.getAllOrders();
+      }
 
       // Transform orders to kitchen order format
       const kitchenOrders = await Promise.all(
-        activeOrders.map((order) => this.transformToKitchenOrder(order)),
+        fetchedOrders.map((order) => this.transformToKitchenOrder(order)),
       );
 
       this.orders.set(kitchenOrders);
@@ -249,11 +352,17 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
         const extraIds = await this.orderService.getOrderItemExtras(item.id);
         const extras = await Promise.all(extraIds.map((id) => this.extraService.getById(id)));
 
+        const effectiveStatusId = item.statusId || order.statusId;
+        const itemStatus = await this.enumMappingService.getTranslation(effectiveStatusId, 'en');
+        const itemStatusEnum = await this.enumMappingService.getEnumFromId(effectiveStatusId);
+
         return {
           item,
           product,
           variant,
           extras: extras.filter((e): e is Extra => e !== null),
+          itemStatus,
+          itemStatusCode: itemStatusEnum.code,
         };
       }),
     );
@@ -263,9 +372,12 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     const orderStatus = await this.enumMappingService.getTranslation(order.statusId, 'en');
     const orderStatusEnum = await this.enumMappingService.getEnumFromId(order.statusId);
 
+    const orderTypeEnum = await this.enumMappingService.getEnumFromId(order.typeId);
+
     return {
       order,
       orderType,
+      orderTypeCode: orderTypeEnum.code,
       orderStatus,
       orderStatusCode: orderStatusEnum.code,
       items,
@@ -273,68 +385,50 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     };
   }
 
-  async markAsPreparing(orderId: number) {
-    await this.updateOrderStatus(orderId, OrderStatusEnum.PREPARING);
+  async setFilter(filter: OrderStatusEnum.COMPLETED | OrderStatusEnum.SERVED | 'ACTIVE' | 'ALL') {
+    this.currentFilter.set(filter);
+    await this.loadOrders();
   }
 
-  async markAsReady(orderId: number) {
-    await this.updateOrderStatus(orderId, OrderStatusEnum.READY);
+  async markItemAsPreparing(itemId: number) {
+    const statusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.PREPARING,
+    );
+    await this.orderService.updateOrderItemStatus(itemId, statusId);
+    await this.loadOrders();
   }
 
-  async markAsCompleted(orderId: number) {
-    await this.updateOrderStatus(orderId, OrderStatusEnum.COMPLETED);
+  async markItemAsReady(itemId: number) {
+    const statusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.READY,
+    );
+    await this.orderService.updateOrderItemStatus(itemId, statusId);
+    await this.loadOrders();
   }
 
-  private async updateOrderStatus(orderId: number, status: OrderStatusEnum) {
-    this.processingOrderId.set(orderId);
-    this.error.set(null);
-
+  async printTicket(orderId: number) {
     try {
-      const statusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', status);
-      await this.orderService.updateOrderStatus(orderId, statusId);
-      await this.loadOrders(); // Reload orders
+      await this.printerService.printKitchenTicket(orderId);
     } catch (err) {
-      this.error.set('Failed to update order status: ' + (err as Error).message);
-      console.error('Error updating order status:', err);
-    } finally {
-      this.processingOrderId.set(null);
+      this.error.set('Failed to print ticket: ' + (err as Error).message);
     }
   }
 
-  canMarkAsPreparing(order: Order): boolean {
-    // Can mark as preparing if order is PAID
-    const kitchenOrder = this.orders().find((ko) => ko.order.id === order.id);
-    if (!kitchenOrder) return false;
-    return kitchenOrder.orderStatusCode === OrderStatusEnum.PAID;
-  }
-
-  canMarkAsReady(order: Order): boolean {
-    // Can mark as ready if order is PREPARING
-    const kitchenOrder = this.orders().find((ko) => ko.order.id === order.id);
-    if (!kitchenOrder) return false;
-    return kitchenOrder.orderStatusCode === OrderStatusEnum.PREPARING;
-  }
-
-  canMarkAsCompleted(order: Order): boolean {
-    // Can mark as completed if order is READY
-    const kitchenOrder = this.orders().find((ko) => ko.order.id === order.id);
-    if (!kitchenOrder) return false;
-    return kitchenOrder.orderStatusCode === OrderStatusEnum.READY;
-  }
-
   formatTime(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  formatItemTime(dateString: string): string {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1 minute ago';
-    if (diffMins < 60) return `${diffMins} minutes ago`;
-
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours === 1) return '1 hour ago';
-    return `${diffHours} hours ago`;
+    if (diffMins < 1) return 'NEW';
+    return `${diffMins}m ago`;
   }
 
   goToDashboard() {

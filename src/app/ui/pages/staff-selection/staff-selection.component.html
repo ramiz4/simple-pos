@@ -130,7 +130,7 @@
           <button
             (click)="verifyPin()"
             [disabled]="isLoading()"
-            class="h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-lg shadow-primary-200"
+            class="h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-md"
           >
             {{ isLoading() ? '...' : 'Unlock' }}
           </button>
@@ -192,7 +192,7 @@
           <button
             (click)="verifyAdminPin()"
             [disabled]="isLoading()"
-            class="h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-lg shadow-primary-200"
+            class="h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-md"
           >
             {{ isLoading() ? '...' : 'Verify' }}
           </button>
@@ -258,7 +258,7 @@
         <button
           (click)="saveNewPin()"
           [disabled]="isLoading() || !newPin() || !confirmNewPin()"
-          class="w-full h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold shadow-lg shadow-primary-200 text-lg"
+          class="w-full h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold shadow-md text-lg"
         >
           {{ isLoading() ? 'Saving...' : 'Set PIN & Continue' }}
         </button>
