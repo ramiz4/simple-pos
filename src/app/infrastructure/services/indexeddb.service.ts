@@ -16,7 +16,7 @@ export class IndexedDBService {
    * Migration strategy: This change requires existing users to clear their local data
    * or accept automatic database reset on first load.
    */
-  private readonly DB_VERSION = 1;
+  private readonly DB_VERSION = 2;
   private db: IDBDatabase | null = null;
   private connectionPromise: Promise<IDBDatabase> | null = null;
 
@@ -32,7 +32,9 @@ export class IndexedDBService {
         console.error('IndexedDB connection error:', error);
 
         if (error?.name === 'VersionError') {
-          console.warn('VersionError detected. The local database version is higher than 1.');
+          console.warn(
+            'VersionError detected. The local database version is higher than ' + this.DB_VERSION,
+          );
           console.warn('Automatically resetting database to match the codebase version...');
 
           request.transaction?.abort();
@@ -153,36 +155,14 @@ export class IndexedDBService {
           // 13. user
           if (!db.objectStoreNames.contains('user')) {
             const store = db.createObjectStore('user', { keyPath: 'id' });
-            /**
-             * BREAKING CHANGE: User store indexes changed
-             *
-             * Old schema:
-             * - name: unique=true (globally unique usernames)
-             * - email: unique=false
-             *
-             * New schema:
-             * - name: unique=false (allows same username across different accounts)
-             * - email: unique=true (globally unique emails)
-             * - accountName: composite unique index on [accountId, name] (unique per account)
-             *
-             * This change enables multi-tenancy but breaks compatibility with existing data.
-             */
             store.createIndex('name', 'name', { unique: false });
             store.createIndex('email', 'email', { unique: true });
             store.createIndex('accountId', 'accountId', { unique: false });
             store.createIndex('accountName', ['accountId', 'name'], { unique: true });
           }
 
-          // 14. account (renamed from 'organization')
+          // 14. account
           if (!db.objectStoreNames.contains('account')) {
-            /**
-             * BREAKING CHANGE: Object store renamed from 'organization' to 'account'
-             *
-             * This rename is part of the terminology refactoring for improved clarity.
-             * Any existing data in the 'organization' store will be lost and inaccessible.
-             * The automatic database deletion on VersionError handles this migration,
-             * but results in complete data loss.
-             */
             const store = db.createObjectStore('account', { keyPath: 'id' });
             store.createIndex('email', 'email', { unique: true });
           }
@@ -191,6 +171,19 @@ export class IndexedDBService {
           if (!db.objectStoreNames.contains('variant')) {
             const store = db.createObjectStore('variant', { keyPath: 'id' });
             store.createIndex('productId', 'productId', { unique: false });
+          }
+        }
+
+        if (oldVersion < 2) {
+          const transaction = (event.target as IDBOpenDBRequest).transaction;
+          if (transaction) {
+            const orderItemStore = transaction.objectStore('order_item');
+            if (!orderItemStore.indexNames.contains('statusId')) {
+              orderItemStore.createIndex('statusId', 'statusId', { unique: false });
+            }
+            if (!orderItemStore.indexNames.contains('createdAt')) {
+              orderItemStore.createIndex('createdAt', 'createdAt', { unique: false });
+            }
           }
         }
       };

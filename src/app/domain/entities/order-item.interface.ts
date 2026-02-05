@@ -6,4 +6,6 @@ export interface OrderItem {
   quantity: number;
   unitPrice: number;
   notes: string | null;
+  statusId: number;
+  createdAt: string;
 }

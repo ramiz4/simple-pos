@@ -23,7 +23,7 @@ export class SQLiteOrderItemRepository implements BaseRepository<OrderItem> {
   async create(entity: Omit<OrderItem, 'id'>): Promise<OrderItem> {
     const db = await this.getDb();
     const result = await db.execute(
-      'INSERT INTO order_item (orderId, productId, variantId, quantity, unitPrice, notes) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO order_item (orderId, productId, variantId, quantity, unitPrice, notes, statusId, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [
         entity.orderId,
         entity.productId,
@@ -31,6 +31,8 @@ export class SQLiteOrderItemRepository implements BaseRepository<OrderItem> {
         entity.quantity,
         entity.unitPrice,
         entity.notes,
+        entity.statusId,
+        entity.createdAt,
       ],
     );
     const id = result.lastInsertId ?? Date.now();
@@ -44,7 +46,7 @@ export class SQLiteOrderItemRepository implements BaseRepository<OrderItem> {
 
     const updated = { ...existing, ...entity };
     await db.execute(
-      'UPDATE order_item SET orderId = ?, productId = ?, variantId = ?, quantity = ?, unitPrice = ?, notes = ? WHERE id = ?',
+      'UPDATE order_item SET orderId = ?, productId = ?, variantId = ?, quantity = ?, unitPrice = ?, notes = ?, statusId = ?, createdAt = ? WHERE id = ?',
       [
         updated.orderId,
         updated.productId,
@@ -52,6 +54,8 @@ export class SQLiteOrderItemRepository implements BaseRepository<OrderItem> {
         updated.quantity,
         updated.unitPrice,
         updated.notes,
+        updated.statusId,
+        updated.createdAt,
         id,
       ],
     );
@@ -100,10 +104,20 @@ export class SQLiteOrderItemRepository implements BaseRepository<OrderItem> {
         quantity INTEGER NOT NULL,
         unitPrice REAL NOT NULL,
         notes TEXT,
+        statusId INTEGER,
+        createdAt TEXT,
         FOREIGN KEY (orderId) REFERENCES "order" (id) ON DELETE CASCADE,
         FOREIGN KEY (productId) REFERENCES product (id),
         FOREIGN KEY (variantId) REFERENCES variant (id)
       )
     `);
+
+    // Migration for existing tables
+    try {
+      await db.execute('ALTER TABLE order_item ADD COLUMN statusId INTEGER');
+    } catch {}
+    try {
+      await db.execute('ALTER TABLE order_item ADD COLUMN createdAt TEXT');
+    } catch {}
   }
 }
