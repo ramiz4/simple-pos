@@ -1,20 +1,36 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { ErrorLogEntry, LoggerService } from '../../../../core/services/logger.service';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
 
 @Component({
   selector: 'app-error-log',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [CommonModule, AdminPageHeaderComponent],
   template: `
-    <div class="error-log-container">
-      <div class="header">
-        <h1>Error Logs</h1>
-        <div class="actions">
-          <button (click)="refreshLogs()" class="btn-secondary"><span>🔄</span> Refresh</button>
-          <button (click)="exportLogs()" class="btn-secondary"><span>📥</span> Export</button>
-          <button (click)="clearLogs()" class="btn-danger"><span>🗑️</span> Clear All</button>
+    <div class="min-h-screen bg-[#F8FAFC]">
+      <app-admin-page-header title="Error Logs">
+        <div actions class="flex items-center gap-2">
+          <button
+            (click)="refreshLogs()"
+            class="px-3 py-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors"
+          >
+            <span>🔄</span> Refresh
+          </button>
+          <button
+            (click)="exportLogs()"
+            class="px-3 py-1.5 bg-white shadow-sm border border-gray-200 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors"
+          >
+            <span>📥</span> Export
+          </button>
+          <button
+            (click)="clearLogs()"
+            class="px-3 py-1.5 bg-red-600 shadow-sm text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-colors"
+          >
+            <span>🗑️</span> Clear All
+          </button>
         </div>
-      </div>
+      </app-admin-page-header>
 
       <div class="stats-grid">
         <div class="stat-card">
