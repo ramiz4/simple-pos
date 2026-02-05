@@ -1,3 +1,18 @@
+# [1.5.0](https://github.com/ramiz4/simple-pos/compare/v1.4.0...v1.5.0) (2026-02-05)
+
+### Bug Fixes
+
+- miscellaneous UI fixes and role access improvements ([e1040a1](https://github.com/ramiz4/simple-pos/commit/e1040a1ed2ab3ea53051ad274739165bddc61d6f))
+
+### Features
+
+- **admin:** add quick navigation menu to secondary header ([ad94a59](https://github.com/ramiz4/simple-pos/commit/ad94a59eacdc74155aac1b82b6814cc65fec6744))
+- **admin:** refactor admin header and enhance dashboard navigation ([5c22d8d](https://github.com/ramiz4/simple-pos/commit/5c22d8d230b69b59aaada270f0388f202bb5cee4))
+- **admin:** refactor management pages with reusable components (Phase 2) ([5292dce](https://github.com/ramiz4/simple-pos/commit/5292dce3d4b3cb825defa5a52b67c9a9b7c3426a))
+- **pos:** add ProductCardComponent ([b9697c4](https://github.com/ramiz4/simple-pos/commit/b9697c4b6d6533fb55ad718ffbaafcb8dfd674ec))
+- **pos:** add QuantitySelectorComponent ([170ec84](https://github.com/ramiz4/simple-pos/commit/170ec84e2ac6af559678a8361744c498c5a74ae3))
+- **pos:** add StatusBarComponent ([7fbf973](https://github.com/ramiz4/simple-pos/commit/7fbf973870aca0cceea38f23f14425b520919faa))
+
 # [1.4.0](https://github.com/ramiz4/simple-pos/compare/v1.3.0...v1.4.0) (2026-02-04)
 
 ### Bug Fixes
