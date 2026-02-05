@@ -1,3 +1,9 @@
+# [1.9.0](https://github.com/ramiz4/simple-pos/compare/v1.8.0...v1.9.0) (2026-02-05)
+
+### Features
+
+- **admin:** add new sidebar components for admin navigation ([e8eb62e](https://github.com/ramiz4/simple-pos/commit/e8eb62e6f549b6d1b540aa61036babfc5652edb0))
+
 # [1.8.0](https://github.com/ramiz4/simple-pos/compare/v1.7.0...v1.8.0) (2026-02-05)
 
 ### Bug Fixes
