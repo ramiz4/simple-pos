@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/ramiz4/simple-pos/compare/v1.6.0...v1.7.0) (2026-02-05)
+
+### Bug Fixes
+
+- **ui:** resolve navigation and binding issues ([6ecb4a7](https://github.com/ramiz4/simple-pos/commit/6ecb4a7e2181f9d78dae116eedeef4967fb48f9d))
+
+### Features
+
+- **data:** add customerName to order entity and repository support ([77e2bc9](https://github.com/ramiz4/simple-pos/commit/77e2bc95eb1aeaf426f06a7e1040b23e28f98121))
+- **pos:** enhance cart and payment flow ([eac30da](https://github.com/ramiz4/simple-pos/commit/eac30da01be28dca5eea16edd9f69e5430acf9d9))
+- **ui:** implement active orders page ([4acf3fc](https://github.com/ramiz4/simple-pos/commit/4acf3fc2afba87b82164fdc2115082bd549c03f5))
+
 # [1.6.0](https://github.com/ramiz4/simple-pos/compare/v1.5.0...v1.6.0) (2026-02-05)
 
 ### Bug Fixes
