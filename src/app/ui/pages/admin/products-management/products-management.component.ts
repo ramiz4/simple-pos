@@ -6,11 +6,23 @@ import { CategoryService } from '../../../../application/services/category.servi
 import { ProductService } from '../../../../application/services/product.service';
 import { Category } from '../../../../domain/entities/category.interface';
 import { Product } from '../../../../domain/entities/product.interface';
+import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
+import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
+import { AlertComponent } from '../../../components/shared/alert/alert.component';
 
 @Component({
   selector: 'app-products-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AlertComponent,
+    AdminPageHeaderComponent,
+    ManagementListComponent,
+    ConfirmDeleteModalComponent,
+  ],
   templateUrl: './products-management.component.html',
   styleUrls: ['./products-management.component.css'],
 })

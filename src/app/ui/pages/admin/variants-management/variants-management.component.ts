@@ -6,11 +6,23 @@ import { ProductService } from '../../../../application/services/product.service
 import { VariantService } from '../../../../application/services/variant.service';
 import { Product } from '../../../../domain/entities/product.interface';
 import { Variant } from '../../../../domain/entities/variant.interface';
+import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
+import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
+import { AlertComponent } from '../../../components/shared/alert/alert.component';
 
 @Component({
   selector: 'app-variants-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AlertComponent,
+    AdminPageHeaderComponent,
+    ManagementListComponent,
+    ConfirmDeleteModalComponent,
+  ],
   templateUrl: './variants-management.component.html',
   styleUrls: ['./variants-management.component.css'],
 })

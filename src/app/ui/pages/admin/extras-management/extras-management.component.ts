@@ -4,11 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ExtraService } from '../../../../application/services/extra.service';
 import { Extra } from '../../../../domain/entities/extra.interface';
+import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
+import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
+import { AlertComponent } from '../../../components/shared/alert/alert.component';
 
 @Component({
   selector: 'app-extras-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AlertComponent,
+    AdminPageHeaderComponent,
+    ManagementListComponent,
+    ConfirmDeleteModalComponent,
+  ],
   templateUrl: './extras-management.component.html',
   styleUrls: ['./extras-management.component.css'],
 })

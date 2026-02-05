@@ -1,17 +1,32 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { UserManagementService } from '../../../../application/services/user-management.service';
 import { User } from '../../../../domain/entities/user.interface';
 import { AutoFocusDirective } from '../../../../shared/directives/auto-focus.directive';
+import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
+import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminPageHeaderComponent } from '../../../components/admin/page-header/page-header.component';
+import { AlertComponent } from '../../../components/shared/alert/alert.component';
+import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, AutoFocusDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    AutoFocusDirective,
+    AlertComponent,
+    ModalComponent,
+    AdminPageHeaderComponent,
+    ManagementListComponent,
+    ConfirmDeleteModalComponent,
+  ],
   templateUrl: './users-management.component.html',
   styleUrl: './users-management.component.css',
 })
@@ -206,23 +221,38 @@ export class UsersManagementComponent implements OnInit {
   }
 
   async onDeleteUser(user: User) {
-    if (!confirm(`Are you sure you want to delete user "${user.name}"?`)) {
-      return;
-    }
+    this.deleteConfirmId = user.id;
+    this.deleteConfirmName = user.name;
+    this.isDeleteConfirmOpen = true;
+  }
+
+  deleteConfirmId: number | null = null;
+  deleteConfirmName = '';
+  isDeleteConfirmOpen = false;
+
+  async confirmDelete() {
+    if (!this.deleteConfirmId) return;
 
     this.isLoading.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
 
     try {
-      await this.userManagementService.deleteUser(user.id);
+      await this.userManagementService.deleteUser(this.deleteConfirmId);
       this.successMessage.set('User deleted successfully');
       await this.loadUsers();
+      this.closeDeleteConfirm();
     } catch (e: any) {
       this.errorMessage.set(e.message || 'Deletion failed');
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  closeDeleteConfirm() {
+    this.isDeleteConfirmOpen = false;
+    this.deleteConfirmId = null;
+    this.deleteConfirmName = '';
   }
 
   getRoleDisplay(roleId: number): string {
