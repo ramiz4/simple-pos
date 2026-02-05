@@ -16,7 +16,6 @@ import { Order, Variant } from '../../../domain/entities';
 import { Category } from '../../../domain/entities/category.interface';
 import { Extra } from '../../../domain/entities/extra.interface';
 import { Product } from '../../../domain/entities/product.interface';
-import { HeaderComponent } from '../../components/header/header.component';
 import { ProductCardComponent } from '../../components/pos/product-card/product-card.component';
 import { QuantitySelectorComponent } from '../../components/pos/quantity-selector/quantity-selector.component';
 import { StatusBarComponent } from '../../components/pos/status-bar/status-bar.component';
@@ -31,14 +30,11 @@ interface ProductWithExtras extends Product {
   imports: [
     CommonModule,
     FormsModule,
-    HeaderComponent,
     ProductCardComponent,
     QuantitySelectorComponent,
     StatusBarComponent,
   ],
   template: `
-    <app-header title="Menu" [showBackButton]="true" (back)="goBack()"></app-header>
-
     <main class="animate-fade-in pb-32">
       <!-- Category Navbar -->
       <div
@@ -492,28 +488,5 @@ export class ProductSelectionComponent implements OnInit {
         orderId: this.orderId,
       },
     });
-  }
-
-  async goBack(): Promise<void> {
-    if (this.typeId) {
-      const type = await this.enumMappingService.getEnumFromId(this.typeId);
-      // Only go to table selection if Dine In
-      // Actually we need to import OrderTypeEnum or correct imports?
-      // It is not imported in the original file, let's look at imports.
-      // OrderTypeEnum is NOT imported in the original file view I saw.
-      // I can check if tableId is set, or better, fetch the type.
-      // Or simply: if tableId was passed, go back to table selection. If not, go to order type selection.
-
-      if (this.tableId) {
-        this.router.navigate(['/pos/table-selection'], {
-          queryParams: { typeId: this.typeId },
-        });
-      } else {
-        // Assume Order Type Selection
-        this.router.navigate(['/pos/order-type']);
-      }
-    } else {
-      this.router.navigate(['/pos']);
-    }
   }
 }

@@ -5,7 +5,6 @@ import { EnumMappingService } from '../../../application/services/enum-mapping.s
 import { OrderService } from '../../../application/services/order.service';
 import { TableService } from '../../../application/services/table.service';
 import { Order } from '../../../domain/entities/order.interface';
-import { HeaderComponent } from '../../components/header/header.component';
 
 interface EnrichedOrder extends Order {
   tableName?: string;
@@ -14,7 +13,7 @@ interface EnrichedOrder extends Order {
 @Component({
   selector: 'app-active-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule, HeaderComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './active-orders.component.html',
 })
 export class ActiveOrdersComponent implements OnInit {
