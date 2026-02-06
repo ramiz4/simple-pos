@@ -54,7 +54,7 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
         </header>
 
         <!-- Main Dynamic Content - Add top padding on mobile to account for fixed header -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-8 pt-16 lg:pt-8 custom-scrollbar relative">
+        <main class="flex-1 overflow-y-auto pb-4 px-4 pt-16 lg:p-8 custom-scrollbar relative">
           <div class="max-w-7xl mx-auto pb-12">
             <!-- Page Title Area (Moved from Header) -->
             <div class="mb-8">
