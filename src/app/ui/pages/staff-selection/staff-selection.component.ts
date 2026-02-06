@@ -10,11 +10,12 @@ import { UserRoleEnum } from '../../../domain/enums';
 import { AutoFocusDirective } from '../../../shared/directives/auto-focus.directive';
 import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
 import { PlatformService } from '../../../shared/utilities/platform.service';
+import { ButtonComponent } from '../../components/shared/button/button.component';
 
 @Component({
   selector: 'app-staff-selection',
   standalone: true,
-  imports: [CommonModule, FormsModule, AutoFocusDirective],
+  imports: [CommonModule, FormsModule, AutoFocusDirective, ButtonComponent],
   templateUrl: './staff-selection.component.html',
 })
 export class StaffSelectionComponent implements OnInit {

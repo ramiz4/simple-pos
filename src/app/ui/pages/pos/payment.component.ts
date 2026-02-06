@@ -7,11 +7,12 @@ import { EnumMappingService } from '../../../application/services/enum-mapping.s
 import { OrderService } from '../../../application/services/order.service';
 import { PrinterService } from '../../../application/services/printer.service';
 import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
+import { ButtonComponent } from '../../components/shared/button/button.component';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent],
   template: `
     <main class="p-6 max-w-2xl mx-auto animate-fade-in">
       @if (!processing() && !completed()) {
@@ -58,12 +59,14 @@ import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
               </div>
             }
 
-            <button
+            <app-button
               (click)="confirmPayment()"
-              class="neo-button w-full h-20 text-xl flex items-center justify-center gap-4"
+              label="Complete Cash Payment"
+              [hasRightIcon]="true"
+              class="w-full h-20 text-xl"
             >
-              <span>Complete Cash Payment</span>
               <svg
+                rightIcon
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"
                 fill="none"
@@ -77,7 +80,7 @@ import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
                   d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
                 />
               </svg>
-            </button>
+            </app-button>
 
             <button
               (click)="goBack()"
@@ -154,9 +157,11 @@ import { OrderStatusEnum, OrderTypeEnum } from '../../../domain/enums';
             <span>Print Receipt</span>
           </button>
 
-          <button (click)="goToDashboard()" class="neo-button w-full h-16 mt-8 text-lg">
-            Back To Dashboard
-          </button>
+          <app-button
+            (click)="goToDashboard()"
+            label="Back To Dashboard"
+            class="w-full h-16 mt-8 text-lg"
+          ></app-button>
         </div>
       }
     </main>

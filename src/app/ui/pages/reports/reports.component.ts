@@ -9,11 +9,12 @@ import {
   ZReport,
 } from '../../../application/services/reporting.service';
 import { OrderTypeEnum } from '../../../domain/enums';
+import { ButtonComponent } from '../../components/shared/button/button.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css'],
 })

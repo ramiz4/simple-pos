@@ -179,7 +179,11 @@
               €{{ (calculatedUnitPrice() * quantity()).toFixed(2) }}
             </div>
           </div>
-          <button (click)="addToCart()" class="neo-button h-16 grow text-lg">Add to Order</button>
+          <app-button
+            (click)="addToCart()"
+            label="Add to Order"
+            class="h-16 grow text-lg"
+          ></app-button>
         </div>
       </div>
     </div>
