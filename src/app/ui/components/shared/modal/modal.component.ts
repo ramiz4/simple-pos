@@ -7,7 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   imports: [CommonModule],
   template: `
     <div
-      class="fixed inset-0 bg-surface-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-6 z-50 animate-fade-in"
+      class="fixed inset-0 bg-surface-900/40 backdrop-blur-sm flex items-center justify-center p-0 sm:p-6 z-50 animate-fade-in"
       (click)="onBackdropClick()"
       role="dialog"
       aria-modal="true"
