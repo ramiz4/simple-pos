@@ -1,3 +1,10 @@
+## [1.12.6](https://github.com/ramiz4/simple-pos/compare/v1.12.5...v1.12.6) (2026-02-06)
+
+### Bug Fixes
+
+- address PR review feedback - update commands to use pnpm, fix unused variables, mark baseline metrics as historical ([c64f1db](https://github.com/ramiz4/simple-pos/commit/c64f1dbdc144c8995a0896ab262bb88535d1f5d4))
+- update remaining npm references to pnpm in SQLITE_TESTS_QUICK_REFERENCE.md ([c0ca184](https://github.com/ramiz4/simple-pos/commit/c0ca184b0d709c64f3801cdb6aa09e4ce982dbae))
+
 ## [1.12.5](https://github.com/ramiz4/simple-pos/compare/v1.12.4...v1.12.5) (2026-02-06)
 
 ### Bug Fixes
