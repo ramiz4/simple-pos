@@ -1,307 +1,481 @@
-<main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-  @if (successMessage()) {
-    <app-alert
-      [message]="successMessage()"
-      type="success"
-      (close)="successMessage.set('')"
-    ></app-alert>
-  }
+<app-admin-page-layout>
+  <!-- Search/Filters -->
+  <div filters class="flex-1">
+    <app-admin-search-input
+      placeholder="Search staff members..."
+      (search)="loadUsers()"
+    ></app-admin-search-input>
+  </div>
 
-  @if (errorMessage()) {
-    <app-alert [message]="errorMessage()" type="error" (close)="errorMessage.set('')"></app-alert>
-  }
+  <!-- Actions -->
+  <div actions>
+    <app-button label="Add Staff Member" (click)="openAddUserModal()" [hasLeftIcon]="true">
+      <svg
+        leftIcon
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+    </app-button>
+  </div>
 
-  <!-- Main Content -->
-  <app-management-list
-    title="Users"
-    itemLabel="User"
-    [isLoading]="isLoading()"
-    [isEmpty]="users().length === 0"
-    (add)="openAddUserModal()"
-  >
-    <div
-      class="bg-white/60 backdrop-blur-md rounded-xl shadow-sm overflow-hidden border border-white/40"
+  <!-- Content -->
+  <div class="space-y-4">
+    @if (successMessage()) {
+      <app-alert
+        [message]="successMessage()"
+        type="success"
+        (close)="successMessage.set('')"
+      ></app-alert>
+    }
+
+    @if (errorMessage()) {
+      <app-alert [message]="errorMessage()" type="error" (close)="errorMessage.set('')"></app-alert>
+    }
+
+    <app-admin-data-table
+      [isLoading]="isLoading()"
+      [isEmpty]="users().length === 0"
+      emptyTitle="No Staff Found"
+      emptyMessage="Create accounts for your cashiers, kitchen staff, and administrators."
     >
-      <table class="w-full">
-        <thead class="bg-white/40 border-b border-white/20">
-          <tr>
-            <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-            >
-              Username
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-            >
-              Email
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-            >
-              Role
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-            >
-              Status
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
-            >
-              Owner
-            </th>
-            <th
-              class="px-6 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-white/20">
-          @for (user of users(); track user.id) {
-            <tr class="hover:bg-white/40 transition-colors">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="font-medium text-gray-900">{{ user.name }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ user.email || 'N/A' }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span
-                  class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100/80 text-blue-800 border border-blue-200"
+      <!-- Table Headers -->
+      <ng-container headers>
+        <th class="w-full">Staff Member</th>
+        <th class="w-48">Role</th>
+        <th class="w-32 text-right">Actions</th>
+      </ng-container>
+
+      <!-- Table Rows -->
+      <ng-container rows>
+        @for (user of users(); track user.id) {
+          <tr class="group">
+            <td>
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-linear-to-tr from-purple-500 to-blue-500 flex items-center justify-center text-white font-black text-xs shadow-md border-2 border-white"
                 >
-                  {{ getRoleDisplay(user.roleId) }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                @if (user.active) {
-                  <span
-                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100/80 text-green-800 border border-green-200"
-                  >
-                    Active
-                  </span>
-                } @else {
-                  <span
-                    class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100/80 text-red-800 border border-red-200"
-                  >
-                    Inactive
-                  </span>
-                }
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm">
-                @if (user.isOwner) {
-                  <span class="text-yellow-600 font-semibold">👑 Owner</span>
-                } @else {
-                  <span class="text-gray-400">—</span>
-                }
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div class="flex justify-end gap-3">
-                  <button
-                    (click)="openEditUserModal(user)"
-                    class="text-blue-600 hover:text-blue-900 transition-colors"
-                  >
-                    Edit
-                  </button>
-                  @if (!user.isOwner && currentUserIsOwner()) {
-                    <button
-                      (click)="onDeleteUser(user)"
-                      class="text-red-600 hover:text-red-900 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  }
+                  {{ user.name.substring(0, 2).toUpperCase() }}
                 </div>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  </app-management-list>
+                <div>
+                  <div class="font-bold text-surface-900">{{ user.name }}</div>
+                  <div class="text-[10px] text-surface-400 font-medium tracking-wider uppercase">
+                    {{ user.email || 'No email set' }}
+                  </div>
+                </div>
+                @if (user.isOwner) {
+                  <span
+                    class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[8px] font-black uppercase bg-amber-100 text-amber-600 border border-amber-200 ml-1"
+                    >OWNER</span
+                  >
+                }
+              </div>
+            </td>
+            <td>
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest"
+                [class]="
+                  user.roleId === 1
+                    ? 'bg-purple-50 text-purple-600 border border-purple-100'
+                    : 'bg-blue-50 text-blue-600 border border-blue-100'
+                "
+              >
+                {{ getRoleDisplay(user.roleId) }}
+              </span>
+            </td>
+            <td class="text-right">
+              <div class="flex justify-end items-center gap-2">
+                <button
+                  (click)="openEditUserModal(user)"
+                  class="p-2 glass-button text-primary-600 hover:bg-primary-50 border-primary-100"
+                  title="Update Staff"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="onDeleteUser(user)"
+                  [disabled]="user.isOwner"
+                  class="p-2 glass-button text-red-600 hover:bg-red-50 border-red-100 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title="Delete Staff"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-container>
 
-  <!-- Add User Modal -->
-  @if (showAddUserModal()) {
-    <app-modal
-      (close)="closeAddUserModal()"
-      title="Add New User"
-      subtitle="Create a new internal account for staff members"
-    >
-      <form id="addUserForm" (ngSubmit)="onAddUser()" class="space-y-6 px-1">
-        <div>
-          <label
-            for="userName"
-            class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2"
-          >
-            Username *
-          </label>
-          <input
-            appAutoFocus
-            type="text"
-            id="userName"
-            [value]="newUserName()"
-            (input)="newUserName.set($any($event.target).value)"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            placeholder="username"
-            required
-          />
-        </div>
+      <!-- Mobile Cards -->
+      <ng-container mobileCards>
+        @for (user of users(); track user.id) {
+          <div class="p-4 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 h-10 rounded-full bg-linear-to-tr from-purple-500 to-blue-500 flex items-center justify-center text-white font-black text-xs shadow-md border-2 border-white"
+                >
+                  {{ user.name.substring(0, 2).toUpperCase() }}
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h4 class="font-bold text-surface-900">{{ user.name }}</h4>
+                    @if (user.isOwner) {
+                      <span class="text-[8px] font-black uppercase text-amber-500">OWNER</span>
+                    }
+                  </div>
+                  <span class="text-[10px] font-black uppercase text-surface-400">{{
+                    getRoleDisplay(user.roleId)
+                  }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="openEditUserModal(user)"
+                  class="p-2.5 glass-button text-primary-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="onDeleteUser(user)"
+                  [disabled]="user.isOwner"
+                  class="p-2.5 glass-button text-red-600 disabled:opacity-30"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </ng-container>
+    </app-admin-data-table>
+  </div>
+</app-admin-page-layout>
 
-        <div>
-          <label
-            for="userPin"
-            class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2"
-          >
-            PIN (4+ digits) *
-          </label>
-          <input
-            type="password"
-            id="userPin"
-            [value]="newUserPin()"
-            (input)="newUserPin.set($any($event.target).value)"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            placeholder="****"
-            required
-            minlength="4"
-          />
-        </div>
-
-        <div>
-          <label
-            for="userRole"
-            class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2"
-          >
-            Role *
-          </label>
-          <select
-            id="userRole"
-            [value]="newUserRole()"
-            (change)="newUserRole.set($any($event.target).value)"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            required
-          >
-            <option value="ADMIN">Admin</option>
-            <option value="CASHIER">Cashier</option>
-            <option value="KITCHEN">Kitchen</option>
-          </select>
-        </div>
-      </form>
-
-      <div footer class="flex gap-4 w-full">
-        <button
-          type="button"
-          (click)="closeAddUserModal()"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
+<!-- Add Modal -->
+@if (showAddUserModal()) {
+  <app-modal
+    (close)="closeAddUserModal()"
+    title="Add Staff Member"
+    subtitle="Create a new access account for your team"
+  >
+    <form id="addUserForm" (ngSubmit)="onAddUser()" class="space-y-6 px-1 py-2">
+      <!-- Username -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Username *</label
         >
-          Cancel
-        </button>
-        <button
-          form="addUserForm"
-          type="submit"
-          [disabled]="isLoading()"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-linear-to-r from-purple-600 to-blue-600 hover:shadow-xl hover:shadow-purple-200 text-white rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          @if (isLoading()) {
-            <span>Adding...</span>
-          } @else {
-            <span>Add User</span>
-          }
-        </button>
+        <input
+          [ngModel]="newUserName()"
+          (ngModelChange)="newUserName.set($event)"
+          name="username"
+          type="text"
+          placeholder="e.g., kitchen or cashier"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+          appAutoFocus
+        />
       </div>
-    </app-modal>
-  }
 
-  <!-- Edit User Modal -->
-  @if (showEditUserModal()) {
-    <app-modal
-      (close)="closeEditUserModal()"
-      title="Edit User"
-      subtitle="Update staff account information and security"
-    >
-      <form id="editUserForm" (ngSubmit)="onUpdateUser()" class="space-y-6 px-1">
-        <div>
-          <label
-            for="editUserName"
-            class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2"
-          >
-            Name *
-          </label>
-          <input
-            appAutoFocus
-            type="text"
-            id="editUserName"
-            [value]="editUserName()"
-            (input)="editUserName.set($any($event.target).value)"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            required
-          />
-        </div>
-
-        <div>
-          <label
-            for="editUserEmail"
-            class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="editUserEmail"
-            [value]="editUserEmail()"
-            (input)="editUserEmail.set($any($event.target).value)"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-          />
-        </div>
-
-        <div>
-          <label
-            for="editUserPin"
-            class="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2"
-          >
-            New PIN (Leave blank to keep current)
-          </label>
-          <input
-            type="password"
-            id="editUserPin"
-            [value]="editUserPin()"
-            (input)="editUserPin.set($any($event.target).value)"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            placeholder="****"
-            minlength="4"
-          />
-        </div>
-      </form>
-
-      <div footer class="flex gap-4 w-full">
-        <button
-          type="button"
-          (click)="closeEditUserModal()"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
+      <!-- Role Selection -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Workspace Permissions *</label
         >
-          Cancel
-        </button>
-        <button
-          form="editUserForm"
-          type="submit"
-          [disabled]="isLoading()"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-linear-to-r from-purple-600 to-blue-600 hover:shadow-xl hover:shadow-purple-200 text-white rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          @if (isLoading()) {
-            <span>Updating...</span>
-          } @else {
-            <span>Save Changes</span>
-          }
-        </button>
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            (click)="newUserRole.set('CASHIER')"
+            class="p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2"
+            [class]="
+              newUserRole() === 'CASHIER'
+                ? 'bg-primary-50 border-primary-500 ring-4 ring-primary-500/10'
+                : 'bg-white/50 border-white hover:border-surface-200'
+            "
+          >
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-white shadow-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-primary-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <span
+              class="font-bold text-[10px] uppercase tracking-wider"
+              [class]="newUserRole() === 'CASHIER' ? 'text-primary-700' : 'text-surface-500'"
+              >Cashier</span
+            >
+          </button>
+          <button
+            type="button"
+            (click)="newUserRole.set('KITCHEN')"
+            class="p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2"
+            [class]="
+              newUserRole() === 'KITCHEN'
+                ? 'bg-orange-50 border-orange-500 ring-4 ring-orange-500/10'
+                : 'bg-white/50 border-white hover:border-surface-200'
+            "
+          >
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-white shadow-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-orange-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
+                />
+              </svg>
+            </div>
+            <span
+              class="font-bold text-[10px] uppercase tracking-wider"
+              [class]="newUserRole() === 'KITCHEN' ? 'text-orange-700' : 'text-surface-500'"
+              >Kitchen</span
+            >
+          </button>
+          <button
+            type="button"
+            (click)="newUserRole.set('ADMIN')"
+            class="p-3 rounded-2xl border-2 transition-all flex flex-col items-center gap-2"
+            [class]="
+              newUserRole() === 'ADMIN'
+                ? 'bg-purple-50 border-purple-500 ring-4 ring-purple-500/10'
+                : 'bg-white/50 border-white hover:border-surface-200'
+            "
+          >
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-white shadow-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5 text-purple-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                />
+              </svg>
+            </div>
+            <span
+              class="font-bold text-[10px] uppercase tracking-wider"
+              [class]="newUserRole() === 'ADMIN' ? 'text-purple-700' : 'text-surface-500'"
+              >Admin</span
+            >
+          </button>
+        </div>
       </div>
-    </app-modal>
-  }
 
-  <!-- Delete Confirmation -->
-  @if (isDeleteConfirmOpen) {
-    <app-confirm-delete-modal
-      [itemName]="deleteConfirmName"
-      (confirm)="confirmDelete()"
-      (cancel)="closeDeleteConfirm()"
-    ></app-confirm-delete-modal>
-  }
-</main>
+      <!-- PIN -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-black uppercase tracking-[0.2em]"
+          >Security PIN *</label
+        >
+        <div class="relative">
+          <span class="absolute left-5 top-1/2 -translate-y-1/2 text-black">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </span>
+          <input
+            [ngModel]="newUserPin()"
+            (ngModelChange)="newUserPin.set($event)"
+            name="pin"
+            type="password"
+            inputmode="numeric"
+            maxlength="8"
+            placeholder="Min 6 digits"
+            class="w-full pl-12 pr-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+          />
+        </div>
+      </div>
+    </form>
+
+    <ng-container footer>
+      <app-button variant="glass" label="Cancel" (click)="closeAddUserModal()"></app-button>
+      <app-button
+        type="submit"
+        form="addUserForm"
+        [isLoading]="isLoading()"
+        label="Create Account"
+      ></app-button>
+    </ng-container>
+  </app-modal>
+}
+
+<!-- Edit Modal -->
+@if (showEditUserModal()) {
+  <app-modal
+    (close)="closeEditUserModal()"
+    title="Update Staff Profile"
+    subtitle="Modify profile details and security credentials"
+  >
+    <form id="editUserForm" (ngSubmit)="onUpdateUser()" class="space-y-6 px-1 py-2">
+      <!-- Name -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Profile Name *</label
+        >
+        <input
+          [ngModel]="editUserName()"
+          (ngModelChange)="editUserName.set($event)"
+          name="name"
+          type="text"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+        />
+      </div>
+
+      <!-- Email -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Email Address</label
+        >
+        <input
+          [ngModel]="editUserEmail()"
+          (ngModelChange)="editUserEmail.set($event)"
+          name="email"
+          type="email"
+          placeholder="staff@example.com"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+        />
+      </div>
+
+      <!-- New PIN -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Update PIN (Optional)</label
+        >
+        <div class="relative">
+          <span class="absolute left-5 top-1/2 -translate-y-1/2 text-surface-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
+            </svg>
+          </span>
+          <input
+            [ngModel]="editUserPin()"
+            (ngModelChange)="editUserPin.set($event)"
+            name="pin"
+            type="password"
+            inputmode="numeric"
+            maxlength="8"
+            placeholder="Leave blank to keep current"
+            class="w-full pl-12 pr-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+          />
+        </div>
+      </div>
+    </form>
+
+    <ng-container footer>
+      <app-button variant="glass" label="Cancel" (click)="closeEditUserModal()"></app-button>
+      <app-button
+        class="flex-1"
+        type="submit"
+        form="editUserForm"
+        [isLoading]="isLoading()"
+        label="Update Account"
+      ></app-button>
+    </ng-container>
+  </app-modal>
+}
+
+<!-- Delete Confirmation -->
+@if (isDeleteConfirmOpen) {
+  <app-confirm-delete-modal
+    [itemName]="deleteConfirmName"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteConfirm()"
+  ></app-confirm-delete-modal>
+}

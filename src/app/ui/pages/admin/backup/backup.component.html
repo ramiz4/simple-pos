@@ -1,0 +1,257 @@
+<div class="max-w-5xl mx-auto space-y-8 animate-fade-in">
+  <!-- Status Message -->
+  @if (statusMessage()) {
+    <div
+      class="p-4 rounded-2xl text-center font-black shadow-xl shadow-purple-500/5 border border-white/60 glass-card animate-scale-in"
+      [ngClass]="
+        statusType() === 'success' ? 'bg-green-50/80! text-green-600' : 'bg-red-50/80! text-red-600'
+      "
+    >
+      <div class="flex items-center justify-center gap-3">
+        @if (statusType() === 'success') {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-green-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-red-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2.5"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+        }
+        {{ statusMessage() }}
+      </div>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Create Backup -->
+    <app-admin-section sectionTitle="Create Backup" sectionSubtitle="Export Local Data">
+      <div slot="actions">
+        <div
+          class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <p class="text-surface-500 text-sm font-medium leading-relaxed">
+          Download a complete copy of your database. You can optionally encrypt it with a password
+          for extra security.
+        </p>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+            >Encryption Password (Optional)</label
+          >
+          <div class="relative">
+            <input
+              type="password"
+              [(ngModel)]="backupPassword"
+              placeholder="No encryption"
+              class="w-full h-14 px-5 rounded-2xl bg-white/50 border border-white/60 focus:border-primary-500 focus:bg-white transition-all outline-none font-medium text-surface-900 glass-card shadow-sm"
+            />
+          </div>
+        </div>
+
+        <div
+          class="flex items-center gap-3 p-4 bg-primary-50/50 rounded-xl border border-primary-100/50"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 text-primary-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span class="text-xs font-bold text-primary-700"
+            >Includes all products, active orders, and settings</span
+          >
+        </div>
+
+        <app-button
+          (click)="createBackup()"
+          [isLoading]="processing() && action() === 'backup'"
+          label="Download Backup"
+          [hasRightIcon]="!(processing() && action() === 'backup')"
+          class="w-full h-16"
+        >
+          <svg
+            rightIcon
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+        </app-button>
+      </div>
+    </app-admin-section>
+
+    <!-- Restore Data -->
+    <app-admin-section sectionTitle="Restore Data" sectionSubtitle="Import Backup File">
+      <div slot="actions">
+        <div
+          class="w-10 h-10 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center shadow-inner"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div
+          class="p-4 bg-orange-50/50 rounded-xl border border-orange-100/50 flex items-start gap-4"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-8 w-8 text-orange-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <div>
+            <p class="text-xs font-black text-orange-700 uppercase tracking-widest mb-1">
+              Critical Warning
+            </p>
+            <p class="text-xs font-bold text-orange-600/80 leading-relaxed">
+              Restoring a backup will
+              <span class="bg-orange-200 px-1 rounded">overwrite all current data</span>. This
+              action is irreversible.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+            >Select Backup File</label
+          >
+          <div class="relative">
+            <input
+              type="file"
+              (change)="onFileSelected($event)"
+              accept=".json"
+              class="hidden"
+              id="file-upload"
+            />
+            <label
+              for="file-upload"
+              class="flex items-center justify-between w-full h-14 px-5 rounded-2xl bg-white/50 border border-dashed border-white/80 hover:border-orange-500 hover:bg-white cursor-pointer transition-all glass-card shadow-sm group"
+            >
+              <span class="text-surface-500 font-medium truncate pr-4">
+                {{ selectedFile() ? selectedFile()?.name : 'Choose .json file...' }}
+              </span>
+              <span
+                class="text-[10px] font-black bg-surface-100 text-surface-600 px-3 py-1.5 rounded-lg group-hover:bg-orange-50 group-hover:text-orange-600 transition-colors uppercase tracking-widest"
+                >Browse</span
+              >
+            </label>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em] ml-1"
+            >Decryption Password</label
+          >
+          <input
+            type="password"
+            [(ngModel)]="restorePassword"
+            placeholder="Only if encrypted"
+            class="w-full h-14 px-5 rounded-2xl bg-white/50 border border-white/60 focus:border-orange-500 focus:bg-white transition-all outline-none font-medium text-surface-900 glass-card shadow-sm"
+          />
+        </div>
+
+        <app-button
+          (click)="restoreBackup()"
+          [isLoading]="processing() && action() === 'restore'"
+          [isDisabled]="!selectedFile()"
+          label="Restore Database"
+          [hasRightIcon]="!(processing() && action() === 'restore')"
+        >
+          <svg
+            rightIcon
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+        </app-button>
+      </div>
+    </app-admin-section>
+  </div>
+</div>

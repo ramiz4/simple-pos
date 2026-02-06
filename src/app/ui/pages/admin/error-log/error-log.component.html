@@ -1,0 +1,301 @@
+<app-admin-page-layout>
+  <!-- Search/Filters -->
+  <div filters class="flex-1 flex flex-col sm:flex-row gap-3">
+    <app-admin-search-input
+      class="flex-1"
+      maxWidth=""
+      placeholder="Filter logs by message or context..."
+      (search)="onSearch($event)"
+    ></app-admin-search-input>
+    <select
+      (change)="filterByLevel($event)"
+      class="px-4 py-2 bg-white/50 border border-white/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm font-bold text-surface-700 outline-none appearance-none cursor-pointer"
+    >
+      <option value="">All Severity</option>
+      <option value="error">Critical Errors</option>
+      <option value="warn">Warnings</option>
+      <option value="info">Information</option>
+    </select>
+  </div>
+
+  <!-- Actions -->
+  <div actions class="flex items-center gap-2">
+    <button
+      (click)="refreshLogs()"
+      class="p-2.5 glass-button text-surface-600 hover:text-primary-600"
+      title="Refresh Logs"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+        />
+      </svg>
+    </button>
+    <button
+      (click)="exportLogs()"
+      class="p-2.5 glass-button text-surface-600 hover:text-blue-600"
+      title="Export as JSON"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+        />
+      </svg>
+    </button>
+    <div class="w-px h-6 bg-white/40 mx-1"></div>
+    <app-button variant="danger" label="Clear All" (click)="clearLogs()"></app-button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="space-y-8 animate-fade-in">
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="glass-card p-5 border-white/60 bg-white/40! shadow-sm text-center">
+        <div class="text-2xl font-black text-surface-900 leading-none">{{ stats().total }}</div>
+        <div class="text-[10px] font-black text-surface-400 uppercase tracking-widest mt-2">
+          Total Logs
+        </div>
+      </div>
+      <div class="glass-card p-5 border-rose-100! bg-rose-50/30! shadow-sm text-center">
+        <div class="text-2xl font-black text-rose-600 leading-none">
+          {{ stats().byLevel['error'] }}
+        </div>
+        <div class="text-[10px] font-black text-rose-400 uppercase tracking-widest mt-2">
+          Active Errors
+        </div>
+      </div>
+      <div class="glass-card p-5 border-amber-100! bg-amber-50/30! shadow-sm text-center">
+        <div class="text-2xl font-black text-amber-600 leading-none">
+          {{ stats().byLevel['warn'] }}
+        </div>
+        <div class="text-[10px] font-black text-amber-400 uppercase tracking-widest mt-2">
+          Warnings
+        </div>
+      </div>
+      <div class="glass-card p-5 border-blue-100! bg-blue-50/30! shadow-sm text-center">
+        <div class="text-2xl font-black text-blue-600 leading-none">{{ stats().last24Hours }}</div>
+        <div class="text-[10px] font-black text-blue-400 uppercase tracking-widest mt-2">
+          Last 24 Hours
+        </div>
+      </div>
+    </div>
+
+    <!-- Logs List -->
+    <div class="space-y-4">
+      @if (filteredLogs().length === 0) {
+        <div class="glass-card border-dashed border-white/80 p-16 text-center shadow-inner">
+          <div
+            class="w-16 h-16 bg-surface-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-surface-300"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-10 w-10"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h4 class="text-lg font-black text-surface-900">System Healthy</h4>
+          <p class="text-xs font-bold text-surface-400 uppercase tracking-widest">
+            No matching error logs found in current view
+          </p>
+        </div>
+      } @else {
+        @for (log of filteredLogs(); track log.id) {
+          <div
+            class="glass-card border-white/60 p-5 hover:bg-white/60 transition-all group overflow-hidden"
+            [class.border-rose-100!]="log.level === 'error'"
+            [class.border-amber-100!]="log.level === 'warn'"
+          >
+            <div class="flex items-start gap-4">
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                [class]="
+                  log.level === 'error'
+                    ? 'bg-rose-100 text-rose-600'
+                    : log.level === 'warn'
+                      ? 'bg-amber-100 text-amber-600'
+                      : 'bg-blue-100 text-blue-600'
+                "
+              >
+                @if (log.level === 'error') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                } @else if (log.level === 'warn') {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                } @else {
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                }
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md"
+                      [class]="
+                        log.level === 'error'
+                          ? 'bg-rose-50 text-rose-600'
+                          : log.level === 'warn'
+                            ? 'bg-amber-50 text-amber-600'
+                            : 'bg-blue-50 text-blue-600'
+                      "
+                    >
+                      {{ log.level }}
+                    </span>
+                    <span
+                      class="text-[10px] font-black text-surface-400 uppercase tracking-[0.2em]"
+                      >{{ formatTimestamp(log.timestamp) }}</span
+                    >
+                    @if (log.count && log.count > 1) {
+                      <span
+                        class="bg-primary-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-sm animate-pulse"
+                        >×{{ log.count }}</span
+                      >
+                    }
+                  </div>
+                  <span
+                    class="text-[9px] font-black text-surface-300 truncate uppercase tracking-widest"
+                    >{{ log.url }}</span
+                  >
+                </div>
+
+                <p class="text-sm font-bold text-surface-800 leading-relaxed font-mono break-all">
+                  {{ log.message }}
+                </p>
+
+                <div class="flex gap-3 mt-4">
+                  @if (log.context) {
+                    <details class="text-[11px] group/details">
+                      <summary
+                        class="cursor-pointer font-black text-primary-500 hover:text-primary-700 transition-colors uppercase tracking-widest list-none flex items-center gap-1.5"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Context
+                      </summary>
+                      <div
+                        class="mt-2 p-4 bg-surface-900! rounded-2xl overflow-x-auto shadow-inner"
+                      >
+                        <pre class="text-emerald-400 font-mono text-[10px] leading-relaxed">{{
+                          formatContext(log.context)
+                        }}</pre>
+                      </div>
+                    </details>
+                  }
+
+                  @if (log.stack) {
+                    <details class="text-[11px] group/details">
+                      <summary
+                        class="cursor-pointer font-black text-rose-500 hover:text-rose-700 transition-colors uppercase tracking-widest list-none flex items-center gap-1.5"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          class="h-3 w-3"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                          />
+                        </svg>
+                        Trace
+                      </summary>
+                      <div
+                        class="mt-2 p-4 bg-surface-900! rounded-2xl overflow-x-auto shadow-inner"
+                      >
+                        <pre
+                          class="text-rose-300 font-mono text-[10px] leading-relaxed whitespace-pre-wrap"
+                          >{{ log.stack }}</pre
+                        >
+                      </div>
+                    </details>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</app-admin-page-layout>
