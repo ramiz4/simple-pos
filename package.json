@@ -1,6 +1,6 @@
 {
   "name": "simple-pos",
-  "version": "1.12.2",
+  "version": "1.12.3",
   "packageManager": "pnpm@10.28.2",
   "engines": {
     "npm": "please-use-pnpm",

@@ -1,3 +1,9 @@
+## [1.12.3](https://github.com/ramiz4/simple-pos/compare/v1.12.2...v1.12.3) (2026-02-06)
+
+### Bug Fixes
+
+- ensure portal and lock buttons are visible in mobile sidebar ([99ab4cf](https://github.com/ramiz4/simple-pos/commit/99ab4cf673c674c1daf842ee5ffda6484ca05850))
+
 ## [1.12.2](https://github.com/ramiz4/simple-pos/compare/v1.12.1...v1.12.2) (2026-02-06)
 
 ### Bug Fixes
