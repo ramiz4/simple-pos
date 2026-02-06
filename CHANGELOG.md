@@ -1,3 +1,10 @@
+## [1.12.4](https://github.com/ramiz4/simple-pos/compare/v1.12.3...v1.12.4) (2026-02-06)
+
+### Bug Fixes
+
+- correct padding to match header height (pt-16 instead of pt-20) ([fc734c2](https://github.com/ramiz4/simple-pos/commit/fc734c223eb5133de63b110e8a3addc080e434d1))
+- make admin header always visible on mobile by using fixed positioning ([ac2e3ad](https://github.com/ramiz4/simple-pos/commit/ac2e3adc074557fe9f94e0712d721ed2182b36c1))
+
 ## [1.12.3](https://github.com/ramiz4/simple-pos/compare/v1.12.2...v1.12.3) (2026-02-06)
 
 ### Bug Fixes
