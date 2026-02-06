@@ -7,8 +7,11 @@ import { TableService } from '../../../../application/services/table.service';
 import { CodeTable } from '../../../../domain/entities/code-table.interface';
 import { Table } from '../../../../domain/entities/table.interface';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
-import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminDataTableComponent } from '../../../components/admin/shared/data-table/data-table.component';
+import { AdminPageLayoutComponent } from '../../../components/admin/shared/page-layout/page-layout.component';
+import { AdminSearchInputComponent } from '../../../components/admin/shared/search-input/search-input.component';
 import { AlertComponent } from '../../../components/shared/alert/alert.component';
+import { ButtonComponent } from '../../../components/shared/button/button.component';
 import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
 @Component({
@@ -20,7 +23,10 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
     RouterModule,
     AlertComponent,
     ModalComponent,
-    ManagementListComponent,
+    AdminPageLayoutComponent,
+    AdminDataTableComponent,
+    AdminSearchInputComponent,
+    ButtonComponent,
     ConfirmDeleteModalComponent,
   ],
   templateUrl: './tables-management.component.html',

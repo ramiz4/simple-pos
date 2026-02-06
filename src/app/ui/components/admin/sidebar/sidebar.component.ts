@@ -29,13 +29,13 @@ export interface NavItem {
       [id]="'admin-sidebar'"
       [class.translate-x-0]="isOpen"
       [class.-translate-x-full]="!isOpen"
-      class="fixed top-0 left-0 z-50 w-72 h-screen transition-transform duration-300 transform lg:translate-x-0 bg-white/70 backdrop-blur-xl border-r border-white/40 shadow-2xl flex flex-col"
+      class="fixed top-0 left-0 z-50 w-72 h-screen transition-transform duration-300 transform lg:translate-x-0 bg-white/70 backdrop-blur-xl border-r border-surface-400 shadow-2xl flex flex-col"
       role="navigation"
       aria-label="Admin Navigation Menu"
     >
       <!-- Logo/Brand Area -->
       <div
-        class="p-6 flex items-center justify-between border-b border-white/20 shadow-md shadow-purple-200"
+        class="p-6 flex items-center justify-between border-b border-surface-400 shadow-md shadow-purple-200"
       >
         <div class="flex items-center gap-3">
           <div
