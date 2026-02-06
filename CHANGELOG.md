@@ -1,3 +1,9 @@
+## [1.12.2](https://github.com/ramiz4/simple-pos/compare/v1.12.1...v1.12.2) (2026-02-06)
+
+### Bug Fixes
+
+- make admin header sticky with glass effect when scrolling ([bb98a36](https://github.com/ramiz4/simple-pos/commit/bb98a36e35484e65b172b8b7a02a559ab2d7e9e7))
+
 ## [1.12.1](https://github.com/ramiz4/simple-pos/compare/v1.12.0...v1.12.1) (2026-02-06)
 
 ### Bug Fixes
