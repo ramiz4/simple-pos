@@ -1,157 +1,722 @@
 # Simple POS - Architecture Documentation
 
-## Project Structure
+## Overview
 
-This project follows **Clean Architecture** principles with clear separation of concerns:
-
-```
-src/app/
-├── core/              # Core interfaces and base classes
-│   ├── interfaces/    # BaseRepository, etc.
-│   └── base/          # Abstract classes
-├── domain/            # Business entities and enums
-│   ├── entities/      # Data models (TestEntity, etc.)
-│   └── enums/         # Business enums
-├── application/       # Business logic and orchestration
-│   ├── services/      # Application services
-│   └── use-cases/     # Business use cases
-├── infrastructure/    # External concerns (DB, APIs)
-│   ├── repositories/  # Data access implementations
-> 📊 **[Implementation Status & Roadmap →](implementation-status.md)**
-│   └── adapters/      # Platform adapters, factories
-├── ui/                # Presentation layer
-│   ├── components/    # Reusable UI components
-│   └── pages/         # Page-level components
-└── shared/            # Shared utilities
-    ├── utilities/     # Helper functions, services
-    └── helpers/       # Pure utility functions
-```
+**Simple POS v1.11.0** is a production-ready, cross-platform Point-of-Sale system built with **Clean Architecture** principles. The application runs as both a native desktop application (via Tauri) and a Progressive Web App, sharing 100% of the codebase while adapting to platform-specific capabilities.
 
 ## Technology Stack
 
-- **Frontend**: Angular 21.1.2 (standalone components)
-- **Desktop Runtime**: Tauri 2.9.6
-- **Styling**: TailwindCSS 4.1.18 with glassmorphism
-- **Database**:
-  - SQLite (Tauri desktop mode)
-  - IndexedDB (web/PWA mode)
-- **TypeScript**: Strict mode enabled
+### Frontend
 
-## Key Features
+- **Framework**: Angular 21.1.2 (standalone components)
+- **State Management**: Angular Signals (reactive primitives)
+- **Styling**: TailwindCSS 4.1.18 with custom utilities
+- **HTTP Client**: Angular HttpClient
+- **Forms**: Angular Reactive Forms
+- **Routing**: Angular Router with lazy loading
 
-### 1. Repository Pattern
+### Desktop Runtime
 
-The `BaseRepository<T>` interface defines standard CRUD operations:
+- **Framework**: Tauri 2.9.6 (Rust-based)
+- **Database**: SQLite via `@tauri-apps/plugin-sql`
+- **Updater**: `@tauri-apps/plugin-updater`
+- **Process**: `@tauri-apps/plugin-process`
+- **Logging**: `@tauri-apps/plugin-log`
 
-- `findById(id)`: Get entity by ID
-- `findAll()`: Get all entities
-- `create(entity)`: Create new entity
-- `update(id, entity)`: Update existing entity
-- `delete(id)`: Delete entity
-- `count()`: Count total entities
+### Web Runtime
 
-### 2. Platform Abstraction
+- **Service Worker**: `@angular/service-worker` for PWA
+- **Database**: IndexedDB (native browser API)
+- **Storage**: LocalStorage for session persistence
 
-The `RepositoryFactory` automatically selects the appropriate repository based on the platform:
+### Development Tools
 
-- **Tauri Desktop**: Uses `SQLiteTestRepository` (native SQLite via Tauri plugin)
-- **Web/PWA**: Uses `IndexedDBTestRepository` (browser IndexedDB)
+- **Package Manager**: pnpm 10+
+- **Build System**: Angular CLI with Vite
+- **Testing**: Vitest 4.0.8
+- **Linting**: Prettier with organize-imports plugin
+- **Git Hooks**: Husky + lint-staged
+- **Versioning**: Semantic Release
 
-The `PlatformService` detects the current runtime environment.
+## Project Structure
 
-### 3. Reactive State Management
+```
+simple-pos/
+├── src/
+│   ├── app/
+│   │   ├── domain/                    # 🎯 Business Layer (Pure TypeScript)
+│   │   │   ├── entities/              # 16 entity interfaces
+│   │   │   │   ├── order.interface.ts
+│   │   │   │   ├── product.interface.ts
+│   │   │   │   ├── user.interface.ts
+│   │   │   │   └── ... (13 more)
+│   │   │   ├── enums/                 # Business enums
+│   │   │   │   ├── order-status.enum.ts
+│   │   │   │   ├── order-type.enum.ts
+│   │   │   │   ├── user-role.enum.ts
+│   │   │   │   └── table-status.enum.ts
+│   │   │   └── dtos/                  # Data Transfer Objects
+│   │   │       ├── cart.dto.ts
+│   │   │       └── ...
+│   │   │
+│   │   ├── application/               # 🧠 Business Logic Layer
+│   │   │   └── services/              # 22 application services
+│   │   │       ├── auth.service.ts
+│   │   │       ├── order.service.ts
+│   │   │       ├── cart.service.ts
+│   │   │       ├── printer.service.ts
+│   │   │       ├── backup.service.ts
+│   │   │       └── ... (17 more)
+│   │   │
+│   │   ├── infrastructure/            # 💾 Data & External Services
+│   │   │   ├── repositories/          # 32 repository implementations
+│   │   │   │   ├── sqlite-*.repository.ts      (16 files)
+│   │   │   │   └── indexeddb-*.repository.ts   (16 files)
+│   │   │   ├── adapters/
+│   │   │   │   └── repository.factory.ts
+│   │   │   └── services/
+│   │   │       └── indexeddb.service.ts
+│   │   │
+│   │   ├── core/                      # 🔐 Core Utilities
+│   │   │   ├── guards/                # Route guards
+│   │   │   │   ├── auth.guard.ts
+│   │   │   │   ├── admin.guard.ts
+│   │   │   │   ├── staff.guard.ts
+│   │   │   │   ├── setup.guard.ts
+│   │   │   │   └── desktop-landing.guard.ts
+│   │   │   └── interfaces/
+│   │   │       └── base-repository.interface.ts
+│   │   │
+│   │   ├── ui/                        # 🎨 Presentation Layer
+│   │   │   ├── pages/                 # 23+ page components
+│   │   │   │   ├── landing/
+│   │   │   │   ├── initial-setup/
+│   │   │   │   ├── login/
+│   │   │   │   ├── register/
+│   │   │   │   ├── staff-selection/
+│   │   │   │   ├── dashboard/
+│   │   │   │   ├── active-orders/
+│   │   │   │   ├── kitchen/
+│   │   │   │   ├── reports/
+│   │   │   │   ├── pos/               # POS workflow
+│   │   │   │   │   ├── order-type-selection
+│   │   │   │   │   ├── table-selection
+│   │   │   │   │   ├── product-selection
+│   │   │   │   │   ├── cart-view
+│   │   │   │   │   └── payment
+│   │   │   │   └── admin/             # 12 admin pages
+│   │   │   │       ├── admin-dashboard
+│   │   │   │       ├── tables-management
+│   │   │   │       ├── categories-management
+│   │   │   │       ├── products-management
+│   │   │   │       ├── variants-management
+│   │   │   │       ├── extras-management
+│   │   │   │       ├── ingredients-management
+│   │   │   │       ├── users-management
+│   │   │   │       ├── printer-settings
+│   │   │   │       ├── backup
+│   │   │   │       ├── backup-settings
+│   │   │   │       └── error-log
+│   │   │   ├── components/            # Reusable components
+│   │   │   ├── layouts/
+│   │   │   │   ├── pos-shell.component.ts
+│   │   │   │   └── admin-shell.component.ts
+│   │   │   └── routes/
+│   │   │       ├── pos.routes.ts
+│   │   │       └── admin.routes.ts
+│   │   │
+│   │   └── shared/                    # 🛠️ Shared Utilities
+│   │       ├── utilities/
+│   │       │   ├── platform.service.ts
+│   │       │   ├── validation.utils.ts
+│   │       │   └── input-sanitizer.service.ts
+│   │       └── directives/
+│   │
+│   ├── styles.css                     # Global Tailwind styles
+│   └── index.html
+│
+├── src-tauri/                         # 🦀 Rust Backend
+│   ├── src/
+│   │   └── main.rs
+│   ├── migrations/                    # SQLite migrations
+│   ├── Cargo.toml
+│   └── tauri.conf.json
+│
+└── docs/                              # 📚 Documentation
+    ├── architecture.md
+    ├── prd.md
+    └── hybrid-saas-roadmap.md
+```
 
-Uses Angular Signals for reactive state:
+## Clean Architecture Principles
+
+### 1. Dependency Rule
+
+Dependencies point **inward** only. Outer layers depend on inner layers, never the reverse.
+
+```
+UI → Application → Domain
+Infrastructure → Application → Domain
+```
+
+### 2. Layer Responsibilities
+
+**Domain Layer** (Innermost)
+
+- Pure TypeScript interfaces and enums
+- No framework dependencies
+- No external library imports
+- Contains: Entities, Enums, DTOs
+
+**Application Layer**
+
+- Business logic and orchestration
+- Platform-agnostic services
+- Depends only on Domain layer
+- Contains: Services, Use Cases
+
+**Infrastructure Layer**
+
+- Database access (SQLite, IndexedDB)
+- External APIs and integrations
+- Platform-specific implementations
+- Depends on Application and Domain
+
+**Presentation Layer (UI)**
+
+- Angular components
+- Route guards
+- Layouts and pages
+- Depends on all inner layers
+
+### 3. Interfaces as Contracts
+
+The `BaseRepository<T>` interface ensures both SQLite and IndexedDB implementations provide identical APIs:
 
 ```typescript
-entities = signal<TestEntity[]>([]);
-isLoading = signal(false);
-error = signal<string | null>(null);
-```
-
-### 4. Glassmorphism UI
-
-Custom TailwindCSS utilities for modern glass effects:
-
-```css
-.glass-card {
-  backdrop-blur-xl bg-white/30 border border-white/20 rounded-3xl shadow-xl
-}
-
-.glass-button {
-  backdrop-blur-lg bg-white/20 border border-white/30 rounded-2xl shadow-lg
+export interface BaseRepository<T> {
+  findAll(): Promise<T[]>;
+  findById(id: number): Promise<T | null>;
+  create(entity: Omit<T, 'id'>): Promise<T>;
+  update(id: number, entity: Partial<T>): Promise<T>;
+  delete(id: number): Promise<void>;
+  count(): Promise<number>;
 }
 ```
 
-## Running the Application
+## Dual Repository Pattern
 
-### Web Mode (Browser)
+### Architecture
 
-```bash
-pnpm run start
+Every entity has **two repository implementations**:
+
+1. **SQLite Repository** (Tauri/Desktop)
+   - Direct SQL queries via `@tauri-apps/plugin-sql`
+   - ACID transactions
+   - Relational integrity with foreign keys
+   - Migration-based schema management
+
+2. **IndexedDB Repository** (Web/PWA)
+   - Object store operations
+   - Indexed queries for performance
+   - Schema versioning with `onupgradeneeded`
+   - Browser-native persistence
+
+### Platform Selection
+
+The `RepositoryFactory` dynamically selects the correct implementation:
+
+```typescript
+@Injectable({ providedIn: 'root' })
+export class RepositoryFactory {
+  constructor(
+    private platformService: PlatformService,
+    private sqliteOrderRepo: SQLiteOrderRepository,
+    private indexedDBOrderRepo: IndexedDBOrderRepository,
+  ) {}
+
+  getOrderRepository(): BaseRepository<Order> {
+    return this.platformService.isTauri() ? this.sqliteOrderRepo : this.indexedDBOrderRepo;
+  }
+}
 ```
 
-Opens at `http://localhost:4200` and uses **IndexedDB** for storage.
+### Platform Detection
 
-### Desktop Mode (Tauri)
+```typescript
+@Injectable({ providedIn: 'root' })
+export class PlatformService {
+  private readonly _isTauri: boolean;
 
-```bash
-pnpm run tauri:dev
+  constructor() {
+    // Tauri v2 exposes window.__TAURI__ global
+    this._isTauri =
+      typeof window !== 'undefined' &&
+      typeof (window as any).__TAURI__ === 'object' &&
+      (window as any).__TAURI__ !== null;
+  }
+
+  isTauri(): boolean {
+    return this._isTauri;
+  }
+  isWeb(): boolean {
+    return !this._isTauri;
+  }
+}
 ```
 
-Runs as a native desktop application and uses **SQLite** for storage.
+## Entity Relationship Schema
 
-### Build for Production
+### Core Entities (16 Total)
 
-**Web:**
+```
+┌─────────────┐
+│   Account   │ ← Multi-tenancy support
+└──────┬──────┘
+       │
+       │ 1:N
+       │
+┌──────▼──────┐
+│    User     │ ← Authentication & roles
+└──────┬──────┘
+       │
+       │ 1:N
+       │
+┌──────▼──────┐       ┌──────────────┐
+│    Order    │ ◄──── │    Table     │ ← Restaurant tables
+└──────┬──────┘  0:1  └──────────────┘
+       │
+       │ 1:N
+       │
+┌──────▼──────────┐
+│   OrderItem     │
+└──────┬──────────┘
+       │
+       │ 1:N
+       │
+┌──────▼──────────────┐
+│ OrderItemExtra      │
+└─────────────────────┘
 
-```bash
-pnpm run build
+┌──────────────┐       ┌──────────────┐
+│   Product    │ ◄──── │  Category    │
+└──────┬───────┘  N:1  └──────────────┘
+       │
+       ├─── 1:N ───▶ ┌──────────────┐
+       │             │   Variant    │ ← Size/type variations
+       │             └──────────────┘
+       │
+       ├─── N:N ───▶ ┌──────────────┐
+       │             │    Extra     │ ← Add-ons (via ProductExtra)
+       │             └──────────────┘
+       │
+       └─── N:N ───▶ ┌──────────────┐
+                     │  Ingredient  │ ← Recipe (via ProductIngredient)
+                     └──────────────┘
+
+┌──────────────┐
+│  CodeTable   │ ← Enum persistence
+└──────┬───────┘
+       │ 1:N
+       │
+┌──────▼──────────────┐
+│ CodeTranslation     │ ← Multi-language support
+└─────────────────────┘
 ```
 
-**Desktop:**
+## Key Services Architecture
+
+### AuthService
+
+**Responsibilities:**
+
+- User authentication (PIN/email+password)
+- bcrypt password hashing (10 salt rounds)
+- Session management with localStorage
+- Role-based authorization
+
+**Key Methods:**
+
+```typescript
+login(username: string, pin: string): Promise<UserSession>
+loginWithEmail(email: string, password: string): Promise<UserSession>
+register(accountEmail: string, ...): Promise<{user, account}>
+hasRole(role: UserRoleEnum): boolean
+logout(): void
+```
+
+### OrderService
+
+**Responsibilities:**
+
+- Order lifecycle management
+- Status transitions (OPEN → PREPARING → READY → SERVED → COMPLETED)
+- Table status synchronization
+- Order number generation
+
+**Key Methods:**
+
+```typescript
+createOrder(data: CreateOrderData): Promise<Order>
+getOpenOrderByTable(tableId: number): Promise<Order | null>
+addItemsToOrder(orderId: number, items: CartItem[]): Promise<Order>
+updateOrderStatus(id: number, statusId: number): Promise<Order>
+checkAndUpdateOrderStatusByItems(orderId: number): Promise<void>
+```
+
+### CartService
+
+**Responsibilities:**
+
+- Multi-context cart management
+- Tax calculation (18% Kosovo VAT, tax-inclusive)
+- Item deduplication
+- Tip management
+
+**Architecture:**
+
+```typescript
+// Separate carts per context (table or order type)
+private allCarts = signal<Record<string, CartItem[]>>({});
+// Key format: 'table_1', 'table_2', 'TAKEAWAY', 'DELIVERY'
+
+// Active context determines which cart is visible
+private activeContextKey = signal<string>('default');
+
+// Computed values for reactive UI
+readonly cart = computed(() => this.allCarts()[this.activeContextKey()] || []);
+readonly tip = computed(() => this.allTips()[this.activeContextKey()] || 0);
+```
+
+### PrinterService
+
+**Responsibilities:**
+
+- ESC/POS thermal printing (desktop)
+- HTML print fallback (web)
+- Receipt and kitchen ticket formatting
+- Bilingual support (EN/AL)
+
+**Printer Configuration:**
+
+```typescript
+interface PrinterConfig {
+  receipt: {
+    connection: string; // 'tcp:192.168.1.100:9100'
+    width: number; // 42 characters
+  };
+  kitchen: {
+    connection: string;
+    width: number; // 32 characters
+  };
+}
+```
+
+### BackupService
+
+**Responsibilities:**
+
+- Full database export
+- Encrypted backups (optional)
+- Cross-platform restore
+- Data validation
+
+**Backup Format:**
+
+```typescript
+interface BackupData {
+  version: string; // '1.0.0'
+  createdAt: string;
+  encrypted: boolean;
+  data: {
+    codeTables: any[];
+    users: any[];
+    orders: any[];
+    // ... all 16 entity types
+  };
+}
+```
+
+## Routing Architecture
+
+### Route Structure
+
+```
+/ (Landing)
+├── /initial-setup [setupGuard]
+├── /register
+├── /login
+├── /staff-select [authGuard]
+├── /unauthorized
+│
+├── / [staffGuard] → PosShellComponent
+│   ├── /dashboard
+│   ├── /active-orders
+│   ├── /kitchen
+│   ├── /reports
+│   └── /pos
+│       ├── / (order-type-selection)
+│       ├── /table-selection
+│       ├── /product-selection
+│       ├── /cart
+│       └── /payment
+│
+└── /admin [adminGuard] → AdminShellComponent
+    ├── / (dashboard)
+    ├── /tables
+    ├── /categories
+    ├── /products
+    ├── /variants
+    ├── /extras
+    ├── /ingredients
+    ├── /users
+    ├── /printer
+    ├── /backup
+    ├── /backup-settings
+    └── /error-log
+```
+
+### Guards
+
+**authGuard**: Checks if user is logged in
+**staffGuard**: Checks if staff member is selected
+**adminGuard**: Checks for ADMIN role
+**setupGuard**: Redirects if setup is already complete
+**desktopLandingGuard**: Shows landing only on desktop
+
+## State Management with Signals
+
+### Angular Signals Architecture
+
+**Signals** (Angular 21) provide fine-grained reactivity:
+
+```typescript
+// Define reactive state
+private allCarts = signal<Record<string, CartItem[]>>({});
+
+// Derived/computed state
+readonly cart = computed(() => {
+  return this.allCarts()[this.activeContextKey()] || [];
+});
+
+// Update state
+this.allCarts.set({ ...updatedCarts });
+
+// Component auto-updates when signal changes
+```
+
+**Benefits:**
+
+- No manual subscription management
+- Automatic change detection
+- Type-safe reactive primitives
+- Better performance than RxJS for UI state
+
+## Database Schema Management
+
+### SQLite (Tauri)
+
+Migrations in `src-tauri/migrations/`:
+
+```sql
+-- 20231201_000001_initial.sql
+CREATE TABLE IF NOT EXISTS "order" (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_number TEXT NOT NULL UNIQUE,
+  type_id INTEGER NOT NULL,
+  status_id INTEGER NOT NULL,
+  table_id INTEGER,
+  subtotal REAL NOT NULL,
+  tax REAL NOT NULL,
+  tip REAL NOT NULL,
+  total REAL NOT NULL,
+  created_at TEXT NOT NULL,
+  completed_at TEXT,
+  user_id INTEGER NOT NULL,
+  cancelled_reason TEXT,
+  customer_name TEXT,
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (table_id) REFERENCES "table"(id),
+  FOREIGN KEY (type_id) REFERENCES code_table(id),
+  FOREIGN KEY (status_id) REFERENCES code_table(id)
+);
+```
+
+### IndexedDB (Web)
+
+Schema versioning in `IndexedDBService`:
+
+```typescript
+async getDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('SimpleDatabase', 2);
+
+    request.onupgradeneeded = (event) => {
+      const db = request.result;
+
+      if (oldVersion < 1) {
+        // Create object stores
+        const orderStore = db.createObjectStore('order', { keyPath: 'id' });
+        orderStore.createIndex('orderNumber', 'orderNumber', { unique: true });
+        orderStore.createIndex('statusId', 'statusId', { unique: false });
+        // ...
+      }
+
+      if (oldVersion < 2) {
+        // Migration: add new indexes
+        const transaction = event.target.transaction;
+        const orderItemStore = transaction.objectStore('order_item');
+        orderItemStore.createIndex('statusId', 'statusId', { unique: false });
+      }
+    };
+  });
+}
+```
+
+## Security Architecture
+
+### Authentication Flow
+
+```
+1. User enters credentials (username+PIN or email+password)
+   ↓
+2. AuthService validates and hashes with bcrypt
+   ↓
+3. UserSession created with role information
+   ↓
+4. Session persisted to localStorage
+   ↓
+5. Route guards use session for authorization
+```
+
+### Authorization
+
+**Role Hierarchy:**
+
+```
+ADMIN    → Full access (all routes, all operations)
+CASHIER  → POS operations, view orders
+KITCHEN  → Kitchen display, mark items ready
+DRIVER   → View delivery orders
+```
+
+### Security Measures
+
+- bcrypt hashing (10 salt rounds) for all passwords/PINs
+- Input sanitization service
+- SQL injection prevention via parameterized queries
+- Role-based route guards
+- Default PIN enforcement ("0000" must be changed)
+- Session timeout on browser close
+
+## Performance Optimizations
+
+### Lazy Loading
+
+All major routes are lazy-loaded:
+
+```typescript
+{
+  path: 'admin',
+  loadChildren: () => import('./ui/routes/admin.routes')
+    .then(m => m.ADMIN_ROUTES),
+}
+```
+
+### Angular Signals
+
+Replace RxJS subscriptions with computed signals for better performance:
+
+```typescript
+// Before (RxJS)
+this.cart$
+  .pipe(map((items) => items.reduce((sum, i) => sum + i.total, 0)))
+  .subscribe((total) => (this.total = total));
+
+// After (Signals)
+total = computed(() => this.cart().reduce((sum, i) => sum + i.total, 0));
+```
+
+### IndexedDB Indexes
+
+Strategic indexes for common queries:
+
+```typescript
+orderStore.createIndex('statusId', 'statusId'); // Filter by status
+orderStore.createIndex('createdAt', 'createdAt'); // Sort by date
+orderStore.createIndex('tableId', 'tableId'); // Filter by table
+```
+
+## Testing Strategy
+
+### Unit Tests (Vitest)
+
+```typescript
+describe('CartService', () => {
+  it('should calculate tax correctly', () => {
+    const summary = cartService.getSummary();
+    expect(summary.tax).toBe((summary.subtotal * 0.18) / 1.18);
+  });
+});
+```
+
+### E2E Testing Approach
+
+- Test POS workflow: Select table → Add products → Checkout
+- Test kitchen flow: View orders → Mark items ready
+- Test admin operations: CRUD for all entities
+
+## Deployment
+
+### Desktop (Tauri)
 
 ```bash
 pnpm run tauri:build
 ```
 
-## Architecture Principles
+Outputs:
 
-1. **Dependency Inversion**: UI depends on abstractions (interfaces), not implementations
-2. **Single Responsibility**: Each layer has one clear purpose
-3. **Platform Agnostic**: Business logic works regardless of platform
-4. **Offline First**: All data persists locally
-5. **Type Safety**: Strict TypeScript mode enforced
+- Windows: `.exe` installer
+- macOS: `.dmg` and `.app` bundle
+- Linux: `.deb`, `.AppImage`
 
-## Test Entity
+### Web (PWA)
 
-The project includes a `TestEntity` to validate the persistence layer:
+```bash
+pnpm run build
+```
 
-- Demonstrates CRUD operations
-- Works in both web and desktop modes
-- Reactive UI updates via Signals
-- Full error handling
+Outputs to `dist/`, ready for:
 
-## Next Steps (Phase 1)
+- Static hosting (Netlify, Vercel)
+- Docker container
+- Traditional web server (nginx, Apache)
 
-1. Implement CodeTable system (enum persistence)
-2. Create domain enums (OrderType, OrderStatus, etc.)
-3. Implement User entity and authentication
-4. Add role-based access control
-5. Create Table and Product management
+## Future Architecture Considerations
 
-## Database Migrations
+### Hybrid SaaS Model
 
-Migrations are defined in `src-tauri/migrations/`:
+See `docs/hybrid-saas-roadmap.md` for planned evolution to:
 
-- `001_initial.sql`: Creates initial schema
-- Future migrations will be numbered sequentially
+- Cloud backup sync
+- Multi-location support
+- Central reporting dashboard
+- Offline-first with eventual consistency
 
-Tauri automatically applies migrations on startup.
+### Microservices Migration
 
-## Notes
+Potential future split:
 
-- The app auto-detects platform via `window.__TAURI__`
-- Both storage backends implement the same `BaseRepository<T>` interface
-- The UI is platform-agnostic and works seamlessly on both web and desktop
-- TailwindCSS provides responsive, mobile-first design
+- **Order Service**: Order processing
+- **Kitchen Service**: Kitchen display
+- **Reporting Service**: Analytics
+- **Auth Service**: Centralized authentication
+
+### Current Status: Monolith (v1.11.0)
+
+The current architecture is a well-structured monolith, appropriate for:
+
+- Single-location restaurants
+- Offline operation requirements
+- Simple deployment model
+- Full data ownership
