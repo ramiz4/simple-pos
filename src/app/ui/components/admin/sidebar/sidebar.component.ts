@@ -29,7 +29,7 @@ export interface NavItem {
       [id]="'admin-sidebar'"
       [class.translate-x-0]="isOpen"
       [class.-translate-x-full]="!isOpen"
-      class="fixed top-0 left-0 z-50 w-72 h-screen transition-transform duration-300 transform lg:translate-x-0 bg-white/70 backdrop-blur-xl border-r border-white/40 shadow-2xl flex flex-col"
+      class="fixed top-0 left-0 z-50 w-72 h-dvh transition-transform duration-300 transform lg:translate-x-0 bg-white/70 backdrop-blur-xl border-r border-white/40 shadow-2xl flex flex-col"
       role="navigation"
       aria-label="Admin Navigation Menu"
     >
