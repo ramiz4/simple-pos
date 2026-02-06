@@ -141,18 +141,21 @@
     @apply fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-white/20 px-6 py-4 flex items-center justify-between pb-8 sm:pb-4;
   }
 
-  .neo-button {
-    @apply relative overflow-hidden rounded-2xl px-6 py-3 font-bold text-white transition-all hover:shadow-lg active:scale-95;
-    background: var(--primary-gradient);
+  /* Admin Data Table Styles */
+  app-admin-data-table table thead th {
+    @apply px-4 py-4 text-xs font-black text-surface-700 uppercase tracking-[0.15em] whitespace-nowrap;
   }
 
-  .neo-button::after {
-    content: '';
-    @apply absolute inset-0 bg-white/20 opacity-0 transition-opacity;
+  app-admin-data-table table tbody td {
+    @apply px-4 py-5 text-sm font-medium text-surface-700 transition-all;
   }
 
-  .neo-button:hover::after {
-    @apply opacity-100;
+  app-admin-data-table table tbody tr {
+    @apply transition-all duration-200 border-b border-white/10 last:border-0;
+  }
+
+  app-admin-data-table table tbody tr:hover {
+    @apply bg-white/60 shadow-sm backdrop-blur-sm;
   }
 }
 
