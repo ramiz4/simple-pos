@@ -29,14 +29,12 @@ export interface NavItem {
       [id]="'admin-sidebar'"
       [class.translate-x-0]="isOpen"
       [class.-translate-x-full]="!isOpen"
-      class="fixed top-0 left-0 z-50 w-72 h-screen transition-transform duration-300 transform lg:translate-x-0 bg-white/70 backdrop-blur-xl border-r border-surface-400 shadow-2xl flex flex-col"
+      class="fixed top-0 left-0 z-50 w-72 h-screen transition-transform duration-300 transform lg:translate-x-0 bg-white/70 backdrop-blur-xl border-r border-white/40 shadow-2xl flex flex-col"
       role="navigation"
       aria-label="Admin Navigation Menu"
     >
       <!-- Logo/Brand Area -->
-      <div
-        class="p-6 flex items-center justify-between border-b border-surface-400 shadow-md shadow-purple-200"
-      >
+      <div class="p-6 flex items-center justify-between border-b border-surface-200">
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 rounded-xl bg-linear-to-tr from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-200"
@@ -97,7 +95,7 @@ export interface NavItem {
       </div>
 
       <!-- Footer / Lower Actions -->
-      <div class="p-4 mt-auto border-t border-surface-400 space-y-2">
+      <div class="p-4 mt-auto border-t border-surface-200 space-y-2">
         <a
           routerLink="/dashboard"
           class="flex items-center p-3 text-gray-600 rounded-2xl transition-all duration-300 hover:bg-white/60 hover:text-blue-600 group border border-transparent hover:border-white/40 active:scale-95"
