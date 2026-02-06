@@ -15,10 +15,10 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
       <app-admin-sidebar [(isOpen)]="isSidebarOpen" class="shrink-0"></app-admin-sidebar>
 
       <!-- Main Content Area (With left padding on large screens to accommodate fixed sidebar) -->
-      <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden lg:pl-72">
-        <!-- Top Header (Mobile Toggle + Page Title) -->
+      <div class="flex-1 flex flex-col min-w-0 h-screen lg:pl-72">
+        <!-- Top Header (Mobile Toggle + Page Title) - Fixed at top -->
         <header
-          class="lg:hidden sticky top-0 z-40 h-16 bg-white/70 backdrop-blur-md border-b border-white/20 flex items-center px-4 gap-4"
+          class="lg:hidden fixed top-0 left-0 right-0 z-40 h-16 bg-white/70 backdrop-blur-md border-b border-white/20 flex items-center px-4 gap-4"
         >
           <button
             (click)="isSidebarOpen = true"
@@ -53,8 +53,8 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
           </div>
         </header>
 
-        <!-- Main Dynamic Content -->
-        <main class="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar relative">
+        <!-- Main Dynamic Content - Add top padding on mobile to account for fixed header -->
+        <main class="flex-1 overflow-y-auto p-4 lg:p-8 pt-20 lg:pt-8 custom-scrollbar relative">
           <div class="max-w-7xl mx-auto pb-12">
             <!-- Page Title Area (Moved from Header) -->
             <div class="mb-8">
