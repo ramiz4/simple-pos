@@ -18,7 +18,7 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
       <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden lg:pl-72">
         <!-- Top Header (Mobile Toggle + Page Title) -->
         <header
-          class="lg:hidden h-16 bg-white/70 backdrop-blur-md border-b border-white/20 flex items-center px-4 gap-4"
+          class="lg:hidden sticky top-0 z-40 h-16 bg-white/70 backdrop-blur-md border-b border-white/20 flex items-center px-4 gap-4"
         >
           <button
             (click)="isSidebarOpen = true"
