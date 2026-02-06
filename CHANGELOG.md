@@ -1,3 +1,9 @@
+# [1.12.0](https://github.com/ramiz4/simple-pos/compare/v1.11.0...v1.12.0) (2026-02-06)
+
+### Features
+
+- **kitchen:** refine order filtering and status logic ([eb5b7c6](https://github.com/ramiz4/simple-pos/commit/eb5b7c6befe061ae2609cc7043a84e1669bf9984))
+
 # [1.11.0](https://github.com/ramiz4/simple-pos/compare/v1.10.0...v1.11.0) (2026-02-05)
 
 ### Features
