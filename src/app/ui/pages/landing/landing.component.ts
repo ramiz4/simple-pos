@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+import { ButtonComponent } from '../../components/shared/button/button.component';
+
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ButtonComponent],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css',
 })

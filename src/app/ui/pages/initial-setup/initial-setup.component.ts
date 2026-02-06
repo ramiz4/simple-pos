@@ -5,10 +5,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
 import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
 
+import { ButtonComponent } from '../../components/shared/button/button.component';
+
 @Component({
   selector: 'app-initial-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   templateUrl: './initial-setup.component.html',
   styles: [],
 })

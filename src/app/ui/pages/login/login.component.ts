@@ -6,10 +6,12 @@ import { AuthService } from '../../../application/services/auth.service';
 import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
 import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
 
+import { ButtonComponent } from '../../components/shared/button/button.component';
+
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
