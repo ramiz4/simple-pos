@@ -1,3 +1,9 @@
+## [1.12.1](https://github.com/ramiz4/simple-pos/compare/v1.12.0...v1.12.1) (2026-02-06)
+
+### Bug Fixes
+
+- center modal vertically on mobile screens ([0b415a5](https://github.com/ramiz4/simple-pos/commit/0b415a5d2dc83001523bf26c6f01ced1f87ce44f))
+
 # [1.12.0](https://github.com/ramiz4/simple-pos/compare/v1.11.0...v1.12.0) (2026-02-06)
 
 ### Features
