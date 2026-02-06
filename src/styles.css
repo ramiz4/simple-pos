@@ -79,6 +79,7 @@
     --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     --surface-glass: rgba(255, 255, 255, 0.7);
     --border-glass: rgba(255, 255, 255, 0.3);
+    --admin-header-height: 4rem;
   }
 
   body {
