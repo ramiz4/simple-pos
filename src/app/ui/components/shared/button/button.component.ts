@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
@@ -10,7 +10,8 @@ import { RouterModule } from '@angular/router';
     <div
       [class]="
         buttonClasses +
-        ' relative overflow-hidden transition-all active:scale-95 group inline-flex items-center justify-center cursor-pointer min-h-4'
+        ' relative overflow-hidden transition-all active:scale-95 group items-center justify-center cursor-pointer min-h-4 h-full ' +
+        (fullWidth ? 'flex w-full' : 'inline-flex')
       "
       [class.opacity-50]="isDisabled || isLoading"
       [class.cursor-not-allowed]="isDisabled || isLoading"
@@ -84,15 +85,26 @@ export class ButtonComponent {
   @Input() label: string = '';
   @Input() type: 'button' | 'submit' = 'button';
   @Input() form: string | null = null;
-  @Input() variant: 'neo' | 'glass' | 'danger' | 'ghost' = 'neo';
+  @Input() variant: 'neo' | 'glass' | 'danger' | 'ghost' | 'orange' = 'neo';
+  @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
   @Input() isLoading: boolean = false;
   @Input() isDisabled: boolean = false;
   @Input() hasLeftIcon: boolean = false;
   @Input() hasRightIcon: boolean = false;
   @Input() routerLink: string | any[] | null = null;
+  @HostBinding('class.w-full')
+  @Input()
+  fullWidth: boolean = false;
 
   get buttonClasses(): string {
-    const base = 'rounded-2xl font-bold uppercase tracking-widest text-xs py-3';
+    const base = 'rounded-2xl font-bold uppercase tracking-widest';
+
+    const sizes = {
+      sm: 'text-xs py-1',
+      md: 'text-sm py-2',
+      lg: 'text-lg py-3',
+      xl: 'text-xl py-4',
+    };
 
     // Padding logic
     let padding = 'px-6';
@@ -108,8 +120,10 @@ export class ButtonComponent {
         'backdrop-blur-lg bg-white/40 border border-white/60 text-surface-800 hover:bg-white/60',
       danger: 'bg-red-50 text-red-600 border border-red-100 hover:bg-red-100',
       ghost: 'bg-transparent text-surface-500 hover:bg-surface-50',
+      orange:
+        'text-white shadow-lg shadow-orange-500/20 bg-linear-to-r from-orange-500 to-orange-400',
     };
 
-    return `${base} ${padding} ${variants[this.variant]}`;
+    return `${base} ${sizes[this.size]} ${padding} ${variants[this.variant]}`;
   }
 }

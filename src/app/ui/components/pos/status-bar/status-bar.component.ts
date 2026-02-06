@@ -53,7 +53,6 @@ import { ButtonComponent } from '../../shared/button/button.component';
             [isDisabled]="itemCount === 0 && !canBeEmpty"
             [label]="buttonLabel"
             [hasRightIcon]="true"
-            class="h-14"
           >
             <svg
               rightIcon

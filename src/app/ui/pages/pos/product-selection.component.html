@@ -168,9 +168,7 @@
         </div>
 
         <!-- Price Summary & Add Button -->
-        <div
-          class="mt-auto pt-6 border-t border-surface-100 flex items-center justify-between gap-6"
-        >
+        <div class="mt-auto pt-6 border-t border-surface-100 flex items-end justify-between">
           <div>
             <div class="text-surface-400 text-[10px] font-black uppercase tracking-widest">
               Total Price
@@ -179,11 +177,7 @@
               €{{ (calculatedUnitPrice() * quantity()).toFixed(2) }}
             </div>
           </div>
-          <app-button
-            (click)="addToCart()"
-            label="Add to Order"
-            class="h-16 grow text-lg"
-          ></app-button>
+          <app-button (click)="addToCart()" label="Add to Order"></app-button>
         </div>
       </div>
     </div>

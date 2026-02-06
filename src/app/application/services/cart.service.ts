@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, effect, Injectable, signal } from '@angular/core';
 import { CartItem, CartSummary } from '../../domain/dtos/cart.dto';
 
 @Injectable({
@@ -7,6 +7,10 @@ import { CartItem, CartSummary } from '../../domain/dtos/cart.dto';
 export class CartService {
   // Kosovo VAT rate (18%) - prices already include this tax (tax-inclusive pricing)
   private readonly TAX_RATE = 0.18;
+
+  // Storage keys
+  private readonly STORAGE_KEY_CARTS = 'simple_pos_carts';
+  private readonly STORAGE_KEY_TIPS = 'simple_pos_tips';
 
   // Storage for all active carts (table-specific or by order type)
   // Key format: 'table_[id]' or 'TAKEAWAY' or 'DELIVERY'
@@ -18,6 +22,37 @@ export class CartService {
 
   readonly cart = computed(() => this.allCarts()[this.activeContextKey()] || []);
   readonly tip = computed(() => this.allTips()[this.activeContextKey()] || 0);
+
+  constructor() {
+    this.loadFromStorage();
+
+    // Auto-save changes using effect
+    effect(() => {
+      const carts = this.allCarts();
+      localStorage.setItem(this.STORAGE_KEY_CARTS, JSON.stringify(carts));
+    });
+
+    effect(() => {
+      const tips = this.allTips();
+      localStorage.setItem(this.STORAGE_KEY_TIPS, JSON.stringify(tips));
+    });
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const storedCarts = localStorage.getItem(this.STORAGE_KEY_CARTS);
+      if (storedCarts) {
+        this.allCarts.set(JSON.parse(storedCarts));
+      }
+
+      const storedTips = localStorage.getItem(this.STORAGE_KEY_TIPS);
+      if (storedTips) {
+        this.allTips.set(JSON.parse(storedTips));
+      }
+    } catch (e) {
+      console.warn('Failed to load cart from storage', e);
+    }
+  }
 
   /**
    * Set the current active cart context (e.g., 'table_1', 'TAKEAWAY')

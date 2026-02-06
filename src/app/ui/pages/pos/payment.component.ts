@@ -63,7 +63,8 @@ import { ButtonComponent } from '../../components/shared/button/button.component
               (click)="confirmPayment()"
               label="Complete Cash Payment"
               [hasRightIcon]="true"
-              class="w-full h-20 text-xl"
+              [fullWidth]="true"
+              size="xl"
             >
               <svg
                 rightIcon

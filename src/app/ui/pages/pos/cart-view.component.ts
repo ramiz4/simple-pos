@@ -10,10 +10,12 @@ import { OrderItem } from '../../../domain/entities/order-item.interface';
 interface EnrichedOrderItem extends OrderItem {
   productName: string;
   variantName: string | null;
+  extraNames: string[];
 }
 
 import { AuthService } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
+import { ExtraService } from '../../../application/services/extra.service';
 import { OrderService } from '../../../application/services/order.service';
 import { PrinterService } from '../../../application/services/printer.service';
 import { TableService } from '../../../application/services/table.service';
@@ -71,11 +73,40 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                           <h3 class="font-bold text-surface-900 leading-tight">
                             {{ item.productName }}
                           </h3>
-                          @if (item.variantName) {
-                            <span
-                              class="text-[10px] font-bold text-surface-400 uppercase tracking-wider"
-                              >{{ item.variantName }}</span
-                            >
+                          <div class="flex flex-wrap gap-2 mt-1">
+                            @if (item.variantName) {
+                              <span
+                                class="text-[10px] font-bold text-surface-400 uppercase tracking-wider"
+                                >{{ item.variantName }}</span
+                              >
+                            }
+                            @for (extraName of item.extraNames; track $index) {
+                              <span
+                                class="text-[10px] font-black uppercase tracking-wider bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md"
+                              >
+                                + {{ extraName }}
+                              </span>
+                            }
+                          </div>
+
+                          @if (item.notes) {
+                            <div class="text-xs text-surface-400 italic flex items-center gap-1">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-3 w-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                                />
+                              </svg>
+                              {{ item.notes }}
+                            </div>
                           }
                         </div>
                       </div>
@@ -136,7 +167,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                         </div>
 
                         @if (item.notes) {
-                          <p class="text-xs text-surface-400 italic mb-4 flex items-center gap-1">
+                          <div class="mb-4 text-xs text-surface-400 italic flex items-center gap-1">
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               class="h-3 w-3"
@@ -152,12 +183,12 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                               />
                             </svg>
                             {{ item.notes }}
-                          </p>
+                          </div>
                         }
 
                         @if (success()) {
                           <div
-                            class="mb-6 p-4 bg-green-50 border border-green-100 text-green-600 rounded-2xl flex items-center gap-3 animate-scale-in"
+                            class="my-6 p-4 bg-green-50 border border-green-100 text-green-600 rounded-2xl flex items-center gap-3 animate-scale-in"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -248,7 +279,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                   <span class="text-surface-400 text-sm font-medium"
                     >VAT ({{ (summary().taxRate * 100).toFixed(0) }}%)</span
                   >
-                  <span class="text-white font-bold">€{{ summary().tax.toFixed(2) }}</span>
+                  <span class="text-white font-bold">€{{ totalTax().toFixed(2) }}</span>
                 </div>
 
                 <div>
@@ -324,7 +355,8 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                     [isLoading]="isSending()"
                     label="Place Order"
                     [hasRightIcon]="!isSending()"
-                    class="w-full h-16"
+                    [fullWidth]="true"
+                    variant="orange"
                   >
                     <svg
                       rightIcon
@@ -349,7 +381,8 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                     (click)="proceedToPayment()"
                     [isDisabled]="isDineIn() && cartItems().length > 0"
                     label="Pay Now"
-                    class="w-full h-16 text-lg"
+                    size="xl"
+                    [fullWidth]="true"
                   ></app-button>
                   @if (isDineIn() && cartItems().length > 0) {
                     <p class="text-[10px] text-primary-400 font-bold text-center animate-pulse">
@@ -446,6 +479,12 @@ export class CartViewComponent implements OnInit {
   customerName = signal<string>('');
   isNameRequired = computed(() => !this.isDineIn());
 
+  totalTax = computed(() => {
+    const existingTax = this.existingOrder()?.tax || 0;
+    const newTax = this.summary().tax;
+    return existingTax + newTax;
+  });
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -455,6 +494,7 @@ export class CartViewComponent implements OnInit {
     private orderService: OrderService,
     private productService: ProductService,
     private variantService: VariantService,
+    private extraService: ExtraService,
     private authService: AuthService,
     private printerService: PrinterService,
   ) {}
@@ -469,6 +509,11 @@ export class CartViewComponent implements OnInit {
       if (this.typeId) {
         const type = await this.enumMappingService.getEnumFromId(this.typeId);
         this.isDineIn.set(type.code === OrderTypeEnum.DINE_IN);
+      }
+
+      // Ensure context is set so we see the correct cart items
+      if (this.tableId) {
+        this.cartService.setContext(this.tableId);
       }
 
       if (this.tableId || this.orderId) {
@@ -527,13 +572,6 @@ export class CartViewComponent implements OnInit {
       this.error.set('Order information missing');
       return;
     }
-
-    // Validate this is a DINE_IN order
-    // const orderType = await this.enumMappingService.getEnumFromId(this.typeId);
-    // if (orderType.code !== OrderTypeEnum.DINE_IN) {
-    //   this.error.set('Place Order is only available for dine-in orders');
-    //   return;
-    // }
 
     const session = this.authService.getCurrentSession();
     if (!session) {
@@ -632,10 +670,22 @@ export class CartViewComponent implements OnInit {
         items.map(async (item) => {
           const product = await this.productService.getById(item.productId);
           const variant = item.variantId ? await this.variantService.getById(item.variantId) : null;
+
+          // Fetch extras
+          const extraIds = await this.orderService.getOrderItemExtras(item.id);
+          const extraNames: string[] = [];
+          for (const extraId of extraIds) {
+            const extra = await this.extraService.getById(extraId);
+            if (extra) {
+              extraNames.push(extra.name);
+            }
+          }
+
           return {
             ...item,
             productName: product?.name || 'Unknown Product',
             variantName: variant?.name || null,
+            extraNames,
           };
         }),
       );
