@@ -83,7 +83,7 @@ export interface NavItem {
       </div>
 
       <!-- Navigation Menu -->
-      <div class="flex-1 overflow-y-auto py-6 px-2 custom-scrollbar">
+      <div class="flex-1 overflow-y-auto py-6 px-2 custom-scrollbar min-h-0">
         <ul class="space-y-1" role="list">
           @for (item of menuItems; track item.label) {
             <app-admin-nav-item
@@ -95,7 +95,7 @@ export interface NavItem {
       </div>
 
       <!-- Footer / Lower Actions -->
-      <div class="p-4 mt-auto border-t border-surface-200 space-y-2">
+      <div class="p-4 flex-shrink-0 border-t border-surface-200 space-y-2">
         <a
           routerLink="/dashboard"
           class="flex items-center p-3 text-gray-600 rounded-2xl transition-all duration-300 hover:bg-white/60 hover:text-blue-600 group border border-transparent hover:border-white/40 active:scale-95"
