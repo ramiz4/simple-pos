@@ -73,6 +73,7 @@
     "@semantic-release/git": "^10.0.1",
     "@tailwindcss/postcss": "^4.1.18",
     "@tauri-apps/cli": "^2.9.6",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.24",
     "fake-indexeddb": "^6.2.5",
     "husky": "^9.1.7",
