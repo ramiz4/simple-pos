@@ -117,11 +117,11 @@
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-xl bg-white/70 border border-white/40 rounded-3xl shadow-2xl;
+    @apply backdrop-blur-xl bg-white/70 border border-white/40 rounded-3xl shadow;
   }
 
   .glass-button {
-    @apply backdrop-blur-lg bg-white/40 border border-white/60 rounded-2xl shadow-lg hover:bg-white/60 transition-all active:scale-95 text-surface-800 font-semibold;
+    @apply backdrop-blur-lg bg-white/40 border border-white/60 rounded-2xl shadow hover:bg-white/60 transition-all active:scale-95 text-surface-800 font-semibold;
   }
 
   .primary-gradient {

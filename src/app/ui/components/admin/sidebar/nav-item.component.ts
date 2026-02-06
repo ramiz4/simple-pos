@@ -37,7 +37,7 @@ import { RouterModule } from '@angular/router';
         >
           @if (link.icon) {
             <span
-              class="shrink-0 w-5 h-5 transition duration-75 group-hover:text-purple-600"
+              class="shrink-0 w-5 h-5 transition duration-75 group-hover:text-purple-600 group-[.active-nav-item]:group-hover:text-white"
               [innerHTML]="getIcon(link.icon)"
             ></span>
           } @else {
@@ -55,7 +55,7 @@ export class AdminNavItemComponent {
   @Input() onLinkClick: () => void = () => {};
 
   activeClasses =
-    'bg-linear-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-200/50 scale-[1.02] border-white/20';
+    'bg-linear-to-r from-purple-600 to-blue-600 text-white hover:!text-white active-nav-item shadow-lg shadow-purple-200/50 scale-[1.02] border-white/20';
 
   getIcon(icon: string): string {
     // Basic icons mapping
