@@ -18,15 +18,15 @@ pnpm test -- --run sqlite-user.repository.spec.ts         # 42 tests
 pnpm test -- --run sqlite-category.repository.spec.ts     # 29 tests
 pnpm test -- --run sqlite-ingredient.repository.spec.ts   # 31 tests
 pnpm test -- --run sqlite-extra.repository.spec.ts        # 29 tests
-npm test -- --run sqlite-order-item.repository.spec.ts   # 32 tests
-npm test -- --run sqlite-table.repository.spec.ts        # 33 tests
-npm test -- --run sqlite-order-item-extra.repository.spec.ts  # 36 tests
+pnpm test -- --run sqlite-order-item.repository.spec.ts   # 32 tests
+pnpm test -- --run sqlite-table.repository.spec.ts        # 33 tests
+pnpm test -- --run sqlite-order-item-extra.repository.spec.ts  # 36 tests
 ```
 
 ### With Coverage
 
 ```bash
-npm test -- --run --coverage sqlite-account.repository.spec.ts
+pnpm test -- --run --coverage sqlite-account.repository.spec.ts
 ```
 
 ### Watch Mode (for development)
