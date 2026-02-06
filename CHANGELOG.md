@@ -1,3 +1,9 @@
+## [1.12.5](https://github.com/ramiz4/simple-pos/compare/v1.12.4...v1.12.5) (2026-02-06)
+
+### Bug Fixes
+
+- use h-dvh instead of h-screen for iOS Safari sidebar visibility ([22e8569](https://github.com/ramiz4/simple-pos/commit/22e856945af0ef8cc4de521a2c54d4358a5b22e2))
+
 ## [1.12.4](https://github.com/ramiz4/simple-pos/compare/v1.12.3...v1.12.4) (2026-02-06)
 
 ### Bug Fixes
