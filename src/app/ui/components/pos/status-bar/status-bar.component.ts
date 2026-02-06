@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-status-bar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ButtonComponent],
   template: `
     <div class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-8 sm:pb-4 pointer-events-none">
       <div class="max-w-4xl mx-auto pointer-events-auto">
@@ -47,13 +48,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             </div>
           </div>
 
-          <button
+          <app-button
             (click)="action.emit()"
-            [disabled]="itemCount === 0 && !canBeEmpty"
-            class="neo-button h-14 px-8 disabled:opacity-50 disabled:grayscale transition-all flex items-center gap-2 whitespace-nowrap"
+            [isDisabled]="itemCount === 0 && !canBeEmpty"
+            [label]="buttonLabel"
+            [hasRightIcon]="true"
           >
-            <span>{{ buttonLabel }}</span>
             <svg
+              rightIcon
               xmlns="http://www.w3.org/2000/svg"
               class="h-5 w-5"
               fill="none"
@@ -67,7 +69,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 d="M14 5l7 7m0 0l-7 7m7-7H3"
               />
             </svg>
-          </button>
+          </app-button>
         </div>
       </div>
     </div>

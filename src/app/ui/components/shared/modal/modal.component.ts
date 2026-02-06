@@ -20,7 +20,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         (click)="$event.stopPropagation()"
       >
         <!-- Modal Header -->
-        <div class="px-6 pt-6 sm:px-8 sm:pt-8 bg-white/40 border-b border-transparent">
+        <div class="px-6 py-6 sm:px-8 sm:py-8 bg-white/60 border-b border-transparent">
           <div class="flex justify-between items-start gap-4">
             <div class="flex-1 min-w-0">
               @if (title) {
@@ -66,7 +66,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
         <!-- Optional Footer -->
         <div
-          class="px-6 py-4 sm:px-8 sm:py-6 bg-white/80 backdrop-blur-md border-t border-gray-100 empty:hidden"
+          class="flex px-6 py-4 sm:px-8 sm:py-6 bg-white/60 backdrop-blur-md border-t border-gray-100 empty:hidden justify-between"
         >
           <ng-content select="[footer]"></ng-content>
         </div>

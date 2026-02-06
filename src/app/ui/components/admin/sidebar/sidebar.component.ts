@@ -34,7 +34,7 @@ export interface NavItem {
       aria-label="Admin Navigation Menu"
     >
       <!-- Logo/Brand Area -->
-      <div class="p-6 flex items-center justify-between border-b border-white/20">
+      <div class="p-6 flex items-center justify-between border-b border-surface-200">
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 rounded-xl bg-linear-to-tr from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-200"
@@ -95,7 +95,7 @@ export interface NavItem {
       </div>
 
       <!-- Footer / Lower Actions -->
-      <div class="p-4 mt-auto border-t border-white/20 space-y-2">
+      <div class="p-4 mt-auto border-t border-surface-200 space-y-2">
         <a
           routerLink="/dashboard"
           class="flex items-center p-3 text-gray-600 rounded-2xl transition-all duration-300 hover:bg-white/60 hover:text-blue-600 group border border-transparent hover:border-white/40 active:scale-95"

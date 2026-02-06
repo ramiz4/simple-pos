@@ -248,34 +248,29 @@
         </div>
       }
 
-      <button
+      <app-button
         type="submit"
-        [disabled]="isLoading()"
-        class="neo-button w-full h-16 text-lg disabled:opacity-50 flex items-center justify-center gap-3"
+        [isLoading]="isLoading()"
+        label="Register & Continue"
+        [hasRightIcon]="!isLoading()"
+        class="w-full h-16 text-lg"
       >
-        @if (isLoading()) {
-          <div
-            class="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"
-          ></div>
-          <span>Creating Account...</span>
-        } @else {
-          <span>Register & Continue</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M14 5l7 7m0 0l-7 7m7-7H3"
-            />
-          </svg>
-        }
-      </button>
+        <svg
+          rightIcon
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M14 5l7 7m0 0l-7 7m7-7H3"
+          />
+        </svg>
+      </app-button>
 
       <div class="text-center pt-4">
         <button

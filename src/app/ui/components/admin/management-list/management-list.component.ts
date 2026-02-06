@@ -1,10 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-management-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="backdrop-blur-md bg-white/70 rounded-2xl shadow-xl p-6 border border-white/20">
       <!-- Header -->
@@ -18,27 +17,28 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         </button>
       </div>
 
-      <!-- Loading State -->
-      <div *ngIf="isLoading" class="text-center py-12">
-        <div class="inline-block animate-spin text-4xl">⏳</div>
-        <p class="text-gray-600 mt-4">Loading {{ title.toLowerCase() }}...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div
-        *ngIf="!isLoading && isEmpty"
-        class="text-center py-12 backdrop-blur-md bg-blue-50/50 rounded-xl border border-blue-200 p-8"
-      >
-        <p class="text-gray-600 text-lg">
-          No {{ title.toLowerCase() }} found. Create your first {{ itemLabel.toLowerCase() }} to get
-          started.
-        </p>
-      </div>
-
-      <!-- Content -->
-      <div *ngIf="!isLoading && !isEmpty" class="space-y-3">
-        <ng-content></ng-content>
-      </div>
+      @if (isLoading) {
+        <!-- Loading State -->
+        <div class="text-center py-12">
+          <div class="inline-block animate-spin text-4xl">⏳</div>
+          <p class="text-gray-600 mt-4">Loading {{ title.toLowerCase() }}...</p>
+        </div>
+      } @else if (isEmpty) {
+        <!-- Empty State -->
+        <div
+          class="text-center py-12 backdrop-blur-md bg-blue-50/50 rounded-xl border border-blue-200 p-8"
+        >
+          <p class="text-gray-600 text-lg">
+            No {{ title.toLowerCase() }} found. Create your first {{ itemLabel.toLowerCase() }} to
+            get started.
+          </p>
+        </div>
+      } @else {
+        <!-- Content -->
+        <div class="space-y-3">
+          <ng-content></ng-content>
+        </div>
+      }
     </div>
   `,
 })

@@ -7,10 +7,12 @@ import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer
 import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
 import { ValidationUtils } from '../../../shared/utilities/validation.utils';
 
+import { ButtonComponent } from '../../components/shared/button/button.component';
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css',
 })

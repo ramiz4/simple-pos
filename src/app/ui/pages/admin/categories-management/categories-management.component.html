@@ -1,158 +1,357 @@
-<main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-  @if (successMessage) {
-    <app-alert [message]="successMessage" type="success" (close)="successMessage = ''"></app-alert>
-  }
+<app-admin-page-layout>
+  <!-- Search/Filters -->
+  <div filters class="flex-1">
+    <app-admin-search-input
+      placeholder="Search categories..."
+      (search)="loadData()"
+    ></app-admin-search-input>
+  </div>
 
-  @if (errorMessage) {
-    <app-alert [message]="errorMessage" type="error" (close)="errorMessage = ''"></app-alert>
-  }
+  <!-- Actions -->
+  <div actions>
+    <app-button label="Add Category" (click)="openForm()" [hasLeftIcon]="true">
+      <svg
+        leftIcon
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+    </app-button>
+  </div>
 
-  <!-- Main Content -->
-  @if (!isFormOpen && !isDeleteConfirmOpen) {
-    <app-management-list
-      title="Categories"
-      itemLabel="Category"
+  <!-- Content -->
+  <div class="space-y-4">
+    @if (successMessage) {
+      <app-alert
+        [message]="successMessage"
+        type="success"
+        (close)="successMessage = ''"
+      ></app-alert>
+    }
+
+    @if (errorMessage) {
+      <app-alert [message]="errorMessage" type="error" (close)="errorMessage = ''"></app-alert>
+    }
+
+    <app-admin-data-table
       [isLoading]="isLoading"
       [isEmpty]="categories.length === 0"
-      (add)="openForm()"
+      emptyTitle="No Categories"
+      emptyMessage="Start by creating your first category to organize your products."
     >
-      @for (category of categories; track category.id) {
-        <div
-          class="backdrop-blur-md bg-white/60 rounded-lg border border-white/40 p-4 hover:shadow-lg transition flex items-center justify-between"
-        >
-          <div class="flex-1">
-            <div class="flex items-center gap-3">
-              <h3 class="text-lg font-semibold text-gray-800">{{ category.name }}</h3>
+      <!-- Table Headers -->
+      <ng-container headers>
+        <th class="w-24">Order</th>
+        <th class="w-full">Category Name</th>
+        <th class="w-32">Status</th>
+        <th class="w-48 text-right">Actions</th>
+      </ng-container>
+
+      <!-- Table Rows -->
+      <ng-container rows>
+        @for (category of categories; track category.id) {
+          <tr class="group">
+            <td>
+              <span class="font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-lg text-xs">
+                #{{ category.sortOrder }}
+              </span>
+            </td>
+            <td>
+              <div class="font-bold text-surface-900">{{ category.name }}</div>
+            </td>
+            <td>
               @if (category.isActive) {
                 <span
-                  class="px-3 py-1 backdrop-blur-md bg-green-100/80 text-green-700 text-xs rounded-full border border-green-200"
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700 border border-green-200"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                  Active
+                </span>
+              } @else {
+                <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-surface-100 text-surface-600 border border-surface-200"
+                >
+                  Inactive
+                </span>
+              }
+            </td>
+            <td class="text-right">
+              <div class="flex justify-end items-center gap-2">
+                <button
+                  (click)="moveUp(category)"
+                  [disabled]="categories[0]?.id === category.id"
+                  class="p-2 glass-button disabled:opacity-30"
+                  title="Move Up"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 15l7-7 7 7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="moveDown(category)"
+                  [disabled]="categories[categories.length - 1]?.id === category.id"
+                  class="p-2 glass-button disabled:opacity-30"
+                  title="Move Down"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="openForm(category)"
+                  class="p-2 glass-button text-primary-600"
+                  title="Edit Category"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="openDeleteConfirm(category)"
+                  class="p-2 glass-button text-red-600 hover:bg-red-50 border-red-100"
+                  title="Delete Category"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-container>
+
+      <!-- Mobile Cards -->
+      <ng-container mobileCards>
+        @for (category of categories; track category.id) {
+          <div class="p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span
+                  class="font-black text-primary-600 bg-primary-50 px-2 py-1 rounded-lg text-xs"
+                >
+                  #{{ category.sortOrder }}
+                </span>
+                <h4 class="font-bold text-surface-900">{{ category.name }}</h4>
+              </div>
+              @if (category.isActive) {
+                <span
+                  class="px-2 py-1 rounded-full text-[10px] font-black uppercase bg-green-100 text-green-700 border border-green-200"
                 >
                   Active
                 </span>
               } @else {
                 <span
-                  class="px-3 py-1 backdrop-blur-md bg-gray-100/80 text-gray-700 text-xs rounded-full border border-gray-200"
+                  class="px-2 py-1 rounded-full text-[10px] font-black uppercase bg-surface-100 text-surface-600 border border-surface-200"
                 >
                   Inactive
                 </span>
               }
             </div>
-            <p class="text-sm text-gray-600 mt-1">Order: {{ category.sortOrder }}</p>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+              <button
+                (click)="moveUp(category)"
+                [disabled]="categories[0]?.id === category.id"
+                class="p-2.5 glass-button disabled:opacity-30"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 15l7-7 7 7"
+                  />
+                </svg>
+              </button>
+              <button
+                (click)="moveDown(category)"
+                [disabled]="categories[categories.length - 1]?.id === category.id"
+                class="p-2.5 glass-button disabled:opacity-30"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+              <button (click)="openForm(category)" class="p-2.5 glass-button text-primary-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+              </button>
+              <button (click)="openDeleteConfirm(category)" class="p-2.5 glass-button text-red-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
+        }
+      </ng-container>
+    </app-admin-data-table>
+  </div>
+</app-admin-page-layout>
 
-          <div class="flex gap-2 items-center flex-wrap sm:flex-nowrap">
-            <button
-              (click)="moveUp(category)"
-              [disabled]="categories[0].id === category.id"
-              class="px-3 py-2 min-h-[44px] backdrop-blur-md bg-blue-50/80 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed text-blue-700 rounded-lg transition border border-blue-200 text-sm"
-            >
-              ↑
-            </button>
-            <button
-              (click)="moveDown(category)"
-              [disabled]="categories[categories.length - 1].id === category.id"
-              class="px-3 py-2 min-h-[44px] backdrop-blur-md bg-blue-50/80 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed text-blue-700 rounded-lg transition border border-blue-200 text-sm"
-            >
-              ↓
-            </button>
-            <button
-              (click)="openForm(category)"
-              class="px-3 py-2 min-h-[44px] backdrop-blur-md bg-blue-50/80 hover:bg-blue-100 text-blue-700 rounded-lg transition border border-blue-200 text-sm"
-            >
-              Edit
-            </button>
-            <button
-              (click)="openDeleteConfirm(category)"
-              class="px-3 py-2 min-h-[44px] backdrop-blur-md bg-red-50/80 hover:bg-red-100 text-red-700 rounded-lg transition border border-red-200 text-sm"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      }
-    </app-management-list>
-  }
-
-  <!-- Add/Edit Modal -->
-  @if (isFormOpen) {
-    <app-modal
-      (close)="closeForm()"
-      [title]="editingId ? 'Edit Category' : 'Add New Category'"
-      subtitle="Define product group and sorting"
-    >
-      <form id="categoryForm" (ngSubmit)="saveCategory()" class="space-y-5 px-1">
-        <!-- Name -->
-        <div class="space-y-2">
-          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-            >Category Name *</label
-          >
-          <input
-            [(ngModel)]="formData.name"
-            name="name"
-            type="text"
-            placeholder="e.g., Pizza, Drinks, Desserts"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-          />
-        </div>
-
-        <!-- Sort Order -->
-        <div class="space-y-2">
-          <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-            >Sort Order</label
-          >
-          <input
-            [(ngModel)]="formData.sortOrder"
-            name="sortOrder"
-            type="number"
-            placeholder="0"
-            class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-          />
-        </div>
-
-        <!-- Status -->
-        <div
-          class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100"
+<!-- Add/Edit Modal -->
+@if (isFormOpen) {
+  <app-modal
+    (close)="closeForm()"
+    [title]="editingId ? 'Edit Category' : 'Add New Category'"
+    subtitle="Define product group and sorting"
+  >
+    <form id="categoryForm" (ngSubmit)="saveCategory()" class="space-y-6 px-1 py-2">
+      <!-- Name -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Category Name *</label
         >
-          <span class="text-sm font-bold text-gray-700">Display as Active</span>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              [(ngModel)]="formData.isActive"
-              name="isActive"
-              class="sr-only peer"
-            />
-            <div
-              class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"
-            ></div>
-          </label>
-        </div>
-      </form>
-
-      <div footer class="flex gap-4 w-full">
-        <button
-          type="button"
-          (click)="closeForm()"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
-        >
-          Cancel
-        </button>
-        <button
-          form="categoryForm"
-          type="submit"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-linear-to-r from-purple-600 to-blue-600 hover:shadow-xl hover:shadow-purple-200 text-white rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
-        >
-          {{ editingId ? 'Update' : 'Create' }}
-        </button>
+        <input
+          [(ngModel)]="formData.name"
+          name="name"
+          type="text"
+          placeholder="e.g., Pizza, Drinks, Desserts"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+        />
       </div>
-    </app-modal>
-  }
 
-  <!-- Delete Confirmation -->
-  @if (isDeleteConfirmOpen) {
-    <app-confirm-delete-modal
-      [itemName]="deleteConfirmName"
-      (confirm)="confirmDelete()"
-      (cancel)="closeDeleteConfirm()"
-    ></app-confirm-delete-modal>
-  }
-</main>
+      <!-- Sort Order -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Sort Order</label
+        >
+        <input
+          [(ngModel)]="formData.sortOrder"
+          name="sortOrder"
+          type="number"
+          placeholder="0"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+        />
+      </div>
+
+      <!-- Status -->
+      <div
+        class="flex items-center justify-between p-4 glass-card bg-surface-50/50! rounded-2xl! border-white/40"
+      >
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-surface-900">Active Status</span>
+          <span class="text-[10px] text-surface-500">Visible in the point of sale</span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.isActive"
+            name="isActive"
+            class="sr-only peer"
+          />
+          <div
+            class="w-11 h-6 bg-surface-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"
+          ></div>
+        </label>
+      </div>
+    </form>
+
+    <ng-container footer>
+      <app-button variant="glass" label="Cancel" (click)="closeForm()"></app-button>
+      <app-button
+        type="submit"
+        form="categoryForm"
+        [label]="editingId ? 'Update Category' : 'Create Category'"
+      ></app-button>
+    </ng-container>
+  </app-modal>
+}
+
+<!-- Delete Confirmation -->
+@if (isDeleteConfirmOpen) {
+  <app-confirm-delete-modal
+    [itemName]="deleteConfirmName"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteConfirm()"
+  ></app-confirm-delete-modal>
+}

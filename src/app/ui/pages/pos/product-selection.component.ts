@@ -19,6 +19,7 @@ import { Product } from '../../../domain/entities/product.interface';
 import { ProductCardComponent } from '../../components/pos/product-card/product-card.component';
 import { QuantitySelectorComponent } from '../../components/pos/quantity-selector/quantity-selector.component';
 import { StatusBarComponent } from '../../components/pos/status-bar/status-bar.component';
+import { ButtonComponent } from '../../components/shared/button/button.component';
 
 interface ProductWithExtras extends Product {
   availableExtras: Extra[];
@@ -33,6 +34,7 @@ interface ProductWithExtras extends Product {
     ProductCardComponent,
     QuantitySelectorComponent,
     StatusBarComponent,
+    ButtonComponent,
   ],
   templateUrl: './product-selection.component.html',
 })

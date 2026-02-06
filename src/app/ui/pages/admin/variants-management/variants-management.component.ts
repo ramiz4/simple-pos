@@ -7,8 +7,11 @@ import { VariantService } from '../../../../application/services/variant.service
 import { Product } from '../../../../domain/entities/product.interface';
 import { Variant } from '../../../../domain/entities/variant.interface';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
-import { ManagementListComponent } from '../../../components/admin/management-list/management-list.component';
+import { AdminDataTableComponent } from '../../../components/admin/shared/data-table/data-table.component';
+import { AdminPageLayoutComponent } from '../../../components/admin/shared/page-layout/page-layout.component';
+import { AdminSearchInputComponent } from '../../../components/admin/shared/search-input/search-input.component';
 import { AlertComponent } from '../../../components/shared/alert/alert.component';
+import { ButtonComponent } from '../../../components/shared/button/button.component';
 import { ModalComponent } from '../../../components/shared/modal/modal.component';
 
 @Component({
@@ -20,7 +23,10 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
     RouterModule,
     AlertComponent,
     ModalComponent,
-    ManagementListComponent,
+    AdminPageLayoutComponent,
+    AdminDataTableComponent,
+    AdminSearchInputComponent,
+    ButtonComponent,
     ConfirmDeleteModalComponent,
   ],
   templateUrl: './variants-management.component.html',

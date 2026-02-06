@@ -127,13 +127,12 @@
           >
             Cancel
           </button>
-          <button
+          <app-button
             (click)="verifyPin()"
-            [disabled]="isLoading()"
-            class="h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-md"
-          >
-            {{ isLoading() ? '...' : 'Unlock' }}
-          </button>
+            [isLoading]="isLoading()"
+            label="Unlock"
+            class="h-12"
+          ></app-button>
         </div>
       </div>
     </div>
@@ -189,13 +188,12 @@
           >
             Cancel
           </button>
-          <button
+          <app-button
             (click)="verifyAdminPin()"
-            [disabled]="isLoading()"
-            class="h-12 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold shadow-md"
-          >
-            {{ isLoading() ? '...' : 'Verify' }}
-          </button>
+            [isLoading]="isLoading()"
+            label="Verify"
+            class="h-12"
+          ></app-button>
         </div>
       </div>
     </div>
@@ -255,13 +253,13 @@
           <p class="text-red-500 text-sm text-center mb-4 font-bold">{{ errorMessage() }}</p>
         }
 
-        <button
+        <app-button
           (click)="saveNewPin()"
-          [disabled]="isLoading() || !newPin() || !confirmNewPin()"
-          class="w-full h-14 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold shadow-md text-lg"
-        >
-          {{ isLoading() ? 'Saving...' : 'Set PIN & Continue' }}
-        </button>
+          [isDisabled]="isLoading() || !newPin() || !confirmNewPin()"
+          [isLoading]="isLoading()"
+          label="Set PIN & Continue"
+          class="w-full h-14 text-lg"
+        ></app-button>
       </div>
     </div>
   }

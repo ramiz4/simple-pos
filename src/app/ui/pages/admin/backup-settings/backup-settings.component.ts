@@ -5,11 +5,13 @@ import {
   BackupMetadata,
   ScheduledBackupService,
 } from '../../../../application/services/scheduled-backup.service';
+import { AdminSectionComponent } from '../../../components/admin/shared/section/section.component';
+import { ButtonComponent } from '../../../components/shared/button/button.component';
 
 @Component({
   selector: 'app-backup-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminSectionComponent, ButtonComponent],
   templateUrl: './backup-settings.component.html',
 })
 export class BackupSettingsComponent {

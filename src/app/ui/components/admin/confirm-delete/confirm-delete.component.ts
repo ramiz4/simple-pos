@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ButtonComponent } from '../../shared/button/button.component';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-confirm-delete-modal',
   standalone: true,
-  imports: [CommonModule, ModalComponent],
+  imports: [CommonModule, ModalComponent, ButtonComponent],
   template: `
     <app-modal title="Confirm Delete" (close)="cancel.emit()">
       <p class="text-gray-600 mb-2 font-medium">
@@ -19,20 +20,10 @@ import { ModalComponent } from '../../shared/modal/modal.component';
         This action cannot be undone
       </p>
 
-      <div footer class="flex gap-3 w-full">
-        <button
-          (click)="cancel.emit()"
-          class="flex-1 px-4 py-2 min-h-[44px] backdrop-blur-md bg-gray-100/80 hover:bg-gray-200 text-gray-800 rounded-xl transition font-bold active:scale-95"
-        >
-          Cancel
-        </button>
-        <button
-          (click)="confirm.emit()"
-          class="flex-1 px-4 py-2 min-h-[44px] bg-red-500 hover:bg-red-600 text-white rounded-xl transition shadow-lg shadow-red-100 font-bold active:scale-95"
-        >
-          Delete
-        </button>
-      </div>
+      <ng-container footer>
+        <app-button (click)="cancel.emit()" variant="glass" label="Cancel"></app-button>
+        <app-button (click)="confirm.emit()" variant="danger" label="Delete"></app-button>
+      </ng-container>
     </app-modal>
   `,
 })

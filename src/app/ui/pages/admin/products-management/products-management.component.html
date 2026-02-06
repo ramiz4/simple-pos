@@ -1,207 +1,345 @@
-<main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-  @if (successMessage) {
-    <app-alert [message]="successMessage" type="success" (close)="successMessage = ''"></app-alert>
-  }
+<app-admin-page-layout>
+  <!-- Search/Filters -->
+  <div filters class="flex-1">
+    <app-admin-search-input
+      placeholder="Search products..."
+      (search)="loadData()"
+    ></app-admin-search-input>
+  </div>
 
-  @if (errorMessage) {
-    <app-alert [message]="errorMessage" type="error" (close)="errorMessage = ''"></app-alert>
-  }
+  <!-- Actions -->
+  <div actions>
+    <app-button label="Add Product" (click)="openForm()" [hasLeftIcon]="true">
+      <svg
+        leftIcon
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+    </app-button>
+  </div>
 
-  <!-- Main Content -->
-  @if (!isFormOpen && !isDeleteConfirmOpen) {
-    <app-management-list
-      title="Products"
-      itemLabel="Product"
+  <!-- Content -->
+  <div class="space-y-4">
+    @if (successMessage) {
+      <app-alert
+        [message]="successMessage"
+        type="success"
+        (close)="successMessage = ''"
+      ></app-alert>
+    }
+
+    @if (errorMessage) {
+      <app-alert [message]="errorMessage" type="error" (close)="errorMessage = ''"></app-alert>
+    }
+
+    <app-admin-data-table
       [isLoading]="isLoading"
       [isEmpty]="products.length === 0"
-      (add)="openForm()"
+      emptyTitle="No Products"
+      emptyMessage="Start by creating your first product to build your menu."
     >
-      <!-- Products Table (Responsive) -->
-      <div class="overflow-x-auto bg-white/60 backdrop-blur-md rounded-xl border border-white/40">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b border-white/20">
-              <th class="text-left py-3 px-4 font-semibold text-gray-700">Name</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700">Category</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700">Price</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700">Stock</th>
-              <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-              <th class="text-right py-3 px-4 font-semibold text-gray-700">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-white/20">
-            @for (product of products; track product.id) {
-              <tr class="hover:bg-white/40 transition">
-                <td class="py-3 px-4 text-gray-800 font-medium">{{ product.name }}</td>
-                <td class="py-3 px-4 text-gray-600">
-                  {{ getCategoryName(product.categoryId) }}
-                </td>
-                <td class="py-3 px-4 text-gray-600">${{ product.price.toFixed(2) }}</td>
-                <td class="py-3 px-4 text-gray-600">{{ product.stock }}</td>
-                <td class="py-3 px-4">
-                  @if (product.isAvailable) {
-                    <span
-                      class="px-3 py-1 backdrop-blur-md bg-green-100/80 text-green-700 text-xs rounded-full border border-green-200"
-                    >
-                      Available
-                    </span>
-                  } @else {
-                    <span
-                      class="px-3 py-1 backdrop-blur-md bg-red-100/80 text-red-700 text-xs rounded-full border border-red-200"
-                    >
-                      Sold Out
-                    </span>
-                  }
-                </td>
-                <td class="py-3 px-4">
-                  <div class="flex gap-2 justify-end flex-wrap">
-                    <button
-                      (click)="toggleAvailability(product)"
-                      [title]="product.isAvailable ? 'Mark as Sold Out' : 'Mark as Available'"
-                      class="px-3 py-1 min-h-[32px] backdrop-blur-md bg-yellow-50/80 hover:bg-yellow-100 text-yellow-700 rounded-lg transition border border-yellow-200 text-xs"
-                    >
-                      {{ product.isAvailable ? '⊘' : '✓' }}
-                    </button>
-                    <button
-                      (click)="openForm(product)"
-                      class="px-3 py-1 min-h-[32px] backdrop-blur-md bg-blue-50/80 hover:bg-blue-100 text-blue-700 rounded-lg transition border border-blue-200 text-xs"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      (click)="openDeleteConfirm(product)"
-                      class="px-3 py-1 min-h-[32px] backdrop-blur-md bg-red-50/80 hover:bg-red-100 text-red-700 rounded-lg transition border border-red-200 text-xs"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <!-- Table Headers -->
+      <ng-container headers>
+        <th class="w-full">Product</th>
+        <th class="w-48">Category</th>
+        <th class="w-32">Price</th>
+        <th class="w-32">Stock</th>
+        <th class="w-40">Status</th>
+        <th class="w-32 text-right">Actions</th>
+      </ng-container>
+
+      <!-- Table Rows -->
+      <ng-container rows>
+        @for (product of products; track product.id) {
+          <tr class="group">
+            <td>
+              <div class="font-bold text-surface-900">{{ product.name }}</div>
+              <div class="text-[10px] text-surface-400 font-medium">ID: #{{ product.id }}</div>
+            </td>
+            <td>
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] font-black uppercase bg-purple-50 text-purple-600 border border-purple-100"
+              >
+                {{ getCategoryName(product.categoryId) }}
+              </span>
+            </td>
+            <td>
+              <div class="font-black text-surface-900">{{ product.price | currency }}</div>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <span
+                  class="font-medium"
+                  [class.text-red-500]="product.stock <= 5"
+                  [class.text-surface-700]="product.stock > 5"
+                >
+                  {{ product.stock }}
+                </span>
+                @if (product.stock <= 5) {
+                  <span class="text-[10px] font-bold text-red-400 animate-pulse">Low Stock</span>
+                }
+              </div>
+            </td>
+            <td>
+              <button
+                (click)="toggleAvailability(product)"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold transition-all border"
+                [class]="
+                  product.isAvailable
+                    ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200'
+                    : 'bg-surface-100 text-surface-600 border-surface-200 hover:bg-surface-200'
+                "
+              >
+                <span
+                  class="w-1.5 h-1.5 rounded-full mr-1.5"
+                  [class]="product.isAvailable ? 'bg-green-500 animate-pulse' : 'bg-surface-400'"
+                ></span>
+                {{ product.isAvailable ? 'Available' : 'Unavailable' }}
+              </button>
+            </td>
+            <td class="text-right">
+              <div class="flex justify-end items-center gap-2">
+                <button
+                  (click)="openForm(product)"
+                  class="p-2 glass-button text-primary-600"
+                  title="Edit Product"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="openDeleteConfirm(product)"
+                  class="p-2 glass-button text-red-600 hover:bg-red-50 border-red-100"
+                  title="Delete Product"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-container>
+
+      <!-- Mobile Cards -->
+      <ng-container mobileCards>
+        @for (product of products; track product.id) {
+          <div class="p-4 space-y-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="font-bold text-surface-900">{{ product.name }}</h4>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-[10px] font-black uppercase text-purple-600">{{
+                    getCategoryName(product.categoryId)
+                  }}</span>
+                  <span class="text-surface-300">•</span>
+                  <span class="text-[10px] font-bold text-surface-400">#{{ product.id }}</span>
+                </div>
+              </div>
+              <div class="font-black text-primary-600">{{ product.price | currency }}</div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4 text-xs font-bold">
+                <div class="flex flex-col">
+                  <span class="text-surface-400 uppercase text-[8px] tracking-widest">Stock</span>
+                  <span [class.text-red-500]="product.stock <= 5">{{ product.stock }}</span>
+                </div>
+                <div class="flex flex-col">
+                  <span class="text-surface-400 uppercase text-[8px] tracking-widest">Status</span>
+                  <span [class]="product.isAvailable ? 'text-green-600' : 'text-surface-500'">
+                    {{ product.isAvailable ? 'Available' : 'Unavailable' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button (click)="openForm(product)" class="p-2.5 glass-button text-primary-600">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  (click)="openDeleteConfirm(product)"
+                  class="p-2.5 glass-button text-red-600"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </ng-container>
+    </app-admin-data-table>
+  </div>
+</app-admin-page-layout>
+
+<!-- Add/Edit Modal -->
+@if (isFormOpen) {
+  <app-modal
+    (close)="closeForm()"
+    [title]="editingId ? 'Edit Product' : 'Add New Product'"
+    subtitle="Configure product details, category and pricing"
+  >
+    <form id="productForm" (ngSubmit)="saveProduct()" class="space-y-6 px-1 py-2">
+      <!-- Name -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Product Name *</label
+        >
+        <input
+          [(ngModel)]="formData.name"
+          name="name"
+          type="text"
+          placeholder="e.g., Margherita Pizza, Coca Cola"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+        />
       </div>
-    </app-management-list>
-  }
 
-  <!-- Add/Edit Modal -->
-  <!-- Add/Edit Modal -->
-  @if (isFormOpen) {
-    <app-modal
-      (close)="closeForm()"
-      containerClass="max-w-2xl"
-      [title]="editingId ? 'Edit Product' : 'Add New Product'"
-      subtitle="Configure item details, pricing and inventory"
-    >
-      <form id="productForm" (ngSubmit)="saveProduct()" class="space-y-6 px-1">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Name -->
-          <div class="md:col-span-2 space-y-2">
-            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-              >Product Name *</label
-            >
-            <input
-              [(ngModel)]="formData.name"
-              name="name"
-              type="text"
-              placeholder="e.g., Grilled Chicken"
-              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            />
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Category -->
+        <div class="space-y-2">
+          <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+            >Category *</label
+          >
+          <select
+            [(ngModel)]="formData.categoryId"
+            name="categoryId"
+            class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900 appearance-none"
+          >
+            <option [value]="0">Select Category</option>
+            @for (category of categories; track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
 
-          <!-- Category -->
-          <div class="space-y-2">
-            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-              >Category *</label
-            >
-            <select
-              [(ngModel)]="formData.categoryId"
-              name="categoryId"
-              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            >
-              <option [ngValue]="0">-- Select Category --</option>
-              @for (category of categories; track category.id) {
-                <option [ngValue]="category.id">{{ category.name }}</option>
-              }
-            </select>
-          </div>
-
-          <!-- Price -->
-          <div class="space-y-2">
-            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-              >Price ($) *</label
+        <!-- Price -->
+        <div class="space-y-2">
+          <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+            >Price *</label
+          >
+          <div class="relative">
+            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-surface-400 font-bold"
+              >$</span
             >
             <input
               [(ngModel)]="formData.price"
               name="price"
               type="number"
-              min="0"
               step="0.01"
               placeholder="0.00"
-              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
+              class="w-full pl-10 pr-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
             />
-          </div>
-
-          <!-- Stock -->
-          <div class="space-y-2">
-            <label class="block text-xs font-black text-gray-400 uppercase tracking-widest"
-              >Initial Stock</label
-            >
-            <input
-              [(ngModel)]="formData.stock"
-              name="stock"
-              type="number"
-              min="0"
-              placeholder="0"
-              class="w-full px-5 py-3 min-h-[44px] backdrop-blur-md bg-white/50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 transition-all font-medium text-gray-800"
-            />
-          </div>
-
-          <!-- Available -->
-          <div
-            class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl border border-gray-100"
-          >
-            <span class="text-sm font-bold text-gray-700">Display as Available</span>
-            <label class="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                [(ngModel)]="formData.isAvailable"
-                name="isAvailable"
-                class="sr-only peer"
-              />
-              <div
-                class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"
-              ></div>
-            </label>
           </div>
         </div>
-      </form>
-
-      <div footer class="flex gap-4 w-full">
-        <button
-          type="button"
-          (click)="closeForm()"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
-        >
-          Cancel
-        </button>
-        <button
-          form="productForm"
-          type="submit"
-          class="flex-1 px-6 py-3 min-h-[44px] bg-linear-to-r from-purple-600 to-blue-600 hover:shadow-xl hover:shadow-purple-200 text-white rounded-2xl transition-all font-black uppercase tracking-widest text-xs active:scale-95"
-        >
-          {{ editingId ? 'Update' : 'Create' }}
-        </button>
       </div>
-    </app-modal>
-  }
 
-  <!-- Delete Confirmation -->
-  @if (isDeleteConfirmOpen) {
-    <app-confirm-delete-modal
-      [itemName]="deleteConfirmName"
-      (confirm)="confirmDelete()"
-      (cancel)="closeDeleteConfirm()"
-    ></app-confirm-delete-modal>
-  }
-</main>
+      <!-- Stock -->
+      <div class="space-y-2">
+        <label class="block text-xs font-black text-surface-400 uppercase tracking-[0.2em]"
+          >Stock Level</label
+        >
+        <input
+          [(ngModel)]="formData.stock"
+          name="stock"
+          type="number"
+          placeholder="0"
+          class="w-full px-5 py-3 glass-card bg-white/50! border-white/60 rounded-2xl! focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-surface-900"
+        />
+      </div>
+
+      <!-- Availability -->
+      <div
+        class="flex items-center justify-between p-4 glass-card bg-surface-50/50! rounded-2xl! border-white/40"
+      >
+        <div class="flex flex-col">
+          <span class="text-sm font-bold text-surface-900">Available for Sale</span>
+          <span class="text-[10px] text-surface-500">Toggle visibility in POS menu</span>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="formData.isAvailable"
+            name="isAvailable"
+            class="sr-only peer"
+          />
+          <div
+            class="w-11 h-6 bg-surface-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"
+          ></div>
+        </label>
+      </div>
+    </form>
+
+    <ng-container footer>
+      <app-button variant="glass" label="Cancel" (click)="closeForm()"></app-button>
+      <app-button
+        type="submit"
+        form="productForm"
+        [label]="editingId ? 'Update Product' : 'Create Product'"
+      ></app-button>
+    </ng-container>
+  </app-modal>
+}
+
+<!-- Delete Confirmation -->
+@if (isDeleteConfirmOpen) {
+  <app-confirm-delete-modal
+    [itemName]="deleteConfirmName"
+    (confirm)="confirmDelete()"
+    (cancel)="closeDeleteConfirm()"
+  ></app-confirm-delete-modal>
+}

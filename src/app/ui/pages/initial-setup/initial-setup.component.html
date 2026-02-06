@@ -115,35 +115,30 @@
       }
 
       <!-- Submit Button -->
-      <button
+      <app-button
         type="submit"
-        [disabled]="isLoading()"
-        class="neo-button w-full h-14 text-base disabled:opacity-50 flex items-center justify-center gap-2 animate-fade-in mt-2"
+        [isLoading]="isLoading()"
+        label="Create Account"
+        [hasRightIcon]="!isLoading()"
+        class="w-full h-14 text-base animate-fade-in mt-2"
         style="animation-delay: 0.3s"
       >
-        @if (isLoading()) {
-          <div
-            class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
-          ></div>
-          <span>Setting up...</span>
-        } @else {
-          <span>Create Account</span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 7l5 5m0 0l-5 5m5-5H6"
-            />
-          </svg>
-        }
-      </button>
+        <svg
+          rightIcon
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 7l5 5m0 0l-5 5m5-5H6"
+          />
+        </svg>
+      </app-button>
     </form>
 
     <div
