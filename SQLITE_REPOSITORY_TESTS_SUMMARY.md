@@ -279,19 +279,19 @@ All test files are located in: `src/app/infrastructure/repositories/`
 ### Run all SQLite repository tests:
 
 ```bash
-npm test -- --run sqlite-account.repository.spec.ts sqlite-order.repository.spec.ts sqlite-product.repository.spec.ts sqlite-user.repository.spec.ts sqlite-category.repository.spec.ts sqlite-ingredient.repository.spec.ts sqlite-extra.repository.spec.ts sqlite-order-item.repository.spec.ts sqlite-table.repository.spec.ts sqlite-order-item-extra.repository.spec.ts
+pnpm test -- --run sqlite-account.repository.spec.ts sqlite-order.repository.spec.ts sqlite-product.repository.spec.ts sqlite-user.repository.spec.ts sqlite-category.repository.spec.ts sqlite-ingredient.repository.spec.ts sqlite-extra.repository.spec.ts sqlite-order-item.repository.spec.ts sqlite-table.repository.spec.ts sqlite-order-item-extra.repository.spec.ts
 ```
 
 ### Run individual test file:
 
 ```bash
-npm test -- --run sqlite-account.repository.spec.ts
+pnpm test -- --run sqlite-account.repository.spec.ts
 ```
 
 ### Run with coverage:
 
 ```bash
-npm test -- --run --coverage sqlite-account.repository.spec.ts
+pnpm test -- --run --coverage sqlite-account.repository.spec.ts
 ```
 
 ## Test Results Summary

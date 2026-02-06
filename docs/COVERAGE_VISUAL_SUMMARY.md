@@ -1,10 +1,12 @@
 # Test Coverage Visual Summary
 
-## 🎯 Overall Coverage Snapshot
+> **Note:** This document contains the **historical baseline metrics** taken before the test coverage enhancement work. The figures below represent the starting point of the testing initiative. For current coverage metrics, please run `pnpm test -- --coverage` to generate an up-to-date coverage report.
+
+## 🎯 Historical Baseline Coverage Snapshot
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
-║                    COVERAGE OVERVIEW                         ║
+║              COVERAGE OVERVIEW (BASELINE)                    ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  Total Coverage:        48.46% ░░░░░░░░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ║
 ║  Statements:            48.46% ░░░░░░░░░░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ║

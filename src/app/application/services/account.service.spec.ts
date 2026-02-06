@@ -486,6 +486,7 @@ describe('AccountService', () => {
       const result = await service.getAccountByEmail(email);
 
       expect(mockIndexedDBAccountRepo.findByEmail).toHaveBeenCalledWith(email);
+      expect(result).toEqual(mockAccount);
     });
 
     it('should handle concurrent operations on different accounts', async () => {

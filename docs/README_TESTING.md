@@ -2,12 +2,14 @@
 
 This directory contains comprehensive test coverage analysis and recommendations for the Simple POS application.
 
-## 📊 Quick Summary
+## 📊 Historical Baseline Summary
 
-- **Current Coverage:** 48.46%
+> **Note:** The metrics below represent a historical baseline snapshot taken before the test coverage enhancement work. Current coverage and test counts are significantly higher. For current metrics, run `pnpm test -- --coverage` to generate the latest coverage report.
+
+- **Baseline Coverage (Historical):** 48.46%
 - **Target Coverage:** 85%+
-- **Test Files:** 18 (covering 142 source files)
-- **Tests Passing:** 253/253 (100%)
+- **Test Files at Baseline:** 18 (covering 142 source files)
+- **Baseline Tests Passing:** 253/253 (100%)
 
 ## 📁 Documentation Files
 

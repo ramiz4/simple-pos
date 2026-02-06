@@ -550,7 +550,7 @@ describe('AuthService', () => {
     });
 
     it('should derive username from email when not provided', async () => {
-      const result = await service.register('john@example.com');
+      await service.register('john@example.com');
 
       expect(mockInputSanitizer.sanitizeUsername).toHaveBeenCalledWith('john');
     });

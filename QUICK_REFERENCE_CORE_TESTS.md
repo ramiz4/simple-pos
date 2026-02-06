@@ -35,7 +35,7 @@ pnpm test -- inventory.service.spec.ts
 pnpm test -- order.service.spec.ts product.service.spec.ts inventory.service.spec.ts
 
 # Run with coverage
-pnpm test:coverage
+pnpm test -- --coverage
 
 # Watch mode for development
 pnpm test -- --watch

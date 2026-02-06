@@ -488,7 +488,7 @@ describe('SQLiteUserRepository', () => {
       mockDb.select.mockResolvedValue([existingUser]);
       mockDb.execute.mockResolvedValue({});
 
-      const result = await repository.update(1, { email: undefined });
+      await repository.update(1, { email: undefined });
 
       expect(mockDb.execute).toHaveBeenCalledWith(
         expect.any(String),

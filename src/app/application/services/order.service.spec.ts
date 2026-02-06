@@ -418,7 +418,7 @@ describe('OrderService', () => {
     });
 
     it('should add items to existing order', async () => {
-      const result = await service.addItemsToOrder(1, [mockCartItem]);
+      await service.addItemsToOrder(1, [mockCartItem]);
 
       expect(mockIndexedDBOrderRepo.findById).toHaveBeenCalledWith(1);
       expect(mockIndexedDBOrderItemRepo.create).toHaveBeenCalledWith(

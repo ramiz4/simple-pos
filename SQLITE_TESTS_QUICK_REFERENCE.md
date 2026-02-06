@@ -5,19 +5,19 @@
 ### All SQLite Repository Tests (331 tests)
 
 ```bash
-npm test -- --run sqlite-account.repository.spec.ts sqlite-order.repository.spec.ts sqlite-product.repository.spec.ts sqlite-user.repository.spec.ts sqlite-category.repository.spec.ts sqlite-ingredient.repository.spec.ts sqlite-extra.repository.spec.ts sqlite-order-item.repository.spec.ts sqlite-table.repository.spec.ts sqlite-order-item-extra.repository.spec.ts
+pnpm test -- --run sqlite-account.repository.spec.ts sqlite-order.repository.spec.ts sqlite-product.repository.spec.ts sqlite-user.repository.spec.ts sqlite-category.repository.spec.ts sqlite-ingredient.repository.spec.ts sqlite-extra.repository.spec.ts sqlite-order-item.repository.spec.ts sqlite-table.repository.spec.ts sqlite-order-item-extra.repository.spec.ts
 ```
 
 ### Individual Repository Tests
 
 ```bash
-npm test -- --run sqlite-account.repository.spec.ts      # 29 tests
-npm test -- --run sqlite-order.repository.spec.ts        # 33 tests
-npm test -- --run sqlite-product.repository.spec.ts      # 37 tests
-npm test -- --run sqlite-user.repository.spec.ts         # 42 tests
-npm test -- --run sqlite-category.repository.spec.ts     # 29 tests
-npm test -- --run sqlite-ingredient.repository.spec.ts   # 31 tests
-npm test -- --run sqlite-extra.repository.spec.ts        # 29 tests
+pnpm test -- --run sqlite-account.repository.spec.ts      # 29 tests
+pnpm test -- --run sqlite-order.repository.spec.ts        # 33 tests
+pnpm test -- --run sqlite-product.repository.spec.ts      # 37 tests
+pnpm test -- --run sqlite-user.repository.spec.ts         # 42 tests
+pnpm test -- --run sqlite-category.repository.spec.ts     # 29 tests
+pnpm test -- --run sqlite-ingredient.repository.spec.ts   # 31 tests
+pnpm test -- --run sqlite-extra.repository.spec.ts        # 29 tests
 npm test -- --run sqlite-order-item.repository.spec.ts   # 32 tests
 npm test -- --run sqlite-table.repository.spec.ts        # 33 tests
 npm test -- --run sqlite-order-item-extra.repository.spec.ts  # 36 tests

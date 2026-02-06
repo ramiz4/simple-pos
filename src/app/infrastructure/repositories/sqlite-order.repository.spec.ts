@@ -250,7 +250,7 @@ describe('SQLiteOrderRepository', () => {
       };
       mockDb.execute.mockResolvedValue({ lastInsertId: 45 });
 
-      const result = await repository.create(newOrder);
+      await repository.create(newOrder);
 
       expect(mockDb.execute).toHaveBeenCalledWith(
         expect.any(String),
