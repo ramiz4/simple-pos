@@ -196,7 +196,7 @@ export class OrderService {
     // In this app, it's 18% as seen in cart.service.ts
     const TAX_RATE = 0.18;
     const newTax = (newSubtotal * TAX_RATE) / (1 + TAX_RATE);
-    const newTotal = newSubtotal + order.tip;
+    const newTotal = newSubtotal + (order.tip || 0);
 
     const updatedOrder = await orderRepo.update(orderId, {
       subtotal: newSubtotal,

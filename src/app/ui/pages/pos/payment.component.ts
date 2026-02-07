@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
 import { CartService } from '../../../application/services/cart.service';
@@ -12,7 +13,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, FormsModule, ButtonComponent],
   template: `
     <main class="p-6 max-w-2xl mx-auto animate-fade-in">
       @if (!processing() && !completed()) {
@@ -37,16 +38,58 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                 <span class="font-medium">VAT (18%)</span>
                 <span class="font-bold">€{{ grandTax().toFixed(2) }}</span>
               </div>
-              <div class="flex justify-between items-center text-primary-400">
-                <span class="font-medium">Tip</span>
-                <span class="font-bold">€{{ grandTip().toFixed(2) }}</span>
-              </div>
               <div class="pt-6 mt-6 border-t border-white/10 flex justify-between items-center">
                 <span class="text-xl font-black text-white">Total</span>
                 <span class="text-4xl font-black text-primary-400"
                   >€{{ grandTotal().toFixed(2) }}</span
                 >
               </div>
+            </div>
+          </div>
+
+          <!-- Amount Received & Change -->
+          <div class="p-8 border-b border-white/10">
+            <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-6">
+              Cash Payment
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-white/60 mb-2">Amount Received</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-bold"
+                    >€</span
+                  >
+                  <input
+                    type="number"
+                    [ngModel]="amountReceived()"
+                    (ngModelChange)="amountReceived.set($event)"
+                    [min]="0"
+                    step="0.01"
+                    [placeholder]="grandTotal().toFixed(2)"
+                    class="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-white text-xl font-bold placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+              </div>
+              @if (amountReceived() !== null && amountReceived()! >= grandTotal()) {
+                <div
+                  class="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-4"
+                >
+                  <span class="text-green-400 font-bold text-sm">Change</span>
+                  <span class="text-green-400 font-black text-2xl"
+                    >€{{ changeAmount().toFixed(2) }}</span
+                  >
+                </div>
+              }
+              @if (amountReceived() !== null && amountReceived()! < grandTotal()) {
+                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                  <span class="text-red-400 font-bold text-sm"
+                    >Insufficient amount — €{{
+                      (grandTotal() - amountReceived()!).toFixed(2)
+                    }}
+                    remaining</span
+                  >
+                </div>
+              }
             </div>
           </div>
 
@@ -184,8 +227,15 @@ export class PaymentComponent implements OnInit {
 
   grandSubtotal = computed(() => (this.existingOrder()?.subtotal || 0) + this.summary().subtotal);
   grandTax = computed(() => (this.existingOrder()?.tax || 0) + this.summary().tax);
-  grandTip = computed(() => (this.existingOrder()?.tip || 0) + this.summary().tip);
   grandTotal = computed(() => (this.existingOrder()?.total || 0) + this.summary().total);
+
+  // Cash payment: amount received and change calculation
+  amountReceived = signal<number | null>(null);
+  changeAmount = computed(() => {
+    const received = this.amountReceived();
+    if (received === null || received < 0 || received < this.grandTotal()) return 0;
+    return received - this.grandTotal();
+  });
 
   constructor(
     private router: Router,
@@ -225,6 +275,12 @@ export class PaymentComponent implements OnInit {
   async confirmPayment(): Promise<void> {
     if (!this.typeId) {
       this.error.set('Order type not selected');
+      return;
+    }
+
+    const received = this.amountReceived();
+    if (received === null || received < this.grandTotal()) {
+      this.error.set('Amount received must be at least €' + this.grandTotal().toFixed(2));
       return;
     }
 
@@ -278,7 +334,7 @@ export class PaymentComponent implements OnInit {
           tableId: this.tableId || null,
           subtotal: this.grandSubtotal(),
           tax: this.grandTax(),
-          tip: this.grandTip(),
+          tip: 0,
           total: this.grandTotal(),
           userId: session.user.id,
           items: cartItems,

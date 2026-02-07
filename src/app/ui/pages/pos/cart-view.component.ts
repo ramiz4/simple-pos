@@ -281,34 +281,6 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                   >
                   <span class="text-white font-bold">€{{ totalTax().toFixed(2) }}</span>
                 </div>
-
-                <div>
-                  <div class="flex justify-between items-center mb-3">
-                    <span class="text-surface-400 text-sm font-medium">Tip (Optional)</span>
-                    <span class="text-primary-400 font-bold">€{{ tipAmount().toFixed(2) }}</span>
-                  </div>
-                  <div class="flex gap-2">
-                    @for (preset of tipPresets; track preset) {
-                      <button
-                        (click)="setTipPreset(preset)"
-                        [class]="
-                          tipInput === preset
-                            ? 'primary-gradient border-none'
-                            : 'bg-white/5 border border-white/10 text-white'
-                        "
-                        class="flex-1 py-2 rounded-xl text-xs font-black transition-all hover:bg-white/10"
-                      >
-                        €{{ preset }}
-                      </button>
-                    }
-                    <button
-                      (click)="tipInput = 0; onTipChange()"
-                      class="px-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs"
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
               </div>
 
               <div class="flex justify-between items-center mb-8">
@@ -456,10 +428,6 @@ export class CartViewComponent implements OnInit {
   private tableId?: number;
   private orderId?: number;
 
-  // Tip state
-  tipInput = 0;
-  tipPresets = [1, 2, 5];
-
   // State
   isSending = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -472,7 +440,6 @@ export class CartViewComponent implements OnInit {
   // Computed signals
   cartItems = computed(() => this.cartService.cart());
   summary = computed(() => this.cartService.getSummary());
-  tipAmount = computed(() => this.cartService.tip());
   isDineIn = signal<boolean>(false);
 
   // Takeaway/Delivery customer name
@@ -520,9 +487,6 @@ export class CartViewComponent implements OnInit {
         await this.loadOrderData();
       }
     });
-
-    // Initialize tip input from service
-    this.tipInput = this.tipAmount();
   }
 
   isEmpty(): boolean {
@@ -543,16 +507,6 @@ export class CartViewComponent implements OnInit {
     this.cartService.removeItem(index);
   }
 
-  onTipChange(): void {
-    const tip = Math.max(0, this.tipInput || 0);
-    this.cartService.setTip(tip);
-  }
-
-  setTipPreset(amount: number): void {
-    this.tipInput = amount;
-    this.cartService.setTip(amount);
-  }
-
   confirmClearCart(): void {
     this.showClearConfirmation.set(true);
   }
@@ -563,7 +517,6 @@ export class CartViewComponent implements OnInit {
 
   async clearCart(): Promise<void> {
     this.cartService.clear();
-    this.tipInput = 0;
     this.showClearConfirmation.set(false);
   }
 
@@ -616,7 +569,7 @@ export class CartViewComponent implements OnInit {
           tableId: this.tableId || null,
           subtotal: summary.subtotal,
           tax: summary.tax,
-          tip: summary.tip,
+          tip: 0,
           total: summary.total,
           userId: session.user.id,
           items: items,
