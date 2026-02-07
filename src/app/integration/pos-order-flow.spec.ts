@@ -904,4 +904,71 @@ describe('Phase 3: Core POS Flow', () => {
       expect(summary.itemCount).toBe(3);
     });
   });
+
+  describe('Total plus Tip (Override and Validation)', () => {
+    it('should calculate tip amount correctly when total is overridden', async () => {
+      const cartItem = await createTestCartItem();
+      const subtotal = cartItem.lineTotal;
+      const overriddenTotal = subtotal + 5.5; // €5.50 tip
+
+      const orderData: CreateOrderData = {
+        typeId: takeawayTypeId,
+        statusId: completedStatusId,
+        tableId: null,
+        subtotal,
+        tax: (subtotal * TAX_RATE) / (1 + TAX_RATE),
+        tip: 5.5,
+        total: overriddenTotal,
+        userId: 1,
+        items: [cartItem],
+      };
+
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.tip).toBe(5.5);
+      expect(order.total).toBe(overriddenTotal);
+    });
+
+    it('should maintain subtotal and tax while adding tip to total', async () => {
+      const products = await productService.getAll();
+      const product = products[0];
+      const cartItem = await createTestCartItem();
+
+      const subtotal = cartItem.lineTotal;
+      const tip = 10;
+      const total = subtotal + tip;
+
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [cartItem]);
+      orderData.tip = tip;
+      orderData.total = total;
+
+      const order = await orderService.createOrder(orderData);
+
+      expect(order.subtotal).toBe(subtotal);
+      expect(order.tip).toBe(tip);
+      expect(order.total).toBe(total);
+      // Tax should still be based on subtotal (tax-inclusive)
+      expect(order.tax).toBeCloseTo((subtotal * TAX_RATE) / (1 + TAX_RATE), 2);
+    });
+
+    it('should allow updating an existing order with a tip', async () => {
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(dineInTypeId, openStatusId, null, [cartItem]);
+      const initialOrder = await orderService.createOrder(orderData);
+
+      expect(initialOrder.tip).toBe(0);
+
+      const tipAmount = 3.5;
+      const newTotal = initialOrder.subtotal + tipAmount;
+
+      const updatedOrder = await orderService.updateOrder(initialOrder.id, {
+        tip: tipAmount,
+        total: newTotal,
+      });
+
+      expect(updatedOrder.id).toBe(initialOrder.id);
+      expect(updatedOrder.tip).toBe(tipAmount);
+      expect(updatedOrder.total).toBe(newTotal);
+    });
+  });
 });
