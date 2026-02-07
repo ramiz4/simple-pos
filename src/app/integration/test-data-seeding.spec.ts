@@ -50,9 +50,26 @@ describe('Test Data Seeding Integration', () => {
       deleteRequest.onsuccess = () => resolve();
       deleteRequest.onerror = () => reject(deleteRequest.error);
       deleteRequest.onblocked = () => {
-        console.warn('Database deletion blocked - closing connections');
-        resolve(); // Still resolve to allow test to continue
+        // Database deletion is blocked - wait briefly and retry
+        console.warn('Database deletion blocked - waiting for connections to close');
+        setTimeout(() => {
+          // Force retry by rejecting with a specific error
+          reject(new Error('Database deletion blocked'));
+        }, 100);
       };
+    }).catch(async (error) => {
+      // If blocked, wait and try once more
+      if (error.message === 'Database deletion blocked') {
+        console.warn('Retrying database deletion...');
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise<void>((resolve, reject) => {
+          const retryRequest = indexedDB.deleteDatabase('SimpleDatabase');
+          retryRequest.onsuccess = () => resolve();
+          retryRequest.onerror = () => reject(retryRequest.error);
+        });
+      } else {
+        throw error;
+      }
     });
 
     TestBed.configureTestingModule({
