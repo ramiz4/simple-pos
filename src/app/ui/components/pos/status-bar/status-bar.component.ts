@@ -7,18 +7,20 @@ import { ButtonComponent } from '../../shared/button/button.component';
   standalone: true,
   imports: [CommonModule, ButtonComponent],
   template: `
-    <div class="fixed bottom-0 left-0 right-0 z-40 px-4 pb-8 sm:pb-4 pointer-events-none">
+    <div
+      class="fixed bottom-0 left-0 right-0 z-40 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-4 sm:pb-8 pointer-events-none"
+    >
       <div class="max-w-4xl mx-auto pointer-events-auto">
         <div
-          class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-4 shadow-2xl flex items-center justify-between gap-6 translate-y-0 animate-slide-up"
+          class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-3 sm:p-4 shadow-2xl flex items-center justify-between gap-2 sm:gap-6 translate-y-0 animate-slide-up"
         >
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 sm:gap-4 min-w-0">
             <div
-              class="w-12 h-12 rounded-2xl primary-gradient flex items-center justify-center text-white relative"
+              class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl primary-gradient flex items-center justify-center text-white relative shrink-0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
+                class="h-5 w-5 sm:h-6 sm:w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -32,17 +34,19 @@ import { ButtonComponent } from '../../shared/button/button.component';
               </svg>
               @if (itemCount > 0) {
                 <span
-                  class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 border-2 border-surface-900 text-[10px] font-black flex items-center justify-center text-white"
+                  class="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-red-500 border-2 border-surface-900 text-[9px] sm:text-[10px] font-black flex items-center justify-center text-white"
                 >
                   {{ itemCount }}
                 </span>
               }
             </div>
-            <div>
-              <div class="text-surface-400 text-[10px] font-black uppercase tracking-widest">
+            <div class="min-w-0">
+              <div
+                class="text-surface-400 text-[8px] sm:text-[10px] font-black uppercase tracking-widest mb-0.5 sm:mb-0 truncate"
+              >
                 Subtotal
               </div>
-              <div class="text-2xl font-black text-white leading-none">
+              <div class="text-lg sm:text-2xl font-black text-white leading-none truncate">
                 €{{ subtotal.toFixed(2) }}
               </div>
             </div>
@@ -53,6 +57,7 @@ import { ButtonComponent } from '../../shared/button/button.component';
             [isDisabled]="itemCount === 0 && !canBeEmpty"
             [label]="buttonLabel"
             [hasRightIcon]="true"
+            class="scale-90 sm:scale-100 origin-right shrink-0"
           >
             <svg
               rightIcon

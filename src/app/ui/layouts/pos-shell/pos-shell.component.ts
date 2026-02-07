@@ -14,7 +14,9 @@ import { UserRoleEnum } from '../../../domain/enums';
   template: `
     <div class="min-h-screen bg-[#F8FAFC] flex flex-col">
       <!-- Navigation Header -->
-      <header class="nav-blur sticky top-0 z-50 transition-all duration-300">
+      <header
+        class="nav-blur sticky top-0 z-50 transition-all duration-300 pt-[env(safe-area-inset-top)]"
+      >
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16 items-center">
             <!-- Brand & Context -->
@@ -150,7 +152,7 @@ import { UserRoleEnum } from '../../../domain/enums';
       </header>
 
       <!-- Main Content Area -->
-      <main class="grow overflow-y-auto">
+      <main class="grow overflow-y-auto pb-[env(safe-area-inset-bottom)]">
         <router-outlet></router-outlet>
       </main>
     </div>
