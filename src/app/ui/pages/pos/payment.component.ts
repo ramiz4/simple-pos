@@ -47,6 +47,49 @@ import { ButtonComponent } from '../../components/shared/button/button.component
             </div>
           </div>
 
+          <!-- Total plus Tip -->
+          <div class="p-8 border-b border-white/10 bg-primary-400/5">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-xs font-black text-primary-400 uppercase tracking-[0.2em]">
+                Total plus Tip
+              </h3>
+              @if (tipAmount() > 0) {
+                <span class="badge badge-primary animate-bounce-subtle">
+                  +€{{ tipAmount().toFixed(2) }} Tip
+                </span>
+              }
+            </div>
+            <div class="relative">
+              <span
+                class="absolute left-4 top-1/2 -translate-y-1/2 font-bold transition-colors"
+                [class.text-primary-400]="!isTotalInvalid()"
+                [class.text-red-400]="isTotalInvalid()"
+                >€</span
+              >
+              <input
+                type="number"
+                [ngModel]="overriddenTotalWithTip()"
+                (ngModelChange)="overriddenTotalWithTip.set($event)"
+                [min]="grandTotal()"
+                step="0.01"
+                class="w-full border rounded-xl pl-8 pr-4 py-4 text-white text-3xl font-black focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                [class.bg-primary-400/10]="!isTotalInvalid()"
+                [class.border-primary-400/20]="!isTotalInvalid()"
+                [class.focus:border-primary-400]="!isTotalInvalid()"
+                [class.bg-red-500/10]="isTotalInvalid()"
+                [class.border-red-500/50]="isTotalInvalid()"
+                [class.focus:border-red-500]="isTotalInvalid()"
+              />
+            </div>
+            @if (isTotalInvalid()) {
+              <p
+                class="text-red-400 text-[10px] font-black uppercase tracking-wider mt-2 animate-fade-in"
+              >
+                Value cannot be less than the total (€{{ grandTotal().toFixed(2) }})
+              </p>
+            }
+          </div>
+
           <!-- Amount Received & Change -->
           <div class="p-8 border-b border-white/10">
             <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-6">
@@ -70,7 +113,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                   />
                 </div>
               </div>
-              @if (amountReceived() !== null && amountReceived()! >= grandTotal()) {
+              @if (amountReceived() !== null && amountReceived()! >= totalWithTip()) {
                 <div
                   class="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-4"
                 >
@@ -80,11 +123,11 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                   >
                 </div>
               }
-              @if (amountReceived() !== null && amountReceived()! < grandTotal()) {
+              @if (amountReceived() !== null && amountReceived()! < totalWithTip()) {
                 <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                   <span class="text-red-400 font-bold text-sm"
                     >Insufficient amount — €{{
-                      (grandTotal() - amountReceived()!).toFixed(2)
+                      (totalWithTip() - amountReceived()!).toFixed(2)
                     }}
                     remaining</span
                   >
@@ -230,11 +273,22 @@ export class PaymentComponent implements OnInit {
   grandTotal = computed(() => (this.existingOrder()?.total || 0) + this.summary().total);
 
   // Cash payment: amount received and change calculation
+  overriddenTotalWithTip = signal<number | null>(null);
+  totalWithTip = computed(() =>
+    Math.max(this.grandTotal(), this.overriddenTotalWithTip() ?? this.grandTotal()),
+  );
+  isTotalInvalid = computed(() => {
+    const overridden = this.overriddenTotalWithTip();
+    return overridden !== null && overridden < this.grandTotal();
+  });
+  tipAmount = computed(() => Math.max(0, this.totalWithTip() - this.grandTotal()));
+
   amountReceived = signal<number | null>(null);
   changeAmount = computed(() => {
     const received = this.amountReceived();
-    if (received === null || received < 0 || received < this.grandTotal()) return 0;
-    return received - this.grandTotal();
+    const total = this.totalWithTip();
+    if (received === null || received < 0 || received < total) return 0;
+    return received - total;
   });
 
   constructor(
@@ -269,6 +323,11 @@ export class PaymentComponent implements OnInit {
       if (this.cartService.isEmpty() && !this.existingOrder() && !this.completed()) {
         this.router.navigate(['/pos']);
       }
+
+      // Initialize the overridden value once when the component loads or the order is fetched
+      if (this.overriddenTotalWithTip() === null) {
+        this.overriddenTotalWithTip.set(this.grandTotal());
+      }
     });
   }
 
@@ -278,9 +337,16 @@ export class PaymentComponent implements OnInit {
       return;
     }
 
+    if (this.isTotalInvalid()) {
+      this.error.set('Total plus Tip cannot be less than the order total');
+      return;
+    }
+
     const received = this.amountReceived();
-    if (received === null || received < this.grandTotal()) {
-      this.error.set('Amount received must be at least €' + this.grandTotal().toFixed(2));
+    const total = this.totalWithTip();
+
+    if (received === null || received < total) {
+      this.error.set('Amount received must be at least €' + total.toFixed(2));
       return;
     }
 
@@ -311,7 +377,12 @@ export class PaymentComponent implements OnInit {
           if (cartItems.length > 0) {
             await this.orderService.addItemsToOrder(existingOrder.id, cartItems);
           }
-          order = await this.orderService.updateOrderStatus(existingOrder.id, completedStatusId);
+          order = await this.orderService.updateOrder(existingOrder.id, {
+            statusId: completedStatusId,
+            completedAt: new Date().toISOString(),
+            tip: (existingOrder.tip || 0) + this.tipAmount(),
+            total: this.totalWithTip(),
+          });
         }
       } else if (type.code === OrderTypeEnum.DINE_IN && this.tableId) {
         const existingOrder = await this.orderService.getOpenOrderByTable(this.tableId);
@@ -321,8 +392,13 @@ export class PaymentComponent implements OnInit {
           if (cartItems.length > 0) {
             await this.orderService.addItemsToOrder(existingOrder.id, cartItems);
           }
-          // Mark as COMPLETED
-          order = await this.orderService.updateOrderStatus(existingOrder.id, completedStatusId);
+          // Mark as COMPLETED and update totals
+          order = await this.orderService.updateOrder(existingOrder.id, {
+            statusId: completedStatusId,
+            completedAt: new Date().toISOString(),
+            tip: (existingOrder.tip || 0) + this.tipAmount(),
+            total: this.totalWithTip(),
+          });
         }
       }
 
@@ -334,8 +410,8 @@ export class PaymentComponent implements OnInit {
           tableId: this.tableId || null,
           subtotal: this.grandSubtotal(),
           tax: this.grandTax(),
-          tip: 0,
-          total: this.grandTotal(),
+          tip: this.tipAmount(),
+          total: this.totalWithTip(),
           userId: session.user.id,
           items: cartItems,
         });

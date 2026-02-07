@@ -266,6 +266,10 @@ export class OrderService {
     return await this.getOrderRepo().findByStatus(statusId);
   }
 
+  async updateOrder(id: number, data: Partial<Order>): Promise<Order> {
+    return await this.getOrderRepo().update(id, data);
+  }
+
   async updateOrderStatus(id: number, newStatusId: number): Promise<Order> {
     const orderRepo = this.getOrderRepo();
     const order = await orderRepo.findById(id);
