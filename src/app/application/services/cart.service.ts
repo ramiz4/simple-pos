@@ -36,6 +36,9 @@ export class CartService {
       if (storedCarts) {
         this.allCarts.set(JSON.parse(storedCarts));
       }
+
+      // Clean up legacy tip storage from previous versions
+      localStorage.removeItem('simple_pos_tips');
     } catch (e) {
       console.warn('Failed to load cart from storage', e);
     }

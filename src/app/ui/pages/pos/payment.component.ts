@@ -80,11 +80,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                   >
                 </div>
               }
-              @if (
-                amountReceived() !== null &&
-                amountReceived()! > 0 &&
-                amountReceived()! < grandTotal()
-              ) {
+              @if (amountReceived() !== null && amountReceived()! < grandTotal()) {
                 <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
                   <span class="text-red-400 font-bold text-sm"
                     >Insufficient amount — €{{
@@ -279,6 +275,12 @@ export class PaymentComponent implements OnInit {
   async confirmPayment(): Promise<void> {
     if (!this.typeId) {
       this.error.set('Order type not selected');
+      return;
+    }
+
+    const received = this.amountReceived();
+    if (received === null || received < this.grandTotal()) {
+      this.error.set('Amount received must be at least €' + this.grandTotal().toFixed(2));
       return;
     }
 
