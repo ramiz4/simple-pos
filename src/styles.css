@@ -31,6 +31,7 @@
   --animate-slide-up: slideUp 0.4s ease-out;
   --animate-scale-in: scaleIn 0.3s ease-out;
   --animate-float: float 3s ease-in-out infinite;
+  --animate-bounce-subtle: bounceSubtle 2s ease-in-out infinite;
 
   @keyframes fadeIn {
     0% {
@@ -67,6 +68,15 @@
     }
     50% {
       transform: translateY(-10px);
+    }
+  }
+  @keyframes bounceSubtle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
     }
   }
 
@@ -156,6 +166,14 @@
 
   app-admin-data-table table tbody tr:hover {
     @apply bg-white/60 shadow-sm backdrop-blur-sm;
+  }
+
+  .badge {
+    @apply px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center justify-center;
+  }
+
+  .badge-primary {
+    @apply bg-primary-500 text-white shadow-lg shadow-primary-500/30;
   }
 }
 

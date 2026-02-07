@@ -582,6 +582,34 @@ describe('OrderService', () => {
     });
   });
 
+  describe('updateOrder', () => {
+    beforeEach(() => {
+      mockPlatformService.isTauri.mockReturnValue(false);
+    });
+
+    it('should update an order with partial data', async () => {
+      const partialData = { tip: 15, total: 133 };
+      mockIndexedDBOrderRepo.update.mockResolvedValue({ ...mockOrder, ...partialData });
+
+      const result = await service.updateOrder(1, partialData);
+
+      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(1, partialData);
+      expect(result.tip).toBe(15);
+      expect(result.total).toBe(133);
+    });
+
+    it('should use SQLite repository on Tauri platform', async () => {
+      mockPlatformService.isTauri.mockReturnValue(true);
+      const partialData = { statusId: 2 };
+      mockSqliteOrderRepo.update.mockResolvedValue({ ...mockOrder, ...partialData });
+
+      await service.updateOrder(1, partialData);
+
+      expect(mockSqliteOrderRepo.update).toHaveBeenCalledWith(1, partialData);
+      expect(mockIndexedDBOrderRepo.update).not.toHaveBeenCalled();
+    });
+  });
+
   describe('updateOrderStatus', () => {
     beforeEach(() => {
       mockPlatformService.isTauri.mockReturnValue(false);
@@ -828,10 +856,12 @@ describe('OrderService', () => {
     it('should calculate tax correctly when adding items', async () => {
       mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
       mockIndexedDBOrderItemRepo.create.mockResolvedValue(mockOrderItem);
-      mockIndexedDBOrderRepo.update.mockImplementation(async (id, data) => ({
-        ...mockOrder,
-        ...data,
-      }));
+      mockIndexedDBOrderRepo.update.mockImplementation(
+        async (id: number, data: Partial<Order>) => ({
+          ...mockOrder,
+          ...data,
+        }),
+      );
       mockEnumMappingService.getCodeTableId.mockResolvedValue(1);
       mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.OPEN });
