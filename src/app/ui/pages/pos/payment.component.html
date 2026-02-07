@@ -1,36 +1,36 @@
-<main class="p-6 max-w-2xl mx-auto animate-fade-in">
+<main class="p-4 max-w-xl mx-auto animate-fade-in">
   @if (!processing() && !completed()) {
-    <div class="mb-10 text-center">
-      <h2 class="text-3xl font-black text-surface-900 mb-2">Final Step</h2>
-      <p class="text-surface-500 font-medium">Review your order and process payment.</p>
+    <div class="mb-6 text-center">
+      <h2 class="text-3xl font-black text-surface-900 mb-1">Final Step</h2>
+      <p class="text-surface-500 font-medium text-sm">Review your order and process payment.</p>
     </div>
 
     <!-- Payment Card -->
     <div class="glass-card bg-surface-900! overflow-hidden shadow-primary-200">
-      <div class="p-8 border-b border-white/10">
-        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-8">
+      <div class="p-6 border-b border-white/10">
+        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-4">
           Detailed Summary
         </h3>
 
-        <div class="space-y-4">
-          <div class="flex justify-between items-center text-white/60">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-white/60 text-sm">
             <span class="font-medium">Subtotal</span>
             <span class="font-bold">€{{ grandSubtotal().toFixed(2) }}</span>
           </div>
-          <div class="flex justify-between items-center text-white/60">
+          <div class="flex justify-between items-center text-white/60 text-sm">
             <span class="font-medium">VAT (18%)</span>
             <span class="font-bold">€{{ grandTax().toFixed(2) }}</span>
           </div>
-          <div class="pt-6 mt-6 border-t border-white/10 flex justify-between items-center">
-            <span class="text-xl font-black text-white">Total</span>
-            <span class="text-4xl font-black text-primary-400">€{{ grandTotal().toFixed(2) }}</span>
+          <div class="pt-4 mt-4 border-t border-white/10 flex justify-between items-center">
+            <span class="text-lg font-black text-white">Total</span>
+            <span class="text-3xl font-black text-primary-400">€{{ grandTotal().toFixed(2) }}</span>
           </div>
         </div>
       </div>
 
       <!-- Total plus Tip -->
-      <div class="p-8 border-b border-white/10 bg-primary-400/5">
-        <div class="flex justify-between items-center mb-4">
+      <div class="p-6 border-b border-white/10 bg-primary-400/5">
+        <div class="flex justify-between items-center mb-3">
           <h3 class="text-xs font-black text-primary-400 uppercase tracking-[0.2em]">
             Total plus Tip
           </h3>
@@ -53,7 +53,7 @@
             (ngModelChange)="overriddenTotalWithTip.set($event)"
             [min]="grandTotal()"
             step="0.01"
-            class="w-full border rounded-xl pl-8 pr-4 py-4 text-white text-3xl font-black focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            class="w-full border rounded-xl pl-8 pr-4 py-3 text-white text-2xl font-black focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             [class.bg-primary-400/10]="!isTotalInvalid()"
             [class.border-primary-400/20]="!isTotalInvalid()"
             [class.focus:border-primary-400]="!isTotalInvalid()"
@@ -72,13 +72,13 @@
       </div>
 
       <!-- Amount Received & Change -->
-      <div class="p-8 border-b border-white/10">
-        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-6">
+      <div class="p-6 border-b border-white/10">
+        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-4">
           Cash Payment
         </h3>
-        <div class="space-y-4">
+        <div class="space-y-3">
           <div>
-            <label class="block text-sm font-medium text-white/60 mb-2">Amount Received</label>
+            <label class="block text-xs font-medium text-white/60 mb-1.5">Amount Received</label>
             <div class="relative">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-bold"
                 >€</span
@@ -90,24 +90,24 @@
                 [min]="0"
                 step="0.01"
                 [placeholder]="grandTotal().toFixed(2)"
-                class="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-white text-xl font-bold placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                class="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-2 text-white text-lg font-bold placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />
             </div>
           </div>
           @if (amountReceived() !== null && amountReceived()! >= totalWithTip()) {
             <div
-              class="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-4"
+              class="flex justify-between items-center bg-green-500/10 border border-green-500/20 rounded-xl p-3"
             >
-              <span class="text-green-400 font-bold text-sm">Change</span>
-              <span class="text-green-400 font-black text-2xl"
+              <span class="text-green-400 font-bold text-xs">Change</span>
+              <span class="text-green-400 font-black text-xl"
                 >€{{ changeAmount().toFixed(2) }}</span
               >
             </div>
           }
           @if (amountReceived() !== null && amountReceived()! < totalWithTip()) {
-            <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
-              <span class="text-red-400 font-bold text-sm"
-                >Insufficient amount — €{{
+            <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+              <span class="text-red-400 font-bold text-xs"
+                >Insufficient — €{{
                   (totalWithTip() - amountReceived()!).toFixed(2)
                 }}
                 remaining</span
@@ -117,10 +117,10 @@
         </div>
       </div>
 
-      <div class="p-8 bg-white/5 space-y-4">
+      <div class="p-6 bg-white/5 space-y-3">
         @if (error()) {
           <div
-            class="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl text-sm font-bold mb-4"
+            class="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-xl text-xs font-bold mb-3"
           >
             {{ error() }}
           </div>
@@ -131,12 +131,12 @@
           label="Complete Cash Payment"
           [hasRightIcon]="true"
           [fullWidth]="true"
-          size="xl"
+          size="lg"
         >
           <svg
             rightIcon
             xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6"
+            class="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -152,7 +152,7 @@
 
         <button
           (click)="goBack()"
-          class="w-full h-14 rounded-2xl bg-white/5 text-white font-black hover:bg-white/10 transition-all border border-white/10"
+          class="w-full h-12 rounded-xl bg-white/5 text-white text-sm font-black hover:bg-white/10 transition-all border border-white/10"
         >
           Go Back
         </button>
