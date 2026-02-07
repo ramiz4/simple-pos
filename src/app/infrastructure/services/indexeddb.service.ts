@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 
+// Export DB name constant for use in tests
+export const INDEXEDDB_NAME = 'SimpleDatabase';
+
 @Injectable({
   providedIn: 'root',
 })
 export class IndexedDBService {
-  private readonly DB_NAME = 'SimpleDatabase';
+  private readonly DB_NAME = INDEXEDDB_NAME;
   /**
    * BREAKING CHANGE: Database version reset from 5 to 1
    *

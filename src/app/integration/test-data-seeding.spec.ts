@@ -29,7 +29,7 @@ import { SQLiteProductIngredientRepository } from '../infrastructure/repositorie
 import { SQLiteProductRepository } from '../infrastructure/repositories/sqlite-product.repository';
 import { SQLiteTableRepository } from '../infrastructure/repositories/sqlite-table.repository';
 import { SQLiteVariantRepository } from '../infrastructure/repositories/sqlite-variant.repository';
-import { IndexedDBService } from '../infrastructure/services/indexeddb.service';
+import { INDEXEDDB_NAME, IndexedDBService } from '../infrastructure/services/indexeddb.service';
 import { PlatformService } from '../shared/utilities/platform.service';
 
 describe('Test Data Seeding Integration', () => {
@@ -43,7 +43,52 @@ describe('Test Data Seeding Integration', () => {
   let productExtraService: ProductExtraService;
   let productIngredientService: ProductIngredientService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Delete IndexedDB before each test to avoid ConstraintError
+    await new Promise<void>((resolve, reject) => {
+      const deleteRequest = indexedDB.deleteDatabase(INDEXEDDB_NAME);
+      deleteRequest.onsuccess = () => resolve();
+      deleteRequest.onerror = () => reject(deleteRequest.error);
+      deleteRequest.onblocked = () => {
+        // Database deletion is blocked - wait briefly and retry
+        console.warn('Database deletion blocked - waiting for connections to close');
+        setTimeout(() => {
+          // Force retry by rejecting with a specific error
+          reject(new Error('Database deletion blocked'));
+        }, 100);
+      };
+    }).catch(async (error) => {
+      // If blocked, wait and try once more
+      if (error.message === 'Database deletion blocked') {
+        console.warn('Retrying database deletion...');
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise<void>((resolve, reject) => {
+          const retryRequest = indexedDB.deleteDatabase(INDEXEDDB_NAME);
+
+          const timeoutId = setTimeout(() => {
+            console.warn('Retrying database deletion timed out');
+            reject(new Error('Retry database deletion timeout'));
+          }, 1000);
+
+          retryRequest.onsuccess = () => {
+            clearTimeout(timeoutId);
+            resolve();
+          };
+          retryRequest.onerror = () => {
+            clearTimeout(timeoutId);
+            reject(retryRequest.error);
+          };
+          retryRequest.onblocked = () => {
+            clearTimeout(timeoutId);
+            console.warn('Database deletion blocked again on retry');
+            reject(new Error('Database deletion blocked on retry'));
+          };
+        });
+      } else {
+        throw error;
+      }
+    });
+
     TestBed.configureTestingModule({
       providers: [
         SeedService,
@@ -95,6 +140,15 @@ describe('Test Data Seeding Integration', () => {
     const platformService = TestBed.inject(PlatformService);
     vi.spyOn(platformService, 'isTauri').mockReturnValue(false);
     vi.spyOn(platformService, 'isWeb').mockReturnValue(true);
+  });
+
+  afterEach(async () => {
+    // Close any open IndexedDB connections
+    const indexedDBService = TestBed.inject(IndexedDBService);
+    const db = await indexedDBService.getDb();
+    if (db) {
+      db.close();
+    }
   });
 
   it('should seed all test data successfully', async () => {
