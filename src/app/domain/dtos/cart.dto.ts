@@ -19,7 +19,6 @@ export interface CartSummary {
   subtotal: number;
   taxRate: number;
   tax: number;
-  tip: number;
   total: number;
   itemCount: number;
 }

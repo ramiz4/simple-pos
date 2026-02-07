@@ -10,18 +10,15 @@ export class CartService {
 
   // Storage keys
   private readonly STORAGE_KEY_CARTS = 'simple_pos_carts';
-  private readonly STORAGE_KEY_TIPS = 'simple_pos_tips';
 
   // Storage for all active carts (table-specific or by order type)
   // Key format: 'table_[id]' or 'TAKEAWAY' or 'DELIVERY'
   private allCarts = signal<Record<string, CartItem[]>>({});
-  private allTips = signal<Record<string, number>>({});
 
   // Current context
   private activeContextKey = signal<string>('default');
 
   readonly cart = computed(() => this.allCarts()[this.activeContextKey()] || []);
-  readonly tip = computed(() => this.allTips()[this.activeContextKey()] || 0);
 
   constructor() {
     this.loadFromStorage();
@@ -31,11 +28,6 @@ export class CartService {
       const carts = this.allCarts();
       localStorage.setItem(this.STORAGE_KEY_CARTS, JSON.stringify(carts));
     });
-
-    effect(() => {
-      const tips = this.allTips();
-      localStorage.setItem(this.STORAGE_KEY_TIPS, JSON.stringify(tips));
-    });
   }
 
   private loadFromStorage(): void {
@@ -43,11 +35,6 @@ export class CartService {
       const storedCarts = localStorage.getItem(this.STORAGE_KEY_CARTS);
       if (storedCarts) {
         this.allCarts.set(JSON.parse(storedCarts));
-      }
-
-      const storedTips = localStorage.getItem(this.STORAGE_KEY_TIPS);
-      if (storedTips) {
-        this.allTips.set(JSON.parse(storedTips));
       }
     } catch (e) {
       console.warn('Failed to load cart from storage', e);
@@ -122,21 +109,13 @@ export class CartService {
     this.allCarts.set(currentCarts);
   }
 
-  setTip(amount: number): void {
-    const currentKey = this.activeContextKey();
-    const currentTips = { ...this.allTips() };
-    currentTips[currentKey] = Math.max(0, amount);
-    this.allTips.set(currentTips);
-  }
-
   getSummary(): CartSummary {
     const items = this.cart();
     const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.lineTotal, 0);
     // Calculate included tax (tax already in price): tax = subtotal * rate / (1 + rate)
     const tax = (subtotal * this.TAX_RATE) / (1 + this.TAX_RATE);
-    const tip = this.tip();
-    // Total = subtotal + tip (no additional tax, prices are tax-inclusive)
-    const total = subtotal + tip;
+    // Total = subtotal (prices are tax-inclusive)
+    const total = subtotal;
     const itemCount = items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
 
     return {
@@ -144,7 +123,6 @@ export class CartService {
       subtotal,
       taxRate: this.TAX_RATE,
       tax,
-      tip,
       total,
       itemCount,
     };
@@ -156,10 +134,6 @@ export class CartService {
     const currentCarts = { ...this.allCarts() };
     delete currentCarts[currentKey];
     this.allCarts.set(currentCarts);
-
-    const currentTips = { ...this.allTips() };
-    delete currentTips[currentKey];
-    this.allTips.set(currentTips);
   }
 
   isEmpty(): boolean {
