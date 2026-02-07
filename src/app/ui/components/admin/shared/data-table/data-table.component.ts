@@ -60,7 +60,7 @@ import { Component, Input } from '@angular/core';
       @if (!isEmpty) {
         <!-- Desktop Table View -->
         <div class="hidden md:block overflow-x-auto custom-scrollbar">
-          <table class="w-full text-left border-collapse min-w-[900px]">
+          <table class="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr
                 class="bg-linear-to-r from-surface-50 to-purple-50/30 border-b-2 border-purple-100"
