@@ -1,3 +1,11 @@
+# [1.14.0](https://github.com/ramiz4/simple-pos/compare/v1.13.0...v1.14.0) (2026-02-07)
+
+### Features
+
+- add 'Total plus Tip' field with validation and override support ([6e57bae](https://github.com/ramiz4/simple-pos/commit/6e57baedf609a2fdf824061c20c40272f40c8e8b))
+- Add unit tests for `OrderService.updateOrder` and integration tests for order tip and total calculations. ([3cd2a5f](https://github.com/ramiz4/simple-pos/commit/3cd2a5f5a56faa9e1c7bee6e14e2d302909a3b98))
+- Adjust payment page layout and typography for a more compact design ([8a5a6f3](https://github.com/ramiz4/simple-pos/commit/8a5a6f328a0770e771c5c7585b3b5d6261ad3d47))
+
 # [1.13.0](https://github.com/ramiz4/simple-pos/compare/v1.12.6...v1.13.0) (2026-02-07)
 
 ### Bug Fixes
