@@ -29,7 +29,7 @@ import { SQLiteProductIngredientRepository } from '../infrastructure/repositorie
 import { SQLiteProductRepository } from '../infrastructure/repositories/sqlite-product.repository';
 import { SQLiteTableRepository } from '../infrastructure/repositories/sqlite-table.repository';
 import { SQLiteVariantRepository } from '../infrastructure/repositories/sqlite-variant.repository';
-import { IndexedDBService } from '../infrastructure/services/indexeddb.service';
+import { INDEXEDDB_NAME, IndexedDBService } from '../infrastructure/services/indexeddb.service';
 import { PlatformService } from '../shared/utilities/platform.service';
 
 describe('Test Data Seeding Integration', () => {
@@ -46,7 +46,7 @@ describe('Test Data Seeding Integration', () => {
   beforeEach(async () => {
     // Delete IndexedDB before each test to avoid ConstraintError
     await new Promise<void>((resolve, reject) => {
-      const deleteRequest = indexedDB.deleteDatabase('SimpleDatabase');
+      const deleteRequest = indexedDB.deleteDatabase(INDEXEDDB_NAME);
       deleteRequest.onsuccess = () => resolve();
       deleteRequest.onerror = () => reject(deleteRequest.error);
       deleteRequest.onblocked = () => {
@@ -63,9 +63,26 @@ describe('Test Data Seeding Integration', () => {
         console.warn('Retrying database deletion...');
         await new Promise((resolve) => setTimeout(resolve, 200));
         await new Promise<void>((resolve, reject) => {
-          const retryRequest = indexedDB.deleteDatabase('SimpleDatabase');
-          retryRequest.onsuccess = () => resolve();
-          retryRequest.onerror = () => reject(retryRequest.error);
+          const retryRequest = indexedDB.deleteDatabase(INDEXEDDB_NAME);
+
+          const timeoutId = setTimeout(() => {
+            console.warn('Retrying database deletion timed out');
+            reject(new Error('Retry database deletion timeout'));
+          }, 1000);
+
+          retryRequest.onsuccess = () => {
+            clearTimeout(timeoutId);
+            resolve();
+          };
+          retryRequest.onerror = () => {
+            clearTimeout(timeoutId);
+            reject(retryRequest.error);
+          };
+          retryRequest.onblocked = () => {
+            clearTimeout(timeoutId);
+            console.warn('Database deletion blocked again on retry');
+            reject(new Error('Database deletion blocked on retry'));
+          };
         });
       } else {
         throw error;
