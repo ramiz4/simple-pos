@@ -1,3 +1,9 @@
+# [1.15.0](https://github.com/ramiz4/simple-pos/compare/v1.14.0...v1.15.0) (2026-02-07)
+
+### Features
+
+- optimize status bar and layout for mobile responsiveness and long labels ([c51c9bb](https://github.com/ramiz4/simple-pos/commit/c51c9bb2ab57b75c7c56c642e9017d2a46f7534c))
+
 # [1.14.0](https://github.com/ramiz4/simple-pos/compare/v1.13.0...v1.14.0) (2026-02-07)
 
 ### Features
