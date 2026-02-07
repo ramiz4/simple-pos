@@ -65,7 +65,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                     (ngModelChange)="amountReceived.set($event)"
                     [min]="0"
                     step="0.01"
-                    placeholder="{{ grandTotal().toFixed(2) }}"
+                    [placeholder]="grandTotal().toFixed(2)"
                     class="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-3 text-white text-xl font-bold placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
@@ -237,7 +237,7 @@ export class PaymentComponent implements OnInit {
   amountReceived = signal<number | null>(null);
   changeAmount = computed(() => {
     const received = this.amountReceived();
-    if (received === null || received < this.grandTotal()) return 0;
+    if (received === null || received < 0 || received < this.grandTotal()) return 0;
     return received - this.grandTotal();
   });
 
