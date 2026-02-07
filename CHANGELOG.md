@@ -1,3 +1,14 @@
+# [1.13.0](https://github.com/ramiz4/simple-pos/compare/v1.12.6...v1.13.0) (2026-02-07)
+
+### Bug Fixes
+
+- address code review feedback for payment component ([4babd32](https://github.com/ramiz4/simple-pos/commit/4babd325c260e77ce24015d7a0ca4096d4d55953))
+- validate amount received before payment and clean up legacy tip storage ([164f197](https://github.com/ramiz4/simple-pos/commit/164f197b0a1df113a9db0d2d6a99b559bedf4aac))
+
+### Features
+
+- remove tip feature and add change calculation to payment screen ([09e3a00](https://github.com/ramiz4/simple-pos/commit/09e3a00a323f3865e66cc09c180d93b6a0f85fd7))
+
 ## [1.12.6](https://github.com/ramiz4/simple-pos/compare/v1.12.5...v1.12.6) (2026-02-06)
 
 ### Bug Fixes
