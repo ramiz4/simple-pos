@@ -43,7 +43,18 @@ describe('Test Data Seeding Integration', () => {
   let productExtraService: ProductExtraService;
   let productIngredientService: ProductIngredientService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Delete IndexedDB before each test to avoid ConstraintError
+    await new Promise<void>((resolve, reject) => {
+      const deleteRequest = indexedDB.deleteDatabase('SimpleDatabase');
+      deleteRequest.onsuccess = () => resolve();
+      deleteRequest.onerror = () => reject(deleteRequest.error);
+      deleteRequest.onblocked = () => {
+        console.warn('Database deletion blocked - closing connections');
+        resolve(); // Still resolve to allow test to continue
+      };
+    });
+
     TestBed.configureTestingModule({
       providers: [
         SeedService,
@@ -95,6 +106,15 @@ describe('Test Data Seeding Integration', () => {
     const platformService = TestBed.inject(PlatformService);
     vi.spyOn(platformService, 'isTauri').mockReturnValue(false);
     vi.spyOn(platformService, 'isWeb').mockReturnValue(true);
+  });
+
+  afterEach(async () => {
+    // Close any open IndexedDB connections
+    const indexedDBService = TestBed.inject(IndexedDBService);
+    const db = await indexedDBService.getDb();
+    if (db) {
+      db.close();
+    }
   });
 
   it('should seed all test data successfully', async () => {
