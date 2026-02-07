@@ -1,3 +1,11 @@
+## [1.15.1](https://github.com/ramiz4/simple-pos/compare/v1.15.0...v1.15.1) (2026-02-07)
+
+### Bug Fixes
+
+- add IndexedDB cleanup in integration tests to resolve ConstraintError ([97bd805](https://github.com/ramiz4/simple-pos/commit/97bd805e519b6009db441f0eb6045e162d13f639))
+- add timeout and onblocked handler to retry logic, centralize DB name constant ([4f4a3ff](https://github.com/ramiz4/simple-pos/commit/4f4a3ffcf453daacdf21d86964a9ba8886d36609))
+- improve database deletion retry logic for blocked connections ([d6bd46b](https://github.com/ramiz4/simple-pos/commit/d6bd46bb03bf4118e3b48f5a7e2290441ae20bb4))
+
 # [1.15.0](https://github.com/ramiz4/simple-pos/compare/v1.14.0...v1.15.0) (2026-02-07)
 
 ### Features
