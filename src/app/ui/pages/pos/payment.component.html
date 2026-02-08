@@ -65,7 +65,6 @@
             [class.focus:border-red-500]="isTotalInvalid()"
             [attr.aria-invalid]="isTotalInvalid()"
             [attr.aria-describedby]="isTotalInvalid() ? 'total-error' : null"
-            aria-label="Total amount including tip"
           />
         </div>
         @if (isTotalInvalid()) {
@@ -104,7 +103,6 @@
                 step="0.01"
                 [placeholder]="grandTotal().toFixed(2)"
                 class="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-2 text-white text-lg font-bold placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                aria-label="Amount received from customer"
               />
             </div>
           </div>

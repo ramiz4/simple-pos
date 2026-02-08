@@ -90,9 +90,7 @@
             {{ selectedProduct()?.name }}
           </h2>
           <p class="text-primary-600 font-bold text-xl">
-            <span class="sr-only">Base Price: </span>Base Price: €{{
-              (selectedProduct()?.price ?? 0).toFixed(2)
-            }}
+            Base Price: €{{ (selectedProduct()?.price ?? 0).toFixed(2) }}
           </p>
         </div>
 
@@ -175,7 +173,6 @@
               (ngModelChange)="notes.set($event)"
               placeholder="Add instruction..."
               class="w-full h-14 px-4 bg-surface-50 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:outline-none font-medium placeholder:text-surface-300"
-              aria-label="Special instructions for this item"
             />
           </div>
         </div>
