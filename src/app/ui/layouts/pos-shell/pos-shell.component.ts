@@ -12,23 +12,39 @@ import { UserRoleEnum } from '../../../domain/enums';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
+    <!-- Skip to main content link for keyboard navigation -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:font-bold"
+    >
+      Skip to main content
+    </a>
+
     <div class="min-h-screen bg-[#F8FAFC] flex flex-col">
       <!-- Navigation Header -->
       <header
         class="nav-blur sticky top-0 z-50 transition-all duration-300 pt-[env(safe-area-inset-top)]"
+        role="banner"
       >
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16 items-center">
             <!-- Brand & Context -->
             <div class="flex items-center gap-4">
-              <div
+              <button
+                type="button"
                 class="flex items-center gap-2 cursor-pointer group"
                 (click)="router.navigate(['/dashboard'])"
+                aria-label="Go to dashboard"
               >
                 <div
                   class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-200 group-hover:scale-105 transition-transform"
                 >
-                  <img src="logo.svg" alt="POS" class="h-6 w-6 brightness-0 invert" />
+                  <img
+                    src="logo.svg"
+                    alt=""
+                    class="h-6 w-6 brightness-0 invert"
+                    aria-hidden="true"
+                  />
                 </div>
                 <div class="hidden sm:flex flex-col leading-tight">
                   <span class="text-xs font-black text-primary-600 uppercase tracking-widest"
@@ -36,12 +52,13 @@ import { UserRoleEnum } from '../../../domain/enums';
                   >
                   <span class="text-surface-900 font-black text-sm">{{ title() }}</span>
                 </div>
-              </div>
+              </button>
             </div>
 
             <!-- Desktop Navigation -->
             <nav
               class="hidden lg:flex items-center gap-1 bg-surface-50 p-1 rounded-2xl border border-surface-100"
+              aria-label="Main navigation"
             >
               @for (item of menuItems(); track item.path) {
                 <a
@@ -67,9 +84,10 @@ import { UserRoleEnum } from '../../../domain/enums';
             <div class="flex items-center gap-3">
               @if (updateAvailable()) {
                 <button
+                  type="button"
                   (click)="onUpdate()"
                   class="flex p-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors animate-pulse"
-                  title="Update Available"
+                  aria-label="Install available update"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -77,6 +95,7 @@ import { UserRoleEnum } from '../../../domain/enums';
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       stroke-linecap="round"
@@ -98,9 +117,10 @@ import { UserRoleEnum } from '../../../domain/enums';
 
               <div class="flex items-center gap-2 pl-3 border-l border-surface-100">
                 <button
+                  type="button"
                   (click)="onLock()"
                   class="p-2 hover:bg-surface-100 text-surface-600 rounded-full transition-all active:scale-95"
-                  title="Lock Terminal"
+                  aria-label="Lock Terminal"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -108,6 +128,7 @@ import { UserRoleEnum } from '../../../domain/enums';
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       stroke-linecap="round"
@@ -152,7 +173,11 @@ import { UserRoleEnum } from '../../../domain/enums';
       </header>
 
       <!-- Main Content Area -->
-      <main class="grow overflow-y-auto pb-[env(safe-area-inset-bottom)]">
+      <main
+        id="main-content"
+        class="grow overflow-y-auto pb-[env(safe-area-inset-bottom)]"
+        role="main"
+      >
         <router-outlet></router-outlet>
       </main>
     </div>
