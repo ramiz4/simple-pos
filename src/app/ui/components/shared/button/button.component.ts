@@ -7,7 +7,7 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    @if (routerLink) {
+    @if (routerLink && !isDisabled && !isLoading) {
       <a
         [routerLink]="routerLink"
         [class]="
@@ -15,8 +15,6 @@ import { RouterModule } from '@angular/router';
           ' relative overflow-hidden transition-all active:scale-95 group items-center justify-center min-h-4 h-full no-underline ' +
           (fullWidth ? 'flex w-full' : 'inline-flex')
         "
-        [class.opacity-50]="isDisabled || isLoading"
-        [class.pointer-events-none]="isDisabled || isLoading"
       >
         <!-- Loading Spinner Overlay -->
         @if (isLoading) {
@@ -62,6 +60,61 @@ import { RouterModule } from '@angular/router';
           ></span>
         }
       </a>
+    } @else if (routerLink && (isDisabled || isLoading)) {
+      <span
+        [class]="
+          buttonClasses +
+          ' relative overflow-hidden group items-center justify-center min-h-4 h-full ' +
+          (fullWidth ? 'flex w-full' : 'inline-flex')
+        "
+        [class.opacity-50]="true"
+        role="link"
+        aria-disabled="true"
+      >
+        <!-- Loading Spinner Overlay -->
+        @if (isLoading) {
+          <div
+            class="absolute inset-0 flex items-center justify-center bg-inherit z-10 rounded-inherit"
+          >
+            <svg
+              class="animate-spin h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+        }
+
+        <!-- Content -->
+        <span class="flex items-center justify-center gap-2" [class.opacity-0]="isLoading">
+          <ng-content select="[leftIcon], [lefticon], .left-icon"></ng-content>
+          <span class="whitespace-nowrap">{{ label }}</span>
+          <ng-content select="[rightIcon], [righticon], .right-icon"></ng-content>
+        </span>
+
+        <!-- Hover Effect Overlay for Neo -->
+        @if (variant === 'neo') {
+          <span
+            class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
+            aria-hidden="true"
+          ></span>
+        }
+      </span>
     } @else {
       <button
         [type]="type"

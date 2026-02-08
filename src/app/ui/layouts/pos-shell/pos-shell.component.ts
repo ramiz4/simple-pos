@@ -175,6 +175,7 @@ import { UserRoleEnum } from '../../../domain/enums';
       <!-- Main Content Area -->
       <main
         id="main-content"
+        tabindex="-1"
         class="grow overflow-y-auto pb-[env(safe-area-inset-bottom)]"
         role="main"
       >

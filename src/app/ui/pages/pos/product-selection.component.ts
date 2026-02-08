@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, HostListener, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CartService } from '../../../application/services/cart.service';
@@ -229,6 +229,13 @@ export class ProductSelectionComponent implements OnInit {
     this.selectedProduct.set(null);
     this.productVariants.set([]);
     this.productExtras.set([]);
+  }
+
+  @HostListener('document:keydown.escape')
+  handleEscape() {
+    if (this.isModalOpen()) {
+      this.closeModal();
+    }
   }
 
   selectVariant(variantId: number): void {
