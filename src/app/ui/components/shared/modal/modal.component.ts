@@ -147,8 +147,9 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('modalContent') modalContent?: ElementRef<HTMLDivElement>;
 
   // Generate unique ID for this modal instance
-  modalId = `modal-${Math.random().toString(36).substr(2, 9)}`;
+  modalId = `modal-${Math.random().toString(36).substring(2, 11)}`;
   private previouslyFocusedElement: HTMLElement | null = null;
+  private focusTrapHandler?: (event: KeyboardEvent) => void;
 
   @HostListener('document:keydown.escape')
   handleEscape() {
@@ -169,6 +170,11 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // Remove focus trap event listener
+    if (this.focusTrapHandler && this.modalContent) {
+      this.modalContent.nativeElement.removeEventListener('keydown', this.focusTrapHandler);
+    }
+
     // Restore focus to previously focused element
     if (this.previouslyFocusedElement) {
       this.previouslyFocusedElement.focus();
@@ -191,7 +197,7 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
   private trapFocus() {
     if (!this.modalContent) return;
 
-    const handleFocusTrap = (event: KeyboardEvent) => {
+    this.focusTrapHandler = (event: KeyboardEvent) => {
       if (event.key !== 'Tab') return;
 
       const focusableElements = this.getFocusableElements();
@@ -215,7 +221,7 @@ export class ModalComponent implements AfterViewInit, OnDestroy {
       }
     };
 
-    this.modalContent.nativeElement.addEventListener('keydown', handleFocusTrap);
+    this.modalContent.nativeElement.addEventListener('keydown', this.focusTrapHandler);
   }
 
   private getFocusableElements(): HTMLElement[] {
