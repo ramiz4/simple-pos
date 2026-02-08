@@ -30,6 +30,7 @@ import { Product } from '../../../../domain/entities/product.interface';
           <span class="text-lg font-black text-primary-600"> €{{ product.price.toFixed(2) }} </span>
           <div
             class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-600 group-hover:text-white transition-colors"
+            aria-hidden="true"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -37,6 +38,7 @@ import { Product } from '../../../../domain/entities/product.interface';
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
