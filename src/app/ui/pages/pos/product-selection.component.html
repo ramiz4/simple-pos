@@ -60,6 +60,9 @@
   <div
     class="fixed inset-0 bg-surface-900/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-fade-in"
     (click)="closeModal()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="product-modal-title"
   >
     <div
       class="bg-white rounded-t-[32px] sm:rounded-[32px] shadow-2xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col animate-slide-up"
@@ -68,10 +71,14 @@
       <!-- Modal Header -->
       <div class="relative h-48 sm:h-64 overflow-hidden shrink-0">
         <div class="absolute inset-0 primary-gradient opacity-20"></div>
-        <div class="absolute inset-0 flex items-center justify-center text-8xl">🍽️</div>
+        <div class="absolute inset-0 flex items-center justify-center text-8xl" aria-hidden="true">
+          🍽️
+        </div>
         <button
+          type="button"
           (click)="closeModal()"
           class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center text-2xl hover:bg-white/40 transition-colors"
+          aria-label="Close product details"
         >
           ×
         </button>
@@ -79,11 +86,13 @@
 
       <div class="p-8 overflow-y-auto grow">
         <div class="mb-8">
-          <h2 class="text-3xl font-black text-surface-900 mb-1">
+          <h2 id="product-modal-title" class="text-3xl font-black text-surface-900 mb-1">
             {{ selectedProduct()?.name }}
           </h2>
           <p class="text-primary-600 font-bold text-xl">
-            Base Price: €{{ (selectedProduct()?.price ?? 0).toFixed(2) }}
+            <span class="sr-only">Base Price: </span>Base Price: €{{
+              (selectedProduct()?.price ?? 0).toFixed(2)
+            }}
           </p>
         </div>
 
@@ -154,15 +163,19 @@
             ></app-quantity-selector>
           </div>
           <div>
-            <label class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
+            <label
+              for="product-notes"
+              class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
               >Notes</label
             >
             <input
               type="text"
+              id="product-notes"
               [ngModel]="notes()"
               (ngModelChange)="notes.set($event)"
               placeholder="Add instruction..."
               class="w-full h-14 px-4 bg-surface-50 rounded-2xl focus:ring-2 focus:ring-primary-600 focus:outline-none font-medium placeholder:text-surface-300"
+              aria-label="Special instructions for this item"
             />
           </div>
         </div>

@@ -69,6 +69,8 @@
       @if (errorMessage()) {
         <div
           class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100"
+          role="alert"
+          aria-live="assertive"
         >
           {{ errorMessage() }}
         </div>

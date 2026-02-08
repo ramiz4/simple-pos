@@ -11,14 +11,18 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         type="button"
         (click)="decrease.emit()"
         class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center font-black text-primary-600 active:scale-95 transition-transform"
+        aria-label="Decrease quantity"
       >
         −
       </button>
-      <span class="grow text-center font-black text-xl">{{ quantity }}</span>
+      <span class="grow text-center font-black text-xl" aria-live="polite" aria-atomic="true">{{
+        quantity
+      }}</span>
       <button
         type="button"
         (click)="increase.emit()"
         class="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center font-black text-primary-600 active:scale-95 transition-transform"
+        aria-label="Increase quantity"
       >
         +
       </button>

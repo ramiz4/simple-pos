@@ -11,6 +11,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       (click)="onBackdropClick()"
       role="dialog"
       aria-modal="true"
+      [attr.aria-labelledby]="title ? 'modal-title' : null"
+      [attr.aria-describedby]="subtitle ? 'modal-subtitle' : null"
     >
       <div
         [class]="
@@ -24,12 +26,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
           <div class="flex justify-between items-start gap-4">
             <div class="flex-1 min-w-0">
               @if (title) {
-                <h2 class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight truncate">
+                <h2
+                  id="modal-title"
+                  class="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight truncate"
+                >
                   {{ title }}
                 </h2>
               }
               @if (subtitle) {
-                <p class="text-sm text-gray-500 font-medium truncate mt-1">
+                <p id="modal-subtitle" class="text-sm text-gray-500 font-medium truncate mt-1">
                   {{ subtitle }}
                 </p>
               }
@@ -37,6 +42,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
             <!-- Close Button (Mobile & Desktop) -->
             <button
+              type="button"
               (click)="close.emit()"
               class="p-2 -mt-1 -me-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100/50 rounded-full transition-colors shrink-0"
               aria-label="Close modal"
@@ -47,6 +53,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"

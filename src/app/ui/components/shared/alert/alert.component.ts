@@ -13,12 +13,16 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             ? 'bg-green-50/80 border-green-200 text-green-700'
             : 'bg-red-50/80 border-red-200 text-red-700'
         "
+        role="alert"
+        [attr.aria-live]="type === 'error' ? 'assertive' : 'polite'"
       >
-        <span class="text-2xl">{{ type === 'success' ? '✓' : '✕' }}</span>
+        <span class="text-2xl" aria-hidden="true">{{ type === 'success' ? '✓' : '✕' }}</span>
         <p class="grow">{{ message }}</p>
         <button
+          type="button"
           (click)="close.emit()"
           class="text-current opacity-50 hover:opacity-100 transition-opacity p-1"
+          aria-label="Close alert"
         >
           ×
         </button>
