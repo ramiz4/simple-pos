@@ -1,3 +1,16 @@
+# [1.16.0](https://github.com/ramiz4/simple-pos/compare/v1.15.1...v1.16.0) (2026-02-08)
+
+### Bug Fixes
+
+- address code review feedback - improve ARIA roles, focus management, and keyboard support ([e73abfb](https://github.com/ramiz4/simple-pos/commit/e73abfb00389f0a724ab81c647054e485480ce79))
+- remove redundant ARIA labels per code review feedback ([df07c86](https://github.com/ramiz4/simple-pos/commit/df07c860d9f6c19415e4d546f649b0205af991a8))
+
+### Features
+
+- add Phase 2 accessibility improvements (navigation, skip links, focus styles) ([45495cb](https://github.com/ramiz4/simple-pos/commit/45495cb279c78c1377a7a3dca4ef49b18a18468f))
+- complete accessibility implementation with admin page improvements ([de80c09](https://github.com/ramiz4/simple-pos/commit/de80c09ed2b80d1305de713a31d847de6744ce28))
+- implement Phase 1 accessibility improvements (buttons, modals, forms) ([5c9190b](https://github.com/ramiz4/simple-pos/commit/5c9190b123e0b6a5f578ad2ecdaac0114e41a429))
+
 ## [1.15.1](https://github.com/ramiz4/simple-pos/compare/v1.15.0...v1.15.1) (2026-02-07)
 
 ### Bug Fixes
