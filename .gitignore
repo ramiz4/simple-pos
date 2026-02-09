@@ -13,7 +13,7 @@
 # ============================================
 # Node & Package Managers
 # ============================================
-/node_modules
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -25,13 +25,13 @@ package-lock.json.bak
 # ============================================
 # Tauri Build Artifacts
 # ============================================
-/src-tauri/target
-/src-tauri/Cargo.lock
-/src-tauri/WixTools
-/src-tauri/gen/schemas/
+/apps/native/src-tauri/target
+/apps/native/src-tauri/Cargo.lock
+/apps/native/src-tauri/WixTools
+/apps/native/src-tauri/gen/schemas/
 
 # Tauri signing keys (NEVER commit private keys!)
-/src-tauri/tauri.key
+/apps/native/src-tauri/tauri.key
 
 # ============================================
 # IDEs and Editors
@@ -224,3 +224,9 @@ pids
 *.seed
 *.pid.lock
 
+
+
+
+.nx/workspace-data
+
+vitest.config.*.timestamp*

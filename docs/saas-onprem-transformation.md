@@ -1009,7 +1009,7 @@ The transformation follows a phased approach, moving from the current monolithic
 
 Successfully implemented globally unique emails, account-scoped staff usernames, and owner verification workflows.
 
-### Phase 0.5: Nx Monorepo Restructuring 🏃
+### Phase 0.5: Nx Monorepo Restructuring ✅
 
 Migrating from the current flat structure to an Nx monorepo (`apps/pos`, `apps/native`, `libs/`).
 

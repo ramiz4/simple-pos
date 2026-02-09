@@ -31,8 +31,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'pnpm'
 
       - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -55,8 +58,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'pnpm'
 
       - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -65,10 +71,10 @@ jobs:
         run: pnpm lint
 
       - name: Build Web
-        run: pnpm ng build --base-href=/simple-pos/
+        run: pnpm nx build pos --base-href=/simple-pos/
 
       - name: Test
-        run: pnpm test --run
+        run: pnpm test:ci
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -76,7 +82,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/simple-pos/browser
+          path: dist/apps/pos/browser
 
       - name: Deploy to GitHub Pages
         id: deployment
@@ -105,12 +111,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'pnpm'
 
       - name: install rust
         uses: dtolnay/rust-toolchain@stable
 
       - name: install pnpm
         uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
@@ -127,6 +136,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
+          projectPath: apps/native
           tagName: v__VERSION__
           releaseName: 'Simple POS v__VERSION__'
           releaseBody: 'Desktop binaries for Simple POS v__VERSION__'

@@ -2,117 +2,68 @@
 
 ## Project Overview
 
-This is a **modern Point-of-Sale (POS) system** built as an **Nx monorepo** with Angular 21 and Tauri 2, designed for both web browsers and desktop platforms with offline-first capabilities. The project is preparing for SaaS transformation with a NestJS backend.
+This is a **production-ready Point-of-Sale (POS) system** built with **Angular 21** and **Tauri 2**, currently transitioning to an **Nx Monorepo (Phase 0.5)** for SaaS transformation. It supports both web (PWA) and native desktop platforms with offline-first capabilities and dual-platform persistence (IndexedDB/SQLite).
 
 ### Tech Stack
 
-- **Monorepo:** Nx with pnpm workspaces
-- **Frontend**: Angular 21.1.2 (standalone components, Signals API) - `apps/pos`
-- **Backend**: NestJS (for SaaS/cloud sync) - `apps/api`
-- **Desktop Runtime**: Tauri 2.9.6 (native desktop app) - `apps/desktop`
-- **Shared Libraries**: `libs/shared/types`, `libs/domain`, `libs/shared/utils`
-- **Styling**: TailwindCSS 3.4.19 with custom glassmorphism utilities
-- **State Management**: Angular Signals for reactive state
-- **Data Storage**:
-  - **Web**: IndexedDB (browser storage)
-  - **Desktop**: SQLite (via Tauri plugin)
-  - **Cloud**: PostgreSQL (SaaS backend)
-- **Language**: TypeScript 5.9.2 (strict mode enabled)
-- **Build Tool**: Vite 7.3.1
-- **Package Manager**: **pnpm 10.2.1** (enforced - always use `pnpm` commands)
-- **Testing**: Vitest 4.0.8 with jsdom environment
+- **Monorepo**: Nx with pnpm workspaces
+- **Frontend**: Angular 21.1.2 (standalone components, Signals API)
+- **Desktop Runtime**: Tauri 2.9.6 (Rust-based native wrapper)
+- **Styling**: TailwindCSS 4.1.18 with custom glassmorphism utilities
+- **Data Storage**: IndexedDB (Web) and SQLite (Desktop @tauri-apps/plugin-sql)
+- **Language**: TypeScript 5.9.2 (strict mode)
+- **Package Manager**: **pnpm 10+** (enforced)
+- **Testing**: Vitest 4.0.8 with jsdom
 
 ---
 
-## Monorepo Structure
+## Workspace Structure (Nx Monorepo)
+
+Following Phase 0.5 restructuring, the project is organized into `apps` and `libs`:
 
 ```
 simple-pos/
 ├── apps/
-│   ├── pos/                      # 🖥️ Angular 21 POS frontend
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   │   ├── domain/       # Entities, enums
-│   │   │   │   ├── application/  # Services
-│   │   │   │   ├── infrastructure/ # Repositories
-│   │   │   │   └── ui/           # Components, pages
-│   │   │   └── styles.css
-│   │   └── project.json
-│   ├── api/                      # 🌐 NestJS backend
-│   │   ├── src/
-│   │   │   ├── auth/
-│   │   │   ├── products/
-│   │   │   ├── orders/
-│   │   │   └── sync/
-│   │   └── project.json
-│   ├── desktop/                  # 🖥️ Tauri wrapper
-│   └── admin-portal/             # 🔧 (Future) Super admin dashboard
+│   ├── pos/                         # 🖥️ Angular POS frontend
+│   │   └── src/app/
+│   │       ├── application/        # Services (Business Logic)
+│   │       ├── infrastructure/     # Persistence (Repositories)
+│   │       ├── ui/                 # Components, Pages, Layouts
+│   │       └── core/               # Guards, Interceptors
+│   └── native/                      # 🦀 Tauri Desktop Host (src-tauri)
 │
 ├── libs/
 │   ├── shared/
-│   │   ├── types/                # 📦 Shared TypeScript interfaces
-│   │   │   └── src/
-│   │   │       ├── entities/     # Product, Order, User, etc.
-│   │   │       ├── dtos/         # API request/response DTOs
-│   │   │       └── sync/         # Sync protocol types
-│   │   ├── utils/                # 🔧 Common utilities
-│   │   └── constants/            # 📝 Shared constants
-│   │
-│   └── domain/                   # 🏛️ Domain logic
-│       └── src/
-│           ├── validators/
-│           └── calculations/     # Price calc, tax, discounts
+│   │   ├── types/                  # 📦 @simple-pos/shared/types (Interfaces, Enums)
+│   │   └── utils/                  # 🔧 @simple-pos/shared/utils (Date, Validation)
+│   └── domain/                      # 🏛️ @simple-pos/domain (Pure calculations, rules)
 │
-├── tools/                        # 🔨 Custom scripts, generators
-├── docs/                         # 📚 Documentation
-├── nx.json                       # Nx configuration
-├── pnpm-workspace.yaml           # pnpm workspace config
-└── tsconfig.base.json            # Shared TypeScript config
+├── scripts/                         # 🔨 Maintenance scripts
+└── docs/                            # 📚 Migration and architecture docs
 ```
 
 ---
 
 ## ⚠️ CRITICAL: Commit Message Requirements
 
-**This project uses automated semantic versioning.** All commits MUST follow [Conventional Commits](https://www.conventionalcommits.org/) format.
+**Automated semantic versioning is enforced.** All commits MUST follow [Conventional Commits](https://www.conventionalcommits.org/).
 
-### Commit Format
+### Format & Scopes
 
-```
+```bash
 <type>(<scope>): <subject>
-```
 
-### Scopes (Monorepo)
-
-Use the app or lib name as scope:
-
-```bash
+# Scopes: pos, native, domain, shared-types, shared-utils, deps
 feat(pos): add receipt printing support
-fix(api): resolve authentication token refresh
-feat(shared-types): add sync protocol interfaces
+fix(native): resolve SQLite migration error
+chore(deps): update tauri-apps/api
 ```
 
-### Required Types & Version Bumps
+### Version Bumps
 
-- `feat:` - New feature → **minor** version bump (0.1.0 → 0.2.0)
-- `fix:` - Bug fix → **patch** version bump (0.1.0 → 0.1.1)
-- `feat!:` - Breaking change → **major** version bump (0.1.0 → 1.0.0)
-- `docs:`, `style:`, `refactor:`, `perf:`, `test:`, `chore:`, `ci:` - No release
-
-### Examples
-
-```bash
-# ✅ CORRECT
-feat(pos): add receipt printing support
-fix(api): resolve cart calculation error
-feat(shared-types)!: redesign entity interfaces
-
-# ❌ INCORRECT
-Add receipt printing
-Fixed bug
-```
-
-**See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for detailed guidelines.**
+- `feat:` -> **minor** (1.16.x -> 1.17.0)
+- `fix:` -> **patch** (1.16.0 -> 1.16.1)
+- `feat!:` or `BREAKING CHANGE:` -> **major** (1.x.x -> 2.0.0)
 
 ---
 
@@ -120,58 +71,22 @@ Fixed bug
 
 ### Clean Architecture Layers
 
-This project follows **Clean Architecture** principles with strict layer separation:
+**Strict dependency flow**: UI → Application → Domain ← Infrastructure
 
-```
-┌─────────────────────────────────────────────────────────┐
-│ UI Layer (Presentation)                                 │
-│ - Components, Pages, Routing                            │
-│ - Location: apps/pos/src/app/ui/                        │
-└─────────────────┬───────────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────────┐
-│ Application Layer                                        │
-│ - Services, Use Cases, Business Logic Orchestration     │
-│ - Location: apps/pos/src/app/application/services/      │
-└─────────────────┬───────────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────────┐
-│ Domain Layer (Core Business Logic)                      │
-│ - Entities (interfaces), Enums, Pure Business Rules     │
-│ - Location: libs/shared/types/, libs/domain/            │
-│ - NO DEPENDENCIES - must be framework-agnostic          │
-└─────────────────────────────────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────────────┐
-│ Infrastructure Layer                                     │
-│ - Repositories (SQLite/IndexedDB), Adapters, I/O        │
-│ - Location: apps/pos/src/app/infrastructure/            │
-└─────────────────────────────────────────────────────────┘
-```
+1.  **Domain Layer** (`libs/domain`, `libs/shared/types`): Pure TypeScript, framework-agnostic.
+2.  **Application Layer** (`apps/pos/.../application`): Services orchestrating business logic.
+3.  **Infrastructure Layer** (`apps/pos/.../infrastructure`): Data persistence (Dual Repositories).
+4.  **UI Layer** (`apps/pos/.../ui`): Presentation only. Only injects Services.
 
-**Key Rules:**
+### Dual Repository Pattern
 
-- **Shared types** (`libs/shared/types/`) used by both frontend and backend
-- **Domain logic** (`libs/domain/`) contains pure TypeScript with NO framework dependencies
-- **Services** in `application/services/` orchestrate business logic and depend on repositories
-- **Repositories** have dual implementations: `sqlite-*.repository.ts` (Tauri) and `indexeddb-*.repository.ts` (Web)
-- **UI components** should only depend on services, never directly on repositories
+Every data entity MUST have two repository implementations:
 
----
+- `sqlite-*.repository.ts` (Tauri Desktop)
+- `indexeddb-*.repository.ts` (Web/PWA)
 
-## Shared Code Imports
-
-Import shared code seamlessly across apps:
-
-```typescript
-// In apps/pos (Angular frontend)
-import { Product, CreateOrderDto } from '@simple-pos/shared/types';
-import { calculateOrderTotal } from '@simple-pos/domain';
-
-// In apps/api (NestJS backend) - SAME imports!
-import { Product, CreateOrderDto } from '@simple-pos/shared/types';
-import { calculateOrderTotal } from '@simple-pos/domain';
-```
+**Accessing Data**:
+Always inject via `RepositoryFactory` (Adapter pattern) which detects the platform using `PlatformService`.
 
 ---
 
@@ -179,271 +94,53 @@ import { calculateOrderTotal } from '@simple-pos/domain';
 
 ### TypeScript & Angular
 
-1. **Always use standalone components** - No NgModule declarations:
-
-   ```typescript
-   @Component({
-     selector: 'app-example',
-     standalone: true,
-     imports: [CommonModule, ReactiveFormsModule],
-     templateUrl: './example.component.html'
-   })
-   ```
-
-2. **Prefer Angular Signals** for reactive state over BehaviorSubject:
-
-   ```typescript
-   export class ExampleService {
-     private _items = signal<Item[]>([]);
-     items = this._items.asReadonly();
-
-     addItem(item: Item) {
-       this._items.update((items) => [...items, item]);
-     }
-   }
-   ```
-
-3. **Use async/await** in services and repositories (no callback-style code):
-
-   ```typescript
-   async getProduct(id: string): Promise<Product | null> {
-     return await this.repository.findById(id);
-   }
-   ```
-
-4. **All services** must use `@Injectable({ providedIn: 'root' })` for singleton behavior
-
-5. **Type safety is mandatory** - Never use `any`, always define proper interfaces:
-
-   ```typescript
-   // ✅ Correct
-   async findProducts(filter: ProductFilter): Promise<Product[]>
-
-   // ❌ Wrong
-   async findProducts(filter: any): Promise<any>
-   ```
-
-### Repository Pattern
-
-When creating or modifying repositories:
-
-1. **Always implement both versions**: SQLite (Tauri) and IndexedDB (Web)
-2. **Both must extend `BaseRepository<T>`** interface from `apps/pos/src/app/core/interfaces/base-repository.interface.ts`
-3. **Use consistent naming**:
-   - SQLite: `sqlite-product.repository.ts`
-   - IndexedDB: `indexeddb-product.repository.ts`
-4. **Register in RepositoryFactory**
-
-### File Organization
-
-- **Components**: `apps/pos/src/app/ui/components/` or `apps/pos/src/app/ui/pages/`
-- **Services**: `apps/pos/src/app/application/services/`
-- **Entities**: `libs/shared/types/src/entities/*.interface.ts`
-- **Enums**: `libs/shared/types/src/enums/*.enum.ts`
-- **Repositories**: `apps/pos/src/app/infrastructure/repositories/`
-- **Guards**: `apps/pos/src/app/core/guards/`
-- **Utilities**: `libs/shared/utils/`
-
-### Naming Conventions
-
-- **Files**: kebab-case (e.g., `product-list.component.ts`, `order.service.ts`)
-- **Classes/Interfaces**: PascalCase (e.g., `ProductService`, `Order`)
-- **Methods/Variables**: camelCase (e.g., `getProduct()`, `currentUser`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_ITEMS_PER_PAGE`)
-- **Enum values**: camelCase (e.g., `OrderStatus.pending`)
-
----
-
-## Styling Guidelines
-
-### TailwindCSS Usage
-
-- **Use Tailwind utility classes** for all styling (avoid custom CSS unless necessary)
-- **Mobile-first approach** - Start with mobile layout, then add responsive modifiers:
-  ```html
-  <div class="p-4 md:p-6 lg:p-8"></div>
+- **Standalone Components**: (No NgModules)
+- **Angular Signals**: Use `signal`, `computed`, `effect` for reactive state.
+- **Control Flow**: Use `@if`, `@for`, `@switch` in templates.
+- **Async/Await**: Mandatory for all service and repository methods.
+- **Import Aliases**: Always use `@simple-pos/*` aliases for libs:
+  ```typescript
+  import { Product } from '@simple-pos/shared/types';
+  import { calculateTotal } from '@simple-pos/domain';
   ```
 
-### Glassmorphism Effects
+---
 
-Custom glass utilities are available:
+## Critical Commands
 
-```html
-<div class="glass-effect">
-  <!-- Frosted glass background with backdrop blur -->
-</div>
+### Development
 
-<div class="glass-card">
-  <!-- Complete glass card with padding and rounded corners -->
-</div>
+```bash
+pnpm start                  # Start Angular POS (Web)
+pnpm run tauri:dev          # Start Tauri Host (Desktop)
+pnpm nx test pos            # Run tests for POS app
+pnpm nx test domain         # Run tests for domain lib
+```
+
+### Monorepo Management
+
+```bash
+pnpm nx graph               # Visualize dependencies
+pnpm nx g @nx/js:lib <name> # Create new library
+pnpm nx lint <project>      # Check linting
 ```
 
 ---
 
-## Testing Guidelines
+## Testing Patterns
 
-### Test Framework Setup
-
-- **Test Runner**: Vitest 4.0.8
-- **Environment**: jsdom (browser simulation)
-- **Mocking**: fake-indexeddb for IndexedDB tests
-- **Location**: Tests co-located with code (`*.spec.ts`)
-
-### Running Tests
-
-```bash
-pnpm test                    # Run all tests
-pnpm nx test pos             # Test specific project
-pnpm nx affected:test        # Test only affected projects
-pnpm test -- --watch         # Watch mode
-pnpm test -- --ui            # Visual test UI
-```
+- **Vitest**: used for all unit tests.
+- **Mocks**: Mock `PlatformService` and `RepositoryFactory` when testing UI/Services.
+- **Dual Testing**: Ensure services are logic-tested for both `isTauri()` being true and false.
+- **Integration**: `src/app/integration/*.spec.ts` for end-to-end flow validation.
 
 ---
 
-## Platform-Specific Considerations
+## Security
 
-### Dual-Platform Support
-
-This app runs on **both web (IndexedDB) and desktop (SQLite via Tauri)**. When writing code:
-
-1. **Never hardcode platform-specific logic** in services or components
-2. **Use PlatformService** to detect runtime:
-   ```typescript
-   if (this.platformService.isTauri()) {
-     // Desktop-specific behavior
-   }
-   ```
-3. **Prefer repository abstraction** - Let RepositoryFactory handle platform switching
-4. **Test on both platforms** when possible
-
----
-
-## Build & Development Commands
-
-### Package Management
-
-**Always use pnpm** - npm/yarn are disabled via preinstall hook:
-
-```bash
-pnpm install           # Install dependencies
-pnpm add <package>     # Add new dependency
-pnpm remove <package>  # Remove dependency
-```
-
-### Development Servers
-
-```bash
-pnpm dev                   # Start frontend + backend concurrently
-pnpm nx serve pos          # Angular dev server only
-pnpm nx serve api          # NestJS backend only
-pnpm run tauri:dev         # Desktop dev (Tauri + SQLite)
-```
-
-### Production Builds
-
-```bash
-pnpm nx build pos          # Build Angular frontend
-pnpm nx build api          # Build NestJS backend
-pnpm run tauri:build       # Desktop production build → installers
-```
-
-### Nx Commands
-
-```bash
-pnpm nx affected:test      # Test only affected projects
-pnpm nx affected:build     # Build only affected projects
-pnpm nx affected:lint      # Lint only affected projects
-pnpm nx graph              # Visualize project dependencies
-
-# Generate new code
-pnpm nx g @nx/angular:component payment --project=pos
-pnpm nx g @nx/nest:service order --project=api
-pnpm nx g @nx/js:lib new-lib --directory=libs/shared
-```
-
-### Code Quality
-
-```bash
-pnpm run lint          # Lint TypeScript code
-pnpm run format        # Format code with Prettier
-pnpm test              # Run all tests
-```
-
----
-
-## Common Patterns & Examples
-
-### Creating a New Shared Type
-
-1. **Define interface** in `libs/shared/types/src/entities/`:
-
-   ```typescript
-   // my-entity.interface.ts
-   export interface MyEntity {
-     id: string;
-     name: string;
-     createdAt: Date;
-     updatedAt: Date;
-   }
-   ```
-
-2. **Export from barrel**: Add to `libs/shared/types/src/index.ts`
-
-### Creating a New Service
-
-1. **Create service file** in `apps/pos/src/app/application/services/`:
-
-   ```typescript
-   // my-entity.service.ts
-   import { Injectable, signal } from '@angular/core';
-   import { MyEntity } from '@simple-pos/shared/types';
-
-   @Injectable({ providedIn: 'root' })
-   export class MyEntityService {
-     private _entities = signal<MyEntity[]>([]);
-     entities = this._entities.asReadonly();
-
-     private _isLoading = signal(false);
-     isLoading = this._isLoading.asReadonly();
-
-     constructor(private repository: BaseRepository<MyEntity>) {}
-
-     async loadAll(): Promise<void> {
-       this._isLoading.set(true);
-       try {
-         const data = await this.repository.findAll();
-         this._entities.set(data);
-       } finally {
-         this._isLoading.set(false);
-       }
-     }
-   }
-   ```
-
-### Creating a Standalone Component
-
-```typescript
-// my-component.component.ts
-import { Component, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-@Component({
-  selector: 'app-my-component',
-  standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="glass-card p-6">
-      <h2 class="text-xl font-bold mb-4">{{ title() }}</h2>
-      <p>{{ description() }}</p>
-    </div>
-  `,
-})
-export class MyComponent {
-  title = signal('My Component');
-  description = signal('This is a standalone component');
-}
-```
+- **Authentication**: PINs are hashed via `bcryptjs`. Never log or store plain-text.
+- **Platform Guards**: Use `authGuard`, `staffGuard`, and `adminGuard` in `app.routes.ts`.
+- **Validation**: Sanitize user inputs using `InputSanitizerService` before they reach repositories.
 
 ---
 
