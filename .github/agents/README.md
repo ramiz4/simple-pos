@@ -1,6 +1,23 @@
 # GitHub Copilot Custom Agents
 
-This directory contains specialized custom agent profiles for GitHub Copilot coding agent. These agents provide expert assistance for specific development tasks in the Simple POS project.
+This directory contains specialized custom agent profiles for GitHub Copilot coding agent. These agents provide expert assistance for specific development tasks in the Simple POS Nx monorepo project.
+
+## Project Structure (Nx Monorepo)
+
+```
+simple-pos/
+├── apps/
+│   ├── pos/              # Angular 21 POS frontend
+│   ├── api/              # NestJS backend (SaaS)
+│   ├── desktop/          # Tauri wrapper
+│   └── admin-portal/     # (Future) Super admin dashboard
+├── libs/
+│   ├── shared/types/     # Shared TypeScript interfaces
+│   ├── shared/utils/     # Common utilities
+│   ├── shared/constants/ # Shared constants
+│   └── domain/           # Domain logic
+└── docs/                 # Documentation
+```
 
 ## Available Custom Agents
 
@@ -41,7 +58,7 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 
 - Expert in dual-platform data access (desktop + web)
 - Enforces BaseRepository interface compliance
-- Creates SQLite migrations in `src-tauri/migrations/`
+- Creates SQLite migrations in `apps/desktop/src-tauri/migrations/`
 - Handles IndexedDB schema registration
 - Ensures type safety and error handling
 - Performance optimization for both platforms
@@ -52,7 +69,7 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 
 **Use this agent when you need to**:
 
-- Create new UI components or pages
+- Create new UI components or pages in `apps/pos`
 - Implement reactive state with Angular Signals
 - Use modern Angular template syntax (`@if`, `@for`)
 - Build forms with ReactiveFormsModule
@@ -65,10 +82,22 @@ This directory contains specialized custom agent profiles for GitHub Copilot cod
 - Expert in Angular 21 standalone components (no NgModules)
 - Uses Angular Signals API for reactive state (not RxJS)
 - Modern control flow syntax (@if, @for, @empty)
-- Dependency injection with `inject()` function
+- Dependency injection with constructor injection pattern
 - TailwindCSS utility classes and glassmorphism effects
 - Mobile-first responsive design patterns
 - Accessibility best practices
+
+### 🌐 Backend Specialist (`backend-specialist`) - Coming Soon
+
+**Focus**: NestJS backend API development for SaaS
+
+**Use this agent when you need to**:
+
+- Create new API endpoints in `apps/api`
+- Implement sync protocol endpoints
+- Set up multi-tenant data isolation with RLS
+- Add authentication and authorization guards
+- Write API tests
 
 ## How to Use Custom Agents
 
@@ -118,6 +147,7 @@ gh copilot agent run --agent test-specialist "Write tests for ProductService"
 | Increasing test coverage                      | **test-specialist**              |
 | Fixing responsive design issues               | **angular-component-specialist** |
 | Creating SQLite and IndexedDB implementations | **repository-specialist**        |
+| Creating shared types in `libs/`              | **repository-specialist**        |
 
 ## Agent Configuration
 
@@ -134,11 +164,12 @@ Detailed instructions for the agent in Markdown...
 
 ## Benefits of Custom Agents
 
-✅ **Specialized Expertise**: Agents have deep knowledge of specific domains  
-✅ **Consistency**: Enforces project standards and patterns automatically  
-✅ **Efficiency**: Faster development with focused, context-aware assistance  
-✅ **Quality**: Reduces errors by following best practices  
+✅ **Specialized Expertise**: Agents have deep knowledge of specific domains
+✅ **Consistency**: Enforces project standards and patterns automatically
+✅ **Efficiency**: Faster development with focused, context-aware assistance
+✅ **Quality**: Reduces errors by following best practices
 ✅ **Onboarding**: New team members can leverage agent knowledge
+✅ **Monorepo Aware**: Agents understand the Nx project structure
 
 ## Modifying Custom Agents
 
@@ -167,7 +198,8 @@ For detailed configuration options, see the [GitHub Copilot documentation on cus
 - 🎓 [Custom Agent Configuration Reference](https://docs.github.com/en/copilot/reference/custom-agents-configuration)
 - 🌟 [Awesome Copilot Agents Examples](https://github.com/github/awesome-copilot/tree/main/agents)
 - 📘 [Main Copilot Instructions](../copilot-instructions.md)
+- 📋 [SaaS/On-Prem Roadmap](../../docs/SAAS-ONPREM-TRANSFORMATION.md)
 
 ---
 
-**Note**: These custom agents complement the main [Copilot instructions](../copilot-instructions.md) which provide general guidance for the entire Simple POS project.
+**Note**: These custom agents complement the main [Copilot instructions](../copilot-instructions.md) which provide general guidance for the entire Simple POS Nx monorepo project.
