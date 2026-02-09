@@ -1,3 +1,9 @@
+# [1.20.0](https://github.com/ramiz4/simple-pos/compare/v1.19.0...v1.20.0) (2026-02-09)
+
+### Features
+
+- **api:** implement JWT authentication system ([#66](https://github.com/ramiz4/simple-pos/issues/66)) ([ec2b22e](https://github.com/ramiz4/simple-pos/commit/ec2b22e5af812e873a06270e072e81ec2d293085))
+
 # [1.19.0](https://github.com/ramiz4/simple-pos/compare/v1.18.0...v1.19.0) (2026-02-09)
 
 ### Bug Fixes
