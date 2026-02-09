@@ -1,3 +1,14 @@
+# [1.17.0](https://github.com/ramiz4/simple-pos/compare/v1.16.0...v1.17.0) (2026-02-09)
+
+### Bug Fixes
+
+- **ci:** match pnpm version with package.json (10.28.2) ([e4a49bd](https://github.com/ramiz4/simple-pos/commit/e4a49bdcc1e36770236573dfb9e88c95fc2c88d1))
+- **ci:** setup pnpm before node to fix PATH issue ([571ee43](https://github.com/ramiz4/simple-pos/commit/571ee43e67f0ea3b8026ab8f0d839c1b670b25e6))
+
+### Features
+
+- **monorepo:** transform project structure to Nx monorepo and add domain unit tests ([ff3262c](https://github.com/ramiz4/simple-pos/commit/ff3262cfdaf696428d02c93b712d6450460ee06c))
+
 # [1.16.0](https://github.com/ramiz4/simple-pos/compare/v1.15.1...v1.16.0) (2026-02-08)
 
 ### Bug Fixes
