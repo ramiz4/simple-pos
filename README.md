@@ -41,7 +41,13 @@ See [Nx Monorepo Migration Plan](docs/nx-monorepo-migration-plan.md) for details
    pnpm install
    ```
 
-2. **Verify Installation**
+2. **Initialize Environment** (API Backend only)
+
+   ```bash
+   cp apps/api/.env.example apps/api/.env
+   ```
+
+3. **Verify Installation**
    ```bash
    pnpm run build
    ```

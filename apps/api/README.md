@@ -4,13 +4,21 @@ NestJS application with PostgreSQL backend and Multi-Tenancy support via Row-Lev
 
 ## Database Setup
 
-1. Start the PostgreSQL database:
+1. Configure environment variables:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   _Edit `.env` if you need to customize database credentials or ports._
+
+2. Start the PostgreSQL database:
 
    ```bash
    docker-compose up -d
    ```
 
-2. Generate Prisma Client and Apply Migrations:
+3. Generate Prisma Client and Apply Migrations:
 
    ```bash
    npx prisma migrate dev
