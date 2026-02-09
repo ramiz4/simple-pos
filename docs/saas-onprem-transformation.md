@@ -1013,8 +1013,8 @@ We enforce contract consistency by importing from specialized shared libraries u
 
 ```typescript
 // Shared entities/contracts consumed by pos and native apps
-import { Product, OrderStatus } from '@simple-pos/shared/types';
-import { calculateOrderTotal } from '@simple-pos/domain';
+import { Product, OrderStatusEnum } from '@simple-pos/shared/types';
+import { calculateTaxInclusive, calculateGrandTotal } from '@simple-pos/domain';
 import { formatDate } from '@simple-pos/shared/utils';
 ```
 
@@ -1023,7 +1023,7 @@ import { formatDate } from '@simple-pos/shared/utils';
 ```typescript
 // Shared entities/contracts consumed by pos, api, and native
 import { Product, CreateOrderDto } from '@simple-pos/shared/types';
-import { calculateOrderTotal } from '@simple-pos/domain';
+import { calculateTaxInclusive, calculateGrandTotal } from '@simple-pos/domain';
 ```
 
 ---
