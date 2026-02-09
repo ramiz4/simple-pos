@@ -15,7 +15,7 @@
 ### Key Achievements
 
 ✅ **Nx Workspace Initialized** - Version 22.4.5 with Angular and JS plugins <br>
-✅ **Applications Restructured** - `apps/pos` (Angular) and `apps/native` (Tauri) <br>
+✅ **Applications Restructured** - `apps/pos` (Angular), `apps/api` (NestJS), and `apps/native` (Tauri) <br>
 ✅ **Libraries Extracted** - `@simple-pos/shared/types`, `@simple-pos/domain`, `@simple-pos/shared/utils` <br>
 ✅ **Path Aliases Configured** - Cross-library imports use `@simple-pos/*` workspace-scoped paths; legacy `src/app/domain/...` imports removed <br>
 ✅ **Build Verified** - All 5 projects build successfully <br>

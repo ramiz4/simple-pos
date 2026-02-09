@@ -40,18 +40,32 @@ BREAKING CHANGE: The old login API has been removed
 
 ```bash
 # Feature (minor bump)
-git commit -m "feat: add dark mode support"
+git commit -m "feat(pos): add dark mode support"
+git commit -m "feat(api): add authentication endpoints"
 
 # Bug fix (patch bump)
-git commit -m "fix: resolve cart calculation error"
+git commit -m "fix(pos): resolve cart calculation error"
+git commit -m "fix(api): fix CORS configuration"
 
 # Breaking change (major bump)
-git commit -m "feat!: migrate to new database schema"
+git commit -m "feat(pos)!: migrate to new database schema"
 
 # No release
 git commit -m "docs: update README installation steps"
-git commit -m "chore: update dependencies"
+git commit -m "chore(deps): update dependencies"
 ```
+
+### Scopes
+
+Use the following scopes to indicate which part of the monorepo is affected:
+
+- `pos` - Angular POS frontend
+- `api` - NestJS backend API
+- `native` - Tauri desktop application
+- `domain` - Domain logic library
+- `shared-types` - Shared types library
+- `shared-utils` - Shared utilities library
+- `deps` - Dependencies updates
 
 ## Release Process
 

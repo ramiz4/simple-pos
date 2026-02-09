@@ -109,6 +109,17 @@ simple-pos/                            # 📦 Nx Monorepo Root
 │   │   ├── vitest.config.ts           # Test configuration
 │   │   └── public/                    # Static assets
 │   │
+│   ├── api/                           # 🚀 NestJS Backend API
+│   │   ├── src/
+│   │   │   ├── app/
+│   │   │   │   ├── app.controller.ts
+│   │   │   │   ├── app.module.ts
+│   │   │   │   └── app.service.ts
+│   │   │   └── main.ts
+│   │   ├── project.json
+│   │   ├── tsconfig.json
+│   │   └── webpack.config.js
+│   │
 │   └── native/                        # 🦀 Tauri Desktop Host
 │       ├── src-tauri/
 │       │   ├── src/

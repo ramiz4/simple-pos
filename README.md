@@ -11,7 +11,7 @@ A modern, cross-platform Point-of-Sale system built with Angular 21, Tauri v2, C
 
 The project has been successfully migrated to an **Nx monorepo** structure for improved maintainability and scalability:
 
-- **Apps**: `pos` (Angular frontend), `native` (Tauri desktop)
+- **Apps**: `pos` (Angular frontend), `api` (NestJS backend), `native` (Tauri desktop)
 - **Shared Libraries**: `@simple-pos/shared/types`, `@simple-pos/domain`, `@simple-pos/shared/utils`
 - **Benefits**: Path aliases, dependency graph, efficient builds, reusable code
 
@@ -64,6 +64,33 @@ The application will be available at `http://localhost:4200`
 - Reactive UI with Angular Signals
 - Glassmorphism styling
 - Mobile-first responsive design
+
+### API Backend (NestJS)
+
+Start the API server:
+
+```bash
+pnpm run api:serve
+```
+
+The API will be available at `http://localhost:3000/api`
+
+**Features:**
+
+- RESTful API endpoints
+- Built with NestJS framework
+- TypeScript-first development
+- Modular architecture
+
+### Full Stack Development
+
+Run both frontend and backend simultaneously:
+
+```bash
+pnpm dev
+```
+
+This starts both the Angular POS frontend (port 4200) and NestJS API backend (port 3000) in parallel.
 
 ### Desktop Mode (Tauri with SQLite)
 
@@ -146,13 +173,30 @@ pnpm run tauri:dev
 
 ## Available Scripts
 
+### Frontend (Angular)
+
 - `pnpm start` - Start development server (web mode with IndexedDB)
 - `pnpm run build` - Build for production (web/PWA)
 - `pnpm run watch` - Watch mode for development
-- `pnpm test` - Run Vitest unit tests
+
+### Backend (NestJS)
+
+- `pnpm run api:serve` - Start NestJS API server (port 3000)
+- `pnpm run api:build` - Build NestJS API for production
+
+### Full Stack
+
+- `pnpm dev` - Start both frontend and backend in parallel
+
+### Desktop (Tauri)
+
 - `pnpm run tauri` - Tauri CLI access
 - `pnpm run tauri:dev` - Start Tauri development (desktop mode with SQLite)
 - `pnpm run tauri:build` - Build native desktop application
+
+### Testing & Quality
+
+- `pnpm test` - Run Vitest unit tests
 - `pnpm run db:reset` - Reset database (development only)
 
 ## Testing the Persistence Layer
