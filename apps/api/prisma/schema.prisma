@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                 String    @id @default(uuid()) @db.Uuid
+  name               String
+  subdomain          String    @unique
+  customDomain       String?
+  plan               String    @default("FREE")
+  status             String    @default("ACTIVE")
+  trialEndsAt        DateTime?
+  subscriptionEndsAt DateTime?
+  maxUsers           Int       @default(2)
+  maxLocations       Int       @default(1)
+  maxDevices         Int       @default(1)
+  features           String[]
+  // Settings as JSON
+  settings           Json?
+  billingInfo        Json?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  products Product[]
+  orders   Order[]
+  users    User[]
+
+  @@map("tenants")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @db.Uuid
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  email     String   @unique
+  firstName String
+  lastName  String
+  role      String   @default("CASHIER")
+  pinHash   String?
+  password  String? // Nullable if using PIN only locally, but cloud needs auth
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Product {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenantId      String    @db.Uuid
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  localId       Int? // ID from the local SQLite DB
+  name          String
+  description   String?
+  price         Decimal   @db.Decimal(10, 2)
+  categoryId    String?   @db.Uuid
+  stockQuantity Int       @default(0)
+  isActive      Boolean   @default(true)
+  version       Int       @default(1)
+  isDeleted     Boolean   @default(false)
+  deletedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  syncedAt      DateTime?
+
+  @@index([tenantId])
+  @@map("products")
+}
+
+model Order {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @db.Uuid
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  localId     Int?
+  status      String
+  totalAmount Decimal   @db.Decimal(10, 2)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  version     Int       @default(1)
+  syncedAt    DateTime?
+
+  @@index([tenantId])
+  @@map("orders")
+}
