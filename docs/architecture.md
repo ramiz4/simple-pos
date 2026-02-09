@@ -35,7 +35,7 @@
 
 - **Monorepo**: Nx 22.4.5 (workspace management)
 - **Package Manager**: pnpm 10+ (enforced)
-- **Build System**: Angular CLI with Vite
+- **Build System**: Nx + @angular/build (Angular CLI-based executors)
 - **Testing**: Vitest 4.0.8 with jsdom
 - **Linting**: ESLint 9 + Prettier with organize-imports plugin
 - **Git Hooks**: Husky + lint-staged
@@ -122,8 +122,8 @@ simple-pos/                            # 📦 Nx Monorepo Root
 │   ├── domain/                        # 🎯 @simple-pos/domain
 │   │   ├── src/
 │   │   │   └── lib/                   # Pure business logic
-│   │   │       ├── calculations/      # Tax, pricing calculations
-│   │   │       └── validators/        # Business rules validation
+│   │   │       ├── calculations.ts    # Tax & pricing calculations
+│   │   │       └── calculations.spec.ts
 │   │   ├── project.json
 │   │   └── vitest.config.mts
 │   │
@@ -184,13 +184,13 @@ Three shared libraries provide framework-agnostic code:
 1. **@simple-pos/shared/types** - Entity interfaces, enums, DTOs
 
    ```typescript
-   import { Product, OrderStatus } from '@simple-pos/shared/types';
+   import { Product, OrderStatusEnum } from '@simple-pos/shared/types';
    ```
 
-2. **@simple-pos/domain** - Pure business logic (calculations, validators)
+2. **@simple-pos/domain** - Pure business logic (pricing calculations, business rules)
 
    ```typescript
-   import { calculateOrderTotal } from '@simple-pos/domain';
+   import { calculateTaxInclusive, calculateGrandTotal } from '@simple-pos/domain';
    ```
 
 3. **@simple-pos/shared/utils** - Common utilities
