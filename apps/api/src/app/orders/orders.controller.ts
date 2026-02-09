@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { CurrentUser } from '../auth/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { TenantId } from '../tenants/tenant.decorator';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';
@@ -11,27 +12,35 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  create(@Req() req: Request & { user: any }, @Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(req.tenantId!, req.user.id, createOrderDto);
+  create(
+    @TenantId() tenantId: string,
+    @CurrentUser('id') userId: string,
+    @Body() createOrderDto: CreateOrderDto,
+  ) {
+    return this.ordersService.create(tenantId, userId, createOrderDto);
   }
 
   @Get()
-  findAll(@Req() req: Request) {
-    return this.ordersService.findAll(req.tenantId!);
+  findAll(@TenantId() tenantId: string) {
+    return this.ordersService.findAll(tenantId);
   }
 
   @Get(':id')
-  findOne(@Req() req: Request, @Param('id') id: string) {
-    return this.ordersService.findOne(req.tenantId!, id);
+  findOne(@TenantId() tenantId: string, @Param('id') id: string) {
+    return this.ordersService.findOne(tenantId, id);
   }
 
   @Patch(':id')
-  update(@Req() req: Request, @Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(req.tenantId!, id, updateOrderDto);
+  update(
+    @TenantId() tenantId: string,
+    @Param('id') id: string,
+    @Body() updateOrderDto: UpdateOrderDto,
+  ) {
+    return this.ordersService.update(tenantId, id, updateOrderDto);
   }
 
   @Delete(':id')
-  remove(@Req() req: Request, @Param('id') id: string) {
-    return this.ordersService.remove(req.tenantId!, id);
+  remove(@TenantId() tenantId: string, @Param('id') id: string) {
+    return this.ordersService.remove(tenantId, id);
   }
 }
