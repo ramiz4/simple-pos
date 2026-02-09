@@ -2,7 +2,9 @@
 
 ## Overview
 
-**Simple POS v1.11.0** is a production-ready, cross-platform Point-of-Sale system built with **Clean Architecture** principles. The application runs as both a native desktop application (via Tauri) and a Progressive Web App, sharing 100% of the codebase while adapting to platform-specific capabilities.
+**Simple POS v1.16.0** is a production-ready, cross-platform Point-of-Sale system built with **Clean Architecture** principles and **Nx Monorepo** structure. The application runs as both a native desktop application (via Tauri) and a Progressive Web App, sharing 100% of the codebase while adapting to platform-specific capabilities.
+
+> **Phase 0.5 (Nx Monorepo)**: The project has been successfully migrated to an Nx monorepo structure with shared libraries for improved code organization and maintainability. See [Nx Monorepo Migration Plan](./nx-monorepo-migration-plan.md) for details.
 
 ## Technology Stack
 
@@ -31,122 +33,193 @@
 
 ### Development Tools
 
-- **Package Manager**: pnpm 10+
-- **Build System**: Angular CLI with Vite
-- **Testing**: Vitest 4.0.8
-- **Linting**: Prettier with organize-imports plugin
+- **Monorepo**: Nx 22.4.5 (workspace management)
+- **Package Manager**: pnpm 10+ (enforced)
+- **Build System**: Nx + @angular/build (Angular CLI-based executors)
+- **Testing**: Vitest 4.0.8 with jsdom
+- **Linting**: ESLint 9 + Prettier with organize-imports plugin
 - **Git Hooks**: Husky + lint-staged
-- **Versioning**: Semantic Release
+- **Versioning**: Semantic Release with conventional commits
 
-## Project Structure
+## Project Structure (Nx Monorepo)
 
 ```
-simple-pos/
-├── src/
-│   ├── app/
-│   │   ├── domain/                    # 🎯 Business Layer (Pure TypeScript)
-│   │   │   ├── entities/              # 16 entity interfaces
-│   │   │   │   ├── order.interface.ts
-│   │   │   │   ├── product.interface.ts
-│   │   │   │   ├── user.interface.ts
-│   │   │   │   └── ... (13 more)
-│   │   │   ├── enums/                 # Business enums
-│   │   │   │   ├── order-status.enum.ts
-│   │   │   │   ├── order-type.enum.ts
-│   │   │   │   ├── user-role.enum.ts
-│   │   │   │   └── table-status.enum.ts
-│   │   │   └── dtos/                  # Data Transfer Objects
-│   │   │       ├── cart.dto.ts
-│   │   │       └── ...
+simple-pos/                            # 📦 Nx Monorepo Root
+├── apps/
+│   ├── pos/                           # 🖥️ Angular POS Frontend
+│   │   ├── src/
+│   │   │   └── app/
+│   │   │       ├── application/       # 🧠 Business Logic Layer
+│   │   │       │   └── services/      # 22 application services
+│   │   │       │       ├── auth.service.ts
+│   │   │       │       ├── order.service.ts
+│   │   │       │       ├── cart.service.ts
+│   │   │       │       ├── printer.service.ts
+│   │   │       │       ├── backup.service.ts
+│   │   │       │       └── ... (17 more)
+│   │   │       │
+│   │   │       ├── infrastructure/    # 💾 Data & External Services
+│   │   │       │   ├── repositories/  # 32 repository implementations
+│   │   │       │   │   ├── sqlite-*.repository.ts      (16 files)
+│   │   │       │   │   └── indexeddb-*.repository.ts   (16 files)
+│   │   │       │   ├── adapters/
+│   │   │       │   │   └── repository.factory.ts
+│   │   │       │   └── services/
+│   │   │       │       └── indexeddb.service.ts
+│   │   │       │
+│   │   │       ├── core/              # 🔐 Core Utilities
+│   │   │       │   ├── guards/        # Route guards
+│   │   │       │   │   ├── auth.guard.ts
+│   │   │       │   │   ├── admin.guard.ts
+│   │   │       │   │   ├── staff.guard.ts
+│   │   │       │   │   ├── setup.guard.ts
+│   │   │       │   │   └── desktop-landing.guard.ts
+│   │   │       │   └── interfaces/
+│   │   │       │       └── base-repository.interface.ts
+│   │   │       │
+│   │   │       ├── ui/                # 🎨 Presentation Layer
+│   │   │       │   ├── pages/         # 23+ page components
+│   │   │       │   │   ├── landing/
+│   │   │       │   │   ├── initial-setup/
+│   │   │       │   │   ├── login/
+│   │   │       │   │   ├── register/
+│   │   │       │   │   ├── staff-selection/
+│   │   │       │   │   ├── dashboard/
+│   │   │       │   │   ├── active-orders/
+│   │   │       │   │   ├── kitchen/
+│   │   │       │   │   ├── reports/
+│   │   │       │   │   ├── pos/       # POS workflow
+│   │   │       │   │   │   ├── order-type-selection
+│   │   │       │   │   │   ├── table-selection
+│   │   │       │   │   │   ├── product-selection
+│   │   │       │   │   │   ├── cart-view
+│   │   │       │   │   │   └── payment
+│   │   │       │   │   └── admin/     # 12 admin pages
+│   │   │       │   ├── components/    # Reusable components
+│   │   │       │   ├── layouts/
+│   │   │       │   └── routes/
+│   │   │       │
+│   │   │       └── shared/            # 🛠️ App-specific Utilities
+│   │   │           ├── utilities/
+│   │   │           │   ├── platform.service.ts
+│   │   │           │   └── input-sanitizer.service.ts
+│   │   │           └── directives/
 │   │   │
-│   │   ├── application/               # 🧠 Business Logic Layer
-│   │   │   └── services/              # 22 application services
-│   │   │       ├── auth.service.ts
-│   │   │       ├── order.service.ts
-│   │   │       ├── cart.service.ts
-│   │   │       ├── printer.service.ts
-│   │   │       ├── backup.service.ts
-│   │   │       └── ... (17 more)
-│   │   │
-│   │   ├── infrastructure/            # 💾 Data & External Services
-│   │   │   ├── repositories/          # 32 repository implementations
-│   │   │   │   ├── sqlite-*.repository.ts      (16 files)
-│   │   │   │   └── indexeddb-*.repository.ts   (16 files)
-│   │   │   ├── adapters/
-│   │   │   │   └── repository.factory.ts
-│   │   │   └── services/
-│   │   │       └── indexeddb.service.ts
-│   │   │
-│   │   ├── core/                      # 🔐 Core Utilities
-│   │   │   ├── guards/                # Route guards
-│   │   │   │   ├── auth.guard.ts
-│   │   │   │   ├── admin.guard.ts
-│   │   │   │   ├── staff.guard.ts
-│   │   │   │   ├── setup.guard.ts
-│   │   │   │   └── desktop-landing.guard.ts
-│   │   │   └── interfaces/
-│   │   │       └── base-repository.interface.ts
-│   │   │
-│   │   ├── ui/                        # 🎨 Presentation Layer
-│   │   │   ├── pages/                 # 23+ page components
-│   │   │   │   ├── landing/
-│   │   │   │   ├── initial-setup/
-│   │   │   │   ├── login/
-│   │   │   │   ├── register/
-│   │   │   │   ├── staff-selection/
-│   │   │   │   ├── dashboard/
-│   │   │   │   ├── active-orders/
-│   │   │   │   ├── kitchen/
-│   │   │   │   ├── reports/
-│   │   │   │   ├── pos/               # POS workflow
-│   │   │   │   │   ├── order-type-selection
-│   │   │   │   │   ├── table-selection
-│   │   │   │   │   ├── product-selection
-│   │   │   │   │   ├── cart-view
-│   │   │   │   │   └── payment
-│   │   │   │   └── admin/             # 12 admin pages
-│   │   │   │       ├── admin-dashboard
-│   │   │   │       ├── tables-management
-│   │   │   │       ├── categories-management
-│   │   │   │       ├── products-management
-│   │   │   │       ├── variants-management
-│   │   │   │       ├── extras-management
-│   │   │   │       ├── ingredients-management
-│   │   │   │       ├── users-management
-│   │   │   │       ├── printer-settings
-│   │   │   │       ├── backup
-│   │   │   │       ├── backup-settings
-│   │   │   │       └── error-log
-│   │   │   ├── components/            # Reusable components
-│   │   │   ├── layouts/
-│   │   │   │   ├── pos-shell.component.ts
-│   │   │   │   └── admin-shell.component.ts
-│   │   │   └── routes/
-│   │   │       ├── pos.routes.ts
-│   │   │       └── admin.routes.ts
-│   │   │
-│   │   └── shared/                    # 🛠️ Shared Utilities
-│   │       ├── utilities/
-│   │       │   ├── platform.service.ts
-│   │       │   ├── validation.utils.ts
-│   │       │   └── input-sanitizer.service.ts
-│   │       └── directives/
+│   │   ├── project.json               # Nx project configuration
+│   │   ├── vitest.config.ts           # Test configuration
+│   │   └── public/                    # Static assets
 │   │
-│   ├── styles.css                     # Global Tailwind styles
-│   └── index.html
+│   └── native/                        # 🦀 Tauri Desktop Host
+│       ├── src-tauri/
+│       │   ├── src/
+│       │   │   └── main.rs
+│       │   ├── migrations/            # SQLite migrations
+│       │   ├── Cargo.toml
+│       │   └── tauri.conf.json
+│       └── project.json
 │
-├── src-tauri/                         # 🦀 Rust Backend
-│   ├── src/
-│   │   └── main.rs
-│   ├── migrations/                    # SQLite migrations
-│   ├── Cargo.toml
-│   └── tauri.conf.json
+├── libs/                              # 📚 Shared Libraries
+│   ├── domain/                        # 🎯 @simple-pos/domain
+│   │   ├── src/
+│   │   │   └── lib/                   # Pure business logic
+│   │   │       ├── calculations.ts    # Tax & pricing calculations
+│   │   │       └── calculations.spec.ts
+│   │   ├── project.json
+│   │   └── vitest.config.mts
+│   │
+│   └── shared/
+│       ├── types/                     # 📦 @simple-pos/shared/types
+│       │   ├── src/
+│       │   │   └── lib/
+│       │   │       ├── entities/      # 16 entity interfaces
+│       │   │       │   ├── order.interface.ts
+│       │   │       │   ├── product.interface.ts
+│       │   │       │   ├── user.interface.ts
+│       │   │       │   └── ... (13 more)
+│       │   │       ├── enums/         # Business enums
+│       │   │       │   ├── order-status.enum.ts
+│       │   │       │   ├── order-type.enum.ts
+│       │   │       │   ├── user-role.enum.ts
+│       │   │       │   └── table-status.enum.ts
+│       │   │       └── dtos/          # Data Transfer Objects
+│       │   ├── project.json
+│       │   └── vitest.config.mts
+│       │
+│       └── utils/                     # 🔧 @simple-pos/shared/utils
+│           ├── src/
+│           │   └── lib/
+│           │       ├── date.utils.ts
+│           │       └── validation.utils.ts
+│           ├── project.json
+│           └── vitest.config.mts
 │
-└── docs/                              # 📚 Documentation
-    ├── architecture.md
-    ├── prd.md
-    └── hybrid-saas-roadmap.md
+├── docs/                              # 📚 Documentation
+│   ├── architecture.md
+│   ├── prd.md
+│   ├── nx-monorepo-migration-plan.md
+│   └── saas-onprem-transformation.md
+│
+├── nx.json                            # Nx workspace configuration
+├── tsconfig.json                      # TypeScript path mappings
+├── package.json                       # Workspace dependencies
+└── vitest.workspace.ts                # Vitest workspace config
 ```
+
+## Nx Monorepo Architecture
+
+### Workspace Organization
+
+The project uses **Nx 22.4.5** for monorepo management, providing:
+
+- **Clear separation of concerns**: Apps vs. Libraries
+- **Dependency graph visualization**: `nx graph` shows project relationships
+- **Efficient builds**: Only rebuild what changed
+- **Shared code**: Reusable libraries across applications
+- **Path aliases**: Clean imports via TypeScript path mappings
+
+### Shared Libraries
+
+Three shared libraries provide framework-agnostic code:
+
+1. **@simple-pos/shared/types** - Entity interfaces, enums, DTOs
+
+   ```typescript
+   import { Product, OrderStatusEnum } from '@simple-pos/shared/types';
+   ```
+
+2. **@simple-pos/domain** - Pure business logic (pricing calculations, business rules)
+
+   ```typescript
+   import { calculateTaxInclusive, calculateGrandTotal } from '@simple-pos/domain';
+   ```
+
+3. **@simple-pos/shared/utils** - Common utilities
+   ```typescript
+   import { formatDate } from '@simple-pos/shared/utils';
+   ```
+
+### Path Mappings (tsconfig.json)
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@simple-pos/shared/types": ["libs/shared/types/src/index.ts"],
+      "@simple-pos/shared/utils": ["libs/shared/utils/src/index.ts"],
+      "@simple-pos/domain": ["libs/domain/src/index.ts"]
+    }
+  }
+}
+```
+
+### Benefits
+
+- ✅ **No relative imports**: `@simple-pos/shared/types` instead of `../../domain/entities`
+- ✅ **Refactoring-safe**: Move files without breaking imports
+- ✅ **Framework-agnostic**: Domain logic has zero Angular dependencies
+- ✅ **Testable**: Libraries can be tested independently
+- ✅ **Scalable**: Ready for future SaaS backend integration
 
 ## Clean Architecture Principles
 
