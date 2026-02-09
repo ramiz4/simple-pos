@@ -1,3 +1,15 @@
+# [1.19.0](https://github.com/ramiz4/simple-pos/compare/v1.18.0...v1.19.0) (2026-02-09)
+
+### Bug Fixes
+
+- **api:** force row-level security for all protected tables ([e35095f](https://github.com/ramiz4/simple-pos/commit/e35095f93d777d497b4943fcf66dc83c43315457))
+
+### Features
+
+- **api:** add postgres rls and prisma v7 config ([d8c9cc2](https://github.com/ramiz4/simple-pos/commit/d8c9cc20e50f493fcc0123616008cb30f7a5f43b))
+- **api:** implement multi-tenancy foundation with postgres RLS ([eeaf2ed](https://github.com/ramiz4/simple-pos/commit/eeaf2ed85f2659d67b0a5ca1434d0fa8fab05941))
+- **api:** validate tenant UUID in withRls to prevent database errors ([47782ca](https://github.com/ramiz4/simple-pos/commit/47782ca303e967259706290b3bceb1a76ff13ab4))
+
 # [1.18.0](https://github.com/ramiz4/simple-pos/compare/v1.17.1...v1.18.0) (2026-02-09)
 
 ### Bug Fixes

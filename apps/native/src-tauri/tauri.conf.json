@@ -1,6 +1,6 @@
 {
   "productName": "Simple POS",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "identifier": "com.simple.pos",
   "build": {
     "beforeDevCommand": "npx --no-install nx serve pos",
