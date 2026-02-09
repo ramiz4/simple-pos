@@ -30,6 +30,10 @@ simple-pos/
 │   │       ├── infrastructure/     # Persistence (Repositories)
 │   │       ├── ui/                 # Components, Pages, Layouts
 │   │       └── core/               # Guards, Interceptors
+│   ├── api/                         # 🚀 NestJS Backend API
+│   │   └── src/
+│   │       ├── app/                # Controllers, Modules, Services
+│   │       └── main.ts             # Bootstrap
 │   └── native/                      # 🦀 Tauri Desktop Host (src-tauri)
 │
 ├── libs/
@@ -53,8 +57,9 @@ simple-pos/
 ```bash
 <type>(<scope>): <subject>
 
-# Scopes: pos, native, domain, shared-types, shared-utils, deps
+# Scopes: pos, api, native, domain, shared-types, shared-utils, deps
 feat(pos): add receipt printing support
+feat(api): add health check endpoint
 fix(native): resolve SQLite migration error
 chore(deps): update tauri-apps/api
 ```
