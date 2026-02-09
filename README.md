@@ -1,11 +1,21 @@
 # Simple POS
 
-> 📊 **Version 1.11.0** - ✅ PRODUCTION READY
-> 🏗️ **[Architecture →](docs/architecture.md)**
+> 📊 **Version 1.16.0** - ✅ PRODUCTION READY (Nx Monorepo)
+> 🏗️ **[Architecture →](docs/architecture.md)** - Clean Architecture with Nx
 > 🤝 **[Contributing →](CONTRIBUTING.md)** - Automated releases with conventional commits
 > 🤖 **[GitHub Copilot Custom Agents →](.github/agents/README.md)** - AI-assisted development
 
-A modern, cross-platform Point-of-Sale system built with Angular 21, Tauri v2, and Clean Architecture. Supports restaurant operations with dine-in, takeaway, and delivery orders, kitchen display, thermal printing, and automatic backups.
+A modern, cross-platform Point-of-Sale system built with Angular 21, Tauri v2, Clean Architecture, and Nx Monorepo. Supports restaurant operations with dine-in, takeaway, and delivery orders, kitchen display, thermal printing, and automatic backups.
+
+## 🎯 Phase 0.5: Nx Monorepo Architecture
+
+The project has been successfully migrated to an **Nx monorepo** structure for improved maintainability and scalability:
+
+- **Apps**: `pos` (Angular frontend), `native` (Tauri desktop)
+- **Shared Libraries**: `@simple-pos/shared/types`, `@simple-pos/domain`, `@simple-pos/shared/utils`
+- **Benefits**: Path aliases, dependency graph, efficient builds, reusable code
+
+See [Nx Monorepo Migration Plan](docs/nx-monorepo-migration-plan.md) for details.
 
 ## Prerequisites
 
