@@ -239,7 +239,6 @@ describe('AuthService', () => {
   describe('getRefreshTokenSecret', () => {
     it('should return default secret when env var is not set', () => {
       vi.stubEnv('JWT_REFRESH_SECRET', '');
-      delete process.env['JWT_REFRESH_SECRET'];
       const secret = service.getRefreshTokenSecret();
       expect(secret).toBe('simple-pos-refresh-secret-dev-only');
     });
