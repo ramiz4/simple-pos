@@ -10,11 +10,11 @@ describe('AuthController', () => {
     accessToken: 'mock-access-token',
     refreshToken: 'mock-refresh-token',
     user: {
-      id: 1,
+      id: 'user-uuid-1',
       name: 'Test User',
       email: 'test@example.com',
       role: 'ADMIN',
-      accountId: 1,
+      tenantId: 'tenant-uuid-1',
     },
   };
 
@@ -66,11 +66,11 @@ describe('AuthController', () => {
 
   describe('getProfile', () => {
     it('should call authService.getProfile with user id from request', async () => {
-      const req = { user: { id: 1 } };
+      const req = { user: { id: 'user-uuid-1' } };
 
       const result = await controller.getProfile(req);
 
-      expect(authService.getProfile).toHaveBeenCalledWith(1);
+      expect(authService.getProfile).toHaveBeenCalledWith('user-uuid-1');
       expect(result).toEqual(mockAuthResponse.user);
     });
   });

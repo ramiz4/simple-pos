@@ -9,12 +9,12 @@ describe('AuthService', () => {
   let jwtService: JwtService;
 
   const mockUser = {
-    id: 1,
+    id: 'user-uuid-1',
     name: 'Test User',
     email: 'test@example.com',
     passwordHash: '',
     role: 'ADMIN',
-    accountId: 1,
+    tenantId: 'tenant-uuid-1',
     active: true,
   };
 
@@ -36,6 +36,11 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
+  });
+
+  afterEach(() => {
+    service.onModuleDestroy();
+    vi.unstubAllEnvs();
   });
 
   it('should be defined', () => {
@@ -82,7 +87,7 @@ describe('AuthService', () => {
         name: mockUser.name,
         email: mockUser.email,
         role: mockUser.role,
-        accountId: mockUser.accountId,
+        tenantId: mockUser.tenantId,
       });
     });
 
@@ -100,22 +105,15 @@ describe('AuthService', () => {
       await expect(service.refreshToken('unknown-token')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should throw UnauthorizedException for expired refresh token', async () => {
-      // Manually set an expired token in the internal store
+    it('should successfully refresh a valid token', async () => {
       vi.spyOn(service, 'findUserByEmail').mockResolvedValue(mockUser);
       const loginResult = await service.login('test@example.com', 'password123');
 
-      // Hack: directly manipulate internal state via a new service method call
-      // The token is 'mock-token' for both access and refresh in the mock
-      // Since both signAsync calls return 'mock-token', the refresh token is 'mock-token'
-      // But the Map key is 'mock-token' with a future expiry.
-      // Let's use a different approach - verify it works with valid flow
-
       vi.spyOn(jwtService, 'verify').mockReturnValue({
-        sub: 1,
+        sub: 'user-uuid-1',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
       vi.spyOn(service, 'findUserById').mockResolvedValue(mockUser);
 
@@ -125,15 +123,30 @@ describe('AuthService', () => {
       expect(result.user.id).toBe(mockUser.id);
     });
 
+    it('should throw UnauthorizedException for expired refresh token', async () => {
+      vi.spyOn(service, 'findUserByEmail').mockResolvedValue(mockUser);
+      const loginResult = await service.login('test@example.com', 'password123');
+
+      // Manipulate the stored token to be expired by advancing Date.now
+      const originalDateNow = Date.now;
+      Date.now = () => originalDateNow() + 31 * 24 * 60 * 60 * 1000; // 31 days in future
+
+      await expect(service.refreshToken(loginResult.refreshToken)).rejects.toThrow(
+        UnauthorizedException,
+      );
+
+      Date.now = originalDateNow;
+    });
+
     it('should throw when user is not found during refresh', async () => {
       vi.spyOn(service, 'findUserByEmail').mockResolvedValue(mockUser);
       const loginResult = await service.login('test@example.com', 'password123');
 
       vi.spyOn(jwtService, 'verify').mockReturnValue({
-        sub: 1,
+        sub: 'user-uuid-1',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
       vi.spyOn(service, 'findUserById').mockResolvedValue(null);
 
@@ -147,10 +160,10 @@ describe('AuthService', () => {
       const loginResult = await service.login('test@example.com', 'password123');
 
       vi.spyOn(jwtService, 'verify').mockReturnValue({
-        sub: 1,
+        sub: 'user-uuid-1',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
       vi.spyOn(service, 'findUserById').mockResolvedValue({ ...mockUser, active: false });
 
@@ -164,21 +177,21 @@ describe('AuthService', () => {
     it('should return user profile when user exists', async () => {
       vi.spyOn(service, 'findUserById').mockResolvedValue(mockUser);
 
-      const result = await service.getProfile(1);
+      const result = await service.getProfile('user-uuid-1');
 
       expect(result).toEqual({
         id: mockUser.id,
         name: mockUser.name,
         email: mockUser.email,
         role: mockUser.role,
-        accountId: mockUser.accountId,
+        tenantId: mockUser.tenantId,
       });
     });
 
     it('should throw UnauthorizedException when user not found', async () => {
       vi.spyOn(service, 'findUserById').mockResolvedValue(null);
 
-      await expect(service.getProfile(999)).rejects.toThrow(UnauthorizedException);
+      await expect(service.getProfile('nonexistent-uuid')).rejects.toThrow(UnauthorizedException);
     });
   });
 
@@ -187,7 +200,6 @@ describe('AuthService', () => {
       vi.spyOn(service, 'findUserByEmail').mockResolvedValue(mockUser);
       const loginResult = await service.login('test@example.com', 'password123');
 
-      // Logout should not throw
       expect(() => service.logout(loginResult.refreshToken)).not.toThrow();
     });
 
@@ -201,10 +213,10 @@ describe('AuthService', () => {
       vi.spyOn(service, 'findUserById').mockResolvedValue(mockUser);
 
       const result = await service.validatePayload({
-        sub: 1,
+        sub: 'user-uuid-1',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
 
       expect(result).toEqual(mockUser);
@@ -214,10 +226,10 @@ describe('AuthService', () => {
       vi.spyOn(service, 'findUserById').mockResolvedValue(null);
 
       const result = await service.validatePayload({
-        sub: 999,
+        sub: 'nonexistent-uuid',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
 
       expect(result).toBeNull();
@@ -226,16 +238,16 @@ describe('AuthService', () => {
 
   describe('getRefreshTokenSecret', () => {
     it('should return default secret when env var is not set', () => {
+      vi.stubEnv('JWT_REFRESH_SECRET', '');
       delete process.env['JWT_REFRESH_SECRET'];
       const secret = service.getRefreshTokenSecret();
       expect(secret).toBe('simple-pos-refresh-secret-dev-only');
     });
 
     it('should return env var when set', () => {
-      process.env['JWT_REFRESH_SECRET'] = 'my-custom-secret';
+      vi.stubEnv('JWT_REFRESH_SECRET', 'my-custom-secret');
       const secret = service.getRefreshTokenSecret();
       expect(secret).toBe('my-custom-secret');
-      delete process.env['JWT_REFRESH_SECRET'];
     });
   });
 });

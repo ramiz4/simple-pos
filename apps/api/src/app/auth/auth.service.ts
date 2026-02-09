@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { AuthResponse, AuthUserResponse } from './dto';
@@ -6,21 +6,47 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { getJwtRefreshSecret } from './jwt-config';
 
 interface StoredUser {
-  id: number;
+  id: string;
   name: string;
   email: string;
   passwordHash: string;
   role: string;
-  accountId: number;
+  tenantId: string;
   active: boolean;
 }
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleDestroy {
+  private readonly logger = new Logger(AuthService.name);
   private readonly REFRESH_TOKEN_EXPIRY = '30d';
-  private readonly refreshTokens = new Map<string, { userId: number; expiresAt: number }>();
+  private readonly CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+  private readonly refreshTokens = new Map<string, { userId: string; expiresAt: number }>();
+  private cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) {
+    this.cleanupTimer = setInterval(() => this.cleanupExpiredTokens(), this.CLEANUP_INTERVAL_MS);
+  }
+
+  onModuleDestroy() {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = null;
+    }
+  }
+
+  private cleanupExpiredTokens(): void {
+    const now = Date.now();
+    let removed = 0;
+    for (const [token, stored] of this.refreshTokens) {
+      if (stored.expiresAt < now) {
+        this.refreshTokens.delete(token);
+        removed++;
+      }
+    }
+    if (removed > 0) {
+      this.logger.debug(`Cleaned up ${removed} expired refresh token(s)`);
+    }
+  }
 
   async login(email: string, password: string): Promise<AuthResponse> {
     const user = await this.validateUser(email, password);
@@ -66,7 +92,7 @@ export class AuthService {
     };
   }
 
-  async getProfile(userId: number): Promise<AuthUserResponse> {
+  async getProfile(userId: string): Promise<AuthUserResponse> {
     const user = await this.findUserById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -109,7 +135,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
-      accountId: user.accountId,
+      tenantId: user.tenantId,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -135,7 +161,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       role: user.role,
-      accountId: user.accountId,
+      tenantId: user.tenantId,
     };
   }
 
@@ -159,7 +185,7 @@ export class AuthService {
    * Currently returns null — to be wired to a real UserRepository in a future sprint.
    */
   // istanbul ignore next
-  async findUserById(_id: number): Promise<StoredUser | null> {
+  async findUserById(_id: string): Promise<StoredUser | null> {
     return null;
   }
 }

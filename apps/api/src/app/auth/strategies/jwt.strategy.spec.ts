@@ -8,12 +8,12 @@ describe('JwtStrategy', () => {
   let authService: AuthService;
 
   const mockUser = {
-    id: 1,
+    id: 'user-uuid-1',
     name: 'Test User',
     email: 'test@example.com',
     passwordHash: 'hashed',
     role: 'ADMIN',
-    accountId: 1,
+    tenantId: 'tenant-uuid-1',
     active: true,
   };
 
@@ -43,17 +43,17 @@ describe('JwtStrategy', () => {
       vi.spyOn(authService, 'validatePayload').mockResolvedValue(mockUser);
 
       const result = await strategy.validate({
-        sub: 1,
+        sub: 'user-uuid-1',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
 
       expect(result).toEqual({
-        id: 1,
+        id: 'user-uuid-1',
         email: 'test@example.com',
         role: 'ADMIN',
-        accountId: 1,
+        tenantId: 'tenant-uuid-1',
       });
     });
 
@@ -62,10 +62,10 @@ describe('JwtStrategy', () => {
 
       await expect(
         strategy.validate({
-          sub: 999,
+          sub: 'nonexistent-uuid',
           email: 'unknown@example.com',
           role: 'ADMIN',
-          accountId: 1,
+          tenantId: 'tenant-uuid-1',
         }),
       ).rejects.toThrow(UnauthorizedException);
     });
@@ -78,10 +78,10 @@ describe('JwtStrategy', () => {
 
       await expect(
         strategy.validate({
-          sub: 1,
+          sub: 'user-uuid-1',
           email: 'test@example.com',
           role: 'ADMIN',
-          accountId: 1,
+          tenantId: 'tenant-uuid-1',
         }),
       ).rejects.toThrow(UnauthorizedException);
     });

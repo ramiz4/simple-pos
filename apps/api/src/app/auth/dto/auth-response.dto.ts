@@ -1,9 +1,9 @@
 export interface AuthUserResponse {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
-  accountId: number;
+  tenantId: string;
 }
 
 export interface AuthResponse {
