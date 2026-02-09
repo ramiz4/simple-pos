@@ -1,3 +1,14 @@
+# [1.18.0](https://github.com/ramiz4/simple-pos/compare/v1.17.1...v1.18.0) (2026-02-09)
+
+### Bug Fixes
+
+- **api:** address PR review feedback - fix dependencies, config files, and type safety ([2cb7914](https://github.com/ramiz4/simple-pos/commit/2cb79149cd9ac6e124727f2f3db0c7cc1c2525a3))
+- **api:** remove duplicate word in e2e setup comment ([9d035d3](https://github.com/ramiz4/simple-pos/commit/9d035d3e953f1f39e5879aeb221e61ab917676d7))
+
+### Features
+
+- **api:** initialize NestJS backend application with Nx ([e41aef7](https://github.com/ramiz4/simple-pos/commit/e41aef746c158b91085ea68e2442d91e8dcc137a))
+
 ## [1.17.1](https://github.com/ramiz4/simple-pos/compare/v1.17.0...v1.17.1) (2026-02-09)
 
 ### Bug Fixes
