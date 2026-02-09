@@ -1,0 +1,125 @@
+import { CommonModule } from '@angular/common';
+import { Component, computed, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ValidationUtils } from '@simple-pos/shared/utils';
+import { AuthService } from '../../../application/services/auth.service';
+import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
+import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
+
+import { ButtonComponent } from '../../components/shared/button/button.component';
+
+@Component({
+  selector: 'app-register',
+  standalone: true,
+  imports: [CommonModule, FormsModule, ButtonComponent],
+  templateUrl: './register.component.html',
+  styleUrl: './register.component.css',
+})
+export class RegisterComponent {
+  accountEmail = signal('');
+  password = signal('');
+  confirmPassword = signal('');
+  errorMessage = signal('');
+  isLoading = signal(false);
+  showPassword = signal(false);
+  showConfirmPassword = signal(false);
+
+  // Computed signals for validation
+  passwordStrength = computed(() => ValidationUtils.calculatePasswordStrength(this.password()));
+  passwordStrengthLabel = computed(() =>
+    ValidationUtils.getPasswordStrengthLabel(this.passwordStrength()),
+  );
+  passwordStrengthColor = computed(() =>
+    ValidationUtils.getPasswordStrengthColor(this.passwordStrength()),
+  );
+  passwordStrengthTextColor = computed(() => {
+    const strength = this.passwordStrength();
+    if (strength < 30) return 'text-red-500';
+    if (strength < 60) return 'text-yellow-500';
+    if (strength < 80) return 'text-blue-500';
+    return 'text-green-500';
+  });
+
+  // Validation states
+  emailValid = computed(() => ValidationUtils.isValidEmail(this.accountEmail()));
+  passwordValid = computed(() => this.password().length >= 8); // Basic length check for now, can be stricter
+  passwordsMatch = computed(
+    () => this.password() === this.confirmPassword() && this.confirmPassword().length > 0,
+  );
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private inputSanitizer: InputSanitizerService,
+    private rateLimiter: RateLimiterService,
+  ) {}
+
+  async onRegister() {
+    this.errorMessage.set('');
+
+    // Basic empty field check only
+    if (!this.accountEmail() || !this.password() || !this.confirmPassword()) {
+      this.errorMessage.set('All fields are required');
+      return;
+    }
+
+    // Password match check
+    if (this.password() !== this.confirmPassword()) {
+      this.errorMessage.set('Passwords do not match');
+      return;
+    }
+
+    // Sanitize email for rate limiting key
+    const sanitizedEmail = this.inputSanitizer.sanitizeEmail(this.accountEmail());
+
+    // Check rate limiting
+    const rateLimitKey = `register:${sanitizedEmail}`;
+    if (!this.rateLimiter.isAllowed(rateLimitKey)) {
+      const remainingTime = this.rateLimiter.getBlockedTimeRemaining(rateLimitKey);
+      this.errorMessage.set(
+        `Too many registration attempts. Please try again in ${Math.ceil(remainingTime / 60)} minutes.`,
+      );
+      return;
+    }
+
+    this.isLoading.set(true);
+
+    try {
+      // Auth service will handle all sanitization and validation
+      await this.authService.register(
+        this.accountEmail(),
+        undefined, // Username will be derived in service
+        undefined, // PIN will be defaulted in service
+        this.password(),
+      );
+
+      // Reset rate limiter on success
+      this.rateLimiter.reset(rateLimitKey);
+
+      // Auto-login using email
+      await this.authService.loginWithEmail(this.accountEmail(), this.password());
+
+      // Navigate to staff selection
+      this.router.navigate(['/staff-select']);
+    } catch (error: unknown) {
+      this.rateLimiter.recordAttempt(rateLimitKey);
+      const err = error as Error;
+      this.errorMessage.set(err?.message || 'Registration failed. Please try again.');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  togglePasswordVisibility() {
+    this.showPassword.set(!this.showPassword());
+  }
+
+  toggleConfirmPasswordVisibility() {
+    this.showConfirmPassword.set(!this.showConfirmPassword());
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
+  }
+}
