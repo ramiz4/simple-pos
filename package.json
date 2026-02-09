@@ -10,7 +10,7 @@
     "preinstall": "npx only-allow pnpm",
     "ng": "nx",
     "start": "nx serve pos",
-    "build": "nx build pos",
+    "build": "nx run-many -t build",
     "watch": "nx build pos --watch",
     "test": "nx run-many -t test --passWithNoTests",
     "test:ci": "nx run-many -t test --run --passWithNoTests",
