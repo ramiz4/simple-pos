@@ -27,15 +27,15 @@ jobs:
           fetch-depth: 0
           token: ${{ env.GH_RELEASE_TOKEN }}
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -54,15 +54,15 @@ jobs:
         with:
           ref: main
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'pnpm'
-
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -107,6 +107,11 @@ jobs:
         with:
           ref: main
 
+      - name: install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
       - name: setup node
         uses: actions/setup-node@v4
         with:
@@ -115,11 +120,6 @@ jobs:
 
       - name: install rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
