@@ -3,9 +3,9 @@
   "version": "1.17.0",
   "identifier": "com.simple.pos",
   "build": {
-    "beforeDevCommand": "pnpm nx serve pos",
+    "beforeDevCommand": "npx nx serve pos",
     "devUrl": "http://localhost:4200",
-    "beforeBuildCommand": "pnpm nx build pos",
+    "beforeBuildCommand": "npx nx build pos",
     "frontendDist": "../../../dist/apps/pos/browser"
   },
   "bundle": {
