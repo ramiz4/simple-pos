@@ -18,7 +18,7 @@ model Tenant {
   maxUsers           Int       @default(2)
   maxLocations       Int       @default(1)
   maxDevices         Int       @default(1)
-  features           String[]
+  features           String[]  @default([])
   // Settings as JSON
   settings           Json?
   billingInfo        Json?

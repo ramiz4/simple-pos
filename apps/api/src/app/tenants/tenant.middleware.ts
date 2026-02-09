@@ -10,7 +10,7 @@ declare module 'express' {
 
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: Request, _res: Response, next: NextFunction) {
     // 1. Try header
     const tenantIdHeader = req.headers['x-tenant-id'];
     if (tenantIdHeader) {

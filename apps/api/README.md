@@ -44,6 +44,9 @@ Basic Usage in controllers:
 @Get()
 findAll(@Req() req: Request) {
   const tenantId = req.tenantId;
+  if (!tenantId) {
+    throw new BadRequestException('Tenant ID header (X-Tenant-ID) is required');
+  }
   return this.prisma.withRls(tenantId, tx => tx.product.findMany());
 }
 ```
