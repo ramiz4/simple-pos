@@ -931,6 +931,9 @@ This project uses **trunk-based development** with a single `main` branch:
 
 ## 10. Nx Monorepo Architecture
 
+> **Phase 0.5 Status**: ✅ Complete (February 9, 2026)  
+> The monorepo structure is fully operational with 5 projects: pos, native, shared-types, shared-utils, domain.
+
 ### 10.1 Strategic Choice: Nx Monorepo
 
 To manage the addition of the NestJS backend and shared libraries while maintaining high velocity, we use an **Nx monorepo** architecture.
@@ -943,45 +946,82 @@ To manage the addition of the NestJS backend and shared libraries while maintain
 
 ### 10.2 Monorepo Project Map
 
-The project is organized by functional boundaries following Nx best practices:
+**Current Structure (Phase 0.5):**
 
 ```
 simple-pos/
 ├── apps/
-│   ├── pos/          # Angular 21 (Frontend)
-│   ├── api/          # NestJS (Backend)
-│   └── native/       # Tauri Core (Shared Desktop/Mobile host)
+│   ├── pos/          # Angular 21 (Frontend) ✅
+│   └── native/       # Tauri Core (Desktop host) ✅
 ├── libs/
-│   ├── domain/       # Shared business logic and validators
+│   ├── domain/       # Shared business logic and validators ✅
+│   └── shared/
+│       ├── types/    # Contract definitions (Entities/DTOs) ✅
+│       └── utils/    # Common helper functions ✅
+└── tools/            # Scaffolding and custom workspace generators
+```
+
+**Planned Structure (Phase 1+):**
+
+```
+simple-pos/
+├── apps/
+│   ├── pos/          # Angular 21 (Frontend) ✅
+│   ├── api/          # NestJS (Backend) 📋 Phase 1
+│   └── native/       # Tauri Core (Desktop host) ✅
+├── libs/
+│   ├── domain/       # Shared business logic and validators ✅
 │   ├── shared/
-│   │   ├── types/    # Contract definitions (Entities/DTOs)
-│   │   └── utils/    # Common helper functions
-│   └── ui/           # (Shared) Reusable Angular design system
+│   │   ├── types/    # Contract definitions (Entities/DTOs) ✅
+│   │   └── utils/    # Common helper functions ✅
+│   └── ui/           # Reusable Angular design system 📋 Future
 └── tools/            # Scaffolding and custom workspace generators
 ```
 
 ### 10.3 Core Developer Workflow
 
+**Current Commands (Phase 0.5):**
+
 ```bash
-pnpm dev              # Launch all applications in watch mode
+pnpm start            # Launch pos app in dev mode
+pnpm run tauri:dev    # Launch desktop app
 pnpm nx graph         # Visualize internal dependencies
 pnpm nx affected:test # Targeted CI verification
+pnpm nx build pos     # Build production bundle
 ```
 
-> **Setup Instructions:** For a detailed environment walkthrough, refer to the [Onboarding Documentation](../README.md).
+**Future Commands (Phase 1+):**
+
+```bash
+pnpm dev              # Launch all applications in watch mode
+pnpm nx serve api     # Start NestJS backend
+```
+
+> **Setup Instructions:** For detailed environment walkthrough, refer to the [README](../README.md) and [Nx Migration Plan](./nx-monorepo-migration-plan.md).
 
 **Platform Support:**
 
-- **Desktop**: Windows, macOS, Linux (via Tauri)
-- **Mobile**: iOS, Android (via Tauri Mobile)
-- **Web**: PWA (via Angular standalone)
+- **Desktop**: Windows, macOS, Linux (via Tauri) ✅
+- **Web**: PWA (via Angular standalone) ✅
+- **Mobile**: iOS, Android (via Tauri Mobile) 📋 Future
 
 ### 10.4 Strategic Code Sharing
 
-We enforce contract consistency by importing from specialized shared libraries.
+We enforce contract consistency by importing from specialized shared libraries using TypeScript path aliases.
+
+**Current Implementation (Phase 0.5):**
 
 ```typescript
-// Shared entities/contracts consumed by both PoS and API
+// Shared entities/contracts consumed by pos and native apps
+import { Product, OrderStatus } from '@simple-pos/shared/types';
+import { calculateOrderTotal } from '@simple-pos/domain';
+import { formatDate } from '@simple-pos/shared/utils';
+```
+
+**Future Implementation (Phase 1+):**
+
+```typescript
+// Shared entities/contracts consumed by pos, api, and native
 import { Product, CreateOrderDto } from '@simple-pos/shared/types';
 import { calculateOrderTotal } from '@simple-pos/domain';
 ```
@@ -997,7 +1037,7 @@ The transformation follows a phased approach, moving from the current monolithic
 | Phase         | Milestone                   | Focus                            | Status |
 | :------------ | :-------------------------- | :------------------------------- | :----- |
 | **Phase 0**   | **Multi-Tenant Foundation** | Core user & database logic       | ✅     |
-| **Phase 0.5** | **Nx Monorepo Migration**   | Restructuring & shared types     | 🏃     |
+| **Phase 0.5** | **Nx Monorepo Migration**   | Restructuring & shared types     | ✅     |
 | **Phase 1**   | **Backend Foundation**      | NestJS, RLS, & Authentication    | 📋     |
 | **Phase 2**   | **Sync Engine**             | Bidirectional sync & Conflict UI | 📋     |
 | **Phase 3**   | **SaaS & Launch**           | Billing, Tenants, & Production   | 📋     |
@@ -1011,9 +1051,17 @@ Successfully implemented globally unique emails, account-scoped staff usernames,
 
 ### Phase 0.5: Nx Monorepo Restructuring ✅
 
-Migrating from the current flat structure to an Nx monorepo (`apps/pos`, `apps/native`, `libs/`).
+**Status**: Completed February 9, 2026
 
-- 📋 **[Detailed Nx Migration Plan](./nx-monorepo-migration-plan.md)** - Step-by-step instructions.
+Successfully migrated from the flat structure to an Nx monorepo with clear separation of concerns:
+
+- ✅ **Workspace Structure**: `apps/pos` (Angular), `apps/native` (Tauri), `libs/` (shared code)
+- ✅ **Shared Libraries**: `@simple-pos/shared/types`, `@simple-pos/domain`, `@simple-pos/shared/utils`
+- ✅ **Path Aliases**: All imports use workspace-scoped paths (`@simple-pos/*`)
+- ✅ **Build System**: Nx 22.4.5 with caching and dependency graph
+- ✅ **Verification**: 1000 tests passing, zero legacy imports, builds working
+
+- 📋 **[Detailed Nx Migration Plan](./nx-monorepo-migration-plan.md)** - Complete implementation guide and verification results.
 
 ### Phase 1: Backend Foundation (Sprint 1-8) 📋
 
@@ -1261,8 +1309,8 @@ CREATE POLICY tenant_isolation_policy ON products
 
 ### Implementation Plans
 
-- 📋 **[Nx Monorepo Migration Plan](./nx-monorepo-migration-plan.md)** - Detailed step-by-step guide for Phase 0.5 migration
-- 📖 **[Architecture Documentation](./architecture.md)** - Current system architecture overview
+- ✅ **[Nx Monorepo Migration Plan](./nx-monorepo-migration-plan.md)** - Phase 0.5 complete implementation guide with verification results
+- 📖 **[Architecture Documentation](./architecture.md)** - Current system architecture with Nx monorepo structure
 
 ### AI Agent Configuration
 
