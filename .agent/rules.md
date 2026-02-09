@@ -2,13 +2,37 @@
 
 ## Project Overview
 
-Simple POS is a modern, offline-capable Point-of-Sale system built with:
+Simple POS is a modern, offline-capable Point-of-Sale system structured as an **Nx monorepo**:
 
-- **Frontend:** Angular 19 with Signals
-- **Desktop:** Tauri v2
-- **Database:** SQLite (desktop) / IndexedDB (web)
+- **Monorepo Tool:** Nx (with pnpm workspaces)
+- **Frontend:** Angular 21 with Signals (`apps/pos`)
+- **Backend:** NestJS (`apps/api`) - for SaaS/cloud sync
+- **Desktop:** Tauri v2 (`apps/desktop`)
+- **Shared Libraries:** `libs/shared/types`, `libs/domain`, `libs/shared/utils`
+- **Database:** SQLite (desktop) / IndexedDB (web) / PostgreSQL (cloud)
 - **Architecture:** Clean Architecture with Repository Pattern
 - **Styling:** TailwindCSS v4
+
+## Monorepo Structure
+
+```
+simple-pos/
+├── apps/
+│   ├── pos/              # Angular 21 POS frontend
+│   ├── api/              # NestJS backend (SaaS)
+│   ├── desktop/          # Tauri wrapper
+│   └── admin-portal/     # (Future) Super admin dashboard
+├── libs/
+│   ├── shared/
+│   │   ├── types/        # Shared TypeScript interfaces
+│   │   ├── utils/        # Common utilities
+│   │   └── constants/    # Shared constants
+│   └── domain/           # Domain logic (validators, calculations)
+├── tools/                # Custom scripts, generators
+├── docs/                 # Documentation
+├── nx.json               # Nx configuration
+└── pnpm-workspace.yaml   # pnpm workspace config
+```
 
 ## Commit Message Requirements
 
@@ -37,13 +61,24 @@ Simple POS is a modern, offline-capable Point-of-Sale system built with:
 - `chore`: Maintenance tasks (no release)
 - `ci`: CI/CD changes (no release)
 
+### Scopes (Monorepo)
+
+Use the app or lib name as scope:
+
+```bash
+feat(pos): add receipt printing support
+fix(api): resolve authentication token refresh
+feat(shared-types): add sync protocol interfaces
+chore(domain): update price calculation logic
+```
+
 ### Examples
 
 ```bash
 # ✅ CORRECT
-feat: add receipt printing support
-fix: resolve cart calculation error
-feat!: redesign authentication system
+feat(pos): add receipt printing support
+fix(api): resolve cart calculation error
+feat(shared-types)!: redesign entity interfaces
 docs: update installation guide
 chore: upgrade dependencies
 
@@ -58,7 +93,7 @@ Update README
 Use `!` after type OR add `BREAKING CHANGE:` in footer:
 
 ```
-feat!: migrate to new database schema
+feat(api)!: migrate to new database schema
 
 BREAKING CHANGE: Old data format is incompatible
 ```
@@ -69,13 +104,13 @@ BREAKING CHANGE: Old data format is incompatible
 
 - Use **Signals** for reactive state (not RxJS Observables)
 - Follow **Clean Architecture** layers:
-  - Domain: Pure business logic
+  - Domain: Pure business logic (`libs/domain`)
   - Application: Use cases and services
   - Infrastructure: Data access (repositories)
   - Presentation: UI components
 - Use **Repository Pattern** for all data access
 - Prefer **standalone components** (no NgModules)
-- Use **inject()** function for dependency injection
+- Use **constructor injection** for dependency injection
 
 ### File Naming
 
@@ -87,25 +122,52 @@ BREAKING CHANGE: Old data format is incompatible
 ### Styling
 
 - Use **TailwindCSS v4** utility classes
-- Custom utilities in `src/styles.css`
+- Custom utilities in `apps/pos/src/styles.css`
 - Mobile-first responsive design
 - Glassmorphism effects for premium UI
+
+### Shared Code Imports
+
+```typescript
+// Import shared types from libs
+import { Product, Order } from '@simple-pos/shared/types';
+import { calculateOrderTotal } from '@simple-pos/domain';
+```
 
 ## Testing
 
 - Use **Vitest** for unit tests
 - Test files: `*.spec.ts`
-- Run tests: `pnpm test`
+- Run tests: `pnpm test` or `pnpm nx test <project>`
+- Run affected tests: `pnpm nx affected:test`
 
-## Build & Release
+## Build & Development
 
 ### Local Development
 
 ```bash
-pnpm start          # Web mode (browser)
-pnpm tauri:dev      # Desktop mode (Tauri)
-pnpm build          # Build web
-pnpm tauri build    # Build desktop
+pnpm dev               # Start frontend + backend concurrently
+pnpm nx serve pos      # Angular dev server only
+pnpm nx serve api      # NestJS backend only
+pnpm tauri:dev         # Desktop mode (Tauri)
+```
+
+### Production Builds
+
+```bash
+pnpm nx build pos      # Build Angular frontend
+pnpm nx build api      # Build NestJS backend
+pnpm tauri build       # Build desktop app
+```
+
+### Nx Commands
+
+```bash
+pnpm nx affected:test   # Test only affected projects
+pnpm nx affected:build  # Build only affected projects
+pnpm nx graph           # Visualize project dependencies
+pnpm nx g @nx/angular:component <name> --project=pos
+pnpm nx g @nx/nest:service <name> --project=api
 ```
 
 ### Automated Releases
@@ -116,8 +178,10 @@ pnpm tauri build    # Build desktop
 
 ## Important Files
 
-- `src-tauri/tauri.key` - **NEVER commit** (git-ignored signing key)
-- `src-tauri/tauri.key.pub` - Public key (committed)
+- `nx.json` - Nx configuration
+- `pnpm-workspace.yaml` - Workspace configuration
+- `apps/*/project.json` - Per-app Nx project configuration
+- `libs/*/project.json` - Per-library Nx project configuration
 - `.releaserc.json` - Semantic-release configuration
 - `CONTRIBUTING.md` - Detailed contributing guide
 
@@ -142,12 +206,13 @@ constructor(private db: Database) {}
 
 ## When Making Changes
 
-1. **Always use conventional commits**
+1. **Always use conventional commits** with proper scope
 2. Follow Clean Architecture layers
 3. Use Signals for reactive state
-4. Test your changes (`pnpm test`)
-5. Ensure build works (`pnpm build`)
-6. For desktop changes, test with `pnpm tauri:dev`
+4. Place shared code in `libs/` not duplicated across apps
+5. Test your changes (`pnpm nx affected:test`)
+6. Ensure build works (`pnpm nx affected:build`)
+7. For desktop changes, test with `pnpm tauri:dev`
 
 ## Documentation
 
@@ -162,4 +227,4 @@ See:
 
 - [`CONTRIBUTING.md`](../CONTRIBUTING.md) - Detailed contributing guide
 - [`docs/architecture.md`](../docs/architecture.md) - Architecture overview
-- [`docs/technical-details.md`](../docs/technical-details.md) - Technical details
+- [`docs/SAAS-ONPREM-TRANSFORMATION.md`](../docs/SAAS-ONPREM-TRANSFORMATION.md) - SaaS/On-Prem roadmap
