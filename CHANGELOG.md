@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/ramiz4/simple-pos/compare/v1.17.0...v1.17.1) (2026-02-09)
+
+### Bug Fixes
+
+- **native:** add --no-install flag to npx for hermetic builds ([48c8499](https://github.com/ramiz4/simple-pos/commit/48c8499d9393c4ef4a44cc1472c54ca21318edae))
+- **native:** use npx to run nx commands in tauri config ([6731986](https://github.com/ramiz4/simple-pos/commit/6731986d5dbe71348d7c5735fa214a90b09775f7))
+
 # [1.17.0](https://github.com/ramiz4/simple-pos/compare/v1.16.0...v1.17.0) (2026-02-09)
 
 ### Bug Fixes
