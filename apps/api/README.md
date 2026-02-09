@@ -16,10 +16,14 @@ NestJS application with PostgreSQL backend and Multi-Tenancy support via Row-Lev
    npx prisma migrate dev
    ```
 
-   This command will:
-   - Generate the Prisma Client
-   - Create tables in the database
-   - Apply Row-Level Security (RLS) policies automatically
+Prisma CLI reads configuration from `prisma.config.ts` at the repo root and
+loads `DATABASE_URL` from `apps/api/.env`.
+
+This command will:
+
+- Generate the Prisma Client
+- Create tables in the database
+- Apply Row-Level Security (RLS) policies automatically
 
 ## Multi-Tenancy
 
@@ -46,4 +50,4 @@ findAll(@Req() req: Request) {
 
 ## Configuration
 
-Check `.env` for database connection details.
+Check `apps/api/.env` for database connection details.
