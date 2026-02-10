@@ -1,3 +1,9 @@
+## [1.23.1](https://github.com/ramiz4/simple-pos/compare/v1.23.0...v1.23.1) (2026-02-10)
+
+### Bug Fixes
+
+- clean up code formatting and improve user modal behavior ([c7cf60f](https://github.com/ramiz4/simple-pos/commit/c7cf60fbaba73e43b971599e3a1df3f1708208ea))
+
 # [1.23.0](https://github.com/ramiz4/simple-pos/compare/v1.22.0...v1.23.0) (2026-02-10)
 
 ### Bug Fixes
