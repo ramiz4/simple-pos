@@ -8,9 +8,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/simplepos_test?schema=public
-
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +25,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Generate Prisma Client
+        env:
+          DATABASE_URL: postgresql://unused:unused@localhost:5432/unused?schema=public
         run: pnpm exec prisma generate
 
       - name: Lint
