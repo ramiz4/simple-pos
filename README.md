@@ -1,497 +1,91 @@
 # Simple POS
 
-> 📊 **Version 1.20.0** - ✅ PRODUCTION READY (Nx Monorepo + Backend API)
-> 🏗️ **[Architecture →](docs/architecture.md)** - Clean Architecture with Nx
-> 🤝 **[Contributing →](CONTRIBUTING.md)** - Automated releases with conventional commits
-> 🤖 **[GitHub Copilot Custom Agents →](.github/agents/README.md)** - AI-assisted development
+A production-ready, cross-platform Point-of-Sale system built with **Angular**, **Tauri**, and **NestJS** in an **Nx Monorepo**.
 
-A modern, cross-platform Point-of-Sale system built with Angular 21, Tauri v2, Clean Architecture, and Nx Monorepo. Supports restaurant operations with dine-in, takeaway, and delivery orders, kitchen display, thermal printing, and automatic backups.
+## 🚀 Quick Start
 
-## 🎯 Current Status
+### Prerequisites
 
-### Phase 0.5: Nx Monorepo Architecture ✅
+- **Node.js**: 20+
+- **pnpm**: 10+
+- **Rust**: 1.93+ (for desktop development)
 
-The project has been successfully migrated to an **Nx monorepo** structure for improved maintainability and scalability:
-
-- **Apps**: `pos` (Angular frontend), `api` (NestJS backend), `native` (Tauri desktop)
-- **Shared Libraries**: `@simple-pos/shared/types`, `@simple-pos/domain`, `@simple-pos/shared/utils`
-- **Benefits**: Path aliases, dependency graph, efficient builds, reusable code
-
-### Phase 1: Backend Foundation ✅
-
-The backend API foundation has been successfully implemented:
-
-- **NestJS Backend**: RESTful API with PostgreSQL database
-- **Multi-Tenancy**: Row-Level Security (RLS) with tenant isolation
-- **JWT Authentication**: Secure authentication and authorization
-- **Core APIs**: Products, Orders, and Customers CRUD endpoints
-
-See [SaaS Transformation Guide](docs/saas-onprem-transformation.md) for the complete roadmap.
-
-### Phase 2: Synchronization & Frontend ✅
-
-The synchronization engine and frontend integration have been completed:
-
-- **Bidirectional Sync**: Push and pull protocols for real-time data consistency
-- **Conflict Management**: Automated detection and resolution strategies
-- **Offline-First UI**: Seamless user experience regardless of connectivity
-
-## Prerequisites
-
-### For Web Development (Required)
-
-- Node.js 20+
-- pnpm 10+
-
-### For Desktop Development (Optional)
-
-- Rust 1.93+
-- System dependencies (Linux):
-  ```bash
-  sudo apt-get update
-  sudo apt-get install -y libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev libwebkit2gtk-4.1-dev
-  ```
-
-## Installation
-
-1. **Install Dependencies**
-
-   ```bash
-   pnpm install
-   ```
-
-2. **Initialize Environment** (API Backend only)
-
-   ```bash
-   cp apps/api/.env.example apps/api/.env
-   ```
-
-3. **Verify Installation**
-   ```bash
-   pnpm run build
-   ```
-
-## Development
-
-### Web Mode (Browser with IndexedDB)
-
-Start the development server:
+### Installation
 
 ```bash
-pnpm start
+pnpm install
+# Set up environment variables
+cp apps/api/.env.example apps/api/.env
 ```
 
-The application will be available at `http://localhost:4200`
+### Development Commands
 
-**Features:**
+| Command          | Description                                                |
+| ---------------- | ---------------------------------------------------------- |
+| `pnpm dev`       | Start full stack (POS Frontend + API Backend)              |
+| `pnpm dev:pos`   | Start POS Frontend only (Web Mode - http://localhost:4200) |
+| `pnpm dev:api`   | Start API Backend only (http://localhost:3000/api)         |
+| `pnpm dev:tauri` | Start Desktop App (Native Mode)                            |
+| `pnpm test`      | Run tests across the workspace                             |
+| `pnpm nx graph`  | Visualize project dependencies                             |
 
-- Full CRUD operations via IndexedDB
-- Reactive UI with Angular Signals
-- Glassmorphism styling
-- Mobile-first responsive design
+---
 
-### API Backend (NestJS)
+## 🏗️ Project Architecture
 
-Start the API server:
+This project follows **Clean Architecture** principles and uses a **Dual Repository Pattern** to support both web (IndexedDB) and desktop (SQLite) persistence.
 
-```bash
-pnpm run api:serve
-```
+### Workspace Structure (`/`)
 
-The API will be available at `http://localhost:3000/api`
+- **apps/**
+  - `pos`: Angular frontend (UI, Application, Infrastructure layers)
+  - `api`: NestJS backend (API endpoints, Auth, Multi-tenancy)
+  - `native`: Tauri host application
+- **libs/**
+  - `domain`: Pure business logic and rules (Platform agnostic)
+  - `shared/types`: Shared interfaces, enums, and DTOs
+  - `shared/utils`: Common utilities (Date, Formatting, Validation)
 
-**Features:**
+### Dependency Flow
 
-- RESTful API endpoints
-- Built with NestJS framework
-- TypeScript-first development
-- Modular architecture
+`UI` → `Application` → `Domain` ← `Infrastructure`
 
-### Full Stack Development
+---
 
-Run both frontend and backend simultaneously:
+## 🛡️ Best Practices & Standards
 
-```bash
-pnpm dev
-```
+### Coding Standards
 
-This starts both the Angular POS frontend (port 4200) and NestJS API backend (port 3000) in parallel.
+- **State Management**: Use **Angular Signals** (`signal`, `computed`, `effect`) over Observables for synchronous state.
+- **Components**: Use **Standalone Components** exclusively.
+- **Type Safety**: strict mode, no `any`, explicit return types.
+- **Async**: Use `async/await` with try/catch blocks.
 
-### Desktop Mode (Tauri with SQLite)
+### Database & Persistence
 
-**Prerequisites:** Install system dependencies (see above)
+- **Dual Repositories**: Every entity needing local storage must have:
+  - `sqlite-*.repository.ts` (Desktop)
+  - `indexeddb-*.repository.ts` (Web)
+- **Selection**: Logic is handled via `RepositoryFactory` and `PlatformService`.
 
-Start Tauri development:
+### Commit Convention
 
-```bash
-pnpm run tauri:dev
-```
-
-**Features:**
-
-- Native desktop application
-- SQLite database with migrations
-- Same codebase as web version
-- Platform-specific optimizations
-
-## ✨ Key Features
-
-### 🍽️ Restaurant Operations
-
-- **Multi-Order Types**: Dine-in (table-based), Takeaway, Delivery
-- **Table Management**: Real-time table status (Available, Occupied, Reserved)
-- **Order Lifecycle**: OPEN → PREPARING → READY → SERVED → COMPLETED
-- **Customer Names**: Track customer info for takeaway/delivery orders
-- **Per-Item Tracking**: Independent status for each order item
-
-### 👨‍🍳 Kitchen Display System
-
-- **Real-time Order View**: Auto-refreshing kitchen dashboard
-- **Status Filtering**: Active, Preparing, Ready, Completed
-- **Kitchen Tickets**: Thermal printer support with ESC/POS commands
-- **Item-Level Control**: Mark items as preparing/ready independently
-
-### 🖨️ Thermal Printing
-
-- **Dual Printer Support**: Receipt printer + Kitchen printer
-- **ESC/POS Protocol**: Native thermal printer commands (Tauri)
-- **Web Print Fallback**: HTML print preview for browser mode
-- **Bilingual Receipts**: English/Albanian support
-- **Network Printers**: TCP/IP connection (e.g., `tcp:192.168.1.100:9100`)
-
-### 📊 Product Management
-
-- **Categories & Products**: Full CRUD operations
-- **Variants**: Size/type variations (Small, Medium, Large)
-- **Extras**: Add-ons and modifiers with separate pricing
-- **Ingredients**: Track product composition
-- **Stock Management**: Real-time availability tracking
-
-### 🔐 Security & Access Control
-
-- **Role-Based Access**: Admin, Cashier, Kitchen, Driver roles
-- **PIN Authentication**: Fast staff login with bcrypt-hashed PINs
-- **Email Login**: Owner/admin access with email+password
-- **Session Management**: Persistent sessions with staff selection
-- **Lock Feature**: Quick lock/unlock from sidebar
-
-### 💾 Data Management
-
-- **Automatic Backups**: Scheduled database backups
-- **Manual Backup/Restore**: Full database export/import
-- **Optional Encryption**: Password-protected backup files
-- **Cross-Platform**: Works with both SQLite and IndexedDB
-
-### 📱 Multi-Platform
-
-- **Desktop App**: Native Tauri application (Windows, macOS, Linux)
-- **PWA**: Progressive Web App with offline support
-- **Unified Codebase**: Same Angular app for all platforms
-- **Platform Detection**: Auto-selects SQLite or IndexedDB
-
-### 💰 Payment & Reports
-
-- **Tax-Inclusive Pricing**: Kosovo VAT (18%) built into prices
-- **Tip Support**: Add tips to orders
-- **Sales Reports**: Daily/period sales analytics
-- **Order History**: Complete order tracking with timestamps
-
-## Available Scripts
-
-### Frontend (Angular)
-
-- `pnpm dev:pos` - Start development server (web mode with IndexedDB)
-- `pnpm build:pos` - Build for production (web/PWA)
-
-### Backend (NestJS)
-
-- `pnpm dev:api` - Start NestJS API server (port 3000)
-- `pnpm build:api` - Build NestJS API for production
-
-### Full Stack
-
-- `pnpm dev` - Start both frontend and backend in parallel
-
-### Desktop (Tauri)
-
-- `pnpm tauri` - Tauri CLI access
-- `pnpm dev:tauri` - Start Tauri development (desktop mode with SQLite)
-- `pnpm build:tauri` - Build native desktop application
-
-### Testing & Quality
-
-- `pnpm test` - Run Vitest unit tests
-- `pnpm test:ci` - Run tests with CI configuration
-- `pnpm test:ci:coverage` - Run tests with coverage reporting
-- `pnpm lint` - Run ESLint for code quality
-- `pnpm format` - Run Prettier for code formatting
-- `pnpm db:reset` - Reset database (development only)
-
-## Testing the Persistence Layer
-
-The application includes a test page to validate the persistence layer:
-
-1. Start the app in web or desktop mode
-2. Create test entities with name and optional value
-3. Edit and delete entities
-4. Observe platform detection (SQLite vs IndexedDB)
-5. Data persists between sessions
-
-### Web Mode Testing
-
-- Open browser DevTools → Application → IndexedDB
-- View `SimplePosDB` → `test_entity` store
-- Data persists in browser storage
-
-### Desktop Mode Testing
-
-- Data stored in `simple-pos.db` SQLite file
-- Located in Tauri app data directory
-- Use SQLite viewer to inspect database
-
-## Architecture Highlights
-
-### Clean Architecture Layers
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-src/app/
-├── domain/              # Business entities (16 types), enums, DTOs
-│   ├── entities/        # Order, Product, User, Category, etc.
-│   ├── enums/           # OrderStatus, OrderType, UserRole, TableStatus
-│   └── dtos/            # CartItem, CartSummary, etc.
-├── application/         # Business logic services (22 services)
-│   └── services/        # OrderService, CartService, AuthService, etc.
-├── infrastructure/      # Data persistence (32 dual repositories)
-│   ├── repositories/    # SQLite* + IndexedDB* implementations
-│   ├── adapters/        # RepositoryFactory
-│   └── services/        # IndexedDBService
-├── core/                # Guards, interfaces, base classes
-│   ├── guards/          # authGuard, adminGuard, staffGuard, etc.
-│   └── interfaces/      # BaseRepository<T>
-├── ui/                  # Presentation layer
-│   ├── pages/           # 23+ page components
-│   ├── components/      # Reusable UI components
-│   ├── layouts/         # PosShellComponent, AdminShellComponent
-│   └── routes/          # Route configuration
-└── shared/              # Utilities, directives
-    ├── utilities/       # PlatformService, ValidationUtils
-    └── directives/      # Custom directives
+<type>(<scope>): <subject>
 ```
 
-### Dual Repository Pattern
+**Scopes**: `pos`, `api`, `native`, `domain`, `shared-types`
+**Examples**:
 
-All 16 entity types have **dual implementations**:
+- `feat(pos): add receipt printing`
+- `fix(api): correct jwt validation logic`
 
-- **SQLite\*Repository** (32 total): Desktop/Tauri mode
-- **IndexedDB\*Repository** (32 total): Web/PWA mode
+---
 
-**Entity Types:**
+## 📚 Documentation
 
-1. User (authentication, roles)
-2. Account (multi-tenancy)
-3. Order (DINE_IN, TAKEAWAY, DELIVERY)
-4. OrderItem (individual line items)
-5. OrderItemExtra (extras applied to items)
-6. Product (menu items)
-7. ProductExtra (available extras for products)
-8. ProductIngredient (product composition)
-9. Category (product categories)
-10. Variant (product variations)
-11. Extra (add-ons, modifiers)
-12. Ingredient (product components)
-13. Table (restaurant tables)
-14. CodeTable (enum storage)
-15. CodeTranslation (multilingual support)
-16. Account (tenant isolation)
-
-**Platform Selection:**
-
-```typescript
-// RepositoryFactory auto-selects based on runtime
-getOrderRepository(): BaseRepository<Order> {
-  return this.platformService.isTauri()
-    ? this.sqliteOrderRepo
-    : this.indexedDBOrderRepo;
-}
-```
-
-### Key Services
-
-**AuthService**
-
-- bcrypt PIN/password hashing (10 salt rounds)
-- Role-based access (ADMIN, CASHIER, KITCHEN, DRIVER)
-- Session persistence in localStorage
-- Staff selection flow
-
-**OrderService**
-
-- Multi-context order management
-- Auto-status transitions based on item readiness
-- Table status synchronization
-- Order number generation (YYYYMMDDNNNN)
-
-**CartService**
-
-- Context-aware carts (`table_1`, `TAKEAWAY`, `DELIVERY`)
-- Tax-inclusive pricing (18% Kosovo VAT)
-- Real-time totals with Angular signals
-- Item deduplication by product+variant+extras
-
-**PrinterService**
-
-- ESC/POS thermal printing (Tauri native)
-- HTML print fallback (web mode)
-- Dual printer support (receipt + kitchen)
-- Bilingual receipts (EN/AL)
-
-**BackupService**
-
-- Full database export/import
-- Optional AES encryption
-- JSON format with versioning
-- Cross-platform compatible
-
-### Platform Detection
-
-```typescript
-// Auto-detects Tauri via window.__TAURI__ global
-platformService.isTauri(); // true in desktop mode
-platformService.isWeb(); // true in browser mode
-```
-
-### Reactive State with Signals
-
-Angular 21 signals for reactive UI:
-
-````typescript
-// CartService example
-private allCarts = signal<Record<string, CartItem[]>>({});
-readonly cart = computed(() => this.allCarts()[this.activeContextKey()] || []);
-
-// Component usage
-summary = computed(() => this.cartService.getSummary());
-
-## Styling System
-
-### TailwindCSS v4
-
-- Utility-first CSS framework
-- Mobile-first responsive design
-- Modern glassmorphism effects
-
-### Glass Components
-
-```html
-<div class="glass-card">Card with glass effect</div>
-<button class="glass-button">Glass button</button>
-````
-
-### Custom Utilities
-
-Defined in `src/styles.css`:
-
-- `.glass-card` - Glassmorphism card style
-- `.glass-button` - Glassmorphism button style
-
-## Configuration Files
-
-### TypeScript (`tsconfig.json`)
-
-- Strict mode enabled
-- ES2022 target
-- Angular compiler strict options
-
-### TailwindCSS (`tailwind.config.js`)
-
-- Scans all HTML and TS files
-- Extended theme with custom utilities
-
-### Tauri (`src-tauri/tauri.conf.json`)
-
-- Window configuration
-- SQLite plugin enabled
-- Build settings for Angular
-
-## Database Migrations
-
-Migrations are in `src-tauri/migrations/`:
-
-```sql
--- 001_initial.sql
-CREATE TABLE IF NOT EXISTS test_entity (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    value TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-```
-
-Tauri automatically applies migrations on startup.
-
-## CLI Reference (Angular)
-
-### Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-### Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## 🔐 Tauri Signing Setup
-
-This project uses cryptographic signing to ensure app updates are authentic. For detailed setup instructions, see [`src-tauri/SIGNING.md`](src-tauri/SIGNING.md).
-
-**Quick Setup for GitHub Actions:**
-
-1. Copy your private key:
-
-   ```bash
-   cat src-tauri/tauri.key
-   ```
-
-2. Add it as a GitHub Secret:
-   - Go to: `Settings → Secrets and variables → Actions`
-   - Create secret: `TAURI_SIGNING_PRIVATE_KEY`
-   - Paste the key content
-
-For local development, the keys are automatically used from `src-tauri/tauri.key`.
-
-## 🤖 GitHub Copilot Support
-
-This repository is configured with GitHub Copilot instructions and custom agents to help you develop faster:
-
-- **General Instructions**: `.github/copilot-instructions.md` - Comprehensive coding standards and best practices
-- **Custom Agents**: `.github/agents/` - Specialized agents for testing, repositories, and Angular components
-  - 🧪 **test-specialist**: Expert in Vitest testing
-  - 🗄️ **repository-specialist**: Dual-platform repository implementations
-  - 🎨 **angular-component-specialist**: Modern Angular 21 components
-
-Learn more: [Custom Agents README](.github/agents/README.md)
-
-## Contact & Resources
-
-- **AI Execution Plan:** `docs/ai-mvp-execution-plan.md`
-- **PRD:** `docs/prd.md`
-- **Architecture:** `docs/architecture.md`
-- **Technical Details:** `docs/technical-details.md`
-- **Setup Guide:** `SETUP.md`
-
-## Troubleshooting
-
-### macOS: "App is damaged and can't be opened"
-
-If you see this error when trying to run the app on macOS, it's because the app is not signed with an Apple Developer ID. This is a common security feature for apps downloaded from the internet.
-
-**Fix:**
-
-1. Open Terminal
-2. Run the following command (replace path with actual location):
-   ```bash
-   xattr -cr /Applications/Simple\ POS.app
-   ```
-   _or if running from the Downloads folder:_
-   ```bash
-   xattr -cr ~/Downloads/Simple\ POS.app
-   ```
+- [Architecture Guide](docs/architecture.md)
+- [PRD](docs/prd.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
