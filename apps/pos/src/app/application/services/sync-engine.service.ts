@@ -165,6 +165,9 @@ export class SyncEngineService {
       await this.pullRemoteChanges();
       await this.loadConflicts();
       this.lastSyncAt.set(new Date().toISOString());
+
+      // Clear pending changes after successful sync
+      this.pendingChanges.set(0);
     } catch (error) {
       this.lastError.set(error instanceof Error ? error.message : 'Failed to sync');
     } finally {
@@ -394,16 +397,31 @@ export class SyncEngineService {
     }
 
     const numericId = this.asNumber(localId ?? data['id']);
-    const payload = this.stripId(data);
+
+    // Preserve the ID from the incoming data to maintain relationships
+    // Only strip metadata fields, not the primary key
+    const {
+      version,
+      isDirty,
+      isDeleted,
+      syncedAt,
+      lastModifiedAt,
+      deletedAt,
+      tenantId,
+      ...payload
+    } = data;
 
     if (numericId !== null && mutableRepo.findById) {
       const existing = await mutableRepo.findById(numericId);
       if (existing) {
-        await mutableRepo.update(numericId, payload);
+        // Update existing record, preserving its ID
+        const { id: _, ...updatePayload } = payload;
+        await mutableRepo.update(numericId, updatePayload);
         return;
       }
     }
 
+    // Create new record, preserving the ID from remote to maintain relationships
     await mutableRepo.create(payload);
   }
 
@@ -557,7 +575,18 @@ export class SyncEngineService {
       return;
     }
 
-    localStorage.setItem(this.snapshotStorageKey, JSON.stringify(snapshot));
+    try {
+      localStorage.setItem(this.snapshotStorageKey, JSON.stringify(snapshot));
+    } catch (error) {
+      // Handle quota exceeded or other storage errors
+      if (error instanceof Error && error.name === 'QuotaExceededError') {
+        console.error('localStorage quota exceeded when writing snapshot. Clearing old snapshot.');
+        // Clear the old snapshot to free up space
+        localStorage.removeItem(this.snapshotStorageKey);
+      } else {
+        console.error('Failed to write snapshot to localStorage:', error);
+      }
+    }
   }
 
   private getCursor(): string | undefined {

@@ -9,7 +9,7 @@ export const INDEXEDDB_NAME = 'SimpleDatabase';
 export class IndexedDBService {
   private readonly DB_NAME = INDEXEDDB_NAME;
   /**
-   * BREAKING CHANGE: Database version reset from 5 to 1
+   * BREAKING CHANGE: Database version reset from 5 to 3
    *
    * This is a breaking change for existing users with data at version 5.
    * The database schema has been completely refactored from 'organization' to 'account',

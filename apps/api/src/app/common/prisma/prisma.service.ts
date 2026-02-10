@@ -2,10 +2,7 @@ import { BadRequestException, Injectable, OnModuleDestroy, OnModuleInit } from '
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { ValidationUtils } from '@simple-pos/shared/utils';
-import { config as loadEnv } from 'dotenv';
 import { Pool } from 'pg';
-
-loadEnv({ path: 'apps/api/.env', quiet: true });
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {

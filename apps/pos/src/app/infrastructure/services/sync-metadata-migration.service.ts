@@ -48,8 +48,16 @@ export class SyncMetadataMigrationService {
       for (const alteration of alterations) {
         try {
           await db.execute(`ALTER TABLE ${table} ${alteration}`);
-        } catch {
-          // Column likely already exists.
+        } catch (error) {
+          // Only ignore duplicate column errors; log and re-throw other failures
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          if (
+            !errorMessage.includes('duplicate column') &&
+            !errorMessage.includes('already exists')
+          ) {
+            console.error(`Failed to alter table ${table} with ${alteration}:`, error);
+            throw error;
+          }
         }
       }
     }

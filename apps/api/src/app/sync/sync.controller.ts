@@ -68,12 +68,17 @@ export class SyncController {
     @TenantId() tenantId: string,
     @Body() body: ResolveConflictRequest,
   ): Promise<ResolveConflictResponse> {
-    return this.syncService.resolveConflict(
-      tenantId,
-      body.conflictId,
-      body.strategy as ConflictResolutionStrategy,
-      body.mergedData,
-    );
+    // Validate strategy against allowed values
+    const allowedStrategies = Object.values(ConflictResolutionStrategy);
+    if (!allowedStrategies.includes(body.strategy as ConflictResolutionStrategy)) {
+      throw new BadRequestException(
+        `Invalid conflict resolution strategy: ${body.strategy}. Allowed values: ${allowedStrategies.join(', ')}`,
+      );
+    }
+
+    const strategy = body.strategy as ConflictResolutionStrategy;
+
+    return this.syncService.resolveConflict(tenantId, body.conflictId, strategy, body.mergedData);
   }
 
   private assertTenantConsistency(requestTenantId: string, bodyTenantId: string): void {

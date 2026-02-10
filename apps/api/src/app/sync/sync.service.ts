@@ -80,6 +80,7 @@ export class SyncService {
         const timestamp = this.parseTimestamp(change.timestamp);
 
         if (!existing) {
+          const effectiveVersion = Math.max(1, change.version);
           await tx.syncDocument.create({
             data: {
               tenantId,
@@ -87,8 +88,8 @@ export class SyncService {
               cloudId,
               localId,
               deviceId,
-              data: this.normalizeData(change.data, cloudId, change.version),
-              version: Math.max(1, change.version),
+              data: this.normalizeData(change.data, cloudId, effectiveVersion),
+              version: effectiveVersion,
               isDeleted: change.operation === 'DELETE',
               syncedAt: new Date(),
               lastModifiedAt: timestamp,
@@ -135,14 +136,15 @@ export class SyncService {
           continue;
         }
 
-        const mergedData = this.normalizeData(change.data, existing.cloudId, change.version + 1);
+        const nextVersion = Math.max(existing.version, change.version) + 1;
+        const mergedData = this.normalizeData(change.data, existing.cloudId, nextVersion);
         await tx.syncDocument.update({
           where: { id: existing.id },
           data: {
             localId,
             deviceId,
             data: mergedData,
-            version: Math.max(existing.version + 1, change.version),
+            version: nextVersion,
             isDeleted: change.operation === 'DELETE',
             syncedAt: new Date(),
             lastModifiedAt: timestamp,
@@ -177,15 +179,36 @@ export class SyncService {
     const safeLimit = Math.min(Math.max(limit ?? 500, 1), 1000);
     const effectiveEntities = entities && entities.length > 0 ? entities : [...SYNC_ENTITIES];
 
-    const sinceCandidate = cursor ?? lastSyncedAt;
-    const since = sinceCandidate ? this.parseTimestamp(sinceCandidate) : undefined;
+    // Parse composite cursor (updatedAt:id) or fallback to lastSyncedAt
+    let cursorUpdatedAt: Date | undefined;
+    let cursorId: number | undefined;
+
+    if (cursor) {
+      const parts = cursor.split(':');
+      if (parts.length === 2) {
+        cursorUpdatedAt = this.parseTimestamp(parts[0]);
+        cursorId = parseInt(parts[1], 10);
+      } else {
+        // Fallback for old single-value cursor
+        cursorUpdatedAt = this.parseTimestamp(cursor);
+      }
+    } else if (lastSyncedAt) {
+      cursorUpdatedAt = this.parseTimestamp(lastSyncedAt);
+    }
 
     const docs = await this.prisma.withRls(tenantId, (tx) =>
       tx.syncDocument.findMany({
         where: {
           tenantId,
           entity: { in: effectiveEntities },
-          ...(since ? { updatedAt: { gt: since } } : {}),
+          ...(cursorUpdatedAt
+            ? {
+                OR: [
+                  { updatedAt: { gt: cursorUpdatedAt } },
+                  ...(cursorId ? [{ updatedAt: cursorUpdatedAt, id: { gt: cursorId } }] : []),
+                ],
+              }
+            : {}),
         },
         orderBy: [{ updatedAt: 'asc' }, { id: 'asc' }],
         take: safeLimit + 1,
@@ -219,8 +242,11 @@ export class SyncService {
       }
     }
 
+    // Return composite cursor (updatedAt:id)
     const nextCursor =
-      hasMore && page.length > 0 ? page[page.length - 1].updatedAt.toISOString() : undefined;
+      hasMore && page.length > 0
+        ? `${page[page.length - 1].updatedAt.toISOString()}:${page[page.length - 1].id}`
+        : undefined;
 
     return {
       changes,
