@@ -28,7 +28,6 @@
     "lint:api": "nx lint api",
     "lint:pos": "nx lint pos",
     "format": "nx format:write",
-    "analyze": "./scripts/analyze-bundle.sh",
     "db:reset": "node scripts/reset-db.js",
     "prepare": "husky"
   },

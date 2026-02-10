@@ -1,0 +1,6 @@
+apiVersion: v2
+name: simple-pos
+description: Enterprise Helm chart for Simple POS (POS web + API + PostgreSQL + Redis)
+type: application
+version: 0.1.0
+appVersion: '1.22.0'

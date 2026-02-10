@@ -1,0 +1,77 @@
+global:
+  airgap:
+    enabled: false
+  imagePullSecrets: []
+
+nameOverride: ''
+fullnameOverride: ''
+
+api:
+  replicaCount: 2
+  image:
+    repository: simplepos/api
+    tag: 1.22.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+  resources: {}
+  env:
+    port: '3000'
+    baseDomain: simplepos.local
+    jwtSecret: change_me
+    jwtRefreshSecret: change_me
+    stripeSecretKey: ''
+    stripeWebhookSecret: ''
+    stripePriceBasic: ''
+    stripePricePro: ''
+    stripePriceEnterprise: ''
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+pos:
+  replicaCount: 2
+  image:
+    repository: simplepos/pos
+    tag: 1.22.0
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  resources: {}
+  env:
+    apiBaseUrl: /api/v1
+
+postgres:
+  image:
+    repository: postgres
+    tag: 16-alpine
+    pullPolicy: IfNotPresent
+  auth:
+    username: postgres
+    password: change_me
+    database: simplepos
+  persistence:
+    enabled: true
+    size: 20Gi
+
+redis:
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  persistence:
+    enabled: true
+    size: 5Gi
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  host: simplepos.local
+  tls:
+    enabled: false
+    secretName: simple-pos-tls

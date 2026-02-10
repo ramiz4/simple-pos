@@ -125,6 +125,9 @@ $RECYCLE.BIN/
 .env*.local
 *.env
 
+# Explicitly ignore enterprise env file (use .env.enterprise.example instead)
+.env.enterprise
+
 # ============================================
 # Database Files
 # ============================================

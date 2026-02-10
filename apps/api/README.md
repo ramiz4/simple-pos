@@ -75,6 +75,21 @@ The API now includes the core SaaS platform modules:
 - `GET /api/v1/analytics/*` - Tenant analytics dashboard/sales/products/staff
 - `GET /api/v1/admin/*` - Super-admin tenant controls and platform usage analytics
 
+## Phase 4 Enterprise Modules
+
+The API now includes enterprise/on-prem capabilities:
+
+- `GET|POST|PATCH|DELETE /api/v1/sso/providers*` - Tenant-managed SSO provider configs
+- `POST /api/v1/sso/oauth/:providerId/authorize` - Start OAuth/OIDC login flow
+- `GET /api/v1/sso/oauth/:providerId/callback` - OAuth/OIDC callback with JWT session issuance
+- `POST /api/v1/sso/saml/:providerId/assertion` - SAML assertion login bridge (on-prem gateway pattern)
+- `POST /api/v1/enterprise/custom-domain/request` - Request custom domain verification
+- `POST /api/v1/enterprise/custom-domain/verify` - Verify custom domain (DNS TXT)
+- `POST /api/v1/enterprise/professional-services/requests` - Create professional services request
+- `GET /api/v1/admin/enterprise/professional-services/requests` - Super-admin queue management
+
+On-prem deployment packaging is available in `deploy/enterprise/`.
+
 ### Additional Environment Variables
 
 ```bash

@@ -1,0 +1,61 @@
+services:
+  pos-web:
+    image: simplepos/pos:latest
+    build:
+      context: ../..
+      dockerfile: deploy/enterprise/docker/pos.Dockerfile
+    restart: unless-stopped
+    ports:
+      - '${POS_HTTP_PORT:-8080}:80'
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://api:3000/api/v1}
+    depends_on:
+      - api
+
+  api:
+    image: simplepos/api:latest
+    build:
+      context: ../..
+      dockerfile: deploy/enterprise/docker/api.Dockerfile
+    restart: unless-stopped
+    ports:
+      - '${API_HTTP_PORT:-3000}:3000'
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
+      CORS_ORIGINS: '${CORS_ORIGINS:-http://localhost:4200,http://127.0.0.1:4200,http://localhost:4300,http://127.0.0.1:4300,http://localhost:8080,http://127.0.0.1:8080}'
+      PRISMA_MIGRATE_MAX_ATTEMPTS: ${PRISMA_MIGRATE_MAX_ATTEMPTS:-10}
+      PRISMA_MIGRATE_RETRY_SECONDS: ${PRISMA_MIGRATE_RETRY_SECONDS:-2}
+      PRISMA_DB_PUSH_FALLBACK: ${PRISMA_DB_PUSH_FALLBACK:-false}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      BASE_DOMAIN: ${BASE_DOMAIN:-simplepos.local}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_BASIC: ${STRIPE_PRICE_BASIC:-}
+      STRIPE_PRICE_PRO: ${STRIPE_PRICE_PRO:-}
+      STRIPE_PRICE_ENTERPRISE: ${STRIPE_PRICE_ENTERPRISE:-}
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

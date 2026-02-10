@@ -10,7 +10,10 @@ model Tenant {
   id                 String    @id @default(uuid()) @db.Uuid
   name               String
   subdomain          String    @unique
-  customDomain       String?
+  customDomain       String?   @unique
+  customDomainStatus String    @default("NOT_CONFIGURED")
+  customDomainVerificationToken String?
+  customDomainVerifiedAt DateTime?
   plan               String    @default("FREE")
   status             String    @default("ACTIVE")
   stripeCustomerId   String?   @unique
@@ -37,6 +40,8 @@ model Tenant {
   syncConflicts SyncConflict[]
   apiKeys  TenantApiKey[]
   billingEvents BillingEvent[]
+  ssoProviders SsoProvider[]
+  professionalServiceRequests ProfessionalServiceRequest[]
 
   @@map("tenants")
 }
@@ -88,8 +93,60 @@ model User {
   updatedAt DateTime @updatedAt
 
   orders    Order[]
+  professionalServiceRequests ProfessionalServiceRequest[] @relation("ProfessionalServiceRequestedBy")
 
   @@map("users")
+}
+
+model SsoProvider {
+  id               String   @id @default(uuid()) @db.Uuid
+  tenantId         String   @db.Uuid
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name             String
+  slug             String
+  protocol         String
+  enabled          Boolean  @default(true)
+  authorizationUrl String?
+  tokenUrl         String?
+  userInfoUrl      String?
+  issuer           String?
+  entryPoint       String?
+  callbackUrl      String?
+  clientId         String?
+  clientSecret     String?
+  scopes           String[] @default([])
+  roleMappings     Json?
+  claimMapping     Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, enabled])
+  @@map("sso_providers")
+}
+
+model ProfessionalServiceRequest {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  requestedByUserId String?  @db.Uuid
+  requestedByUser   User?    @relation("ProfessionalServiceRequestedBy", fields: [requestedByUserId], references: [id], onDelete: SetNull)
+  requesterEmail    String
+  category          String
+  priority          String   @default("NORMAL")
+  status            String   @default("OPEN")
+  title             String
+  description       String
+  preferredContact  Json?
+  assignedTo        String?
+  internalNotes     Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  resolvedAt        DateTime?
+
+  @@index([tenantId, status, createdAt])
+  @@index([status, createdAt])
+  @@map("professional_service_requests")
 }
 
 model Product {

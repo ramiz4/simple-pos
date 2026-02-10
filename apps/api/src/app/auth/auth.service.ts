@@ -253,6 +253,36 @@ export class AuthService implements OnModuleDestroy {
     return this.mapUserResponse(user);
   }
 
+  async issueSessionForUserId(userId: string): Promise<AuthResponse> {
+    const user = await this.findUserById(userId);
+    if (!user || !user.active) {
+      throw new UnauthorizedException('User not found or inactive');
+    }
+
+    const permissions = this.resolvePermissions(user.role);
+    const tokens = await this.generateTokens(user, permissions);
+    const tenant = await this.prisma.tenant.findUnique({
+      where: {
+        id: user.tenantId,
+      },
+      select: {
+        id: true,
+        name: true,
+        subdomain: true,
+        plan: true,
+        status: true,
+        trialEndsAt: true,
+      },
+    });
+
+    return {
+      ...tokens,
+      user: this.mapUserResponse(user),
+      tenant: tenant ? this.mapTenantResponse(tenant) : undefined,
+      permissions,
+    };
+  }
+
   logout(refreshToken?: string): void {
     if (refreshToken) {
       this.refreshTokens.delete(refreshToken);

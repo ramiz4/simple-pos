@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { parseHostContext } from './tenant-host.utils';
@@ -22,6 +23,8 @@ export class TenantsService {
         name: true,
         subdomain: true,
         customDomain: true,
+        customDomainStatus: true,
+        customDomainVerifiedAt: true,
         plan: true,
         status: true,
         trialEndsAt: true,
@@ -58,6 +61,7 @@ export class TenantsService {
         id: true,
         settings: true,
         billingInfo: true,
+        customDomain: true,
       },
     });
 
@@ -71,8 +75,21 @@ export class TenantsService {
     }
 
     if (updateDto.customDomain !== undefined) {
-      data.customDomain =
-        updateDto.customDomain === null ? null : updateDto.customDomain.trim().toLowerCase();
+      if (updateDto.customDomain === null) {
+        data.customDomain = null;
+        data.customDomainStatus = 'NOT_CONFIGURED';
+        data.customDomainVerificationToken = null;
+        data.customDomainVerifiedAt = null;
+      } else {
+        const normalizedDomain = this.normalizeDomain(updateDto.customDomain);
+
+        if (existing.customDomain !== normalizedDomain) {
+          data.customDomain = normalizedDomain;
+          data.customDomainStatus = 'PENDING_VERIFICATION';
+          data.customDomainVerifiedAt = null;
+          data.customDomainVerificationToken = this.generateVerificationToken();
+        }
+      }
     }
 
     if (updateDto.settings) {
@@ -99,6 +116,8 @@ export class TenantsService {
         name: true,
         subdomain: true,
         customDomain: true,
+        customDomainStatus: true,
+        customDomainVerifiedAt: true,
         plan: true,
         status: true,
         settings: true,
@@ -151,6 +170,7 @@ export class TenantsService {
     const tenant = await this.prisma.tenant.findFirst({
       where: {
         customDomain: hostContext.host,
+        customDomainStatus: 'ACTIVE',
       },
       select: {
         id: true,
@@ -200,5 +220,27 @@ export class TenantsService {
     }
 
     return value as TenantObject;
+  }
+
+  private normalizeDomain(rawDomain: string): string {
+    const withoutScheme = rawDomain
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, '');
+    const host = withoutScheme.split('/')[0] ?? '';
+
+    if (!host) {
+      throw new BadRequestException('Custom domain value is empty');
+    }
+
+    if (!/^(?=.{1,253}$)(?!-)[a-z0-9-]+(?:\.[a-z0-9-]+)+$/.test(host)) {
+      throw new BadRequestException('Custom domain must be a valid hostname');
+    }
+
+    return host;
+  }
+
+  private generateVerificationToken(): string {
+    return `spv_${randomBytes(20).toString('hex')}`;
   }
 }

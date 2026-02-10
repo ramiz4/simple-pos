@@ -3,3 +3,4 @@ dist
 .angular
 coverage
 .git
+deploy/enterprise/helm/**/*.yaml
