@@ -349,8 +349,9 @@ export class SsoService {
       throw new UnauthorizedException('SAML assertion tenant mismatch');
     }
 
-    if (provider.clientSecret && provider.clientSecret !== (sharedSecret ?? '')) {
-      throw new UnauthorizedException('Invalid SSO assertion shared secret');
+    // Require shared secret for SAML assertion authentication
+    if (!provider.clientSecret || provider.clientSecret !== (sharedSecret ?? '')) {
+      throw new UnauthorizedException('Invalid or missing SSO assertion shared secret');
     }
 
     const normalizedProfile: NormalizedSsoUser = {
