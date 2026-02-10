@@ -2,9 +2,11 @@
 
 ## Overview
 
-**Simple POS v1.16.0** is a production-ready, cross-platform Point-of-Sale system built with **Clean Architecture** principles and **Nx Monorepo** structure. The application runs as both a native desktop application (via Tauri) and a Progressive Web App, sharing 100% of the codebase while adapting to platform-specific capabilities.
+**Simple POS v1.20.0** is a production-ready, cross-platform Point-of-Sale system built with **Clean Architecture** principles and **Nx Monorepo** structure. The application runs as both a native desktop application (via Tauri) and a Progressive Web App, sharing 100% of the codebase while adapting to platform-specific capabilities.
 
 > **Phase 0.5 (Nx Monorepo)**: The project has been successfully migrated to an Nx monorepo structure with shared libraries for improved code organization and maintainability. See [Nx Monorepo Migration Plan](./nx-monorepo-migration-plan.md) for details.
+>
+> **Phase 1 (Backend Foundation)**: The NestJS backend API with PostgreSQL, multi-tenancy (RLS), JWT authentication, and core CRUD endpoints (Products, Orders, Customers) has been completed. See [SaaS Transformation Guide](./saas-onprem-transformation.md) for the complete roadmap.
 
 ## Technology Stack
 
@@ -30,6 +32,14 @@
 - **Service Worker**: `@angular/service-worker` for PWA
 - **Database**: IndexedDB (native browser API)
 - **Storage**: LocalStorage for session persistence
+
+### Backend (NestJS API)
+
+- **Framework**: NestJS 10+ (Node.js framework)
+- **Database**: PostgreSQL with Prisma v7 ORM
+- **Multi-Tenancy**: Row-Level Security (RLS) policies
+- **Authentication**: JWT-based authentication
+- **Modules**: Products, Orders, Customers, Auth
 
 ### Development Tools
 
