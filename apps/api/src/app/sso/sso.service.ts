@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Prisma } from '@prisma/client';
-import { randomBytes } from 'crypto';
+
 import { AuthService } from '../auth/auth.service';
 import { AuthResponse } from '../auth/dto';
 import { PrismaService } from '../common/prisma/prisma.service';
@@ -282,9 +282,7 @@ export class SsoService {
       exp: Math.floor(expiresAt / 1000), // Convert to Unix timestamp in seconds
     };
 
-    const state = this.jwtService.sign(statePayload, {
-      expiresIn: '10m',
-    });
+    const state = this.jwtService.sign(statePayload);
 
     const params = new URLSearchParams({
       response_type: 'code',
@@ -316,7 +314,7 @@ export class SsoService {
     let statePayload: OAuthStatePayload;
     try {
       statePayload = this.jwtService.verify<OAuthStatePayload>(state);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException('Invalid or expired OAuth state token');
     }
 
