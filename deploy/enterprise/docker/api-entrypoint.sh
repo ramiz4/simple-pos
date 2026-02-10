@@ -29,7 +29,7 @@ run_with_retries() {
 if ! run_with_retries "Applying Prisma migrations" ./node_modules/.bin/prisma migrate deploy; then
   if [ "${ENABLE_DB_PUSH_FALLBACK}" = "true" ]; then
     echo "Falling back to Prisma schema sync (db push)."
-    run_with_retries "Applying Prisma schema sync" ./node_modules/.bin/prisma db push --skip-generate
+    run_with_retries "Applying Prisma schema sync" ./node_modules/.bin/prisma db push
   else
     exit 1
   fi
