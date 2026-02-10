@@ -22,12 +22,15 @@ export type SyncEntityName = (typeof SYNC_ENTITIES)[number];
 
 export type SyncOperation = 'CREATE' | 'UPDATE' | 'DELETE';
 
-export type ConflictResolutionStrategy =
-  | 'SERVER_WINS'
-  | 'CLIENT_WINS'
-  | 'LAST_WRITE_WINS'
-  | 'MANUAL'
-  | 'MERGE';
+export const CONFLICT_RESOLUTION_STRATEGIES = [
+  'SERVER_WINS',
+  'CLIENT_WINS',
+  'LAST_WRITE_WINS',
+  'MANUAL',
+  'MERGE',
+] as const;
+
+export type ConflictResolutionStrategy = (typeof CONFLICT_RESOLUTION_STRATEGIES)[number];
 
 export interface SyncChangeSet {
   entity: SyncEntityName;

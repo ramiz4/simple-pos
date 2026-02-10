@@ -401,13 +401,13 @@ export class SyncEngineService {
     // Preserve the ID from the incoming data to maintain relationships
     // Only strip metadata fields, not the primary key
     const {
-      version,
-      isDirty,
-      isDeleted,
-      syncedAt,
-      lastModifiedAt,
-      deletedAt,
-      tenantId,
+      version: _version,
+      isDirty: _isDirty,
+      isDeleted: _isDeleted,
+      syncedAt: _syncedAt,
+      lastModifiedAt: _lastModifiedAt,
+      deletedAt: _deletedAt,
+      tenantId: _tenantId,
       ...payload
     } = data;
 

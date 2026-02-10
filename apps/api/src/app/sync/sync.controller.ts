@@ -1,5 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import {
+  CONFLICT_RESOLUTION_STRATEGIES,
   ConflictResolutionStrategy,
   ResolveConflictRequest,
   ResolveConflictResponse,
@@ -69,7 +70,7 @@ export class SyncController {
     @Body() body: ResolveConflictRequest,
   ): Promise<ResolveConflictResponse> {
     // Validate strategy against allowed values
-    const allowedStrategies = Object.values(ConflictResolutionStrategy);
+    const allowedStrategies = CONFLICT_RESOLUTION_STRATEGIES;
     if (!allowedStrategies.includes(body.strategy as ConflictResolutionStrategy)) {
       throw new BadRequestException(
         `Invalid conflict resolution strategy: ${body.strategy}. Allowed values: ${allowedStrategies.join(', ')}`,

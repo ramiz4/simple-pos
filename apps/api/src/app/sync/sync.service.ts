@@ -181,13 +181,13 @@ export class SyncService {
 
     // Parse composite cursor (updatedAt:id) or fallback to lastSyncedAt
     let cursorUpdatedAt: Date | undefined;
-    let cursorId: number | undefined;
+    let cursorId: string | undefined;
 
     if (cursor) {
       const parts = cursor.split(':');
       if (parts.length === 2) {
         cursorUpdatedAt = this.parseTimestamp(parts[0]);
-        cursorId = parseInt(parts[1], 10);
+        cursorId = parts[1];
       } else {
         // Fallback for old single-value cursor
         cursorUpdatedAt = this.parseTimestamp(cursor);

@@ -8,6 +8,7 @@ import { OrdersService } from './orders.service';
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaService: PrismaService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockPrismaTransaction: any;
 
   const mockTenantId = '550e8400-e29b-41d4-a716-446655440000';
@@ -216,6 +217,7 @@ describe('OrdersService', () => {
     });
 
     it('should strip items field if provided in update payload', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updateDtoWithItems: any = {
         status: 'PAID',
         tip: 3.0,

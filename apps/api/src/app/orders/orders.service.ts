@@ -76,7 +76,8 @@ export class OrdersService {
 
   async update(tenantId: string, id: string, updateOrderDto: UpdateOrderDto) {
     // Explicitly strip items to prevent runtime issues if passed in request body
-    const { items, ...orderData } = updateOrderDto as any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { items: _items, ...orderData } = updateOrderDto as any;
 
     return this.prisma.withRls(tenantId, async (tx) => {
       // Check existence and update in single transaction

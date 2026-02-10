@@ -8,6 +8,7 @@ import { ProductsService } from './products.service';
 describe('ProductsService', () => {
   let service: ProductsService;
   let prismaService: PrismaService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockPrismaTransaction: any;
 
   const mockTenantId = '550e8400-e29b-41d4-a716-446655440000';
@@ -141,9 +142,7 @@ describe('ProductsService', () => {
     it('should throw NotFoundException when product not found', async () => {
       mockPrismaTransaction.product.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne(mockTenantId, mockProductId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findOne(mockTenantId, mockProductId)).rejects.toThrow(NotFoundException);
       await expect(service.findOne(mockTenantId, mockProductId)).rejects.toThrow(
         'Product not found',
       );
@@ -209,9 +208,7 @@ describe('ProductsService', () => {
     it('should throw NotFoundException when deleting non-existent product', async () => {
       mockPrismaTransaction.product.findFirst.mockResolvedValue(null);
 
-      await expect(service.remove(mockTenantId, mockProductId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.remove(mockTenantId, mockProductId)).rejects.toThrow(NotFoundException);
     });
   });
 });
