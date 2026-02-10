@@ -135,6 +135,8 @@ model OrderItem {
   quantity    Int
   price       Decimal  @db.Decimal(10, 2)
   total       Decimal  @db.Decimal(10, 2)
+  tenantId    String   @db.Uuid
 
+  @@index([tenantId])
   @@map("order_items")
 }
