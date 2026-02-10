@@ -75,26 +75,48 @@ export class OrdersService {
   }
 
   async update(tenantId: string, id: string, updateOrderDto: UpdateOrderDto) {
-    await this.findOne(tenantId, id);
+    // Explicitly strip items to prevent runtime issues if passed in request body
+    const { items, ...orderData } = updateOrderDto as any;
 
-    return this.prisma.withRls(tenantId, (tx) =>
-      tx.order.update({
+    return this.prisma.withRls(tenantId, async (tx) => {
+      // Check existence and update in single transaction
+      const order = await tx.order.findFirst({
+        where: {
+          id,
+          tenantId,
+        },
+      });
+
+      if (!order) {
+        throw new NotFoundException(`Order not found`);
+      }
+
+      return tx.order.update({
         where: { id },
-        data: updateOrderDto,
+        data: orderData,
         include: { items: true },
-      }),
-    );
+      });
+    });
   }
 
   async remove(tenantId: string, id: string) {
-    await this.findOne(tenantId, id);
-    // Cascade delete on items is set in schema?
-    // I added "onDelete: Cascade" to OrderItem -> Order relation.
+    return this.prisma.withRls(tenantId, async (tx) => {
+      // Check existence and delete in single transaction
+      const order = await tx.order.findFirst({
+        where: {
+          id,
+          tenantId,
+        },
+      });
 
-    return this.prisma.withRls(tenantId, (tx) =>
-      tx.order.delete({
+      if (!order) {
+        throw new NotFoundException(`Order not found`);
+      }
+
+      // Cascade delete on items is set in schema
+      return tx.order.delete({
         where: { id },
-      }),
-    );
+      });
+    });
   }
 }

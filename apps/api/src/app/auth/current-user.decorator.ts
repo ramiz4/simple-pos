@@ -8,7 +8,7 @@ export const CurrentUser = createParamDecorator(
     const user = request.user;
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('User not found in request context');
     }
 
     return data ? user[data] : user;

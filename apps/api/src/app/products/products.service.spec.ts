@@ -8,6 +8,7 @@ import { ProductsService } from './products.service';
 describe('ProductsService', () => {
   let service: ProductsService;
   let prismaService: PrismaService;
+  let mockPrismaTransaction: any;
 
   const mockTenantId = '550e8400-e29b-41d4-a716-446655440000';
   const mockProductId = '660e8400-e29b-41d4-a716-446655440001';
@@ -30,19 +31,20 @@ describe('ProductsService', () => {
     syncedAt: null,
   };
 
-  const mockPrismaTransaction = {
-    product: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findFirst: vi.fn(),
-      update: vi.fn(),
-    },
-    customer: {},
-    order: {},
-    $executeRaw: vi.fn(),
-  };
-
   beforeEach(async () => {
+    // Create fresh mocks for each test to prevent leakage
+    mockPrismaTransaction = {
+      product: {
+        create: vi.fn(),
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+        update: vi.fn(),
+      },
+      customer: {},
+      order: {},
+      $executeRaw: vi.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductsService,

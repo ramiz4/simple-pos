@@ -8,6 +8,7 @@ import { OrdersService } from './orders.service';
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaService: PrismaService;
+  let mockPrismaTransaction: any;
 
   const mockTenantId = '550e8400-e29b-41d4-a716-446655440000';
   const mockUserId = '770e8400-e29b-41d4-a716-446655440003';
@@ -45,20 +46,21 @@ describe('OrdersService', () => {
     ],
   };
 
-  const mockPrismaTransaction = {
-    order: {
-      create: vi.fn(),
-      findMany: vi.fn(),
-      findFirst: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    },
-    product: {},
-    customer: {},
-    $executeRaw: vi.fn(),
-  };
-
   beforeEach(async () => {
+    // Create fresh mocks for each test to prevent leakage
+    mockPrismaTransaction = {
+      order: {
+        create: vi.fn(),
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
+      },
+      product: {},
+      customer: {},
+      $executeRaw: vi.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         OrdersService,
@@ -208,6 +210,29 @@ describe('OrdersService', () => {
       expect(mockPrismaTransaction.order.update).toHaveBeenCalledWith({
         where: { id: mockOrderId },
         data: updateDto,
+        include: { items: true },
+      });
+      expect(result).toEqual(updatedOrder);
+    });
+
+    it('should strip items field if provided in update payload', async () => {
+      const updateDtoWithItems: any = {
+        status: 'PAID',
+        tip: 3.0,
+        items: [{ productId: 'some-id', quantity: 5, price: 15.0 }],
+      };
+
+      const updatedOrder = { ...mockOrder, status: 'PAID', tip: 3.0 };
+
+      mockPrismaTransaction.order.findFirst.mockResolvedValue(mockOrder);
+      mockPrismaTransaction.order.update.mockResolvedValue(updatedOrder);
+
+      const result = await service.update(mockTenantId, mockOrderId, updateDtoWithItems);
+
+      expect(prismaService.withRls).toHaveBeenCalled();
+      expect(mockPrismaTransaction.order.update).toHaveBeenCalledWith({
+        where: { id: mockOrderId },
+        data: { status: 'PAID', tip: 3.0 },
         include: { items: true },
       });
       expect(result).toEqual(updatedOrder);

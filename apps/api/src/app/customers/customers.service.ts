@@ -55,24 +55,45 @@ export class CustomersService {
   }
 
   async update(tenantId: string, id: string, updateCustomerDto: UpdateCustomerDto) {
-    await this.findOne(tenantId, id);
+    return this.prisma.withRls(tenantId, async (tx) => {
+      // Check existence and update in single transaction
+      const customer = await tx.customer.findFirst({
+        where: {
+          id,
+          tenantId,
+        },
+      });
 
-    return this.prisma.withRls(tenantId, (tx) =>
-      tx.customer.update({
+      if (!customer) {
+        throw new NotFoundException(`Customer not found`);
+      }
+
+      return tx.customer.update({
         where: { id },
         data: updateCustomerDto,
-      }),
-    );
+      });
+    });
   }
 
   // Usually we don't delete customers, but maybe we can soft delete if needed.
   // Schema doesn't have isDeleted for Customer, so I'll skip remove for now or implement hard delete.
   async remove(tenantId: string, id: string) {
-    await this.findOne(tenantId, id);
-    return this.prisma.withRls(tenantId, (tx) =>
-      tx.customer.delete({
+    return this.prisma.withRls(tenantId, async (tx) => {
+      // Check existence and delete in single transaction
+      const customer = await tx.customer.findFirst({
+        where: {
+          id,
+          tenantId,
+        },
+      });
+
+      if (!customer) {
+        throw new NotFoundException(`Customer not found`);
+      }
+
+      return tx.customer.delete({
         where: { id },
-      }),
-    );
+      });
+    });
   }
 }

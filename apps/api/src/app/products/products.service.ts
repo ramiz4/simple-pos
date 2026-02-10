@@ -47,29 +47,49 @@ export class ProductsService {
   }
 
   async update(tenantId: string, id: string, updateProductDto: UpdateProductDto) {
-    // Check existence first
-    await this.findOne(tenantId, id);
+    return this.prisma.withRls(tenantId, async (tx) => {
+      // Check existence and update in single transaction
+      const product = await tx.product.findFirst({
+        where: {
+          id,
+          tenantId,
+          isDeleted: false,
+        },
+      });
 
-    return this.prisma.withRls(tenantId, (tx) =>
-      tx.product.update({
+      if (!product) {
+        throw new NotFoundException(`Product not found`);
+      }
+
+      return tx.product.update({
         where: { id },
         data: updateProductDto,
-      }),
-    );
+      });
+    });
   }
 
   async remove(tenantId: string, id: string) {
-    // Soft delete
-    await this.findOne(tenantId, id);
+    return this.prisma.withRls(tenantId, async (tx) => {
+      // Check existence and soft delete in single transaction
+      const product = await tx.product.findFirst({
+        where: {
+          id,
+          tenantId,
+          isDeleted: false,
+        },
+      });
 
-    return this.prisma.withRls(tenantId, (tx) =>
-      tx.product.update({
+      if (!product) {
+        throw new NotFoundException(`Product not found`);
+      }
+
+      return tx.product.update({
         where: { id },
         data: {
           isDeleted: true,
           deletedAt: new Date(),
         },
-      }),
-    );
+      });
+    });
   }
 }
