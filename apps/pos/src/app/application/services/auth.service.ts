@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
 import { ValidationUtils } from '@simple-pos/shared/utils';
 import * as bcrypt from 'bcryptjs';
+import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
 import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
@@ -17,15 +18,24 @@ export interface UserSession {
   isStaffActive: boolean;
 }
 
+export interface CloudSession {
+  accessToken: string;
+  refreshToken: string;
+  tenantId: string;
+  userId: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private currentSession: UserSession | null = null;
+  private cloudSession: CloudSession | null = null;
   private readonly SALT_ROUNDS = 10;
   private readonly DEFAULT_PIN = '0000';
   private readonly LOCAL_SETUP_DOMAIN = 'local.pos';
   private readonly MAX_USERNAME_COLLISION_ATTEMPTS = 10;
+  private readonly CLOUD_SESSION_STORAGE_KEY = 'cloudSession';
 
   constructor(
     private platformService: PlatformService,
@@ -34,8 +44,10 @@ export class AuthService {
     private enumMappingService: EnumMappingService,
     private accountService: AccountService,
     private inputSanitizer: InputSanitizerService,
+    @Optional() private cloudAuthClient?: CloudAuthClientService,
   ) {
     this.loadSessionFromStorage();
+    this.loadCloudSessionFromStorage();
   }
 
   async login(username: string, pin: string, accountId?: number): Promise<UserSession> {
@@ -93,6 +105,7 @@ export class AuthService {
 
   logout(): void {
     this.currentSession = null;
+    this.clearCloudSession();
     this.clearSessionFromStorage();
   }
 
@@ -176,8 +189,49 @@ export class AuthService {
 
     this.currentSession = session;
     this.saveSessionToStorage(session);
+    void this.tryCloudLogin(sanitizedEmail, password);
 
     return session;
+  }
+
+  getCloudAccessToken(): string | null {
+    return this.cloudSession?.accessToken ?? null;
+  }
+
+  getCloudRefreshToken(): string | null {
+    return this.cloudSession?.refreshToken ?? null;
+  }
+
+  getCloudTenantId(): string | null {
+    return this.cloudSession?.tenantId ?? null;
+  }
+
+  hasCloudSession(): boolean {
+    return this.cloudSession !== null;
+  }
+
+  getCloudSession(): CloudSession | null {
+    return this.cloudSession;
+  }
+
+  async refreshCloudSession(): Promise<boolean> {
+    if (!this.cloudSession?.refreshToken || !this.cloudAuthClient) {
+      return false;
+    }
+
+    try {
+      const refreshed = await this.cloudAuthClient.refresh(this.cloudSession.refreshToken);
+      this.setCloudSession({
+        accessToken: refreshed.accessToken,
+        refreshToken: refreshed.refreshToken,
+        tenantId: refreshed.user.tenantId,
+        userId: refreshed.user.id,
+      });
+      return true;
+    } catch {
+      this.clearCloudSession();
+      return false;
+    }
   }
 
   async register(
@@ -337,6 +391,63 @@ export class AuthService {
   private clearSessionFromStorage(): void {
     if (typeof window !== 'undefined' && window.sessionStorage) {
       sessionStorage.removeItem('userSession');
+    }
+  }
+
+  private async tryCloudLogin(email: string, password: string): Promise<void> {
+    if (!this.cloudAuthClient) {
+      return;
+    }
+
+    try {
+      const response = await this.cloudAuthClient.login(email, password);
+      this.setCloudSession({
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+        tenantId: response.user.tenantId,
+        userId: response.user.id,
+      });
+    } catch {
+      // Local auth remains the source of truth for offline-first mode.
+      // Cloud login is best-effort for hybrid sync mode.
+    }
+  }
+
+  private setCloudSession(session: CloudSession): void {
+    this.cloudSession = session;
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      // Store only access token in sessionStorage, exclude refresh token for security
+      const { refreshToken: _, ...sessionToPersist } = session;
+      sessionStorage.setItem(this.CLOUD_SESSION_STORAGE_KEY, JSON.stringify(sessionToPersist));
+    }
+  }
+
+  private loadCloudSessionFromStorage(): void {
+    if (typeof window === 'undefined' || !window.sessionStorage) {
+      return;
+    }
+
+    const stored = sessionStorage.getItem(this.CLOUD_SESSION_STORAGE_KEY);
+    if (!stored) {
+      return;
+    }
+
+    try {
+      const partialSession = JSON.parse(stored) as Omit<CloudSession, 'refreshToken'>;
+      // Restore partial session without refresh token
+      this.cloudSession = {
+        ...partialSession,
+        refreshToken: '', // Refresh token not persisted for security
+      };
+    } catch {
+      this.clearCloudSession();
+    }
+  }
+
+  private clearCloudSession(): void {
+    this.cloudSession = null;
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.removeItem(this.CLOUD_SESSION_STORAGE_KEY);
     }
   }
 

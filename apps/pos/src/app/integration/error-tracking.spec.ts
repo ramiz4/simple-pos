@@ -35,7 +35,7 @@ describe('Error Tracking Integration', () => {
 
     errorHandler = TestBed.inject(GlobalErrorHandler);
     loggerService = TestBed.inject(LoggerService);
-    router = TestBed.inject(Router);
+    _router = TestBed.inject(Router);
   });
 
   describe('End-to-End Error Tracking', () => {

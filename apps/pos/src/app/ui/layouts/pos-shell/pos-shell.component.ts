@@ -239,10 +239,12 @@ export class PosShellComponent implements OnInit {
   }
 
   private setupMenu() {
-    const items = [
-      { label: 'New Order', path: '/pos' },
-      { label: 'Active Orders', path: '/active-orders' },
-    ];
+    const items = [];
+
+    if (this.authService.hasAnyRole([UserRoleEnum.CASHIER, UserRoleEnum.ADMIN])) {
+      items.push({ label: 'New Order', path: '/pos' });
+      items.push({ label: 'Active Orders', path: '/active-orders' });
+    }
 
     if (this.authService.hasAnyRole([UserRoleEnum.KITCHEN, UserRoleEnum.ADMIN])) {
       items.push({ label: 'Kitchen', path: '/kitchen' });

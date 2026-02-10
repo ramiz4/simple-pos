@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { AuthResponse, AuthUserResponse, LoginRequestDto, RefreshTokenDto } from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-@Controller('v1/auth')
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

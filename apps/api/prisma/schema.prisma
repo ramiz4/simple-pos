@@ -29,6 +29,8 @@ model Tenant {
   orders   Order[]
   customers Customer[]
   users    User[]
+  syncDocuments SyncDocument[]
+  syncConflicts SyncConflict[]
 
   @@map("tenants")
 }
@@ -139,4 +141,48 @@ model OrderItem {
 
   @@index([tenantId])
   @@map("order_items")
+}
+
+model SyncDocument {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @db.Uuid
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  entity         String
+  cloudId        String
+  localId        String?
+  deviceId       String?
+  data           Json
+  version        Int      @default(1)
+  isDeleted      Boolean  @default(false)
+  syncedAt       DateTime?
+  lastModifiedAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([tenantId, entity, cloudId])
+  @@index([tenantId, entity, updatedAt])
+  @@index([tenantId, entity, localId])
+  @@map("sync_documents")
+}
+
+model SyncConflict {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @db.Uuid
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  entity        String
+  cloudId       String
+  localId       String?
+  strategy      String
+  serverVersion Int
+  clientVersion Int
+  serverData    Json
+  clientData    Json
+  resolved      Boolean  @default(false)
+  resolvedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([tenantId, resolved, createdAt])
+  @@index([tenantId, entity, cloudId])
+  @@map("sync_conflicts")
 }

@@ -1,4 +1,6 @@
-export interface Order {
+import { SyncEntityMetadata } from './sync-metadata.interface';
+
+export interface Order extends SyncEntityMetadata {
   id: number;
   orderNumber: string;
   typeId: number; // FK to CodeTable (ORDER_TYPE)

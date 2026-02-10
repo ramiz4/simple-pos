@@ -194,14 +194,13 @@ pnpm run tauri:dev
 
 ### Frontend (Angular)
 
-- `pnpm start` - Start development server (web mode with IndexedDB)
-- `pnpm run build` - Build for production (web/PWA)
-- `pnpm run watch` - Watch mode for development
+- `pnpm dev:pos` - Start development server (web mode with IndexedDB)
+- `pnpm build:pos` - Build for production (web/PWA)
 
 ### Backend (NestJS)
 
-- `pnpm run api:serve` - Start NestJS API server (port 3000)
-- `pnpm run api:build` - Build NestJS API for production
+- `pnpm dev:api` - Start NestJS API server (port 3000)
+- `pnpm build:api` - Build NestJS API for production
 
 ### Full Stack
 
@@ -209,14 +208,18 @@ pnpm run tauri:dev
 
 ### Desktop (Tauri)
 
-- `pnpm run tauri` - Tauri CLI access
-- `pnpm run tauri:dev` - Start Tauri development (desktop mode with SQLite)
-- `pnpm run tauri:build` - Build native desktop application
+- `pnpm tauri` - Tauri CLI access
+- `pnpm dev:tauri` - Start Tauri development (desktop mode with SQLite)
+- `pnpm build:tauri` - Build native desktop application
 
 ### Testing & Quality
 
 - `pnpm test` - Run Vitest unit tests
-- `pnpm run db:reset` - Reset database (development only)
+- `pnpm test:ci` - Run tests with CI configuration
+- `pnpm test:ci:coverage` - Run tests with coverage reporting
+- `pnpm lint` - Run ESLint for code quality
+- `pnpm format` - Run Prettier for code formatting
+- `pnpm db:reset` - Reset database (development only)
 
 ## Testing the Persistence Layer
 

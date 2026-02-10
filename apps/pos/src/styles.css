@@ -125,6 +125,12 @@
   }
 }
 
+@layer utilities {
+  .z-9999 {
+    z-index: 9999;
+  }
+}
+
 @layer components {
   /* Screen Reader Only - for accessibility */
   .sr-only {

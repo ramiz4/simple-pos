@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
 import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
@@ -137,6 +138,12 @@ describe('AuthService', () => {
       sanitizeName: vi.fn((val: string) => val.trim()),
     };
 
+    // Mock CloudAuthClientService
+    const mockCloudAuthClientService = {
+      login: vi.fn(),
+      refresh: vi.fn(),
+    };
+
     // Configure TestBed
     TestBed.configureTestingModule({
       providers: [
@@ -147,6 +154,7 @@ describe('AuthService', () => {
         { provide: EnumMappingService, useValue: mockEnumMappingService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: InputSanitizerService, useValue: mockInputSanitizer },
+        { provide: CloudAuthClientService, useValue: mockCloudAuthClientService },
       ],
     });
 
