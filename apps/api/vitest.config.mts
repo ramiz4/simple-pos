@@ -1,3 +1,4 @@
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
@@ -5,6 +6,7 @@ export default defineConfig(() => ({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/apps/api',
   plugins: [
+    nxViteTsPaths(),
     swc.vite({
       module: { type: 'es6' },
     }),
