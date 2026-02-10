@@ -51,7 +51,7 @@ import { RouterModule } from '@angular/router';
 
       <!-- Content -->
       <span class="flex items-center justify-center gap-2" [class.opacity-0]="isLoading">
-        <ng-content select="[leftIcon], [lefticon], .left-icon, svg"></ng-content>
+        <ng-content select="[leftIcon], [lefticon], .left-icon"></ng-content>
         <span class="whitespace-nowrap">{{ label }}</span>
         <ng-content select="[rightIcon], [righticon], .right-icon"></ng-content>
         <ng-content></ng-content>

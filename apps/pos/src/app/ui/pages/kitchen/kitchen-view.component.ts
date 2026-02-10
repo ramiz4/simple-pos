@@ -161,7 +161,7 @@ interface KitchenOrder {
                 </div>
               </div>
 
-              <div class="p-4 space-y-4 max-h-100 overflow-y-auto">
+              <div class="p-4 space-y-4 max-h-96 overflow-y-auto">
                 @for (orderItem of order.items; track orderItem.item.id) {
                   <div
                     class="relative bg-white border border-gray-100 rounded-xl p-3 shadow-sm transition-all"
