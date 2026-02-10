@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   ConflictResolutionStrategy,
   ResolveConflictResponse,
@@ -114,7 +115,7 @@ export class SyncService {
               strategy,
               serverVersion: existing.version,
               clientVersion: change.version,
-              serverData: existing.data,
+              serverData: this.toInputJsonValue(existing.data),
               clientData: this.normalizeData(change.data, existing.cloudId, change.version),
             },
           });
@@ -281,7 +282,7 @@ export class SyncService {
     data: Record<string, unknown>,
     cloudId: string,
     version: number,
-  ): Record<string, unknown> {
+  ): Prisma.InputJsonValue {
     return {
       ...data,
       cloudId,
@@ -292,7 +293,7 @@ export class SyncService {
         typeof data['lastModifiedAt'] === 'string'
           ? data['lastModifiedAt']
           : new Date().toISOString(),
-    };
+    } as Prisma.InputJsonObject;
   }
 
   private asRecord(value: unknown): Record<string, unknown> {
@@ -306,5 +307,13 @@ export class SyncService {
     const record = this.asRecord(value);
     const ts = record['lastModifiedAt'];
     return typeof ts === 'string' ? ts : undefined;
+  }
+
+  private toInputJsonValue(value: Prisma.JsonValue | null): Prisma.InputJsonValue {
+    if (value === null) {
+      return {} as Prisma.InputJsonObject;
+    }
+
+    return value as Prisma.InputJsonValue;
   }
 }

@@ -47,11 +47,7 @@ import { SyncModeService } from './sync-mode.service';
 type EntityRecord = Record<string, unknown> & { id?: number | string };
 
 interface CrudRepository {
-  findAll(): Promise<EntityRecord[]>;
-  findById?(id: number): Promise<EntityRecord | null>;
-  create(entity: Omit<EntityRecord, 'id'>): Promise<EntityRecord> | Promise<void>;
-  update?(id: number, entity: Partial<EntityRecord>): Promise<EntityRecord>;
-  delete?(id: number): Promise<void>;
+  findAll(): Promise<unknown[]>;
 }
 
 interface SnapshotState {
@@ -311,7 +307,8 @@ export class SyncEngineService {
 
   private async getAllRecords(entity: SyncEntityName): Promise<EntityRecord[]> {
     const repo = this.getRepository(entity);
-    return repo.findAll();
+    const records = await repo.findAll();
+    return records.map((record, index) => this.ensureRecord(record, `${entity}:${index}`));
   }
 
   private getRepository(entity: SyncEntityName): CrudRepository {
@@ -381,33 +378,43 @@ export class SyncEngineService {
     data: Record<string, unknown>,
   ): Promise<void> {
     const repo = this.getRepository(entity);
+    const mutableRepo = repo as Partial<{
+      findById: (id: number) => Promise<unknown | null>;
+      create: (entity: Record<string, unknown>) => Promise<unknown> | Promise<void>;
+      update: (id: number, entity: Record<string, unknown>) => Promise<unknown>;
+    }>;
 
     if (entity === 'order_item_extra') {
       await this.applyOrderItemExtraChange(data);
       return;
     }
 
-    if (!repo.create || !repo.update) {
+    if (!mutableRepo.create || !mutableRepo.update) {
       return;
     }
 
     const numericId = this.asNumber(localId ?? data['id']);
     const payload = this.stripId(data);
 
-    if (numericId !== null && repo.findById) {
-      const existing = await repo.findById(numericId);
+    if (numericId !== null && mutableRepo.findById) {
+      const existing = await mutableRepo.findById(numericId);
       if (existing) {
-        await repo.update(numericId, payload);
+        await mutableRepo.update(numericId, payload);
         return;
       }
     }
 
-    await repo.create(payload);
+    await mutableRepo.create(payload);
   }
 
   private async applyOrderItemExtraChange(data: Record<string, unknown>): Promise<void> {
     const repo = this.getRepository('order_item_extra');
-    const all = await repo.findAll();
+    const mutableRepo = repo as Partial<{
+      create: (entity: { orderId: number; orderItemId: number; extraId: number }) => Promise<void>;
+    }>;
+    const all = (await repo.findAll()).map((record, index) =>
+      this.ensureRecord(record, `order_item_extra:${index}`),
+    );
 
     const orderId = this.asNumber(data['orderId']);
     const orderItemId = this.asNumber(data['orderItemId']);
@@ -424,8 +431,8 @@ export class SyncEngineService {
         this.asNumber(item['extraId']) === extraId,
     );
 
-    if (!exists) {
-      await repo.create({
+    if (!exists && mutableRepo.create) {
+      await mutableRepo.create({
         orderId,
         orderItemId,
         extraId,
@@ -435,34 +442,33 @@ export class SyncEngineService {
 
   private async applyRemoteDelete(entity: SyncEntityName, cloudId: string): Promise<void> {
     const repo = this.getRepository(entity);
-    const records = await repo.findAll();
+    const mutableRepo = repo as Partial<{
+      delete: (id: number) => Promise<void>;
+      deleteByOrderItemId: (id: number) => Promise<void>;
+    }>;
+    const records = (await repo.findAll()).map((record, index) =>
+      this.ensureRecord(record, `${entity}:${index}`),
+    );
     const matched = records.filter((record) => record['cloudId'] === cloudId);
 
     if (entity === 'order_item_extra') {
       for (const match of matched) {
         const orderItemId = this.asNumber(match['orderItemId']);
-        if (
-          orderItemId !== null &&
-          'deleteByOrderItemId' in repo &&
-          typeof (repo as { deleteByOrderItemId: (id: number) => Promise<void> })
-            .deleteByOrderItemId === 'function'
-        ) {
-          await (
-            repo as { deleteByOrderItemId: (id: number) => Promise<void> }
-          ).deleteByOrderItemId(orderItemId);
+        if (orderItemId !== null && typeof mutableRepo.deleteByOrderItemId === 'function') {
+          await mutableRepo.deleteByOrderItemId(orderItemId);
         }
       }
       return;
     }
 
-    if (!repo.delete) {
+    if (!mutableRepo.delete) {
       return;
     }
 
     for (const match of matched) {
       const id = this.asNumber(match.id);
       if (id !== null) {
-        await repo.delete(id);
+        await mutableRepo.delete(id);
       }
     }
   }
@@ -482,7 +488,7 @@ export class SyncEngineService {
     }
   }
 
-  private stripId(record: Record<string, unknown>): Omit<EntityRecord, 'id'> {
+  private stripId(record: Record<string, unknown>): Record<string, unknown> {
     const clone: Record<string, unknown> = { ...record };
     delete clone['id'];
     return clone;

@@ -398,9 +398,6 @@ export class AuthService {
     if (!this.cloudAuthClient) {
       return;
     }
-    if (typeof process !== 'undefined' && process.env['NODE_ENV'] === 'test') {
-      return;
-    }
 
     try {
       const response = await this.cloudAuthClient.login(email, password);

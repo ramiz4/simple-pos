@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { ConflictResolutionStrategy } from '@simple-pos/shared/types';
 import { PrismaService } from '../common/prisma/prisma.service';
 
@@ -48,7 +49,7 @@ export class ConflictResolutionService {
         await tx.syncDocument.update({
           where: { id: document.id },
           data: {
-            data: resolvedPayload,
+            data: this.toInputJsonValue(resolvedPayload),
             version: document.version + 1,
             syncedAt: new Date(),
             lastModifiedAt: new Date(),
@@ -116,5 +117,9 @@ export class ConflictResolutionService {
 
   private isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
+  }
+
+  private toInputJsonValue(value: Record<string, unknown>): Prisma.InputJsonValue {
+    return value as Prisma.InputJsonObject;
   }
 }

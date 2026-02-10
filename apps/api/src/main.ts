@@ -5,7 +5,10 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { config as loadEnv } from 'dotenv';
 import { AppModule } from './app/app.module';
+
+loadEnv({ path: 'apps/api/.env', quiet: true });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
