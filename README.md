@@ -1,13 +1,15 @@
 # Simple POS
 
-> 📊 **Version 1.16.0** - ✅ PRODUCTION READY (Nx Monorepo)
+> 📊 **Version 1.20.0** - ✅ PRODUCTION READY (Nx Monorepo + Backend API)
 > 🏗️ **[Architecture →](docs/architecture.md)** - Clean Architecture with Nx
 > 🤝 **[Contributing →](CONTRIBUTING.md)** - Automated releases with conventional commits
 > 🤖 **[GitHub Copilot Custom Agents →](.github/agents/README.md)** - AI-assisted development
 
 A modern, cross-platform Point-of-Sale system built with Angular 21, Tauri v2, Clean Architecture, and Nx Monorepo. Supports restaurant operations with dine-in, takeaway, and delivery orders, kitchen display, thermal printing, and automatic backups.
 
-## 🎯 Phase 0.5: Nx Monorepo Architecture
+## 🎯 Current Status
+
+### Phase 0.5: Nx Monorepo Architecture ✅
 
 The project has been successfully migrated to an **Nx monorepo** structure for improved maintainability and scalability:
 
@@ -16,6 +18,17 @@ The project has been successfully migrated to an **Nx monorepo** structure for i
 - **Benefits**: Path aliases, dependency graph, efficient builds, reusable code
 
 See [Nx Monorepo Migration Plan](docs/nx-monorepo-migration-plan.md) for details.
+
+### Phase 1: Backend Foundation ✅
+
+The backend API foundation has been successfully implemented:
+
+- **NestJS Backend**: RESTful API with PostgreSQL database
+- **Multi-Tenancy**: Row-Level Security (RLS) with tenant isolation
+- **JWT Authentication**: Secure authentication and authorization
+- **Core APIs**: Products, Orders, and Customers CRUD endpoints
+
+See [SaaS Transformation Guide](docs/saas-onprem-transformation.md) for the complete roadmap.
 
 ## Prerequisites
 
