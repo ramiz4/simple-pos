@@ -1,3 +1,15 @@
+# [1.21.0](https://github.com/ramiz4/simple-pos/compare/v1.20.0...v1.21.0) (2026-02-10)
+
+### Bug Fixes
+
+- **api,pos:** address PR review feedback on sync implementation ([#74](https://github.com/ramiz4/simple-pos/issues/74)) ([8714cad](https://github.com/ramiz4/simple-pos/commit/8714cad36d276cc4431b6e20a0dba155eff31ef6))
+- **api:** resolve build and lint errors in sync module and workspace ([988803b](https://github.com/ramiz4/simple-pos/commit/988803b789d1264814dad4d99dc9b6d281a820fb))
+- **pos:** resolve api and pos dev serve regressions ([04eeac6](https://github.com/ramiz4/simple-pos/commit/04eeac6402e89258bf7995e53baf4d061326a1d0))
+
+### Features
+
+- **pos:** implement phase 2 sync engine and cloud integration ([c11f03c](https://github.com/ramiz4/simple-pos/commit/c11f03cbff3d377c353447a6530b89c84b52f5da))
+
 # [1.20.0](https://github.com/ramiz4/simple-pos/compare/v1.19.0...v1.20.0) (2026-02-09)
 
 ### Features
