@@ -80,6 +80,7 @@ export class SyncService {
         const timestamp = this.parseTimestamp(change.timestamp);
 
         if (!existing) {
+          const effectiveVersion = Math.max(1, change.version);
           await tx.syncDocument.create({
             data: {
               tenantId,
@@ -87,8 +88,8 @@ export class SyncService {
               cloudId,
               localId,
               deviceId,
-              data: this.normalizeData(change.data, cloudId, change.version),
-              version: Math.max(1, change.version),
+              data: this.normalizeData(change.data, cloudId, effectiveVersion),
+              version: effectiveVersion,
               isDeleted: change.operation === 'DELETE',
               syncedAt: new Date(),
               lastModifiedAt: timestamp,
@@ -135,14 +136,15 @@ export class SyncService {
           continue;
         }
 
-        const mergedData = this.normalizeData(change.data, existing.cloudId, change.version + 1);
+        const nextVersion = Math.max(existing.version, change.version) + 1;
+        const mergedData = this.normalizeData(change.data, existing.cloudId, nextVersion);
         await tx.syncDocument.update({
           where: { id: existing.id },
           data: {
             localId,
             deviceId,
             data: mergedData,
-            version: Math.max(existing.version + 1, change.version),
+            version: nextVersion,
             isDeleted: change.operation === 'DELETE',
             syncedAt: new Date(),
             lastModifiedAt: timestamp,

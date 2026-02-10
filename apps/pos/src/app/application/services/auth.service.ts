@@ -415,23 +415,30 @@ export class AuthService {
 
   private setCloudSession(session: CloudSession): void {
     this.cloudSession = session;
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(this.CLOUD_SESSION_STORAGE_KEY, JSON.stringify(session));
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      // Store only access token in sessionStorage, exclude refresh token for security
+      const { refreshToken: _, ...sessionToPersist } = session;
+      sessionStorage.setItem(this.CLOUD_SESSION_STORAGE_KEY, JSON.stringify(sessionToPersist));
     }
   }
 
   private loadCloudSessionFromStorage(): void {
-    if (typeof window === 'undefined' || !window.localStorage) {
+    if (typeof window === 'undefined' || !window.sessionStorage) {
       return;
     }
 
-    const stored = localStorage.getItem(this.CLOUD_SESSION_STORAGE_KEY);
+    const stored = sessionStorage.getItem(this.CLOUD_SESSION_STORAGE_KEY);
     if (!stored) {
       return;
     }
 
     try {
-      this.cloudSession = JSON.parse(stored) as CloudSession;
+      const partialSession = JSON.parse(stored) as Omit<CloudSession, 'refreshToken'>;
+      // Restore partial session without refresh token
+      this.cloudSession = {
+        ...partialSession,
+        refreshToken: '', // Refresh token not persisted for security
+      };
     } catch {
       this.clearCloudSession();
     }
@@ -439,8 +446,8 @@ export class AuthService {
 
   private clearCloudSession(): void {
     this.cloudSession = null;
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem(this.CLOUD_SESSION_STORAGE_KEY);
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.removeItem(this.CLOUD_SESSION_STORAGE_KEY);
     }
   }
 
