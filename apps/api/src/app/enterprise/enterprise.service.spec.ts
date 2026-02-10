@@ -93,6 +93,7 @@ describe('EnterpriseService', () => {
     });
 
     const result = await service.verifyCustomDomain('tenant-1', {
+      token: 'spv_token',
       verifyDns: true,
     });
 

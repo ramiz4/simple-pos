@@ -318,6 +318,11 @@ export class SsoService {
       throw new UnauthorizedException('Invalid or expired OAuth state token');
     }
 
+    // Validate payload shape (ensure it's actually an SSO state token)
+    if (!statePayload || !statePayload.tid || !statePayload.pid || !statePayload.uri) {
+      throw new UnauthorizedException('Malformed OAuth state token');
+    }
+
     // Reconstruct context from JWT payload
     const stateContext: OAuthStateContext = {
       tenantId: statePayload.tid,
