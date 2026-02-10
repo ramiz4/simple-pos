@@ -1077,8 +1077,8 @@ Successfully implemented the complete backend foundation with NestJS in the Nx m
 **Key Achievements:**
 
 - **Database**: PostgreSQL with automated RLS policies enforcing tenant isolation
-- **API Modules**: Products, Orders, Customers, Auth, and Tenants modules with controllers and services
-- **Security**: JWT-based authentication with tenant context middleware (`X-Tenant-ID` header)
+- **API Modules**: Products, Orders, Customers, and Auth modules with controllers and services
+- **Multi-Tenancy & Security**: JWT-based authentication with tenant context middleware (`X-Tenant-ID` header), `@TenantId()` decorator, and PostgreSQL RLS policies (no dedicated Tenants API module)
 - **Testing**: Unit tests added for Products, Orders, Customers, and Auth controllers and services
 - **Documentation**: API README with setup instructions and multi-tenancy usage examples
 
