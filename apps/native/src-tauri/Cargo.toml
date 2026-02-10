@@ -1,6 +1,6 @@
 [package]
 name = "simple-pos"
-version = "1.21.0"
+version = "1.22.0"
 description = "Simple POS System"
 authors = ["you"]
 edition = "2021"

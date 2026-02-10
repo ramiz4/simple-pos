@@ -1,3 +1,9 @@
+# [1.22.0](https://github.com/ramiz4/simple-pos/compare/v1.21.0...v1.22.0) (2026-02-10)
+
+### Features
+
+- **api:** implement phase 3 saas platform ([6f671ad](https://github.com/ramiz4/simple-pos/commit/6f671ad72cb5f9a248a1f1bc532f3e20d31bdc18))
+
 # [1.21.0](https://github.com/ramiz4/simple-pos/compare/v1.20.0...v1.21.0) (2026-02-10)
 
 ### Bug Fixes
