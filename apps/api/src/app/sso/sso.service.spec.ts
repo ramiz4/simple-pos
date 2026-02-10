@@ -1,4 +1,5 @@
 import { UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../auth/auth.service';
 import { PrismaService } from '../common/prisma/prisma.service';
@@ -23,6 +24,10 @@ describe('SsoService', () => {
   };
   let auth: {
     issueSessionForUserId: ReturnType<typeof vi.fn>;
+  };
+  let jwt: {
+    verify: ReturnType<typeof vi.fn>;
+    sign: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -49,6 +54,11 @@ describe('SsoService', () => {
       }),
     };
 
+    jwt = {
+      verify: vi.fn(),
+      sign: vi.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SsoService,
@@ -59,6 +69,10 @@ describe('SsoService', () => {
         {
           provide: AuthService,
           useValue: auth,
+        },
+        {
+          provide: JwtService,
+          useValue: jwt,
         },
       ],
     }).compile();
@@ -132,6 +146,13 @@ describe('SsoService', () => {
     await expect(service.oauthCallback('provider-1', 'code', 'missing-state')).rejects.toThrow(
       UnauthorizedException,
     );
+  });
+
+  it('should reject malformed oauth state payload', async () => {
+    jwt.verify.mockReturnValue({ sub: 'user-123' }); // Missing tid, pid, uri
+    await expect(
+      service.oauthCallback('provider-1', 'code', 'valid-jwt-but-wrong-payload'),
+    ).rejects.toThrow(UnauthorizedException);
   });
 
   it('should authenticate saml assertion and auto-provision user', async () => {

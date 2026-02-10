@@ -5,8 +5,9 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import type { Prisma } from '@prisma/client';
-import { randomBytes } from 'crypto';
+
 import { AuthService } from '../auth/auth.service';
 import { AuthResponse } from '../auth/dto';
 import { PrismaService } from '../common/prisma/prisma.service';
@@ -33,6 +34,13 @@ interface OAuthStateContext {
   expiresAt: number;
 }
 
+interface OAuthStatePayload {
+  tid: string; // tenantId
+  pid: string; // providerId
+  uri: string; // redirectUri
+  exp: number; // expiresAt (Unix timestamp)
+}
+
 interface NormalizedSsoUser {
   email: string;
   firstName: string;
@@ -50,12 +58,12 @@ interface JsonObject {
 
 @Injectable()
 export class SsoService {
-  private readonly oauthStateTtlMs = 10 * 60 * 1000;
-  private readonly oauthStateStore = new Map<string, OAuthStateContext>();
+  private readonly oauthStateTtlMs = 10 * 60 * 1000; // 10 minutes
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async listProviders(tenantId: string) {
@@ -260,21 +268,21 @@ export class SsoService {
     providerId: string,
     dto: OauthAuthorizeRequestDto,
   ) {
-    this.cleanupExpiredStates();
-
     const provider = await this.findTenantProvider(tenantId, providerId);
     this.assertOauthProvider(provider);
 
     const redirectUri = this.resolveRedirectUri(dto.redirectUri, provider.callbackUrl);
 
-    const state = randomBytes(24).toString('hex');
+    // Create stateless JWT-based state (works across multiple replicas)
     const expiresAt = Date.now() + this.oauthStateTtlMs;
-    this.oauthStateStore.set(state, {
-      tenantId,
-      providerId,
-      redirectUri,
-      expiresAt,
-    });
+    const statePayload: OAuthStatePayload = {
+      tid: tenantId,
+      pid: providerId,
+      uri: redirectUri,
+      exp: Math.floor(expiresAt / 1000), // Convert to Unix timestamp in seconds
+    };
+
+    const state = this.jwtService.sign(statePayload);
 
     const params = new URLSearchParams({
       response_type: 'code',
@@ -294,8 +302,6 @@ export class SsoService {
   }
 
   async oauthCallback(providerId: string, code: string, state: string): Promise<AuthResponse> {
-    this.cleanupExpiredStates();
-
     if (!code?.trim()) {
       throw new BadRequestException('OAuth callback code is required');
     }
@@ -304,10 +310,28 @@ export class SsoService {
       throw new BadRequestException('OAuth callback state is required');
     }
 
-    const stateContext = this.oauthStateStore.get(state);
-    this.oauthStateStore.delete(state);
+    // Verify and decode JWT state (stateless, works across replicas)
+    let statePayload: OAuthStatePayload;
+    try {
+      statePayload = this.jwtService.verify<OAuthStatePayload>(state);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired OAuth state token');
+    }
 
-    if (!stateContext || stateContext.expiresAt < Date.now()) {
+    // Validate payload shape (ensure it's actually an SSO state token)
+    if (!statePayload || !statePayload.tid || !statePayload.pid || !statePayload.uri) {
+      throw new UnauthorizedException('Malformed OAuth state token');
+    }
+
+    // Reconstruct context from JWT payload
+    const stateContext: OAuthStateContext = {
+      tenantId: statePayload.tid,
+      providerId: statePayload.pid,
+      redirectUri: statePayload.uri,
+      expiresAt: statePayload.exp * 1000, // Convert back to milliseconds
+    };
+
+    if (stateContext.expiresAt < Date.now()) {
       throw new UnauthorizedException('OAuth state is invalid or expired');
     }
 
@@ -349,8 +373,9 @@ export class SsoService {
       throw new UnauthorizedException('SAML assertion tenant mismatch');
     }
 
-    if (provider.clientSecret && provider.clientSecret !== (sharedSecret ?? '')) {
-      throw new UnauthorizedException('Invalid SSO assertion shared secret');
+    // Require shared secret for SAML assertion authentication
+    if (!provider.clientSecret || provider.clientSecret !== (sharedSecret ?? '')) {
+      throw new UnauthorizedException('Invalid or missing SSO assertion shared secret');
     }
 
     const normalizedProfile: NormalizedSsoUser = {
@@ -895,16 +920,6 @@ export class SsoService {
       return {
         message: body,
       };
-    }
-  }
-
-  private cleanupExpiredStates() {
-    const now = Date.now();
-
-    for (const [state, context] of this.oauthStateStore.entries()) {
-      if (context.expiresAt <= now) {
-        this.oauthStateStore.delete(state);
-      }
     }
   }
 }

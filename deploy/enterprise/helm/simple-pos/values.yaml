@@ -10,7 +10,7 @@ api:
   replicaCount: 2
   image:
     repository: simplepos/api
-    tag: latest
+    tag: 1.22.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -36,7 +36,7 @@ pos:
   replicaCount: 2
   image:
     repository: simplepos/pos
-    tag: latest
+    tag: 1.22.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP

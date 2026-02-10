@@ -83,6 +83,11 @@ export class SsoController {
     return this.ssoService.oauthCallback(providerId, code, state);
   }
 
+  /**
+   * SAML assertion endpoint - called by external IdP systems.
+   * Authentication is enforced via mandatory shared secret validation in the service layer.
+   * Do not add JWT guards as this must be accessible to external SAML providers.
+   */
   @Post('saml/:providerId/assertion')
   @HttpCode(HttpStatus.OK)
   samlAssertion(

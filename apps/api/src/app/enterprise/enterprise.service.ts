@@ -137,8 +137,9 @@ export class EnterpriseService {
       throw new BadRequestException('Custom domain verification token is missing');
     }
 
-    if (dto.token && dto.token.trim() !== expectedToken) {
-      throw new BadRequestException('Provided verification token does not match');
+    // Require verification token to be provided
+    if (!dto.token || dto.token.trim() !== expectedToken) {
+      throw new BadRequestException('Provided verification token does not match or is missing');
     }
 
     const shouldVerifyDns = dto.verifyDns ?? true;
