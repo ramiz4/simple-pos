@@ -1,8 +1,18 @@
-import { Injectable, Logger, OnModuleDestroy, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ValidationUtils } from '@simple-pos/shared/utils';
 import * as bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../common/prisma/prisma.service';
-import { AuthResponse, AuthUserResponse } from './dto';
+import { getTenantPlanConfig, normalizeTenantPlan } from '../tenants/tenant-plan.config';
+import { AuthResponse, AuthTenantResponse, AuthUserResponse, RegisterRequestDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { getJwtRefreshSecret } from './jwt-config';
 
@@ -15,6 +25,36 @@ interface StoredUser {
   tenantId: string;
   active: boolean;
 }
+
+const PERMISSIONS_BY_ROLE: Record<string, string[]> = {
+  ADMIN: [
+    'products:create',
+    'products:read',
+    'products:update',
+    'products:delete',
+    'orders:create',
+    'orders:read',
+    'orders:update',
+    'orders:delete',
+    'users:create',
+    'users:read',
+    'users:update',
+    'users:delete',
+    'reports:read',
+    'settings:update',
+  ],
+  CASHIER: ['products:read', 'orders:create', 'orders:read', 'orders:update', 'tables:read'],
+  KITCHEN: ['products:read', 'orders:read', 'orders:update', 'kitchen:read'],
+  DRIVER: ['orders:read', 'delivery:read'],
+  SUPER_ADMIN: [
+    'admin:tenants:read',
+    'admin:tenants:update',
+    'admin:billing:read',
+    'admin:billing:update',
+    'admin:analytics:read',
+    'admin:usage:read',
+  ],
+};
 
 @Injectable()
 export class AuthService implements OnModuleDestroy {
@@ -52,14 +92,122 @@ export class AuthService implements OnModuleDestroy {
     }
   }
 
-  async login(email: string, password: string): Promise<AuthResponse> {
-    const user = await this.validateUser(email, password);
-
-    const tokens = await this.generateTokens(user);
+  async login(email: string, password: string, tenantId?: string): Promise<AuthResponse> {
+    const user = await this.validateUser(email, password, tenantId);
+    const permissions = this.resolvePermissions(user.role);
+    const tokens = await this.generateTokens(user, permissions);
 
     return {
       ...tokens,
       user: this.mapUserResponse(user),
+      permissions,
+    };
+  }
+
+  async register(registerDto: RegisterRequestDto): Promise<AuthResponse> {
+    this.validateRegisterDto(registerDto);
+
+    const normalizedSubdomain = this.normalizeSubdomain(registerDto.subdomain);
+    const normalizedPlan = normalizeTenantPlan('FREE');
+    const planConfig = getTenantPlanConfig(normalizedPlan);
+
+    const [existingTenant, existingUser] = await Promise.all([
+      this.prisma.tenant.findUnique({
+        where: {
+          subdomain: normalizedSubdomain,
+        },
+        select: {
+          id: true,
+        },
+      }),
+      this.prisma.user.findUnique({
+        where: {
+          email: registerDto.email.toLowerCase(),
+        },
+        select: {
+          id: true,
+        },
+      }),
+    ]);
+
+    if (existingTenant) {
+      throw new ConflictException(`Subdomain '${normalizedSubdomain}' is already in use`);
+    }
+
+    if (existingUser) {
+      throw new ConflictException(`Email '${registerDto.email}' is already registered`);
+    }
+
+    const passwordHash = await bcrypt.hash(registerDto.password, 10);
+    const apiKeyBundle = await this.generateApiKeyBundle();
+    const trialEndsAt = new Date(Date.now() + planConfig.trialDays * 24 * 60 * 60 * 1000);
+
+    const { tenant, user, apiKey } = await this.prisma.$transaction(async (tx) => {
+      const createdTenant = await tx.tenant.create({
+        data: {
+          name: registerDto.businessName.trim(),
+          subdomain: normalizedSubdomain,
+          plan: normalizedPlan,
+          status: 'TRIAL',
+          trialEndsAt,
+          maxUsers: planConfig.maxUsers,
+          maxLocations: planConfig.maxLocations,
+          maxDevices: planConfig.maxDevices,
+          features: planConfig.features,
+          settings: {
+            timezone: registerDto.timezone ?? 'UTC',
+            currency: registerDto.currency ?? 'USD',
+            language: registerDto.language ?? 'en',
+            taxRate: registerDto.taxRate ?? 0,
+          },
+          billingInfo: {
+            email: registerDto.email.toLowerCase(),
+          },
+        },
+      });
+
+      const createdUser = await tx.user.create({
+        data: {
+          tenantId: createdTenant.id,
+          email: registerDto.email.toLowerCase(),
+          firstName: registerDto.ownerFirstName.trim(),
+          lastName: registerDto.ownerLastName.trim(),
+          role: 'ADMIN',
+          password: passwordHash,
+        },
+      });
+
+      const createdApiKey = await tx.tenantApiKey.create({
+        data: {
+          tenantId: createdTenant.id,
+          name: 'default',
+          keyPrefix: apiKeyBundle.keyPrefix,
+          keyHash: apiKeyBundle.keyHash,
+        },
+      });
+
+      return {
+        tenant: createdTenant,
+        user: createdUser,
+        apiKey: createdApiKey,
+      };
+    });
+
+    const storedUser = this.toStoredUser(user);
+    const permissions = this.resolvePermissions(storedUser.role);
+    const tokens = await this.generateTokens(storedUser, permissions);
+
+    return {
+      ...tokens,
+      user: this.mapUserResponse(storedUser),
+      tenant: this.mapTenantResponse(tenant),
+      permissions,
+      apiKey: {
+        id: apiKey.id,
+        name: apiKey.name,
+        key: apiKeyBundle.rawKey,
+        keyPrefix: apiKey.keyPrefix,
+      },
     };
   }
 
@@ -80,7 +228,6 @@ export class AuthService implements OnModuleDestroy {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
 
-    // Remove old refresh token
     this.refreshTokens.delete(refreshToken);
 
     const user = await this.findUserById(payload.sub);
@@ -88,11 +235,13 @@ export class AuthService implements OnModuleDestroy {
       throw new UnauthorizedException('User not found or inactive');
     }
 
-    const tokens = await this.generateTokens(user);
+    const permissions = this.resolvePermissions(user.role);
+    const tokens = await this.generateTokens(user, permissions);
 
     return {
       ...tokens,
       user: this.mapUserResponse(user),
+      permissions,
     };
   }
 
@@ -114,10 +263,22 @@ export class AuthService implements OnModuleDestroy {
     return this.findUserById(payload.sub);
   }
 
-  private async validateUser(email: string, password: string): Promise<StoredUser> {
+  private async validateUser(
+    email: string,
+    password: string,
+    tenantId?: string,
+  ): Promise<StoredUser> {
+    if (tenantId && !ValidationUtils.isUuid(tenantId)) {
+      throw new BadRequestException('Invalid tenant context');
+    }
+
     const user = await this.findUserByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (tenantId && user.tenantId !== tenantId) {
+      throw new UnauthorizedException('Invalid tenant context for provided credentials');
     }
 
     if (!user.active) {
@@ -138,12 +299,14 @@ export class AuthService implements OnModuleDestroy {
 
   private async generateTokens(
     user: StoredUser,
+    permissions: string[],
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       role: user.role,
       tenantId: user.tenantId,
+      permissions,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
@@ -154,7 +317,6 @@ export class AuthService implements OnModuleDestroy {
       }),
     ]);
 
-    // Store refresh token with expiry (30 days)
     this.refreshTokens.set(refreshToken, {
       userId: user.id,
       expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
@@ -173,13 +335,97 @@ export class AuthService implements OnModuleDestroy {
     };
   }
 
+  private mapTenantResponse(tenant: {
+    id: string;
+    name: string;
+    subdomain: string;
+    plan: string;
+    status: string;
+    trialEndsAt: Date | null;
+  }): AuthTenantResponse {
+    return {
+      id: tenant.id,
+      name: tenant.name,
+      subdomain: tenant.subdomain,
+      plan: tenant.plan,
+      status: tenant.status,
+      trialEndsAt: tenant.trialEndsAt?.toISOString(),
+    };
+  }
+
+  private validateRegisterDto(registerDto: RegisterRequestDto): void {
+    if (!registerDto.businessName?.trim()) {
+      throw new BadRequestException('Business name is required');
+    }
+
+    if (!registerDto.subdomain?.trim()) {
+      throw new BadRequestException('Subdomain is required');
+    }
+
+    if (!registerDto.ownerFirstName?.trim() || !registerDto.ownerLastName?.trim()) {
+      throw new BadRequestException('Owner first and last name are required');
+    }
+
+    if (!registerDto.email?.trim()) {
+      throw new BadRequestException('Email is required');
+    }
+
+    if (!registerDto.password || registerDto.password.length < 8) {
+      throw new BadRequestException('Password must be at least 8 characters long');
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerDto.email)) {
+      throw new BadRequestException('Invalid email format');
+    }
+
+    if (registerDto.taxRate !== undefined && registerDto.taxRate < 0) {
+      throw new BadRequestException('Tax rate cannot be negative');
+    }
+  }
+
+  private normalizeSubdomain(subdomain: string): string {
+    const normalized = subdomain.trim().toLowerCase();
+
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalized)) {
+      throw new BadRequestException(
+        'Subdomain can only contain lowercase letters, numbers, and single hyphens',
+      );
+    }
+
+    if (normalized.length < 3 || normalized.length > 63) {
+      throw new BadRequestException('Subdomain length must be between 3 and 63 characters');
+    }
+
+    return normalized;
+  }
+
+  private async generateApiKeyBundle(): Promise<{
+    rawKey: string;
+    keyPrefix: string;
+    keyHash: string;
+  }> {
+    const rawKey = `spk_${randomBytes(24).toString('hex')}`;
+    const keyPrefix = rawKey.slice(0, 12);
+    const keyHash = await bcrypt.hash(rawKey, 10);
+    return {
+      rawKey,
+      keyPrefix,
+      keyHash,
+    };
+  }
+
+  private resolvePermissions(role: string): string[] {
+    return PERMISSIONS_BY_ROLE[role] ?? [];
+  }
+
   getRefreshTokenSecret(): string {
     return getJwtRefreshSecret();
   }
 
   async findUserByEmail(email: string): Promise<StoredUser | null> {
     const user = await this.prisma.user.findUnique({
-      where: { email },
+      where: { email: email.toLowerCase() },
     });
 
     if (!user) {

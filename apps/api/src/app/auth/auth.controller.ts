@@ -9,7 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthResponse, AuthUserResponse, LoginRequestDto, RefreshTokenDto } from './dto';
+import {
+  AuthResponse,
+  AuthUserResponse,
+  LoginRequestDto,
+  RefreshTokenDto,
+  RegisterRequestDto,
+} from './dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
@@ -19,7 +25,13 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() loginDto: LoginRequestDto): Promise<AuthResponse> {
-    return this.authService.login(loginDto.email, loginDto.password);
+    return this.authService.login(loginDto.email, loginDto.password, loginDto.tenantId);
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  async register(@Body() registerDto: RegisterRequestDto): Promise<AuthResponse> {
+    return this.authService.register(registerDto);
   }
 
   @Post('refresh')

@@ -13,7 +13,11 @@ model Tenant {
   customDomain       String?
   plan               String    @default("FREE")
   status             String    @default("ACTIVE")
+  stripeCustomerId   String?   @unique
+  stripeSubscriptionId String? @unique
+  subscriptionStatus String?
   trialEndsAt        DateTime?
+  currentPeriodEndsAt DateTime?
   subscriptionEndsAt DateTime?
   maxUsers           Int       @default(2)
   maxLocations       Int       @default(1)
@@ -31,8 +35,43 @@ model Tenant {
   users    User[]
   syncDocuments SyncDocument[]
   syncConflicts SyncConflict[]
+  apiKeys  TenantApiKey[]
+  billingEvents BillingEvent[]
 
   @@map("tenants")
+}
+
+model TenantApiKey {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @db.Uuid
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name        String
+  keyPrefix   String
+  keyHash     String
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([tenantId, revokedAt])
+  @@index([keyPrefix])
+  @@map("tenant_api_keys")
+}
+
+model BillingEvent {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String?  @db.Uuid
+  tenant        Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  stripeEventId String   @unique
+  eventType     String
+  livemode      Boolean  @default(false)
+  payload       Json
+  processedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId, processedAt])
+  @@index([eventType, processedAt])
+  @@map("billing_events")
 }
 
 model User {

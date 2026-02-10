@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 describe('AuthService', () => {
   let service: AuthService;
   let jwtService: JwtService;
+  let prismaService: PrismaService;
 
   const mockUser = {
     id: 'user-uuid-1',
@@ -38,6 +39,13 @@ describe('AuthService', () => {
             user: {
               findUnique: vi.fn(),
             },
+            tenant: {
+              findUnique: vi.fn(),
+            },
+            tenantApiKey: {
+              create: vi.fn(),
+            },
+            $transaction: vi.fn(),
           },
         },
       ],
@@ -45,6 +53,7 @@ describe('AuthService', () => {
 
     service = module.get<AuthService>(AuthService);
     jwtService = module.get<JwtService>(JwtService);
+    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -84,6 +93,14 @@ describe('AuthService', () => {
       );
     });
 
+    it('should throw UnauthorizedException when tenant context mismatches user tenant', async () => {
+      vi.spyOn(service, 'findUserByEmail').mockResolvedValue(mockUser);
+
+      await expect(
+        service.login('test@example.com', 'password123', '550e8400-e29b-41d4-a716-446655440001'),
+      ).rejects.toThrow(UnauthorizedException);
+    });
+
     it('should return tokens and user on successful login', async () => {
       vi.spyOn(service, 'findUserByEmail').mockResolvedValue(mockUser);
 
@@ -106,6 +123,73 @@ describe('AuthService', () => {
       await service.login('test@example.com', 'password123');
 
       expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('register', () => {
+    it('should create tenant, owner user, and api key', async () => {
+      const tenant = {
+        id: 'tenant-new-1',
+        name: 'Test Business',
+        subdomain: 'test-business',
+        plan: 'FREE',
+        status: 'TRIAL',
+        trialEndsAt: new Date(),
+      };
+      const user = {
+        id: 'user-new-1',
+        tenantId: 'tenant-new-1',
+        firstName: 'Owner',
+        lastName: 'User',
+        email: 'owner@test.com',
+        password: await bcrypt.hash('password123', 10),
+        role: 'ADMIN',
+      };
+      const apiKey = {
+        id: 'key-1',
+        name: 'default',
+        keyPrefix: 'spk_12345678',
+      };
+
+      const transactionMock = {
+        tenant: {
+          create: vi.fn().mockResolvedValue(tenant),
+        },
+        user: {
+          create: vi.fn().mockResolvedValue(user),
+        },
+        tenantApiKey: {
+          create: vi.fn().mockResolvedValue(apiKey),
+        },
+      };
+
+      const prismaMock = prismaService as unknown as {
+        tenant: { findUnique: ReturnType<typeof vi.fn> };
+        user: { findUnique: ReturnType<typeof vi.fn> };
+        $transaction: ReturnType<typeof vi.fn>;
+      };
+
+      prismaMock.tenant.findUnique.mockResolvedValueOnce(null);
+      prismaMock.user.findUnique.mockResolvedValueOnce(null);
+      prismaMock.$transaction.mockImplementation(
+        (callback: (tx: typeof transactionMock) => unknown) => callback(transactionMock),
+      );
+
+      const result = await service.register({
+        businessName: 'Test Business',
+        subdomain: 'test-business',
+        ownerFirstName: 'Owner',
+        ownerLastName: 'User',
+        email: 'owner@test.com',
+        password: 'password123',
+      });
+
+      expect(result.user.email).toBe('owner@test.com');
+      expect(result.tenant?.subdomain).toBe('test-business');
+      expect(result.apiKey?.key.startsWith('spk_')).toBe(true);
+      expect(transactionMock.tenant.create).toHaveBeenCalledTimes(1);
+      expect(transactionMock.user.create).toHaveBeenCalledTimes(1);
+      expect(transactionMock.tenantApiKey.create).toHaveBeenCalledTimes(1);
     });
   });
 

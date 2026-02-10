@@ -62,3 +62,28 @@ findAll(@Req() req: Request) {
 ## Configuration
 
 Check `apps/api/.env` for database connection details.
+
+## Phase 3 SaaS Modules
+
+The API now includes the core SaaS platform modules:
+
+- `POST /api/v1/auth/register` - Tenant onboarding (tenant + owner + default API key)
+- `GET /api/v1/tenants/me` and `PATCH /api/v1/tenants/me` - Tenant management
+- `POST /api/v1/subscriptions/checkout-session` - Stripe checkout session creation
+- `POST /api/v1/subscriptions/portal-session` - Stripe billing portal session
+- `POST /api/v1/subscriptions/webhook` - Stripe webhook ingestion
+- `GET /api/v1/analytics/*` - Tenant analytics dashboard/sales/products/staff
+- `GET /api/v1/admin/*` - Super-admin tenant controls and platform usage analytics
+
+### Additional Environment Variables
+
+```bash
+JWT_REFRESH_SECRET=change_me_to_a_secure_refresh_secret
+BASE_DOMAIN=localhost
+
+STRIPE_SECRET_KEY=sk_test_change_me
+STRIPE_WEBHOOK_SECRET=whsec_change_me
+STRIPE_PRICE_BASIC=price_basic_change_me
+STRIPE_PRICE_PRO=price_pro_change_me
+STRIPE_PRICE_ENTERPRISE=price_enterprise_change_me
+```

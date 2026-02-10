@@ -1,41 +1,81 @@
 import { BadRequestException, Injectable, NestMiddleware } from '@nestjs/common';
+import { ValidationUtils } from '@simple-pos/shared/utils';
 import { NextFunction, Request, Response } from 'express';
+import { PrismaService } from '../common/prisma/prisma.service';
+import { parseHostContext } from './tenant-host.utils';
+
+interface CachedTenantContext {
+  tenantId: string;
+  expiresAt: number;
+}
 
 // Extend Express Request
 declare module 'express' {
   interface Request {
     tenantId?: string;
+    tenantSubdomain?: string;
+    isAdminHost?: boolean;
   }
 }
 
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
-  use(req: Request, _res: Response, next: NextFunction) {
-    // 1. Try header
+  private readonly cacheTtlMs = 5 * 60 * 1000;
+  private readonly tenantContextCache = new Map<string, CachedTenantContext>();
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  async use(req: Request, _res: Response, next: NextFunction): Promise<void> {
     const tenantIdHeader = req.headers['x-tenant-id'];
     if (tenantIdHeader) {
       const tenantId = Array.isArray(tenantIdHeader) ? tenantIdHeader[0] : tenantIdHeader;
 
-      // Validate UUID format to prevent database errors/SQL injection attempts
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(tenantId)) {
+      if (!ValidationUtils.isUuid(tenantId)) {
         throw new BadRequestException('Invalid X-Tenant-ID header format. Must be a valid UUID.');
       }
 
       req.tenantId = tenantId;
-      return next();
+      req.isAdminHost = false;
+      next();
+      return;
     }
 
-    // 2. Try subdomain (simplified logic)
-    const host = req.headers.host;
-    if (host) {
-      // logic to extract subdomain: tenant.domain.com
-      // This requires config about base domain. Skipping for basic setup.
-    }
+    const hostHeader = req.headers.host;
+    const baseDomain = process.env['BASE_DOMAIN'] ?? 'localhost';
+    const hostContext = parseHostContext(hostHeader, baseDomain);
+    req.isAdminHost = hostContext.isAdminHost;
 
-    // For now, allow requests without tenant (e.g. public endpoints or admin),
-    // simply don't set the ID.
-    // Guards should enforce presence if needed.
+    if (hostContext.tenantSubdomain) {
+      req.tenantSubdomain = hostContext.tenantSubdomain;
+
+      const cached = this.tenantContextCache.get(hostContext.tenantSubdomain);
+      if (cached && cached.expiresAt > Date.now()) {
+        req.tenantId = cached.tenantId;
+        next();
+        return;
+      }
+
+      const tenant = await this.prisma.tenant.findUnique({
+        where: {
+          subdomain: hostContext.tenantSubdomain,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      if (!tenant) {
+        throw new BadRequestException(
+          `Unknown tenant subdomain: ${hostContext.tenantSubdomain}. Provide X-Tenant-ID header or use a valid tenant host.`,
+        );
+      }
+
+      req.tenantId = tenant.id;
+      this.tenantContextCache.set(hostContext.tenantSubdomain, {
+        tenantId: tenant.id,
+        expiresAt: Date.now() + this.cacheTtlMs,
+      });
+    }
 
     next();
   }

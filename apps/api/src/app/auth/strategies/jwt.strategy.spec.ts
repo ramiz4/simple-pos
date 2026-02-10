@@ -54,6 +54,7 @@ describe('JwtStrategy', () => {
         email: 'test@example.com',
         role: 'ADMIN',
         tenantId: 'tenant-uuid-1',
+        permissions: [],
       });
     });
 

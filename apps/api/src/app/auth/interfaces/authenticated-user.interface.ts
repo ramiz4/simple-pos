@@ -3,4 +3,5 @@ export interface AuthenticatedUser {
   email: string;
   role: string;
   tenantId: string;
+  permissions?: string[];
 }

@@ -26,6 +26,7 @@ describe('AuthController', () => {
           provide: AuthService,
           useValue: {
             login: vi.fn().mockResolvedValue(mockAuthResponse),
+            register: vi.fn().mockResolvedValue(mockAuthResponse),
             refreshToken: vi.fn().mockResolvedValue(mockAuthResponse),
             getProfile: vi.fn().mockResolvedValue(mockAuthResponse.user),
             logout: vi.fn(),
@@ -48,7 +49,25 @@ describe('AuthController', () => {
 
       const result = await controller.login(dto);
 
-      expect(authService.login).toHaveBeenCalledWith(dto.email, dto.password);
+      expect(authService.login).toHaveBeenCalledWith(dto.email, dto.password, undefined);
+      expect(result).toEqual(mockAuthResponse);
+    });
+  });
+
+  describe('register', () => {
+    it('should call authService.register with correct payload', async () => {
+      const dto = {
+        businessName: 'Test Business',
+        subdomain: 'test-business',
+        ownerFirstName: 'Test',
+        ownerLastName: 'Owner',
+        email: 'owner@test.com',
+        password: 'password123',
+      };
+
+      const result = await controller.register(dto);
+
+      expect(authService.register).toHaveBeenCalledWith(dto);
       expect(result).toEqual(mockAuthResponse);
     });
   });
