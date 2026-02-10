@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { AuthResponse, AuthUserResponse } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { getJwtRefreshSecret } from './jwt-config';
@@ -23,7 +24,10 @@ export class AuthService implements OnModuleDestroy {
   private readonly refreshTokens = new Map<string, { userId: string; expiresAt: number }>();
   private cleanupTimer: ReturnType<typeof setInterval> | null = null;
 
-  constructor(private readonly jwtService: JwtService) {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+  ) {
     this.cleanupTimer = setInterval(() => this.cleanupExpiredTokens(), this.CLEANUP_INTERVAL_MS);
   }
 
@@ -120,6 +124,10 @@ export class AuthService implements OnModuleDestroy {
       throw new UnauthorizedException('User account is inactive');
     }
 
+    if (!user.passwordHash) {
+      throw new UnauthorizedException('Password login is not enabled for this user');
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid email or password');
@@ -169,23 +177,49 @@ export class AuthService implements OnModuleDestroy {
     return getJwtRefreshSecret();
   }
 
-  /**
-   * Placeholder: Find user by email from data store.
-   * In a full implementation, this would query a database (e.g., PostgreSQL via TypeORM/Prisma).
-   * Currently returns null — to be wired to a real UserRepository in a future sprint.
-   */
-  // istanbul ignore next
-  async findUserByEmail(_email: string): Promise<StoredUser | null> {
-    return null;
+  async findUserByEmail(email: string): Promise<StoredUser | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return this.toStoredUser(user);
   }
 
-  /**
-   * Placeholder: Find user by ID from data store.
-   * In a full implementation, this would query a database (e.g., PostgreSQL via TypeORM/Prisma).
-   * Currently returns null — to be wired to a real UserRepository in a future sprint.
-   */
-  // istanbul ignore next
-  async findUserById(_id: string): Promise<StoredUser | null> {
-    return null;
+  async findUserById(id: string): Promise<StoredUser | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return this.toStoredUser(user);
+  }
+
+  private toStoredUser(user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string | null;
+    role: string;
+    tenantId: string;
+  }): StoredUser {
+    const fullName = `${user.firstName} ${user.lastName}`.trim();
+
+    return {
+      id: user.id,
+      name: fullName || user.email,
+      email: user.email,
+      passwordHash: user.password ?? '',
+      role: user.role,
+      tenantId: user.tenantId,
+      active: true,
+    };
   }
 }

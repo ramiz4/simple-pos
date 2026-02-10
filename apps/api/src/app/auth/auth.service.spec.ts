@@ -2,6 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcryptjs';
+import { PrismaService } from '../common/prisma/prisma.service';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
@@ -29,6 +30,14 @@ describe('AuthService', () => {
           useValue: {
             signAsync: vi.fn().mockResolvedValue('mock-token'),
             verify: vi.fn(),
+          },
+        },
+        {
+          provide: PrismaService,
+          useValue: {
+            user: {
+              findUnique: vi.fn(),
+            },
           },
         },
       ],

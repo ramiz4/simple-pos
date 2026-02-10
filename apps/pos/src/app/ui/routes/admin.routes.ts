@@ -96,6 +96,14 @@ export const ADMIN_ROUTES: Routes = [
           import('../pages/admin/error-log/error-log.component').then((m) => m.ErrorLogComponent),
         data: { title: 'Error Logs' },
       },
+      {
+        path: 'sync',
+        loadComponent: () =>
+          import('../pages/admin/sync-center/sync-center.component').then(
+            (m) => m.SyncCenterComponent,
+          ),
+        data: { title: 'Sync Center' },
+      },
     ],
   },
 ];

@@ -70,6 +70,12 @@ export class AdminDashboardComponent {
       route: '/admin/error-log',
       description: 'System Health & Logs',
     },
+    {
+      name: 'Sync Center',
+      icon: '🔄',
+      route: '/admin/sync',
+      description: 'Cloud sync status and conflict resolution',
+    },
   ];
 
   constructor(private authService: AuthService) {

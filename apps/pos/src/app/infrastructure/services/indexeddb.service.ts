@@ -19,7 +19,7 @@ export class IndexedDBService {
    * Migration strategy: This change requires existing users to clear their local data
    * or accept automatic database reset on first load.
    */
-  private readonly DB_VERSION = 2;
+  private readonly DB_VERSION = 3;
   private db: IDBDatabase | null = null;
   private connectionPromise: Promise<IDBDatabase> | null = null;
 
@@ -186,6 +186,46 @@ export class IndexedDBService {
             }
             if (!orderItemStore.indexNames.contains('createdAt')) {
               orderItemStore.createIndex('createdAt', 'createdAt', { unique: false });
+            }
+          }
+        }
+
+        if (oldVersion < 3) {
+          const transaction = (event.target as IDBOpenDBRequest).transaction;
+          if (transaction) {
+            const syncStores = [
+              'account',
+              'user',
+              'code_table',
+              'code_translation',
+              'category',
+              'extra',
+              'ingredient',
+              'table',
+              'product',
+              'variant',
+              'product_extra',
+              'product_ingredient',
+              'order',
+              'order_item',
+              'order_item_extra',
+            ];
+
+            for (const storeName of syncStores) {
+              if (!db.objectStoreNames.contains(storeName)) {
+                continue;
+              }
+              const store = transaction.objectStore(storeName);
+
+              if (!store.indexNames.contains('cloudId')) {
+                store.createIndex('cloudId', 'cloudId', { unique: false });
+              }
+              if (!store.indexNames.contains('lastModifiedAt')) {
+                store.createIndex('lastModifiedAt', 'lastModifiedAt', { unique: false });
+              }
+              if (!store.indexNames.contains('isDeleted')) {
+                store.createIndex('isDeleted', 'isDeleted', { unique: false });
+              }
             }
           }
         }

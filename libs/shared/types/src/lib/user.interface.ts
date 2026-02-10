@@ -1,4 +1,6 @@
-export interface User {
+import { SyncEntityMetadata } from './sync-metadata.interface';
+
+export interface User extends SyncEntityMetadata {
   id: number;
   name: string;
   email?: string;

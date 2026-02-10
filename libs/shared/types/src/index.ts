@@ -14,6 +14,8 @@ export * from './lib/order.interface';
 export * from './lib/product-extra.interface';
 export * from './lib/product-ingredient.interface';
 export * from './lib/product.interface';
+export * from './lib/sync-metadata.interface';
+export * from './lib/sync.interface';
 export * from './lib/table-status.enum';
 export * from './lib/table.interface';
 export * from './lib/test-entity.interface';
