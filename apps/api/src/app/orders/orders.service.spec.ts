@@ -8,7 +8,7 @@ import { OrdersService } from './orders.service';
 describe('OrdersService', () => {
   let service: OrdersService;
   let prismaService: PrismaService;
-  let mockPrismaTransaction: any;
+  let mockPrismaTransaction: Partial<PrismaService>;
 
   const mockTenantId = '550e8400-e29b-41d4-a716-446655440000';
   const mockUserId = '770e8400-e29b-41d4-a716-446655440003';
@@ -216,7 +216,7 @@ describe('OrdersService', () => {
     });
 
     it('should strip items field if provided in update payload', async () => {
-      const updateDtoWithItems: any = {
+      const updateDtoWithItems: UpdateOrderDto & { items?: unknown } = {
         status: 'PAID',
         tip: 3.0,
         items: [{ productId: 'some-id', quantity: 5, price: 15.0 }],

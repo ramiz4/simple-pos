@@ -8,7 +8,7 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 describe('CustomersService', () => {
   let service: CustomersService;
   let prismaService: PrismaService;
-  let mockPrismaTransaction: any;
+  let mockPrismaTransaction: Partial<PrismaService>;
 
   const mockTenantId = '550e8400-e29b-41d4-a716-446655440000';
   const mockCustomerId = '660e8400-e29b-41d4-a716-446655440002';
@@ -193,9 +193,7 @@ describe('CustomersService', () => {
     it('should throw NotFoundException when deleting non-existent customer', async () => {
       mockPrismaTransaction.customer.findFirst.mockResolvedValue(null);
 
-      await expect(service.remove(mockTenantId, mockCustomerId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.remove(mockTenantId, mockCustomerId)).rejects.toThrow(NotFoundException);
     });
   });
 });
