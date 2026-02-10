@@ -27,6 +27,7 @@ model Tenant {
 
   products Product[]
   orders   Order[]
+  customers Customer[]
   users    User[]
 
   @@map("tenants")
@@ -44,6 +45,8 @@ model User {
   password  String? // Nullable if using PIN only locally, but cloud needs auth
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  orders    Order[]
 
   @@map("users")
 }
@@ -66,8 +69,30 @@ model Product {
   updatedAt     DateTime  @updatedAt
   syncedAt      DateTime?
 
+  orderItems    OrderItem[]
+
   @@index([tenantId])
   @@map("products")
+}
+
+model Customer {
+  id            String    @id @default(uuid()) @db.Uuid
+  tenantId      String    @db.Uuid
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  localId       Int?
+  firstName     String
+  lastName      String?
+  email         String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  version       Int       @default(1)
+  syncedAt      DateTime?
+
+  orders        Order[]
+
+  @@index([tenantId])
+  @@map("customers")
 }
 
 model Order {
@@ -75,13 +100,43 @@ model Order {
   tenantId    String    @db.Uuid
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
   localId     Int?
+  orderNumber String?
   status      String
+  type        String    @default("DINE_IN")
+  subtotal    Decimal   @default(0) @db.Decimal(10, 2)
+  tax         Decimal   @default(0) @db.Decimal(10, 2)
+  tip         Decimal   @default(0) @db.Decimal(10, 2)
   totalAmount Decimal   @db.Decimal(10, 2)
+
+  customerId  String?   @db.Uuid
+  customer    Customer? @relation(fields: [customerId], references: [id])
+
+  userId      String?   @db.Uuid
+  user        User?     @relation(fields: [userId], references: [id])
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
   version     Int       @default(1)
   syncedAt    DateTime?
 
+  items       OrderItem[]
+
   @@index([tenantId])
   @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  orderId     String   @db.Uuid
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String   @db.Uuid
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  price       Decimal  @db.Decimal(10, 2)
+  total       Decimal  @db.Decimal(10, 2)
+  tenantId    String   @db.Uuid
+
+  @@index([tenantId])
+  @@map("order_items")
 }
