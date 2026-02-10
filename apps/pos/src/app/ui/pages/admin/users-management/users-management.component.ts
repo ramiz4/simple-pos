@@ -150,10 +150,7 @@ export class UsersManagementComponent implements OnInit {
       this.successMessage.set(`${role} user added successfully!`);
       await this.loadUsers();
 
-      // Close modal after delay
-      setTimeout(() => {
-        this.closeAddUserModal();
-      }, 1500);
+      this.closeAddUserModal();
     } catch (error: unknown) {
       const err = error as Error;
       this.errorMessage.set(err?.message || 'Failed to add user');
@@ -213,7 +210,7 @@ export class UsersManagementComponent implements OnInit {
 
       this.successMessage.set('User updated successfully');
       await this.loadUsers();
-      setTimeout(() => this.closeEditUserModal(), 1000);
+      this.closeEditUserModal();
     } catch (e: unknown) {
       const err = e as Error;
       this.errorMessage.set(err.message || 'Update failed');
