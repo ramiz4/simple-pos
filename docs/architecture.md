@@ -39,7 +39,7 @@
 - **Database**: PostgreSQL with Prisma v7 ORM
 - **Multi-Tenancy**: Row-Level Security (RLS) policies
 - **Authentication**: JWT-based authentication
-- **Modules**: Products, Orders, Customers, Auth, Tenants
+- **Modules**: Products, Orders, Customers, Auth
 
 ### Development Tools
 
