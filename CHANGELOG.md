@@ -1,3 +1,19 @@
+# [1.23.0](https://github.com/ramiz4/simple-pos/compare/v1.22.0...v1.23.0) (2026-02-10)
+
+### Bug Fixes
+
+- **deploy,api:** change Helm image tags to versioned and stateless OAuth state ([aa51d55](https://github.com/ramiz4/simple-pos/commit/aa51d550105ab97fb94812ffa9f1358eb69a5e58))
+- **deploy,api:** enforce security requirements for SAML and domain verification ([1f7d94f](https://github.com/ramiz4/simple-pos/commit/1f7d94f72893191c272e1142167440cc373765ad))
+- **pos,deploy:** revert button svg selector and remove invalid prisma flag ([d59fb2f](https://github.com/ramiz4/simple-pos/commit/d59fb2f146c02c3b4856775116541eed62a11a69))
+- **pos:** correct Tailwind classes and PWA meta tags ([1b19144](https://github.com/ramiz4/simple-pos/commit/1b19144965dff3b63b24eabefc5dcd55b29a3784))
+- **sso:** add JWT validation for malformed OAuth state payload ([d9ab890](https://github.com/ramiz4/simple-pos/commit/d9ab890de266d38a507bb27843957420e5dcdccf))
+
+### Features
+
+- Add domain extraction plan and Redis integration verification tasks ([f4abb90](https://github.com/ramiz4/simple-pos/commit/f4abb9022c5475be183a57fb9a7b2b51d1f348b9))
+- **deploy:** add step to upload Tauri build artifacts ([b1192a1](https://github.com/ramiz4/simple-pos/commit/b1192a115eca723513192e69ffdc1103c6abf92d))
+- **pos:** implement enterprise docker deployment and startup hardening ([368d08e](https://github.com/ramiz4/simple-pos/commit/368d08e8a404b4780a9418504da64ccc973eeb20))
+
 # [1.22.0](https://github.com/ramiz4/simple-pos/compare/v1.21.0...v1.22.0) (2026-02-10)
 
 ### Features
