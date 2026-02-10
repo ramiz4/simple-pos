@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri_plugin_sql::{Builder as SqlBuilder, Migration, MigrationKind};
+use log::LevelFilter;
 
 #[tauri::command]
 async fn print_raw(connection: String, data: Vec<u8>) -> Result<(), String> {
@@ -34,6 +35,12 @@ fn main() {
             sql: include_str!("../migrations/001_initial.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 2,
+            description: "complete schema",
+            sql: include_str!("../migrations/002_complete_schema.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
@@ -47,6 +54,8 @@ fn main() {
         .plugin(tauri_plugin_process::init())
         .plugin(
             tauri_plugin_log::Builder::default()
+                .level(LevelFilter::Info)
+                .level_for("tao", LevelFilter::Error)
                 .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
                 .max_file_size(10_000_000) // 10MB
                 .build(),
