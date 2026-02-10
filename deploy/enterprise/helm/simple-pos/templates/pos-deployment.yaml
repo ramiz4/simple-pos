@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "simple-pos.fullname" . }}-pos
+  labels:
+    {{- include "simple-pos.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.pos.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: pos
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        {{- include "simple-pos.labels" . | nindent 8 }}
+        app.kubernetes.io/component: pos
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: pos
+          image: "{{ .Values.pos.image.repository }}:{{ .Values.pos.image.tag }}"
+          imagePullPolicy: {{ .Values.pos.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+              name: http
+          env:
+            - name: API_BASE_URL
+              value: {{ .Values.pos.env.apiBaseUrl | quote }}
+          resources:
+            {{- toYaml .Values.pos.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20

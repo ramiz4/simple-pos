@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "simple-pos.fullname" . }}-api
+  labels:
+    {{- include "simple-pos.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: api
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        {{- include "simple-pos.labels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: api
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: PORT
+              value: {{ .Values.api.env.port | quote }}
+            - name: BASE_DOMAIN
+              value: {{ .Values.api.env.baseDomain | quote }}
+            - name: DATABASE_URL
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@{{ include \"simple-pos.fullname\" . }}-postgres:5432/$(POSTGRES_DB)?schema=public"
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-postgres-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-postgres-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-postgres-secrets
+                  key: POSTGRES_DB
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: JWT_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: JWT_REFRESH_SECRET
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: STRIPE_SECRET_KEY
+            - name: STRIPE_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: STRIPE_WEBHOOK_SECRET
+            - name: STRIPE_PRICE_BASIC
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: STRIPE_PRICE_BASIC
+            - name: STRIPE_PRICE_PRO
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: STRIPE_PRICE_PRO
+            - name: STRIPE_PRICE_ENTERPRISE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "simple-pos.fullname" . }}-api-secrets
+                  key: STRIPE_PRICE_ENTERPRISE
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /api/v1
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/v1
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 20

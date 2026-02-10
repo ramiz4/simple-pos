@@ -48,7 +48,8 @@ export class TenantMiddleware implements NestMiddleware {
     if (hostContext.tenantSubdomain) {
       req.tenantSubdomain = hostContext.tenantSubdomain;
 
-      const cached = this.tenantContextCache.get(hostContext.tenantSubdomain);
+      const cacheKey = this.buildSubdomainCacheKey(hostContext.tenantSubdomain);
+      const cached = this.tenantContextCache.get(cacheKey);
       if (cached && cached.expiresAt > Date.now()) {
         req.tenantId = cached.tenantId;
         next();
@@ -71,12 +72,56 @@ export class TenantMiddleware implements NestMiddleware {
       }
 
       req.tenantId = tenant.id;
-      this.tenantContextCache.set(hostContext.tenantSubdomain, {
+      this.tenantContextCache.set(cacheKey, {
         tenantId: tenant.id,
         expiresAt: Date.now() + this.cacheTtlMs,
       });
+      next();
+      return;
+    }
+
+    if (
+      hostContext.host &&
+      hostContext.host !== 'localhost' &&
+      hostContext.host !== baseDomain.toLowerCase()
+    ) {
+      const domainCacheKey = this.buildCustomDomainCacheKey(hostContext.host);
+      const cached = this.tenantContextCache.get(domainCacheKey);
+      if (cached && cached.expiresAt > Date.now()) {
+        req.tenantId = cached.tenantId;
+        next();
+        return;
+      }
+
+      const tenant = await this.prisma.tenant.findFirst({
+        where: {
+          customDomain: hostContext.host,
+          customDomainStatus: 'ACTIVE',
+        },
+        select: {
+          id: true,
+          subdomain: true,
+        },
+      });
+
+      if (tenant) {
+        req.tenantId = tenant.id;
+        req.tenantSubdomain = tenant.subdomain;
+        this.tenantContextCache.set(domainCacheKey, {
+          tenantId: tenant.id,
+          expiresAt: Date.now() + this.cacheTtlMs,
+        });
+      }
     }
 
     next();
+  }
+
+  private buildSubdomainCacheKey(subdomain: string): string {
+    return `subdomain:${subdomain}`;
+  }
+
+  private buildCustomDomainCacheKey(domain: string): string {
+    return `custom:${domain}`;
   }
 }
