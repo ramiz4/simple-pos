@@ -4,7 +4,7 @@
 
 **Simple POS v1.20.0** is a production-ready, cross-platform Point-of-Sale system built with **Clean Architecture** principles and **Nx Monorepo** structure. The application runs as both a native desktop application (via Tauri) and a Progressive Web App, sharing 100% of the codebase while adapting to platform-specific capabilities.
 
-> **Phase 0.5 (Nx Monorepo)**: The project has been successfully migrated to an Nx monorepo structure with shared libraries for improved code organization and maintainability. See [Nx Monorepo Migration Plan](./nx-monorepo-migration-plan.md) for details.
+> **Phase 0.5 (Nx Monorepo)**: The project has been successfully migrated to an Nx monorepo structure with shared libraries for improved code organization and maintainability.
 >
 > **Phase 1 (Backend Foundation)**: The NestJS backend API with PostgreSQL, multi-tenancy (RLS), JWT authentication, and core CRUD endpoints (Products, Orders, Customers) has been completed. See [SaaS Transformation Guide](./saas-onprem-transformation.md) for the complete roadmap.
 >
@@ -179,7 +179,6 @@ simple-pos/                            # 📦 Nx Monorepo Root
 ├── docs/                              # 📚 Documentation
 │   ├── architecture.md
 │   ├── prd.md
-│   ├── nx-monorepo-migration-plan.md
 │   └── saas-onprem-transformation.md
 │
 ├── nx.json                            # Nx workspace configuration

@@ -17,8 +17,6 @@ The project has been successfully migrated to an **Nx monorepo** structure for i
 - **Shared Libraries**: `@simple-pos/shared/types`, `@simple-pos/domain`, `@simple-pos/shared/utils`
 - **Benefits**: Path aliases, dependency graph, efficient builds, reusable code
 
-See [Nx Monorepo Migration Plan](docs/nx-monorepo-migration-plan.md) for details.
-
 ### Phase 1: Backend Foundation ✅
 
 The backend API foundation has been successfully implemented:

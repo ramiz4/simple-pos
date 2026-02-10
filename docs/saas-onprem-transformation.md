@@ -997,7 +997,7 @@ pnpm dev              # Launch all applications in watch mode
 pnpm nx serve api     # Start NestJS backend
 ```
 
-> **Setup Instructions:** For detailed environment walkthrough, refer to the [README](../README.md) and [Nx Migration Plan](./nx-monorepo-migration-plan.md).
+> **Setup Instructions:** For detailed environment walkthrough, refer to the [README](../README.md).
 
 **Platform Support:**
 
@@ -1060,8 +1060,6 @@ Successfully migrated from the flat structure to an Nx monorepo with clear separ
 - ✅ **Path Aliases**: All imports use workspace-scoped paths (`@simple-pos/*`)
 - ✅ **Build System**: Nx 22.4.5 with caching and dependency graph
 - ✅ **Verification**: 1000 tests passing, zero legacy imports, builds working
-
-- 📋 **[Detailed Nx Migration Plan](./nx-monorepo-migration-plan.md)** - Complete implementation guide and verification results.
 
 ### Phase 1: Backend Foundation (Sprint 1-8) ✅
 
@@ -1341,10 +1339,9 @@ CREATE POLICY tenant_isolation_policy ON products
 
 ### Implementation Plans
 
-- ✅ **[Nx Monorepo Migration Plan](./nx-monorepo-migration-plan.md)** - Phase 0.5 complete implementation guide with verification results
 - 📖 **[Architecture Documentation](./architecture.md)** - Current system architecture with Nx monorepo structure
 
-### AI Agent Configuration
+# AI Agent Configuration
 
 - 🤖 **[AI Agent Rules](../.agent/rules.md)** - Project-wide rules for AI agents
 - 💬 **[GitHub Copilot Instructions](../.github/copilot-instructions.md)** - Copilot custom instructions
