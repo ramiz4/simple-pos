@@ -1,3 +1,9 @@
+## [1.23.2](https://github.com/ramiz4/simple-pos/compare/v1.23.1...v1.23.2) (2026-02-11)
+
+### Bug Fixes
+
+- adjust max-width of setup description paragraph for better responsiveness ([0672b77](https://github.com/ramiz4/simple-pos/commit/0672b77090b77a105cc8143e2bc0b7a2931c7b7a))
+
 ## [1.23.1](https://github.com/ramiz4/simple-pos/compare/v1.23.0...v1.23.1) (2026-02-10)
 
 ### Bug Fixes
