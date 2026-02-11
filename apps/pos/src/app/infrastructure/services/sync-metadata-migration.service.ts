@@ -49,11 +49,12 @@ export class SyncMetadataMigrationService {
         try {
           await db.execute(`ALTER TABLE ${table} ${alteration}`);
         } catch (error) {
-          // Only ignore duplicate column errors; log and re-throw other failures
+          // Ignore errors for duplicate columns or missing tables
           const errorMessage = error instanceof Error ? error.message : String(error);
           if (
             !errorMessage.includes('duplicate column') &&
-            !errorMessage.includes('already exists')
+            !errorMessage.includes('already exists') &&
+            !errorMessage.includes('no such table')
           ) {
             console.error(`Failed to alter table ${table} with ${alteration}:`, error);
             throw error;
