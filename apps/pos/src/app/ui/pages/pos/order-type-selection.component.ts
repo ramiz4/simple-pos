@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderTypeEnum } from '@simple-pos/shared/types';
@@ -9,7 +8,7 @@ import { CartService } from '../../../application/services/cart.service';
 @Component({
   selector: 'app-order-type-selection',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <main class="p-6 max-w-4xl mx-auto animate-fade-in">
       <div class="mb-12 text-center">

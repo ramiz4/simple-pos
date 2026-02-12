@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PrinterService } from '../../../../application/services/printer.service';
@@ -8,7 +8,7 @@ import { ButtonComponent } from '../../../components/shared/button/button.compon
 @Component({
   selector: 'app-printer-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSectionComponent, ButtonComponent],
+  imports: [NgClass, FormsModule, AdminSectionComponent, ButtonComponent],
   templateUrl: './printer-settings.component.html',
 })
 export class PrinterSettingsComponent implements OnInit {

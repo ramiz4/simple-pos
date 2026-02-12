@@ -1,6 +1,4 @@
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../application/services/auth.service';
 import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
@@ -10,7 +8,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
 @Component({
   selector: 'app-initial-setup',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [ButtonComponent],
   templateUrl: './initial-setup.component.html',
   styles: [],
 })

@@ -22,7 +22,6 @@
       "!{projectRoot}/tsconfig.spec.json"
     ]
   },
-  "nxCloudId": "6989dfde89dc6113bf091858",
   "plugins": [
     {
       "plugin": "@nx/eslint/plugin",

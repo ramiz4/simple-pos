@@ -1,7 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+
 import { User } from '@simple-pos/shared/types';
 import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
@@ -19,9 +18,7 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
   selector: 'app-users-management',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
-    RouterModule,
     AutoFocusDirective,
     AlertComponent,
     ModalComponent,

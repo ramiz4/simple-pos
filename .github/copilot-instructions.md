@@ -116,8 +116,8 @@ Always inject via `RepositoryFactory` (Adapter pattern) which detects the platfo
 ### Development
 
 ```bash
-pnpm start                  # Start Angular POS (Web)
-pnpm run tauri:dev          # Start Tauri Host (Desktop)
+pnpm pos:dev                # Start Angular POS (Web)
+pnpm tauri:dev              # Start Tauri Host (Desktop)
 pnpm nx test pos            # Run tests for POS app
 pnpm nx test domain         # Run tests for domain lib
 ```
@@ -215,14 +215,14 @@ When reviewing code changes, verify:
 ```bash
 # Development
 pnpm dev                    # Start all (frontend + backend)
-pnpm nx serve pos           # Start Angular frontend only
-pnpm nx serve api           # Start NestJS backend only
-pnpm run tauri:dev          # Start desktop dev
+pnpm pos:dev                # Start Angular frontend only
+pnpm api:dev                # Start NestJS backend only
+pnpm tauri:dev              # Start desktop dev
 
 # Building
-pnpm nx build pos           # Build Angular frontend
-pnpm nx build api           # Build NestJS backend
-pnpm run tauri:build        # Build desktop app
+pnpm pos:build              # Build Angular frontend
+pnpm api:build              # Build NestJS backend
+pnpm tauri:build            # Build desktop app
 
 # Testing
 pnpm test                   # Run all tests

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,7 +24,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
 @Component({
   selector: 'app-cart-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [FormsModule, ButtonComponent],
   template: `
     <main class="p-6 max-w-6xl mx-auto animate-fade-in pb-32">
       <!-- Empty Cart State -->

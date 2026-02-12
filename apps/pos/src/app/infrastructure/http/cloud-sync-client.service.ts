@@ -10,8 +10,13 @@ import {
   SyncPushResponse,
   SyncStatusResponse,
 } from '@simple-pos/shared/types';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, timeout } from 'rxjs';
 import { ApiConfigService } from './api-config.service';
+
+/** Timeout for quick health-check requests (e.g. /sync/status) */
+const STATUS_TIMEOUT_MS = 5_000;
+/** Timeout for data transfer requests (push/pull) */
+const DATA_TIMEOUT_MS = 30_000;
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +29,9 @@ export class CloudSyncClientService {
 
   async push(payload: SyncPushRequest): Promise<SyncPushResponse> {
     return firstValueFrom(
-      this.http.post<SyncPushResponse>(`${this.apiConfig.getBaseUrl()}/sync/push`, payload),
+      this.http
+        .post<SyncPushResponse>(`${this.apiConfig.getBaseUrl()}/sync/push`, payload)
+        .pipe(timeout(DATA_TIMEOUT_MS)),
     );
   }
 
@@ -49,15 +56,19 @@ export class CloudSyncClientService {
     }
 
     return firstValueFrom(
-      this.http.get<SyncPullResponse>(`${this.apiConfig.getBaseUrl()}/sync/pull`, {
-        params: httpParams,
-      }),
+      this.http
+        .get<SyncPullResponse>(`${this.apiConfig.getBaseUrl()}/sync/pull`, {
+          params: httpParams,
+        })
+        .pipe(timeout(DATA_TIMEOUT_MS)),
     );
   }
 
   async status(): Promise<SyncStatusResponse> {
     return firstValueFrom(
-      this.http.get<SyncStatusResponse>(`${this.apiConfig.getBaseUrl()}/sync/status`),
+      this.http
+        .get<SyncStatusResponse>(`${this.apiConfig.getBaseUrl()}/sync/status`)
+        .pipe(timeout(STATUS_TIMEOUT_MS)),
     );
   }
 

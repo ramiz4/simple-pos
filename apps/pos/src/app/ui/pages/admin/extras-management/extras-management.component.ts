@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+
 import { Extra } from '@simple-pos/shared/types';
 import { ExtraService } from '../../../../application/services/extra.service';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
@@ -16,9 +16,8 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
   selector: 'app-extras-management',
   standalone: true,
   imports: [
-    CommonModule,
+    CurrencyPipe,
     FormsModule,
-    RouterModule,
     AlertComponent,
     ModalComponent,
     AdminPageLayoutComponent,

@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+
 import { Category, Product } from '@simple-pos/shared/types';
 import { CategoryService } from '../../../../application/services/category.service';
 import { ProductService } from '../../../../application/services/product.service';
@@ -17,9 +17,8 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
   selector: 'app-products-management',
   standalone: true,
   imports: [
-    CommonModule,
+    CurrencyPipe,
     FormsModule,
-    RouterModule,
     AlertComponent,
     ModalComponent,
     AdminPageLayoutComponent,

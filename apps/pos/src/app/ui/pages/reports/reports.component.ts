@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OrderTypeEnum } from '@simple-pos/shared/types';
@@ -14,7 +13,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonComponent],
+  imports: [FormsModule, ButtonComponent],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.css'],
 })

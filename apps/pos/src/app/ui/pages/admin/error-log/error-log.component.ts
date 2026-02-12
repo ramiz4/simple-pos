@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { ErrorLogEntry, LoggerService } from '../../../../core/services/logger.service';
 import { AdminPageLayoutComponent } from '../../../components/admin/shared/page-layout/page-layout.component';
@@ -8,7 +7,7 @@ import { ButtonComponent } from '../../../components/shared/button/button.compon
 @Component({
   selector: 'app-error-log',
   standalone: true,
-  imports: [CommonModule, AdminPageLayoutComponent, AdminSearchInputComponent, ButtonComponent],
+  imports: [AdminPageLayoutComponent, AdminSearchInputComponent, ButtonComponent],
   templateUrl: './error-log.component.html',
 })
 export class ErrorLogComponent {

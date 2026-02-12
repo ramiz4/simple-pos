@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Table, TableStatusEnum } from '@simple-pos/shared/types';
@@ -10,7 +9,7 @@ import { CartService } from '../../../application/services/cart.service';
 @Component({
   selector: 'app-table-selection',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <main class="p-6 max-w-7xl mx-auto animate-fade-in">
       <div class="mb-12 text-center">

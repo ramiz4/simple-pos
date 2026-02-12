@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TestEntity } from '@simple-pos/shared/types';
@@ -8,7 +7,7 @@ import { PlatformService } from '../../../shared/utilities/platform.service';
 @Component({
   selector: 'app-test-persistence',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="min-h-screen bg-linear-to-br from-blue-400 via-purple-500 to-pink-500 p-8">
       <div class="max-w-4xl mx-auto">

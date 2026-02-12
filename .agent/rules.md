@@ -147,17 +147,17 @@ import { calculateOrderTotal } from '@simple-pos/domain';
 
 ```bash
 pnpm dev               # Start frontend + backend concurrently
-pnpm nx serve pos      # Angular dev server only
-pnpm nx serve api      # NestJS backend only
+pnpm pos:dev           # Angular dev server only
+pnpm api:dev           # NestJS backend only
 pnpm tauri:dev         # Desktop mode (Tauri)
 ```
 
 ### Production Builds
 
 ```bash
-pnpm nx build pos      # Build Angular frontend
-pnpm nx build api      # Build NestJS backend
-pnpm tauri build       # Build desktop app
+pnpm pos:build         # Build Angular frontend
+pnpm api:build         # Build NestJS backend
+pnpm tauri:build       # Build desktop app
 ```
 
 ### Nx Commands

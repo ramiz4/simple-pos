@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -11,7 +10,7 @@ import { ButtonComponent } from '../../../components/shared/button/button.compon
 @Component({
   selector: 'app-backup-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSectionComponent, ButtonComponent],
+  imports: [FormsModule, AdminSectionComponent, ButtonComponent],
   templateUrl: './backup-settings.component.html',
 })
 export class BackupSettingsComponent {

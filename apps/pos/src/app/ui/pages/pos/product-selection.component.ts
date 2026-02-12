@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, HostListener, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,7 +24,6 @@ interface ProductWithExtras extends Product {
   selector: 'app-product-selection',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ProductCardComponent,
     QuantitySelectorComponent,

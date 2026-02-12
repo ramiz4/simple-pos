@@ -1,7 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+
 import { Category } from '@simple-pos/shared/types';
 import { CategoryService } from '../../../../application/services/category.service';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
@@ -16,9 +15,7 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
   selector: 'app-categories-management',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
-    RouterModule,
     AlertComponent,
     ModalComponent,
     ConfirmDeleteModalComponent,

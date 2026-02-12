@@ -16,7 +16,14 @@ export class ApiConfigService {
       return 'http://localhost:3000/api/v1';
     }
 
+    // In Tauri production builds window.location uses a custom protocol
+    // (e.g. tauri://localhost or https://tauri.localhost) which would produce
+    // an invalid API URL. Fall back to http://localhost in that case.
     const { protocol, hostname } = window.location;
+    if (protocol === 'tauri:' || hostname === 'tauri.localhost') {
+      return 'http://localhost:3000/api/v1';
+    }
+
     const apiPort = '3000';
     return `${protocol}//${hostname}:${apiPort}/api/v1`;
   }

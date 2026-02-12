@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { Order } from '@simple-pos/shared/types';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { OrderService } from '../../../application/services/order.service';
@@ -13,7 +13,7 @@ interface EnrichedOrder extends Order {
 @Component({
   selector: 'app-active-orders',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [DatePipe, NgClass],
   templateUrl: './active-orders.component.html',
 })
 export class ActiveOrdersComponent implements OnInit {

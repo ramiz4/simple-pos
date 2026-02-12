@@ -64,7 +64,8 @@ export class SyncEngineService {
   readonly lastSyncAt = signal<string | null>(null);
   readonly pendingChanges = signal(0);
   readonly conflicts = signal<SyncConflict[]>([]);
-  readonly lastError = signal<string | null>(null);
+  private _lastError = signal<string | null>(null);
+  readonly lastError = this._lastError.asReadonly();
 
   private started = false;
   private syncTimer: ReturnType<typeof setInterval> | null = null;
@@ -118,6 +119,8 @@ export class SyncEngineService {
     this.started = true;
 
     await this.syncMetadataMigrationService.ensure();
+    // SyncModeService.start() is already called via APP_INITIALIZER;
+    // its internal `started` guard prevents duplicate work.
     await this.syncModeService.start();
 
     if (typeof window !== 'undefined') {
@@ -131,7 +134,11 @@ export class SyncEngineService {
       5 * 60 * 1000,
     );
 
-    await this.syncNow();
+    // Only attempt initial sync when in cloud/hybrid mode.
+    // In local mode (no API server) this avoids wasted work at startup.
+    if (this.syncModeService.mode() !== 'local') {
+      await this.syncNow();
+    }
   }
 
   async syncNow(): Promise<void> {
@@ -144,7 +151,7 @@ export class SyncEngineService {
     }
 
     this.syncing.set(true);
-    this.lastError.set(null);
+    this._lastError.set(null);
 
     try {
       const localChanges = await this.buildLocalChanges();
@@ -169,7 +176,7 @@ export class SyncEngineService {
       // Clear pending changes after successful sync
       this.pendingChanges.set(0);
     } catch (error) {
-      this.lastError.set(error instanceof Error ? error.message : 'Failed to sync');
+      this._lastError.set(error instanceof Error ? error.message : 'Failed to sync');
     } finally {
       this.syncing.set(false);
     }

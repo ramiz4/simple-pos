@@ -61,7 +61,7 @@
   </div>
 
   <!-- Navigation Tabs -->
-  <nav class="flex p-1 bg-surface-100 rounded-[24px] mb-10 max-w-fit shadow-inner">
+  <nav class="flex p-1 bg-surface-100 rounded-6 mb-10 max-w-fit shadow-inner">
     <button
       (click)="setActiveTab('daily')"
       [class]="
@@ -69,7 +69,7 @@
           ? 'bg-white text-primary-600 shadow-sm'
           : 'text-surface-500 hover:text-surface-900'
       "
-      class="px-8 py-3 rounded-[20px] font-bold transition-all flex items-center gap-2"
+      class="px-8 py-3 rounded-5 font-bold transition-all flex items-center gap-2"
     >
       Overview
     </button>
@@ -80,7 +80,7 @@
           ? 'bg-white text-primary-600 shadow-sm'
           : 'text-surface-500 hover:text-surface-900'
       "
-      class="px-8 py-3 rounded-[20px] font-bold transition-all flex items-center gap-2"
+      class="px-8 py-3 rounded-5 font-bold transition-all flex items-center gap-2"
     >
       Breakdown
     </button>
@@ -91,7 +91,7 @@
           ? 'bg-white text-primary-600 shadow-sm'
           : 'text-surface-500 hover:text-surface-900'
       "
-      class="px-8 py-3 rounded-[20px] font-bold transition-all flex items-center gap-2"
+      class="px-8 py-3 rounded-5 font-bold transition-all flex items-center gap-2"
     >
       Z-Report
     </button>
@@ -102,14 +102,14 @@
           ? 'bg-white text-primary-600 shadow-sm'
           : 'text-surface-500 hover:text-surface-900'
       "
-      class="px-8 py-3 rounded-[20px] font-bold transition-all flex items-center gap-2"
+      class="px-8 py-3 rounded-5 font-bold transition-all flex items-center gap-2"
     >
       Settings
     </button>
   </nav>
 
   <!-- Content Sections -->
-  <div class="relative min-h-[500px]">
+  <div class="relative min-h-125">
     <!-- Notifications/Messages -->
     @if (error()) {
       <div

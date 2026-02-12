@@ -1,7 +1,6 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+
 import { Ingredient } from '@simple-pos/shared/types';
 import { IngredientService } from '../../../../application/services/ingredient.service';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
@@ -16,9 +15,7 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
   selector: 'app-ingredients-management',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
-    RouterModule,
     AlertComponent,
     ModalComponent,
     AdminPageLayoutComponent,
