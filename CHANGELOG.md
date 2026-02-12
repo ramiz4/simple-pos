@@ -1,3 +1,9 @@
+## [1.23.3](https://github.com/ramiz4/simple-pos/compare/v1.23.2...v1.23.3) (2026-02-12)
+
+### Bug Fixes
+
+- **pos:** resolve tView crash and high CPU in Tauri environment ([121613d](https://github.com/ramiz4/simple-pos/commit/121613d748df728d65d3a72e3f4f684e01007208))
+
 ## [1.23.2](https://github.com/ramiz4/simple-pos/compare/v1.23.1...v1.23.2) (2026-02-11)
 
 ### Bug Fixes
