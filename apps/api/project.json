@@ -53,7 +53,12 @@
       "executor": "nx:noop"
     },
     "test": {
-      "dependsOn": ["prisma-generate"]
+      "executor": "@nx/vitest:test",
+      "dependsOn": ["prisma-generate"],
+      "options": {
+        "config": "apps/api/vitest.config.mts",
+        "passWithNoTests": true
+      }
     },
     "serve": {
       "continuous": true,
