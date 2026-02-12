@@ -3,9 +3,16 @@
   "version": "1.23.2",
   "identifier": "com.simple.pos",
   "build": {
-    "beforeDevCommand": "npx --no-install nx serve pos",
+    "beforeDevCommand": {
+      "script": "pnpm exec nx serve pos",
+      "cwd": "../../..",
+      "wait": false
+    },
     "devUrl": "http://localhost:4200",
-    "beforeBuildCommand": "npx --no-install nx build pos",
+    "beforeBuildCommand": {
+      "script": "pnpm exec nx build pos",
+      "cwd": "../../.."
+    },
     "frontendDist": "../../../dist/apps/pos/browser"
   },
   "bundle": {

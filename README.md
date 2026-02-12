@@ -23,9 +23,9 @@ cp apps/api/.env.example apps/api/.env
 | Command          | Description                                                |
 | ---------------- | ---------------------------------------------------------- |
 | `pnpm dev`       | Start full stack (POS Frontend + API Backend)              |
-| `pnpm dev:pos`   | Start POS Frontend only (Web Mode - http://localhost:4200) |
-| `pnpm dev:api`   | Start API Backend only (http://localhost:3000/api)         |
-| `pnpm dev:tauri` | Start Desktop App (Native Mode)                            |
+| `pnpm pos:dev`   | Start POS Frontend only (Web Mode - http://localhost:4200) |
+| `pnpm api:dev`   | Start API Backend only (http://localhost:3000/api)         |
+| `pnpm tauri:dev` | Start Desktop App (Native Mode)                            |
 | `pnpm test`      | Run tests across the workspace                             |
 | `pnpm nx graph`  | Visualize project dependencies                             |
 

@@ -1,11 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-admin-search-input',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="relative w-full group" [class]="maxWidth">
       <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

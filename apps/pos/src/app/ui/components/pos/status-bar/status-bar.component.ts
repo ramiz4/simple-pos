@@ -1,11 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../shared/button/button.component';
 
 @Component({
   selector: 'app-status-bar',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [ButtonComponent],
   template: `
     <div
       class="fixed bottom-0 left-0 right-0 z-40 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-4 sm:pb-8 pointer-events-none"

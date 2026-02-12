@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,7 +13,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
 @Component({
   selector: 'app-staff-selection',
   standalone: true,
-  imports: [CommonModule, FormsModule, AutoFocusDirective, ButtonComponent],
+  imports: [FormsModule, AutoFocusDirective, ButtonComponent],
   templateUrl: './staff-selection.component.html',
 })
 export class StaffSelectionComponent implements OnInit {

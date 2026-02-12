@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BackupService } from '../../../../application/services/backup.service';
@@ -8,7 +8,7 @@ import { ButtonComponent } from '../../../components/shared/button/button.compon
 @Component({
   selector: 'app-backup',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminSectionComponent, ButtonComponent],
+  imports: [NgClass, FormsModule, AdminSectionComponent, ButtonComponent],
   templateUrl: './backup.component.html',
 })
 export class BackupComponent {

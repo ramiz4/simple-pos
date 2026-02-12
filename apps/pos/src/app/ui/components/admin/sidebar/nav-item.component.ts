@@ -1,6 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 export interface NavItem {
   label: string;
@@ -12,7 +11,7 @@ export interface NavItem {
 @Component({
   selector: 'app-admin-nav-item',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterLink, RouterLinkActive],
   template: `
     <li>
       @if (item.children) {
@@ -24,36 +23,48 @@ export interface NavItem {
           </p>
           <ul class="space-y-1 mt-1 font-medium">
             @for (child of item.children; track child.path) {
-              <ng-container
-                *ngTemplateOutlet="navLink; context: { $implicit: child }"
-              ></ng-container>
+              <li>
+                <a
+                  [routerLink]="child.path"
+                  [routerLinkActive]="activeClasses"
+                  class="flex items-center p-3 text-gray-600 rounded-2xl group transition-all duration-300 hover:bg-white/60 hover:text-purple-600 hover:shadow-sm border border-transparent hover:border-white/40 active:scale-95 mx-2"
+                  (click)="onLinkClick()"
+                >
+                  @if (child.icon) {
+                    <span
+                      class="shrink-0 w-5 h-5 transition duration-75 group-hover:text-purple-600 group-[.active-nav-item]:group-hover:text-white"
+                      [innerHTML]="getIcon(child.icon)"
+                    ></span>
+                  } @else {
+                    <span
+                      class="shrink-0 w-1.5 h-1.5 rounded-full bg-current opacity-40 mx-2"
+                    ></span>
+                  }
+                  <span class="ms-3 text-sm font-bold tracking-tight">{{ child.label }}</span>
+                </a>
+              </li>
             }
           </ul>
         </div>
       } @else {
-        <ng-container *ngTemplateOutlet="navLink; context: { $implicit: item }"></ng-container>
-      }
-
-      <ng-template #navLink let-link>
         <a
-          [routerLink]="link.path"
+          [routerLink]="item.path"
           [routerLinkActive]="activeClasses"
-          [routerLinkActiveOptions]="{ exact: link.path === '/admin' }"
+          [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
           class="flex items-center p-3 text-gray-600 rounded-2xl group transition-all duration-300 hover:bg-white/60 hover:text-purple-600 hover:shadow-sm border border-transparent hover:border-white/40 active:scale-95 mx-2"
           (click)="onLinkClick()"
         >
-          @if (link.icon) {
+          @if (item.icon) {
             <span
               class="shrink-0 w-5 h-5 transition duration-75 group-hover:text-purple-600 group-[.active-nav-item]:group-hover:text-white"
-              [innerHTML]="getIcon(link.icon)"
+              [innerHTML]="getIcon(item.icon)"
             ></span>
           } @else {
-            <!-- Default bullet icon if no icon provided -->
             <span class="shrink-0 w-1.5 h-1.5 rounded-full bg-current opacity-40 mx-2"></span>
           }
-          <span class="ms-3 text-sm font-bold tracking-tight">{{ link.label }}</span>
+          <span class="ms-3 text-sm font-bold tracking-tight">{{ item.label }}</span>
         </a>
-      </ng-template>
+      }
     </li>
   `,
 })

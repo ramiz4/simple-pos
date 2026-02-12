@@ -1,6 +1,4 @@
-import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ConflictResolutionStrategy, SyncConflict } from '@simple-pos/shared/types';
 import { SyncEngineService } from '../../../../application/services/sync-engine.service';
 import { SyncModeService } from '../../../../application/services/sync-mode.service';
@@ -8,7 +6,7 @@ import { SyncModeService } from '../../../../application/services/sync-mode.serv
 @Component({
   selector: 'app-sync-center',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [],
   templateUrl: './sync-center.component.html',
 })
 export class SyncCenterComponent {

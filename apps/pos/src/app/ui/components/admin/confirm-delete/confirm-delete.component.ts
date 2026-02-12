@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ButtonComponent } from '../../shared/button/button.component';
 import { ModalComponent } from '../../shared/modal/modal.component';
@@ -6,7 +5,7 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 @Component({
   selector: 'app-confirm-delete-modal',
   standalone: true,
-  imports: [CommonModule, ModalComponent, ButtonComponent],
+  imports: [ModalComponent, ButtonComponent],
   template: `
     <app-modal title="Confirm Delete" (close)="cancel.emit()">
       <p class="text-gray-600 mb-2 font-medium">

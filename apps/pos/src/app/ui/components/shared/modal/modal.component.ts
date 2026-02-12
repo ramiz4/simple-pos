@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -14,7 +13,7 @@ import {
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       #modalBackdrop

@@ -1,7 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+
 import { Product, Variant } from '@simple-pos/shared/types';
 import { ProductService } from '../../../../application/services/product.service';
 import { VariantService } from '../../../../application/services/variant.service';
@@ -17,9 +17,8 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
   selector: 'app-variants-management',
   standalone: true,
   imports: [
-    CommonModule,
+    CurrencyPipe,
     FormsModule,
-    RouterModule,
     AlertComponent,
     ModalComponent,
     AdminPageLayoutComponent,

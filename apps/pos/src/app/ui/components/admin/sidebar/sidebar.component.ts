@@ -1,13 +1,12 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../application/services/auth.service';
 import { AdminNavItemComponent, NavItem } from './nav-item.component';
 
 @Component({
   selector: 'app-admin-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminNavItemComponent],
+  imports: [RouterLink, AdminNavItemComponent],
   template: `
     <!-- Mobile Scrim -->
     @if (isOpen) {

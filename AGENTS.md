@@ -86,8 +86,8 @@ Dependency flow: UI -> Application -> Domain <- Infrastructure.
 ## Common Commands
 
 ```
-pnpm start            # Start POS (web)
-pnpm run tauri:dev    # Start Tauri (desktop)
-pnpm nx test pos      # Run POS tests
+pnpm pos:dev          # Start POS (web)
+pnpm tauri:dev        # Start Tauri (desktop)
+pnpm pos:test         # Run POS tests
 pnpm nx test domain   # Run domain tests
 ```

@@ -1,10 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-quantity-selector',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="flex items-center gap-3 bg-surface-50 p-2 rounded-2xl">
       <button

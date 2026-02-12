@@ -12,6 +12,8 @@ export class SyncModeService implements OnDestroy {
   readonly backendReachable = signal(false);
   readonly mode = signal<SyncRuntimeMode>('local');
   readonly lastCheckedAt = signal<string | null>(null);
+  private _lastError = signal<string | null>(null);
+  readonly lastError = this._lastError.asReadonly();
   readonly hasCloudSession = computed(() => this.authService.hasCloudSession());
 
   private intervalHandle: ReturnType<typeof setInterval> | null = null;
@@ -66,15 +68,17 @@ export class SyncModeService implements OnDestroy {
     try {
       await this.cloudSyncClient.status();
       this.backendReachable.set(true);
+      this._lastError.set(null);
 
       if (this.authService.hasCloudSession()) {
         this.mode.set('hybrid');
       } else {
         this.mode.set('cloud');
       }
-    } catch {
+    } catch (err) {
       this.backendReachable.set(false);
       this.mode.set('local');
+      this._lastError.set(err instanceof Error ? err.message : 'Backend unreachable');
     }
 
     this.lastCheckedAt.set(new Date().toISOString());

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { TitleCasePipe } from '@angular/common';
 import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -42,7 +42,7 @@ interface KitchenOrder {
 @Component({
   selector: 'app-kitchen-view',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [TitleCasePipe, ButtonComponent],
   template: `
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 py-6 sm:px-0">

@@ -1,14 +1,13 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, NavigationEnd, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-admin-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminSidebarComponent],
+  imports: [RouterOutlet, AdminSidebarComponent],
   template: `
     <div class="min-h-screen bg-linear-to-br from-purple-50 to-blue-50 flex">
       <!-- Sidebar Navigation -->

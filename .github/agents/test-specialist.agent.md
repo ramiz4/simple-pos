@@ -257,29 +257,24 @@ describe('ProductController', () => {
 ## Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (Watch mode)
 pnpm test
 
 # Run tests for specific project
-pnpm nx test pos
-pnpm nx test api
+pnpm pos:test
+pnpm api:test
+pnpm tauri:test
 pnpm nx test shared-utils
 pnpm nx test domain
 
 # Run only affected tests (fast CI)
 pnpm nx affected:test
 
-# Watch mode
-pnpm test -- --watch
-
-# Visual test UI
-pnpm test -- --ui
-
-# Run tests in CI mode
+# Run tests in CI mode (Run once)
 pnpm test:ci
 
 # Run tests with coverage
-pnpm test -- --coverage
+pnpm test:ci:coverage
 ```
 
 ## Nx Test Commands

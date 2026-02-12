@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, Signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, UserSession } from '../../../application/services/auth.service';
@@ -7,7 +6,7 @@ import { UpdateService } from '../../../application/services/update.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
