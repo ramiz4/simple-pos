@@ -1,13 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { Order, OrderStatusEnum } from '@simple-pos/shared/types';
+import { vi, type Mock } from 'vitest';
 import { EnumMappingService } from './enum-mapping.service';
 import { OrderService } from './order.service';
 import { ReportingService } from './reporting.service';
 
 describe('ReportingService', () => {
   let service: ReportingService;
-  let orderService: Record<string, vi.Mock>;
-  let enumMappingService: Record<string, vi.Mock>;
+  let orderService: { getOrdersInDateRange: Mock };
+  let enumMappingService: { getStatusName: Mock; getTypeName: Mock };
 
   const mockDate = new Date('2024-03-20T12:00:00Z');
 

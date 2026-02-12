@@ -7,7 +7,7 @@ import {
   OrderTypeEnum,
   TableStatusEnum,
 } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
 import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
 import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
@@ -21,15 +21,50 @@ import { TableService } from './table.service';
 
 describe('OrderService', () => {
   let service: OrderService;
-  let mockPlatformService: Record<string, vi.Mock>;
-  let mockSqliteOrderRepo: Record<string, vi.Mock>;
-  let mockIndexedDBOrderRepo: Record<string, vi.Mock>;
-  let mockSqliteOrderItemRepo: Record<string, vi.Mock>;
-  let mockIndexedDBOrderItemRepo: Record<string, vi.Mock>;
-  let mockSqliteOrderItemExtraRepo: Record<string, vi.Mock>;
-  let mockIndexedDBOrderItemExtraRepo: Record<string, vi.Mock>;
-  let mockEnumMappingService: Record<string, vi.Mock>;
-  let mockTableService: Record<string, vi.Mock>;
+  let mockPlatformService: { isTauri: Mock };
+  let mockSqliteOrderRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByTable: Mock;
+    findByStatus: Mock;
+    findActiveOrders: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+    getNextOrderNumber: Mock;
+  };
+  let mockIndexedDBOrderRepo: typeof mockSqliteOrderRepo;
+  let mockSqliteOrderItemRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByOrderId: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+  };
+  let mockIndexedDBOrderItemRepo: typeof mockSqliteOrderItemRepo;
+  let mockSqliteOrderItemExtraRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByOrderItemId: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+  };
+  let mockIndexedDBOrderItemExtraRepo: typeof mockSqliteOrderItemExtraRepo;
+  let mockEnumMappingService: {
+    init: Mock;
+    getTranslation: Mock;
+    getStatusName: Mock;
+    getTypeName: Mock;
+  };
+  let mockTableService: {
+    updateTableStatus: Mock;
+    getTableById: Mock;
+  };
 
   const mockOrder: Order = {
     id: 1,

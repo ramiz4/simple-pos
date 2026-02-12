@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Ingredient } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { SQLiteIngredientRepository } from './sqlite-ingredient.repository';
 
 // Mock the Database module
@@ -15,7 +15,7 @@ vi.mock('@tauri-apps/plugin-sql', () => {
 
 describe('SQLiteIngredientRepository', () => {
   let repository: SQLiteIngredientRepository;
-  let mockDb: Record<string, vi.Mock>;
+  let mockDb: { select: Mock; execute: Mock };
 
   beforeEach(() => {
     vi.clearAllMocks();

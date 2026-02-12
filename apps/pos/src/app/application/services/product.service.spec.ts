@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Product } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { IndexedDBProductRepository } from '../../infrastructure/repositories/indexeddb-product.repository';
 import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlite-product.repository';
 import { PlatformService } from '../../shared/utilities/platform.service';
@@ -8,9 +8,25 @@ import { ProductService } from './product.service';
 
 describe('ProductService', () => {
   let service: ProductService;
-  let mockPlatformService: Record<string, vi.Mock>;
-  let mockSqliteProductRepo: Record<string, vi.Mock>;
-  let mockIndexedDBProductRepo: Record<string, vi.Mock>;
+  let mockPlatformService: { isTauri: Mock; isWeb: Mock };
+  let mockSqliteProductRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByCategory: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+  };
+  let mockIndexedDBProductRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByCategory: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+  };
 
   const mockProduct: Product = {
     id: 1,

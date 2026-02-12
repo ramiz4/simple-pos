@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { UserRoleEnum } from '@simple-pos/shared/types';
 import { AuthService, UserSession } from '../../../application/services/auth.service';
+import { AppInfoService } from '../../../core/services/app-info.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +14,9 @@ import { AuthService, UserSession } from '../../../application/services/auth.ser
 export class DashboardComponent {
   session: UserSession | null = null;
   UserRoleEnum = UserRoleEnum;
+
+  private appInfoService = inject(AppInfoService);
+  version = this.appInfoService.version;
 
   constructor(
     private authService: AuthService,

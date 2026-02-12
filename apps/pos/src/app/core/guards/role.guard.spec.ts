@@ -6,13 +6,13 @@ import {
   RouterStateSnapshot,
 } from '@angular/router';
 import { UserRoleEnum } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AuthService } from '../../application/services/auth.service';
 import { adminGuard, cashierGuard, kitchenGuard, roleGuard } from './role.guard';
 
 describe('roleGuard', () => {
-  let authServiceSpy: { isLoggedIn: vi.Mock; isStaffActive: vi.Mock; hasAnyRole: vi.Mock };
-  let routerSpy: { navigate: vi.Mock };
+  let authServiceSpy: { isLoggedIn: Mock; isStaffActive: Mock; hasAnyRole: Mock };
+  let routerSpy: { navigate: Mock };
 
   beforeEach(() => {
     authServiceSpy = {

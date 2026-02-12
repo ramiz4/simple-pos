@@ -23,7 +23,7 @@ describe('ScheduledBackupService', () => {
         createdAt: new Date().toISOString(),
         encrypted: false,
         data: {
-          codeTables: [{ id: 1, name: 'test' }],
+          codeTables: [{ id: 1, codeType: 'test', code: 'test', sortOrder: 1, isActive: true }],
           codeTranslations: [],
           users: [],
           tables: [],

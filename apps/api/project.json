@@ -52,6 +52,9 @@
       "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
       "executor": "nx:noop"
     },
+    "test": {
+      "dependsOn": ["prisma-generate"]
+    },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",

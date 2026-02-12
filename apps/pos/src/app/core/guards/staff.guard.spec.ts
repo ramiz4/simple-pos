@@ -5,7 +5,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AuthService } from '../../application/services/auth.service';
 import { staffGuard } from './staff.guard';
 
@@ -13,8 +13,8 @@ describe('staffGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => staffGuard(...guardParameters));
 
-  let authServiceSpy: { isLoggedIn: vi.Mock; isStaffActive: vi.Mock };
-  let routerSpy: { navigate: vi.Mock };
+  let authServiceSpy: { isLoggedIn: Mock; isStaffActive: Mock };
+  let routerSpy: { navigate: Mock };
 
   beforeEach(() => {
     authServiceSpy = {
