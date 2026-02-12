@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
 import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
@@ -22,14 +22,36 @@ vi.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let mockPlatformService: Record<string, vi.Mock>;
-  let mockSqliteUserRepo: Record<string, vi.Mock>;
-  let mockIndexedDBUserRepo: Record<string, vi.Mock>;
-  let mockEnumMappingService: Record<string, vi.Mock>;
-  let mockAccountService: Record<string, vi.Mock>;
-  let mockInputSanitizer: Record<string, vi.Mock>;
+  let mockPlatformService: { isTauri: Mock; isWeb: Mock };
+  let mockSqliteUserRepo: {
+    findByName: Mock;
+    findByNameAndAccount: Mock;
+    findByEmail: Mock;
+    findById: Mock;
+    findByAccountId: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+    findAll: Mock;
+  };
+  let mockIndexedDBUserRepo: typeof mockSqliteUserRepo;
+  let mockEnumMappingService: {
+    getEnumFromId: Mock;
+    getEnumFromCode: Mock;
+    getRoleByCode?: Mock;
+    getRoleById?: Mock;
+    init?: Mock;
+  };
+  let mockAccountService: { getAccountById: Mock; createAccount: Mock };
+  let mockInputSanitizer: {
+    sanitizeUsername: Mock;
+    sanitizePin: Mock;
+    sanitizeEmail: Mock;
+    sanitizeName: Mock;
+  };
   let sessionStorageMock: Record<string, string>;
-  let bcrypt: Record<string, vi.Mock>;
+  let bcrypt: { hash: Mock; compare: Mock };
 
   const mockUser: User = {
     id: 1,
@@ -59,7 +81,7 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     // Import bcrypt for mocking
-    bcrypt = await import('bcryptjs');
+    bcrypt = (await import('bcryptjs')) as unknown as typeof bcrypt;
 
     // Reset bcrypt mocks
     vi.mocked(bcrypt.hash).mockReset();
@@ -179,12 +201,12 @@ describe('AuthService', () => {
 
       // Create new service instance to trigger constructor
       const newService = new AuthService(
-        mockPlatformService,
-        mockSqliteUserRepo,
-        mockIndexedDBUserRepo,
-        mockEnumMappingService,
-        mockAccountService,
-        mockInputSanitizer,
+        mockPlatformService as unknown as PlatformService,
+        mockSqliteUserRepo as unknown as SQLiteUserRepository,
+        mockIndexedDBUserRepo as unknown as IndexedDBUserRepository,
+        mockEnumMappingService as unknown as EnumMappingService,
+        mockAccountService as unknown as AccountService,
+        mockInputSanitizer as unknown as InputSanitizerService,
       );
 
       expect(newService.getCurrentSession()).toEqual(mockSession);
@@ -198,12 +220,12 @@ describe('AuthService', () => {
 
       // Create new service instance to trigger constructor
       const newService = new AuthService(
-        mockPlatformService,
-        mockSqliteUserRepo,
-        mockIndexedDBUserRepo,
-        mockEnumMappingService,
-        mockAccountService,
-        mockInputSanitizer,
+        mockPlatformService as unknown as PlatformService,
+        mockSqliteUserRepo as unknown as SQLiteUserRepository,
+        mockIndexedDBUserRepo as unknown as IndexedDBUserRepository,
+        mockEnumMappingService as unknown as EnumMappingService,
+        mockAccountService as unknown as AccountService,
+        mockInputSanitizer as unknown as InputSanitizerService,
       );
 
       expect(newService.getCurrentSession()).toBeNull();

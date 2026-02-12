@@ -1,14 +1,22 @@
 import { TestBed } from '@angular/core/testing';
 import { User, UserRoleEnum } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AuthService } from './auth.service';
 import { EnumMappingService } from './enum-mapping.service';
 import { UserManagementService } from './user-management.service';
 
 describe('UserManagementService', () => {
   let service: UserManagementService;
-  let mockAuthService: Record<string, vi.Mock>;
-  let mockEnumMappingService: Record<string, vi.Mock>;
+  let mockAuthService: {
+    getUsersByAccount: Mock;
+    createUser: Mock;
+    updateUserProfile: Mock;
+    deleteUser: Mock;
+  };
+  let mockEnumMappingService: {
+    getEnumFromCode: Mock;
+    getEnumFromId: Mock;
+  };
 
   const mockAdminRole = {
     id: 1,

@@ -5,7 +5,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AuthService } from '../../application/services/auth.service';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { desktopLandingGuard } from './desktop-landing.guard';
@@ -14,9 +14,9 @@ describe('desktopLandingGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => desktopLandingGuard(...guardParameters));
 
-  let authServiceSpy: { isSetupComplete: vi.Mock; isLoggedIn: vi.Mock };
-  let routerSpy: { navigate: vi.Mock };
-  let platformServiceSpy: { isTauri: vi.Mock };
+  let authServiceSpy: { isSetupComplete: Mock; isLoggedIn: Mock };
+  let routerSpy: { navigate: Mock };
+  let platformServiceSpy: { isTauri: Mock };
 
   beforeEach(() => {
     authServiceSpy = {

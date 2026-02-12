@@ -1,8 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { User } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { SQLiteUserRepository } from './sqlite-user.repository';
+
+/**
+ * Strict type for the database mock to satisfy TypeScript and Vitest requirements.
+ */
+interface MockDatabase {
+  select: Mock<[sql: string, bindValues?: unknown[]], Promise<unknown[]>>;
+  execute: Mock<[sql: string, bindValues?: unknown[]], Promise<{ lastInsertId: number | null }>>;
+}
 
 // Mock the Database module
 vi.mock('@tauri-apps/plugin-sql', () => {
@@ -15,7 +23,7 @@ vi.mock('@tauri-apps/plugin-sql', () => {
 
 describe('SQLiteUserRepository', () => {
   let repository: SQLiteUserRepository;
-  let mockDb: Record<string, vi.Mock>;
+  let mockDb: MockDatabase;
 
   beforeEach(() => {
     vi.clearAllMocks();

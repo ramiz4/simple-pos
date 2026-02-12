@@ -1,0 +1,41 @@
+# Use Ubuntu 22.04 to match GitHub Actions runner
+FROM ubuntu:22.04
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies for Tauri v2
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    wget \
+    file \
+    libssl-dev \
+    libxdo-dev \
+    libayatana-appindicator3-dev \
+    librsvg2-dev \
+    pkg-config \
+    libwebkit2gtk-4.1-dev \
+    libglib2.0-dev \
+    libgtk-3-dev \
+    libsoup-3.0-dev \
+    libjavascriptcoregtk-4.1-dev \
+    git
+
+# Install Node.js 22
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && apt-get install -y nodejs
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Install pnpm
+RUN npm install -g pnpm@10.28.2
+
+# Set workspace
+WORKDIR /app
+
+# We don't COPY . here because we will mount it for development/reproduction
+# to keep the image slim and allow fast iterations.
+
+CMD ["/bin/bash"]

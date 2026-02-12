@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Ingredient, Product, ProductIngredient } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { IngredientService } from './ingredient.service';
 import { InventoryService } from './inventory.service';
 import { ProductIngredientService } from './product-ingredient.service';
@@ -8,9 +8,19 @@ import { ProductService } from './product.service';
 
 describe('InventoryService', () => {
   let service: InventoryService;
-  let mockProductService: Record<string, vi.Mock>;
-  let mockIngredientService: Record<string, vi.Mock>;
-  let mockProductIngredientService: Record<string, vi.Mock>;
+  let mockProductService: {
+    getById: Mock;
+    update: Mock;
+    getAll: Mock;
+  };
+  let mockIngredientService: {
+    getById: Mock;
+    update: Mock;
+    getAll: Mock;
+  };
+  let mockProductIngredientService: {
+    getByProduct: Mock;
+  };
 
   const mockProduct: Product = {
     id: 1,

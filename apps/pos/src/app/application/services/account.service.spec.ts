@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Account } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { IndexedDBAccountRepository } from '../../infrastructure/repositories/indexeddb-account.repository';
 import { SQLiteAccountRepository } from '../../infrastructure/repositories/sqlite-account.repository';
 import { PlatformService } from '../../shared/utilities/platform.service';
@@ -8,9 +8,28 @@ import { AccountService } from './account.service';
 
 describe('AccountService', () => {
   let service: AccountService;
-  let mockPlatformService: Record<string, vi.Mock>;
-  let mockSqliteAccountRepo: Record<string, vi.Mock>;
-  let mockIndexedDBAccountRepo: Record<string, vi.Mock>;
+  let mockPlatformService: {
+    isTauri: Mock;
+    isWeb: Mock;
+  };
+  let mockSqliteAccountRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByEmail: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+  };
+  let mockIndexedDBAccountRepo: {
+    findById: Mock;
+    findAll: Mock;
+    findByEmail: Mock;
+    create: Mock;
+    update: Mock;
+    delete: Mock;
+    count: Mock;
+  };
 
   const mockAccount: Account = {
     id: 1,

@@ -1,19 +1,22 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
 import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
 import { PlatformService } from '../../shared/utilities/platform.service';
-import { BackupService } from './backup.service';
+import { BackupService, type BackupDataInner } from './backup.service';
 
 // Mock other repositories as needed...
 // For brevity, we'll mock the repositories used in the service
 
 describe('BackupService', () => {
   let service: BackupService;
-  let indexedDBRepo: Record<string, vi.Mock>;
+  let indexedDBRepo: {
+    findAll: Mock;
+    create: Mock;
+  };
 
   beforeEach(() => {
-    const platformMock: Record<string, vi.Mock> = {
+    const platformMock = {
       isTauri: vi.fn().mockReturnValue(false),
       isWeb: vi.fn().mockReturnValue(true),
     };
@@ -35,7 +38,7 @@ describe('BackupService', () => {
           // Decrypt returns ArrayBuffer
           decrypt: vi.fn().mockImplementation(() => {
             const mockData = {
-              codeTables: [{ id: 1, name: 'Restored CodeTable' }],
+              codeTables: [{ id: 1, codeType: 'test', code: 'test', sortOrder: 1, isActive: true }],
               codeTranslations: [],
               users: [],
               tables: [],
@@ -95,7 +98,7 @@ describe('BackupService', () => {
 
     service = TestBed.inject(BackupService);
     // Grab a handle to one of the repos for verification
-    indexedDBRepo = TestBed.inject(IndexedDBCodeTableRepository);
+    indexedDBRepo = TestBed.inject(IndexedDBCodeTableRepository) as unknown as typeof indexedDBRepo;
   });
 
   it('should be created', () => {
@@ -104,13 +107,15 @@ describe('BackupService', () => {
 
   it('should create a valid unencrypted backup', async () => {
     // Mock data return
-    indexedDBRepo.findAll.mockResolvedValue([{ id: 1, name: 'Test' }]);
+    indexedDBRepo.findAll.mockResolvedValue([
+      { id: 1, codeType: 'test', code: 'test', sortOrder: 1, isActive: true },
+    ]);
 
     const backup = await service.createBackup({ encrypt: false });
 
     expect(backup.version).toBeDefined();
     expect(backup.encrypted).toBe(false);
-    expect(backup.data.codeTables.length).toBe(1);
+    expect((backup.data as BackupDataInner).codeTables.length).toBe(1);
     expect(service.validateBackup(backup).valid).toBe(true);
   });
 
@@ -140,7 +145,7 @@ describe('BackupService', () => {
     const wrongPassword = 'wrong-password';
 
     // Mock failure for this specific test
-    const cryptoMock = globalThis.crypto.subtle as unknown as { decrypt: vi.Mock };
+    const cryptoMock = globalThis.crypto.subtle as unknown as { decrypt: Mock };
     cryptoMock.decrypt.mockRejectedValueOnce(new Error('Decryption failed'));
 
     const originalBackup = await service.createBackup({ encrypt: true, password });

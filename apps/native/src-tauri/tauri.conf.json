@@ -1,6 +1,6 @@
 {
   "productName": "Simple POS",
-  "version": "1.23.3",
+  "version": "0.0.0",
   "identifier": "com.simple.pos",
   "build": {
     "beforeDevCommand": {
@@ -10,7 +10,7 @@
     },
     "devUrl": "http://localhost:4200",
     "beforeBuildCommand": {
-      "script": "pnpm exec nx build pos",
+      "script": "pnpm nx build pos",
       "cwd": "../../.."
     },
     "frontendDist": "../../../dist/apps/pos/browser"

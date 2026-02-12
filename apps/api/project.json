@@ -52,6 +52,14 @@
       "dependsOn": ["prune-lockfile", "copy-workspace-modules"],
       "executor": "nx:noop"
     },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "dependsOn": ["prisma-generate"],
+      "options": {
+        "config": "apps/api/vitest.config.mts",
+        "passWithNoTests": true
+      }
+    },
     "serve": {
       "continuous": true,
       "executor": "@nx/js:node",

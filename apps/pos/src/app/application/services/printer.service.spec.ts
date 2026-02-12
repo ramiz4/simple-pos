@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { EnumMappingService } from './enum-mapping.service';
 import { ExtraService } from './extra.service';
@@ -25,13 +25,13 @@ interface PrinterServiceInternal {
 describe('PrinterService', () => {
   let service: PrinterService;
   let internalService: PrinterServiceInternal;
-  let platformService: Record<string, vi.Mock>;
-  let orderService: Record<string, vi.Mock>;
-  let productService: Record<string, vi.Mock>;
-  let enumMappingService: Record<string, vi.Mock>;
+  let platformService: { isTauri: Mock; isWeb: Mock };
+  let orderService: { getOrderById: Mock; getOrderItems: Mock; getOrderItemExtras: Mock };
+  let productService: { getById: Mock };
+  let enumMappingService: { getTranslation: Mock };
 
   beforeEach(() => {
-    const platformMock: Record<string, vi.Mock> = {
+    const platformMock: { isTauri: Mock; isWeb: Mock } = {
       isTauri: vi.fn().mockReturnValue(false),
       isWeb: vi.fn().mockReturnValue(true),
     };
@@ -63,10 +63,10 @@ describe('PrinterService', () => {
 
     service = TestBed.inject(PrinterService);
     internalService = service as unknown as PrinterServiceInternal;
-    platformService = TestBed.inject(PlatformService) as unknown as Record<string, vi.Mock>;
-    orderService = TestBed.inject(OrderService) as unknown as Record<string, vi.Mock>;
-    productService = TestBed.inject(ProductService) as unknown as Record<string, vi.Mock>;
-    enumMappingService = TestBed.inject(EnumMappingService) as unknown as Record<string, vi.Mock>;
+    platformService = TestBed.inject(PlatformService) as unknown as typeof platformService;
+    orderService = TestBed.inject(OrderService) as unknown as typeof orderService;
+    productService = TestBed.inject(ProductService) as unknown as typeof productService;
+    enumMappingService = TestBed.inject(EnumMappingService) as unknown as typeof enumMappingService;
   });
 
   it('should be created', () => {

@@ -5,7 +5,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from '@angular/router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AuthService } from '../../application/services/auth.service';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { authGuard } from './auth.guard';
@@ -14,9 +14,9 @@ describe('authGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => authGuard(...guardParameters));
 
-  let authServiceSpy: { isLoggedIn: vi.Mock; isSetupComplete: vi.Mock };
-  let routerSpy: { navigate: vi.Mock };
-  let platformServiceSpy: { isTauri: vi.Mock };
+  let authServiceSpy: { isLoggedIn: Mock; isSetupComplete: Mock };
+  let routerSpy: { navigate: Mock };
+  let platformServiceSpy: { isTauri: Mock };
 
   beforeEach(() => {
     authServiceSpy = {
