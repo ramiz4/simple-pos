@@ -15,7 +15,7 @@
     "build:ci": "nx affected -t build --parallel=3 --exclude=native",
     "test": "nx run-many -t test --watch",
     "test:all": "nx run-many -t test --run",
-    "test:ci": "DATABASE_URL=\"${DATABASE_URL:-postgresql://CONFIGURE_ME:CONFIGURE_ME@localhost:5432/CONFIGURE_ME}\" nx affected -t test --run --parallel=3 --base=\"$(git rev-parse --verify --quiet origin/main || git rev-parse --verify --quiet main || git rev-parse --verify --quiet master || echo HEAD~1)\" --head=HEAD",
+    "test:ci": "node ./scripts/run-test-ci.js",
     "test:ci:coverage": "nx affected -t test --coverage --run --parallel=3",
     "lint": "nx run-many -t lint",
     "lint:ci": "nx affected -t lint --parallel=3",
