@@ -10,7 +10,7 @@ import {
 } from '../application/services/scheduled-backup.service';
 import { LoggerService } from '../core/services/logger.service';
 import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
-import { PlatformService } from '../shared/utilities/platform.service';
+import { PlatformService } from '../infrastructure/services/platform.service';
 import { BackupSettingsComponent } from '../ui/pages/admin/backup-settings/backup-settings.component';
 
 // Mock component for routing

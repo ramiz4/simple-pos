@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { GlobalErrorHandler } from '../core/error-handler.global';
 import { LoggerService } from '../core/services/logger.service';
-import { PlatformService } from '../shared/utilities/platform.service';
+import { PlatformService } from '../infrastructure/services/platform.service';
 
 describe('Error Tracking Integration', () => {
   let errorHandler: GlobalErrorHandler;

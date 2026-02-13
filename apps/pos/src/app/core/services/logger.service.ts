@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { attachConsole, error, info, warn } from '@tauri-apps/plugin-log';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 
 export interface ErrorLogEntry {
   id: string;

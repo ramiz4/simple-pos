@@ -5,7 +5,7 @@ import { User } from '@simple-pos/shared/types';
 import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { UserManagementService } from '../../../../application/services/user-management.service';
-import { AutoFocusDirective } from '../../../../shared/directives/auto-focus.directive';
+import { AutoFocusDirective } from '../../../../ui/directives/auto-focus.directive';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
 import { AdminDataTableComponent } from '../../../components/admin/shared/data-table/data-table.component';
 import { AdminPageLayoutComponent } from '../../../components/admin/shared/page-layout/page-layout.component';

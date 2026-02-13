@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { BaseRepository } from '@simple-pos/shared/types';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { REPOSITORY_PROVIDERS } from '../providers/repository.providers';
 import {
   ACCOUNT_REPOSITORY,

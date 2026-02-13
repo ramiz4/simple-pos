@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggerService } from '../../core/services/logger.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { BackupData, BackupService } from './backup.service';
 import { ScheduledBackupConfig, ScheduledBackupService } from './scheduled-backup.service';
 

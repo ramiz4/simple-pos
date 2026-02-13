@@ -7,7 +7,7 @@ The `apps/pos/src/app/shared/` folder contains a mix of utilities, services, and
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
 - **Priority**: Medium
 - **Effort**: Low
 
@@ -140,14 +140,14 @@ pnpm lint
 
 ## Acceptance Criteria
 
-- [ ] `apps/pos/src/app/shared/` directory no longer exists
-- [ ] `PlatformService` is in `infrastructure/services/`
-- [ ] `InputSanitizerService` is in `libs/shared/utils/` and re-exported
-- [ ] `RateLimiterService` is in `core/services/`
-- [ ] `AutoFocusDirective` is in `ui/directives/`
-- [ ] All imports updated — no broken references
-- [ ] All tests pass
-- [ ] No `shared/` naming confusion remains in `apps/pos`
+- [x] `apps/pos/src/app/shared/` directory no longer exists
+- [x] `PlatformService` is in `infrastructure/services/`
+- [x] `InputSanitizerService` is in `libs/shared/utils/` and re-exported
+- [x] `RateLimiterService` is in `core/services/`
+- [x] `AutoFocusDirective` is in `ui/directives/`
+- [x] All imports updated — no broken references
+- [x] All tests pass
+- [x] No `shared/` naming confusion remains in `apps/pos`
 
 ## Related Tasks
 

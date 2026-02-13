@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 
 @Injectable({
   providedIn: 'root',

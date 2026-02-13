@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { LoggerService } from '../../core/services/logger.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { BackupData, BackupService } from './backup.service';
 
 export interface BackupMetadata {

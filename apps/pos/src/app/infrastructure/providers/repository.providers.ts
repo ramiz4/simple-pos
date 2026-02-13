@@ -18,7 +18,7 @@ import { ProductIngredientRepository } from '../../core/interfaces/product-ingre
 import { ProductRepository } from '../../core/interfaces/product-repository.interface';
 import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { IndexedDBAccountRepository } from '../repositories/indexeddb-account.repository';
 import { IndexedDBCategoryRepository } from '../repositories/indexeddb-category.repository';
 import { IndexedDBCodeTableRepository } from '../repositories/indexeddb-code-table.repository';
