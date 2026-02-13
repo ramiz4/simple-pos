@@ -1,23 +1,19 @@
 import { Inject, Injectable } from '@angular/core';
 import { Account } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { AccountRepository } from '../../core/interfaces/account-repository.interface';
 import { ACCOUNT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
-  private accountRepo: BaseRepository<Account> & {
-    findByEmail: (email: string) => Promise<Account | null>;
-  };
+  private accountRepo: AccountRepository;
 
   constructor(
     @Inject(ACCOUNT_REPOSITORY)
-    repo: BaseRepository<Account>,
+    repo: AccountRepository,
   ) {
-    this.accountRepo = repo as BaseRepository<Account> & {
-      findByEmail: (email: string) => Promise<Account | null>;
-    };
+    this.accountRepo = repo;
   }
 
   async createAccount(name: string, email: string): Promise<Account> {

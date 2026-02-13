@@ -4,12 +4,13 @@ import {
   CartItem,
   Order,
   OrderItem,
-  OrderItemExtra,
   OrderStatusEnum,
   OrderTypeEnum,
   TableStatusEnum,
 } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { OrderItemExtraRepository } from '../../core/interfaces/order-item-extra-repository.interface';
+import { OrderItemRepository } from '../../core/interfaces/order-item-repository.interface';
+import { OrderRepository } from '../../core/interfaces/order-repository.interface';
 import {
   ORDER_ITEM_EXTRA_REPOSITORY,
   ORDER_ITEM_REPOSITORY,
@@ -35,29 +36,20 @@ export interface CreateOrderData {
   providedIn: 'root',
 })
 export class OrderService {
-  private orderRepo: BaseRepository<Order> & {
-    getNextOrderNumber: () => Promise<string>;
-    findByTable: (tableId: number) => Promise<Order[]>;
-    findActiveOrders: () => Promise<Order[]>;
-    findByStatus: (statusId: number) => Promise<Order[]>;
-  };
-  private orderItemRepo: BaseRepository<OrderItem> & {
-    findByOrderId: (orderId: number) => Promise<OrderItem[]>;
-  };
-  private orderItemExtraRepo: BaseRepository<OrderItemExtra> & {
-    findByOrderItemId: (orderItemId: number) => Promise<OrderItemExtra[]>;
-  };
+  private orderRepo: OrderRepository;
+  private orderItemRepo: OrderItemRepository;
+  private orderItemExtraRepo: OrderItemExtraRepository;
 
   constructor(
-    @Inject(ORDER_REPOSITORY) orderRepo: BaseRepository<Order>,
-    @Inject(ORDER_ITEM_REPOSITORY) orderItemRepo: BaseRepository<OrderItem>,
-    @Inject(ORDER_ITEM_EXTRA_REPOSITORY) orderItemExtraRepo: BaseRepository<OrderItemExtra>,
+    @Inject(ORDER_REPOSITORY) orderRepo: OrderRepository,
+    @Inject(ORDER_ITEM_REPOSITORY) orderItemRepo: OrderItemRepository,
+    @Inject(ORDER_ITEM_EXTRA_REPOSITORY) orderItemExtraRepo: OrderItemExtraRepository,
     private enumMappingService: EnumMappingService,
     private tableService: TableService,
   ) {
-    this.orderRepo = orderRepo as typeof this.orderRepo;
-    this.orderItemRepo = orderItemRepo as typeof this.orderItemRepo;
-    this.orderItemExtraRepo = orderItemExtraRepo as typeof this.orderItemExtraRepo;
+    this.orderRepo = orderRepo;
+    this.orderItemRepo = orderItemRepo;
+    this.orderItemExtraRepo = orderItemExtraRepo;
   }
 
   async createOrder(data: CreateOrderData): Promise<Order> {

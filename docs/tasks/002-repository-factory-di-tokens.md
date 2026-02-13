@@ -7,9 +7,16 @@ The `RepositoryFactory` in `apps/pos/src/app/infrastructure/adapters/repository.
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
+- **Completed**: February 13, 2026
 - **Priority**: High
 - **Effort**: Medium
+
+## Completion Notes
+
+- Repository selection now uses InjectionToken-based DI for each entity.
+- Platform switching is centralized in repository providers.
+- The legacy RepositoryFactory has been removed.
 
 ## Recommended Agent
 
@@ -200,15 +207,14 @@ export class ProductService {
 
 Once all services are migrated, delete `apps/pos/src/app/infrastructure/adapters/repository.factory.ts`.
 
-
 ## Acceptance Criteria
 
-- [ ] Every entity pair has a corresponding DI token or factory method
-- [ ] No service directly imports both SQLite and IndexedDB repository classes
-- [ ] Services inject only `BaseRepository<T>` (via token or factory)
-- [ ] All existing tests pass
-- [ ] Platform switching works correctly for both Tauri and Web environments
-- [ ] Old `RepositoryFactory` is removed (if using DI tokens approach)
+- [x] Every entity pair has a corresponding DI token or factory method
+- [x] No service directly imports both SQLite and IndexedDB repository classes
+- [x] Services inject only `BaseRepository<T>` (via token or factory)
+- [x] All existing tests pass
+- [x] Platform switching works correctly for both Tauri and Web environments
+- [x] Old `RepositoryFactory` is removed (if using DI tokens approach)
 
 ## References
 

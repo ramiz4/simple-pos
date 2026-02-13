@@ -2,7 +2,7 @@ import { Inject, Injectable, Optional } from '@angular/core';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
 import { ValidationUtils } from '@simple-pos/shared/utils';
 import * as bcrypt from 'bcryptjs';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { USER_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
@@ -35,21 +35,16 @@ export class AuthService {
   private readonly LOCAL_SETUP_DOMAIN = 'local.pos';
   private readonly MAX_USERNAME_COLLISION_ATTEMPTS = 10;
   private readonly CLOUD_SESSION_STORAGE_KEY = 'cloudSession';
-  private userRepo: BaseRepository<User> & {
-    findByName: (name: string) => Promise<User | null>;
-    findByNameAndAccount: (name: string, accountId: number) => Promise<User | null>;
-    findByEmail: (email: string) => Promise<User | null>;
-    findByAccountId: (accountId: number) => Promise<User[]>;
-  };
+  private userRepo: UserRepository;
 
   constructor(
-    @Inject(USER_REPOSITORY) repo: BaseRepository<User>,
+    @Inject(USER_REPOSITORY) repo: UserRepository,
     private enumMappingService: EnumMappingService,
     private accountService: AccountService,
     private inputSanitizer: InputSanitizerService,
     @Optional() private cloudAuthClient?: CloudAuthClientService,
   ) {
-    this.userRepo = repo as typeof this.userRepo;
+    this.userRepo = repo;
     this.loadSessionFromStorage();
     this.loadCloudSessionFromStorage();
   }

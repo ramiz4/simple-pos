@@ -79,5 +79,25 @@ describe('Repository DI Tokens', () => {
         expect(typeof (repo as BaseRepository<unknown>).findAll).toBe('function');
       });
     });
+
+    describe('Tauri platform (SQLite)', () => {
+      beforeEach(() => {
+        TestBed.configureTestingModule({
+          providers: [
+            {
+              provide: PlatformService,
+              useValue: { isTauri: () => true, isWeb: () => false },
+            },
+            ...REPOSITORY_PROVIDERS,
+          ],
+        });
+      });
+
+      it.each(ALL_TOKENS)('$name should resolve to a SQLite repository', ({ token }) => {
+        const repo = TestBed.inject(token);
+        expect(repo).toBeDefined();
+        expect(typeof (repo as BaseRepository<unknown>).findAll).toBe('function');
+      });
+    });
   });
 });

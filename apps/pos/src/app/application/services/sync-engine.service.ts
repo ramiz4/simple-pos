@@ -11,8 +11,6 @@ import {
   OrderItem,
   OrderItemExtra,
   Product,
-  ProductExtra,
-  ProductIngredient,
   ResolveConflictResponse,
   SYNC_ENTITIES,
   SyncChangeSet,
@@ -21,9 +19,11 @@ import {
   SyncOperation,
   Table,
   User,
-  Variant,
 } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 import { CloudSyncClientService } from '../../infrastructure/http/cloud-sync-client.service';
 import { SyncMetadataMigrationService } from '../../infrastructure/services/sync-metadata-migration.service';
 import {
@@ -91,9 +91,9 @@ export class SyncEngineService {
     @Inject(INGREDIENT_REPOSITORY) ingredientRepo: BaseRepository<Ingredient>,
     @Inject(TABLE_REPOSITORY) tableRepo: BaseRepository<Table>,
     @Inject(PRODUCT_REPOSITORY) productRepo: BaseRepository<Product>,
-    @Inject(VARIANT_REPOSITORY) variantRepo: BaseRepository<Variant>,
-    @Inject(PRODUCT_EXTRA_REPOSITORY) productExtraRepo: BaseRepository<ProductExtra>,
-    @Inject(PRODUCT_INGREDIENT_REPOSITORY) productIngredientRepo: BaseRepository<ProductIngredient>,
+    @Inject(VARIANT_REPOSITORY) variantRepo: VariantRepository,
+    @Inject(PRODUCT_EXTRA_REPOSITORY) productExtraRepo: ProductExtraRepository,
+    @Inject(PRODUCT_INGREDIENT_REPOSITORY) productIngredientRepo: ProductIngredientRepository,
     @Inject(ORDER_REPOSITORY) orderRepo: BaseRepository<Order>,
     @Inject(ORDER_ITEM_REPOSITORY) orderItemRepo: BaseRepository<OrderItem>,
     @Inject(ORDER_ITEM_EXTRA_REPOSITORY) orderItemExtraRepo: BaseRepository<OrderItemExtra>,

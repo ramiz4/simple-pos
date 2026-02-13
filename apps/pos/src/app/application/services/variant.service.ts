@@ -1,23 +1,19 @@
 import { Inject, Injectable } from '@angular/core';
 import { Variant } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 import { VARIANT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VariantService {
-  private repo: BaseRepository<Variant> & {
-    findByProduct: (productId: number) => Promise<Variant[]>;
-  };
+  private repo: VariantRepository;
 
   constructor(
     @Inject(VARIANT_REPOSITORY)
-    repo: BaseRepository<Variant>,
+    repo: VariantRepository,
   ) {
-    this.repo = repo as BaseRepository<Variant> & {
-      findByProduct: (productId: number) => Promise<Variant[]>;
-    };
+    this.repo = repo;
   }
 
   async getAll(): Promise<Variant[]> {

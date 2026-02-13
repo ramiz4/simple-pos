@@ -16,6 +16,9 @@ import {
   Variant,
 } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 import {
   CATEGORY_REPOSITORY,
   CODE_TABLE_REPOSITORY,
@@ -84,12 +87,12 @@ export class BackupService {
     @Inject(TABLE_REPOSITORY) private tableRepo: BaseRepository<Table>,
     @Inject(CATEGORY_REPOSITORY) private categoryRepo: BaseRepository<Category>,
     @Inject(PRODUCT_REPOSITORY) private productRepo: BaseRepository<Product>,
-    @Inject(VARIANT_REPOSITORY) private variantRepo: BaseRepository<Variant>,
+    @Inject(VARIANT_REPOSITORY) private variantRepo: VariantRepository,
     @Inject(EXTRA_REPOSITORY) private extraRepo: BaseRepository<Extra>,
     @Inject(INGREDIENT_REPOSITORY) private ingredientRepo: BaseRepository<Ingredient>,
-    @Inject(PRODUCT_EXTRA_REPOSITORY) private productExtraRepo: BaseRepository<ProductExtra>,
+    @Inject(PRODUCT_EXTRA_REPOSITORY) private productExtraRepo: ProductExtraRepository,
     @Inject(PRODUCT_INGREDIENT_REPOSITORY)
-    private productIngredientRepo: BaseRepository<ProductIngredient>,
+    private productIngredientRepo: ProductIngredientRepository,
     @Inject(ORDER_REPOSITORY) private orderRepo: BaseRepository<Order>,
     @Inject(ORDER_ITEM_REPOSITORY) private orderItemRepo: BaseRepository<OrderItem>,
     @Inject(ORDER_ITEM_EXTRA_REPOSITORY) private orderItemExtraRepo: BaseRepository<OrderItemExtra>,

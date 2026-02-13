@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
-import { CodeTable, CodeTranslation } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { CodeTable } from '@simple-pos/shared/types';
+import { CodeTableRepository } from '../../core/interfaces/code-table-repository.interface';
+import { CodeTranslationRepository } from '../../core/interfaces/code-translation-repository.interface';
 import {
   CODE_TABLE_REPOSITORY,
   CODE_TRANSLATION_REPOSITORY,
@@ -12,23 +13,15 @@ import {
 export class EnumMappingService {
   private codeTableCache: Map<string, CodeTable[]> = new Map();
   private reverseCache: Map<number, { codeType: string; code: string }> = new Map();
-  private codeTableRepo: BaseRepository<CodeTable> & {
-    findByCodeType: (codeType: string) => Promise<CodeTable[]>;
-    findByCodeTypeAndCode: (codeType: string, code: string) => Promise<CodeTable | null>;
-  };
-  private codeTranslationRepo: BaseRepository<CodeTranslation> & {
-    findByCodeTableIdAndLanguage: (
-      codeTableId: number,
-      language: string,
-    ) => Promise<CodeTranslation | null>;
-  };
+  private codeTableRepo: CodeTableRepository;
+  private codeTranslationRepo: CodeTranslationRepository;
 
   constructor(
-    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: BaseRepository<CodeTable>,
-    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: BaseRepository<CodeTranslation>,
+    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: CodeTableRepository,
+    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: CodeTranslationRepository,
   ) {
-    this.codeTableRepo = codeTableRepo as typeof this.codeTableRepo;
-    this.codeTranslationRepo = codeTranslationRepo as typeof this.codeTranslationRepo;
+    this.codeTableRepo = codeTableRepo;
+    this.codeTranslationRepo = codeTranslationRepo;
   }
 
   async init(): Promise<void> {

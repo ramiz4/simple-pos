@@ -1,25 +1,19 @@
 import { Inject, Injectable } from '@angular/core';
 import { ProductIngredient } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
 import { PRODUCT_INGREDIENT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductIngredientService {
-  private repo: BaseRepository<ProductIngredient> & {
-    findByProduct: (productId: number) => Promise<ProductIngredient[]>;
-    deleteByProductAndIngredient: (productId: number, ingredientId: number) => Promise<void>;
-  };
+  private repo: ProductIngredientRepository;
 
   constructor(
     @Inject(PRODUCT_INGREDIENT_REPOSITORY)
-    repo: BaseRepository<ProductIngredient>,
+    repo: ProductIngredientRepository,
   ) {
-    this.repo = repo as BaseRepository<ProductIngredient> & {
-      findByProduct: (productId: number) => Promise<ProductIngredient[]>;
-      deleteByProductAndIngredient: (productId: number, ingredientId: number) => Promise<void>;
-    };
+    this.repo = repo;
   }
 
   async getByProduct(productId: number): Promise<ProductIngredient[]> {

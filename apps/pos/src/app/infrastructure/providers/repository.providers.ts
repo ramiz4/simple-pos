@@ -1,4 +1,17 @@
 import { Provider } from '@angular/core';
+import { Category, Extra, Ingredient, Table, TestEntity } from '@simple-pos/shared/types';
+import { AccountRepository } from '../../core/interfaces/account-repository.interface';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { CodeTableRepository } from '../../core/interfaces/code-table-repository.interface';
+import { CodeTranslationRepository } from '../../core/interfaces/code-translation-repository.interface';
+import { OrderItemExtraRepository } from '../../core/interfaces/order-item-extra-repository.interface';
+import { OrderItemRepository } from '../../core/interfaces/order-item-repository.interface';
+import { OrderRepository } from '../../core/interfaces/order-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
+import { ProductRepository } from '../../core/interfaces/product-repository.interface';
+import { UserRepository } from '../../core/interfaces/user-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { IndexedDBAccountRepository } from '../repositories/indexeddb-account.repository';
 import { IndexedDBCategoryRepository } from '../repositories/indexeddb-category.repository';
@@ -58,37 +71,31 @@ function platformRepositoryFactory<T>(platform: PlatformService, sqlite: T, idb:
 export const REPOSITORY_PROVIDERS: Provider[] = [
   {
     provide: ACCOUNT_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteAccountRepository, i: IndexedDBAccountRepository) =>
+    useFactory: (p: PlatformService, s: AccountRepository, i: AccountRepository) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteAccountRepository, IndexedDBAccountRepository],
   },
   {
     provide: CATEGORY_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteCategoryRepository, i: IndexedDBCategoryRepository) =>
+    useFactory: (p: PlatformService, s: BaseRepository<Category>, i: BaseRepository<Category>) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteCategoryRepository, IndexedDBCategoryRepository],
   },
   {
     provide: CODE_TABLE_REPOSITORY,
-    useFactory: (
-      p: PlatformService,
-      s: SQLiteCodeTableRepository,
-      i: IndexedDBCodeTableRepository,
-    ) => platformRepositoryFactory(p, s, i),
+    useFactory: (p: PlatformService, s: CodeTableRepository, i: CodeTableRepository) =>
+      platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteCodeTableRepository, IndexedDBCodeTableRepository],
   },
   {
     provide: CODE_TRANSLATION_REPOSITORY,
-    useFactory: (
-      p: PlatformService,
-      s: SQLiteCodeTranslationRepository,
-      i: IndexedDBCodeTranslationRepository,
-    ) => platformRepositoryFactory(p, s, i),
+    useFactory: (p: PlatformService, s: CodeTranslationRepository, i: CodeTranslationRepository) =>
+      platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteCodeTranslationRepository, IndexedDBCodeTranslationRepository],
   },
   {
     provide: EXTRA_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteExtraRepository, i: IndexedDBExtraRepository) =>
+    useFactory: (p: PlatformService, s: BaseRepository<Extra>, i: BaseRepository<Extra>) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteExtraRepository, IndexedDBExtraRepository],
   },
@@ -96,56 +103,47 @@ export const REPOSITORY_PROVIDERS: Provider[] = [
     provide: INGREDIENT_REPOSITORY,
     useFactory: (
       p: PlatformService,
-      s: SQLiteIngredientRepository,
-      i: IndexedDBIngredientRepository,
+      s: BaseRepository<Ingredient>,
+      i: BaseRepository<Ingredient>,
     ) => platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteIngredientRepository, IndexedDBIngredientRepository],
   },
   {
     provide: ORDER_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteOrderRepository, i: IndexedDBOrderRepository) =>
+    useFactory: (p: PlatformService, s: OrderRepository, i: OrderRepository) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteOrderRepository, IndexedDBOrderRepository],
   },
   {
     provide: ORDER_ITEM_REPOSITORY,
-    useFactory: (
-      p: PlatformService,
-      s: SQLiteOrderItemRepository,
-      i: IndexedDBOrderItemRepository,
-    ) => platformRepositoryFactory(p, s, i),
+    useFactory: (p: PlatformService, s: OrderItemRepository, i: OrderItemRepository) =>
+      platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteOrderItemRepository, IndexedDBOrderItemRepository],
   },
   {
     provide: ORDER_ITEM_EXTRA_REPOSITORY,
-    useFactory: (
-      p: PlatformService,
-      s: SQLiteOrderItemExtraRepository,
-      i: IndexedDBOrderItemExtraRepository,
-    ) => platformRepositoryFactory(p, s, i),
+    useFactory: (p: PlatformService, s: OrderItemExtraRepository, i: OrderItemExtraRepository) =>
+      platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteOrderItemExtraRepository, IndexedDBOrderItemExtraRepository],
   },
   {
     provide: PRODUCT_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteProductRepository, i: IndexedDBProductRepository) =>
+    useFactory: (p: PlatformService, s: ProductRepository, i: ProductRepository) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteProductRepository, IndexedDBProductRepository],
   },
   {
     provide: PRODUCT_EXTRA_REPOSITORY,
-    useFactory: (
-      p: PlatformService,
-      s: SQLiteProductExtraRepository,
-      i: IndexedDBProductExtraRepository,
-    ) => platformRepositoryFactory(p, s, i),
+    useFactory: (p: PlatformService, s: ProductExtraRepository, i: ProductExtraRepository) =>
+      platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteProductExtraRepository, IndexedDBProductExtraRepository],
   },
   {
     provide: PRODUCT_INGREDIENT_REPOSITORY,
     useFactory: (
       p: PlatformService,
-      s: SQLiteProductIngredientRepository,
-      i: IndexedDBProductIngredientRepository,
+      s: ProductIngredientRepository,
+      i: ProductIngredientRepository,
     ) => platformRepositoryFactory(p, s, i),
     deps: [
       PlatformService,
@@ -155,25 +153,28 @@ export const REPOSITORY_PROVIDERS: Provider[] = [
   },
   {
     provide: TABLE_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteTableRepository, i: IndexedDBTableRepository) =>
+    useFactory: (p: PlatformService, s: BaseRepository<Table>, i: BaseRepository<Table>) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteTableRepository, IndexedDBTableRepository],
   },
   {
     provide: TEST_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteTestRepository, i: IndexedDBTestRepository) =>
-      platformRepositoryFactory(p, s, i),
+    useFactory: (
+      p: PlatformService,
+      s: BaseRepository<TestEntity>,
+      i: BaseRepository<TestEntity>,
+    ) => platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteTestRepository, IndexedDBTestRepository],
   },
   {
     provide: USER_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteUserRepository, i: IndexedDBUserRepository) =>
+    useFactory: (p: PlatformService, s: UserRepository, i: UserRepository) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteUserRepository, IndexedDBUserRepository],
   },
   {
     provide: VARIANT_REPOSITORY,
-    useFactory: (p: PlatformService, s: SQLiteVariantRepository, i: IndexedDBVariantRepository) =>
+    useFactory: (p: PlatformService, s: VariantRepository, i: VariantRepository) =>
       platformRepositoryFactory(p, s, i),
     deps: [PlatformService, SQLiteVariantRepository, IndexedDBVariantRepository],
   },

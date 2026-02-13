@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
 import {
-  CodeTable,
-  CodeTranslation,
   OrderStatusEnum,
   OrderTypeEnum,
   TableStatusEnum,
   UserRoleEnum,
 } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { CodeTableRepository } from '../../core/interfaces/code-table-repository.interface';
+import { CodeTranslationRepository } from '../../core/interfaces/code-translation-repository.interface';
 import {
   CODE_TABLE_REPOSITORY,
   CODE_TRANSLATION_REPOSITORY,
@@ -143,15 +142,12 @@ export class SeedService {
     },
   ];
 
-  private codeTableRepo: BaseRepository<CodeTable> & {
-    findByCodeType: (codeType: string) => Promise<CodeTable[]>;
-    findByCodeTypeAndCode: (codeType: string, code: string) => Promise<CodeTable | null>;
-  };
-  private codeTranslationRepo: BaseRepository<CodeTranslation>;
+  private codeTableRepo: CodeTableRepository;
+  private codeTranslationRepo: CodeTranslationRepository;
 
   constructor(
-    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: BaseRepository<CodeTable>,
-    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: BaseRepository<CodeTranslation>,
+    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: CodeTableRepository,
+    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: CodeTranslationRepository,
     private tableService: TableService,
     private categoryService: CategoryService,
     private productService: ProductService,
@@ -161,7 +157,7 @@ export class SeedService {
     private productExtraService: ProductExtraService,
     private productIngredientService: ProductIngredientService,
   ) {
-    this.codeTableRepo = codeTableRepo as typeof this.codeTableRepo;
+    this.codeTableRepo = codeTableRepo;
     this.codeTranslationRepo = codeTranslationRepo;
   }
 

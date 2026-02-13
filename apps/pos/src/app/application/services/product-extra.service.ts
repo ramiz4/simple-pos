@@ -1,25 +1,19 @@
 import { Inject, Injectable } from '@angular/core';
 import { ProductExtra } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
 import { PRODUCT_EXTRA_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductExtraService {
-  private repo: BaseRepository<ProductExtra> & {
-    findByProduct: (productId: number) => Promise<ProductExtra[]>;
-    deleteByProductAndExtra: (productId: number, extraId: number) => Promise<void>;
-  };
+  private repo: ProductExtraRepository;
 
   constructor(
     @Inject(PRODUCT_EXTRA_REPOSITORY)
-    repo: BaseRepository<ProductExtra>,
+    repo: ProductExtraRepository,
   ) {
-    this.repo = repo as BaseRepository<ProductExtra> & {
-      findByProduct: (productId: number) => Promise<ProductExtra[]>;
-      deleteByProductAndExtra: (productId: number, extraId: number) => Promise<void>;
-    };
+    this.repo = repo;
   }
 
   async getByProduct(productId: number): Promise<ProductExtra[]> {
