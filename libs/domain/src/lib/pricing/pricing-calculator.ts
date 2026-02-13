@@ -1,5 +1,3 @@
-import { roundCurrency } from '@simple-pos/shared/utils';
-
 export interface BaseOrderItem {
   productPrice: number;
   variantPriceModifier?: number;
@@ -11,6 +9,16 @@ export interface BaseOrderItem {
  * Kosovo VAT rate (18%) - prices already include this tax (tax-inclusive pricing)
  */
 export const TAX_RATE = 0.18;
+
+/**
+ * Round a monetary value to 2 decimal places
+ * This eliminates JavaScript floating-point precision errors
+ * @param value The value to round
+ * @returns The value rounded to 2 decimal places
+ */
+function roundCurrency(value: number): number {
+  return Math.round(value * 100) / 100;
+}
 
 export class PricingCalculator {
   /**
