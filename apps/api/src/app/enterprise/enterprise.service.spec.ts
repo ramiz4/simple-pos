@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { PrismaService } from '@simple-pos/api-common';
 import { DnsVerificationService } from './dns-verification.service';
 import { EnterpriseService } from './enterprise.service';
 

@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '@simple-pos/api-common';
 import { OrderStateMachine, PricingCalculator } from '@simple-pos/domain';
 import { OrderStatusEnum } from '@simple-pos/shared/types';
 import { roundCurrency } from '@simple-pos/shared/utils';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 

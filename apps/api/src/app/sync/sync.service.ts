@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { PrismaService } from '@simple-pos/api-common';
 import {
   ConflictResolutionStrategy,
   ResolveConflictResponse,
@@ -13,7 +14,6 @@ import {
   SyncPushResponse,
 } from '@simple-pos/shared/types';
 import { randomUUID } from 'crypto';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { ConflictResolutionService } from './conflict-resolution.service';
 import { EntitySyncAdapterRegistry } from './entity-sync-adapter.registry';
 

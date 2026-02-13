@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NestMiddleware } from '@nestjs/common';
 import { ValidationUtils } from '@simple-pos/shared/utils';
 import { NextFunction, Request, Response } from 'express';
-import { PrismaService } from '../common/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { parseHostContext } from './tenant-host.utils';
 
 interface CachedTenantContext {

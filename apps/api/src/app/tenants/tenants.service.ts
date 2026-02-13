@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { parseHostContext, PrismaService } from '@simple-pos/api-common';
 import { randomBytes } from 'crypto';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
-import { parseHostContext } from './tenant-host.utils';
 
 interface TenantObject {
   [key: string]: unknown;

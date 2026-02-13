@@ -5,8 +5,8 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
+import { PrismaService } from '@simple-pos/api-common';
 import Stripe from 'stripe';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { normalizeTenantPlan, TENANT_PLAN_VALUES, TenantPlan } from '../tenants/tenant-plan.config';
 import { CreateCheckoutSessionDto } from './dto/create-checkout-session.dto';
 import { CreatePortalSessionDto } from './dto/create-portal-session.dto';

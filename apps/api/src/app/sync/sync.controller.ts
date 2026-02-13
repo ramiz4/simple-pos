@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard, TenantId } from '@simple-pos/api-common';
 import {
   CONFLICT_RESOLUTION_STRATEGIES,
   ConflictResolutionStrategy,
@@ -9,8 +10,6 @@ import {
   SyncPushRequest,
   SyncPushResponse,
 } from '@simple-pos/shared/dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { TenantId } from '../tenants/tenant.decorator';
 import { SyncService } from './sync.service';
 
 @Controller('sync')

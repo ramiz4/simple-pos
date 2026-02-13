@@ -1,6 +1,13 @@
 import { createParamDecorator, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
+
+interface AuthenticatedUser {
+  id: string;
+  email: string;
+  role: string;
+  tenantId: string;
+  permissions?: string[];
+}
 
 export const CurrentUser = createParamDecorator(
   (data: keyof AuthenticatedUser | undefined, ctx: ExecutionContext) => {

@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { getJwtSecret, RolesGuard } from '@simple-pos/api-common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { RolesGuard } from './guards/roles.guard';
-import { getJwtSecret } from './jwt-config';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({

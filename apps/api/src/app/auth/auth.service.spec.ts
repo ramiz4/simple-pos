@@ -1,8 +1,8 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from '@simple-pos/api-common';
 import * as bcrypt from 'bcryptjs';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
