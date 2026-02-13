@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
+import { InputSanitizerService } from '@simple-pos/shared/utils';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { USER_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
-import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
 import { AccountService } from './account.service';
 import { AuthService, UserSession } from './auth.service';
 import { EnumMappingService } from './enum-mapping.service';

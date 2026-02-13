@@ -1,10 +1,9 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ValidationUtils } from '@simple-pos/shared/utils';
+import { InputSanitizerService, ValidationUtils } from '@simple-pos/shared/utils';
 import { AuthService } from '../../../application/services/auth.service';
-import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
-import { RateLimiterService } from '../../../shared/utilities/rate-limiter.service';
+import { RateLimiterService } from '../../../core/services/rate-limiter.service';
 
 import { ButtonComponent } from '../../components/shared/button/button.component';
 

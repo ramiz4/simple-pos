@@ -30,8 +30,8 @@ import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlit
 import { SQLiteTableRepository } from '../../infrastructure/repositories/sqlite-table.repository';
 import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
 import { SQLiteVariantRepository } from '../../infrastructure/repositories/sqlite-variant.repository';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { SyncMetadataMigrationService } from '../../infrastructure/services/sync-metadata-migration.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
 import { AuthService } from './auth.service';
 import { SyncEngineService } from './sync-engine.service';
 import { SyncModeService } from './sync-mode.service';

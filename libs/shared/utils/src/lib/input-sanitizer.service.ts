@@ -31,13 +31,28 @@ export class InputSanitizerService {
     let previousLength;
     do {
       previousLength = sanitized.length;
-      // Match <script with any attributes and </script with any whitespace
-      sanitized = sanitized.replace(/<script\b[^>]*>[\s\S]*?<\/script[\s]*>/gi, '');
+      // Match <script with any attributes and closing tag variants
+      sanitized = sanitized.replace(/<script\b[^>]*>[\s\S]*?<\/script[^>]*>/gi, '');
       maxIterations--;
     } while (sanitized.length !== previousLength && maxIterations > 0);
 
     // Remove all remaining HTML tags
-    sanitized = sanitized.replace(/<[^>]*>/g, '');
+    let withoutTags = '';
+    let inTag = false;
+    for (const char of sanitized) {
+      if (char === '<') {
+        inTag = true;
+        continue;
+      }
+      if (char === '>') {
+        inTag = false;
+        continue;
+      }
+      if (!inTag) {
+        withoutTags += char;
+      }
+    }
+    sanitized = withoutTags;
 
     // Remove dangerous protocols - do multiple passes
     maxIterations = 3;

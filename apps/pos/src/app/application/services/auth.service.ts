@@ -1,11 +1,10 @@
 import { Inject, Injectable, Optional } from '@angular/core';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
-import { ValidationUtils } from '@simple-pos/shared/utils';
+import { InputSanitizerService, ValidationUtils } from '@simple-pos/shared/utils';
 import * as bcrypt from 'bcryptjs';
 import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { USER_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
-import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
 import { AccountService } from './account.service';
 import { EnumMappingService } from './enum-mapping.service';
 

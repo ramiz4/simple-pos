@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { getVersion } from '@tauri-apps/api/app';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { AppInfoService } from './app-info.service';
 
 vi.mock('@tauri-apps/api/app', () => ({

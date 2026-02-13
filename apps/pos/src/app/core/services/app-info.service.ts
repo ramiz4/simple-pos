@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { APP_VERSION } from '@simple-pos/shared/utils';
 import { getVersion } from '@tauri-apps/api/app';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 
 @Injectable({
   providedIn: 'root',

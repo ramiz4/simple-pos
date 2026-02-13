@@ -11,7 +11,7 @@ import { TableService } from '../application/services/table.service';
 import { VariantService } from '../application/services/variant.service';
 import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
 import { INDEXEDDB_NAME, IndexedDBService } from '../infrastructure/services/indexeddb.service';
-import { PlatformService } from '../shared/utilities/platform.service';
+import { PlatformService } from '../infrastructure/services/platform.service';
 
 describe('Test Data Seeding Integration', () => {
   let seedService: SeedService;

@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { InputSanitizerService } from '@simple-pos/shared/utils';
 import { AuthService } from '../../../application/services/auth.service';
-import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
 
 import { ButtonComponent } from '../../components/shared/button/button.component';
 

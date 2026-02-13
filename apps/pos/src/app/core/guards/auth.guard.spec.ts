@@ -7,7 +7,7 @@ import {
 } from '@angular/router';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { AuthService } from '../../application/services/auth.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { authGuard } from './auth.guard';
 
 describe('authGuard', () => {

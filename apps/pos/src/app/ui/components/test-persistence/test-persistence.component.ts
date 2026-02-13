@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TestEntity } from '@simple-pos/shared/types';
 import { TestService } from '../../../application/services/test.service';
-import { PlatformService } from '../../../shared/utilities/platform.service';
+import { PlatformService } from '../../../infrastructure/services/platform.service';
 
 @Component({
   selector: 'app-test-persistence',

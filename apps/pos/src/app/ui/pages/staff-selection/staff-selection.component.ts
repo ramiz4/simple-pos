@@ -2,13 +2,13 @@ import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { User, UserRoleEnum } from '@simple-pos/shared/types';
+import { InputSanitizerService } from '@simple-pos/shared/utils';
 import { AccountService } from '../../../application/services/account.service';
 import { AuthService } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
-import { AutoFocusDirective } from '../../../shared/directives/auto-focus.directive';
-import { InputSanitizerService } from '../../../shared/utilities/input-sanitizer.service';
-import { PlatformService } from '../../../shared/utilities/platform.service';
+import { PlatformService } from '../../../infrastructure/services/platform.service';
 import { ButtonComponent } from '../../components/shared/button/button.component';
+import { AutoFocusDirective } from '../../directives/auto-focus.directive';
 
 @Component({
   selector: 'app-staff-selection',

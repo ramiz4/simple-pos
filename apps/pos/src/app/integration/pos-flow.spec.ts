@@ -6,7 +6,7 @@ import { ProductIngredientService } from '../application/services/product-ingred
 import { ProductService } from '../application/services/product.service';
 import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
 import { IndexedDBService } from '../infrastructure/services/indexeddb.service';
-import { PlatformService } from '../shared/utilities/platform.service';
+import { PlatformService } from '../infrastructure/services/platform.service';
 
 describe('POS Integration Flow', () => {
   let categoryService: CategoryService;

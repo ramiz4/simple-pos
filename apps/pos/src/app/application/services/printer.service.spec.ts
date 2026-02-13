@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PlatformService } from '../../infrastructure/services/platform.service';
 import { EnumMappingService } from './enum-mapping.service';
 import { ExtraService } from './extra.service';
 import { OrderService } from './order.service';
