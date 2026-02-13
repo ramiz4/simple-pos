@@ -1,4 +1,4 @@
--- Phase 4 Enterprise Ready: SSO, custom domain verification, professional services
+-- Enterprise Ready: SSO, custom domain verification, professional services
 
 ALTER TABLE "tenants"
     ADD COLUMN "customDomainStatus" TEXT NOT NULL DEFAULT 'NOT_CONFIGURED',

@@ -21,7 +21,7 @@ const _TABLE_NUMBER_OFFSET_LIST = 10000;
 const LOW_STOCK_THRESHOLD = 5;
 
 /**
- * Phase 2 Integration Tests - Admin Configuration Layer
+ * Integration Tests - Admin Configuration Layer
  *
  * These tests verify that all admin CRUD operations work correctly:
  * - Tables, Categories, Products, Variants, Extras, Ingredients
@@ -29,7 +29,7 @@ const LOW_STOCK_THRESHOLD = 5;
  * - Entity relationships
  * - Service layer functionality
  */
-describe('Phase 2: Admin Configuration Layer', () => {
+describe('Admin Configuration Layer', () => {
   let tableService: TableService;
   let categoryService: CategoryService;
   let productService: ProductService;

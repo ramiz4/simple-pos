@@ -119,7 +119,8 @@ export class OrderService {
       return order;
     } catch (error) {
       console.error('Error creating order:', error);
-      throw new Error('Failed to create order: ' + (error as Error).message);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create order: ${errorMessage}`);
     }
   }
 

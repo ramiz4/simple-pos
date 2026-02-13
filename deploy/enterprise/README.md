@@ -1,6 +1,6 @@
 # Enterprise Deployment Assets
 
-This folder contains Phase 4 on-prem deployment packaging for Simple POS:
+This folder contains on-prem deployment packaging for Simple POS:
 
 - `docker-compose.onprem.yml` for single-node/VM deployments
 - `start-local.sh` to auto-build missing images and start the stack

@@ -1,9 +1,9 @@
 -- Complete database schema for Simple POS
--- Phase 1: Core Domain & CodeTable System
+-- Core Domain & CodeTable System
 -- Updated to match Repository expectations (Use camelCase column names)
 
 -- ============================================
--- Account Management (New in Phase 0.5)
+-- Account Management
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS account (

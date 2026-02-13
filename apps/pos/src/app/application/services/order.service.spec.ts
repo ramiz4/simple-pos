@@ -8,7 +8,7 @@ import {
   OrderTypeEnum,
   TableStatusEnum,
 } from '@simple-pos/shared/types';
-import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
 import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
 import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
@@ -234,6 +234,15 @@ describe('OrderService', () => {
     });
 
     service = TestBed.inject(OrderService);
+
+    // Mock console.error to prevent test pollution and CI failure
+    vi.spyOn(console, 'error').mockImplementation(() => {
+      /* empty */
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('Service Initialization', () => {

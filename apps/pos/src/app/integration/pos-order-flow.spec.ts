@@ -20,7 +20,7 @@ import { RepositoryFactory } from '../infrastructure/adapters/repository.factory
 import { PlatformService } from '../shared/utilities/platform.service';
 
 /**
- * Phase 3 Integration Tests - Core POS Flow
+ * Core POS Flow Integration Tests
  *
  * These tests verify the complete order lifecycle:
  * - Order type selection (DINE_IN, TAKEAWAY, DELIVERY)
@@ -32,7 +32,7 @@ import { PlatformService } from '../shared/utilities/platform.service';
  * - Kitchen view functionality
  * - Transaction integrity
  */
-describe('Phase 3: Core POS Flow', () => {
+describe('Core POS Flow', () => {
   let orderService: OrderService;
   let tableService: TableService;
   let categoryService: CategoryService;

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a **production-ready Point-of-Sale (POS) system** built with **Angular 21** and **Tauri 2**, currently transitioning to an **Nx Monorepo (Phase 0.5)** for SaaS transformation. It supports both web (PWA) and native desktop platforms with offline-first capabilities and dual-platform persistence (IndexedDB/SQLite).
+This is a **production-ready Point-of-Sale (POS) system** built with **Angular 21** and **Tauri 2**, currently transitioning to an **Nx Monorepo** for SaaS transformation. It supports both web (PWA) and native desktop platforms with offline-first capabilities and dual-platform persistence (IndexedDB/SQLite).
 
 ### Tech Stack
 
@@ -19,7 +19,7 @@ This is a **production-ready Point-of-Sale (POS) system** built with **Angular 2
 
 ## Workspace Structure (Nx Monorepo)
 
-Following Phase 0.5 restructuring, the project is organized into `apps` and `libs`:
+Following restructuring, the project is organized into `apps` and `libs`:
 
 ```
 simple-pos/
