@@ -1,3 +1,13 @@
+# [1.4.0](https://github.com/ramiz4/simple-pos/compare/v1.3.0...v1.4.0) (2026-02-13)
+
+### Bug Fixes
+
+- **deps:** make test:ci resilient to missing base branch and env ([c1b75a9](https://github.com/ramiz4/simple-pos/commit/c1b75a904b0e255f4b06bf21e2330b28823a466b))
+
+### Features
+
+- **shared-types:** move base repository interface to shared types ([29f88e7](https://github.com/ramiz4/simple-pos/commit/29f88e7d010e23e4be94682ee0ed13f108319cc4))
+
 # [1.3.0](https://github.com/ramiz4/simple-pos/compare/v1.2.0...v1.3.0) (2026-02-13)
 
 ### Features
