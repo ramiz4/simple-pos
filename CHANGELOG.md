@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/ramiz4/simple-pos/compare/v1.1.3...v1.2.0) (2026-02-13)
+
+### Bug Fixes
+
+- **pos:** update build command in project.json to include bundles option and exclude native in build:ci script ([da8604b](https://github.com/ramiz4/simple-pos/commit/da8604be14aff974132c09060bc63fe8a71ad199))
+- **pos:** update build command in project.json to remove unnecessary bundles option ([6d479bc](https://github.com/ramiz4/simple-pos/commit/6d479bc74123571835dee89ac5cd1f3e48a3d25f))
+
+### Features
+
+- **pos:** add DI tokens and update services to use injection tokens ([4457f13](https://github.com/ramiz4/simple-pos/commit/4457f1384c3908256ae87296397ad6f1718eb05c))
+- **pos:** replace repository factory with DI tokens ([26e3de4](https://github.com/ramiz4/simple-pos/commit/26e3de445bf750ac338e1b47486188d9ca507753))
+
 ## [1.1.3](https://github.com/ramiz4/simple-pos/compare/v1.1.2...v1.1.3) (2026-02-13)
 
 ### Bug Fixes
