@@ -84,6 +84,28 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ---
 
+## Troubleshooting
+
+### macOS: "App is damaged and can't be opened"
+
+If you see this error when trying to run the app on macOS, it's because the app
+is not signed with an Apple Developer ID. This is a common security feature for apps downloaded from the internet.
+
+**Fix:**
+
+1. Open Terminal
+2. Run the following command (replace path with actual location):
+
+```bash
+xattr -cr /Applications/Simple\ POS.app
+```
+
+_or if running from the Downloads folder:_
+
+```bash
+xattr -cr ~/Downloads/Simple\ POS.app
+```
+
 ## 📚 Documentation
 
 - [Architecture Guide](docs/architecture.md)
