@@ -16,4 +16,16 @@ describe('parseHostContext', () => {
       isAdminHost: true,
     });
   });
+
+  it('returns no tenant for localhost and custom domains', () => {
+    expect(parseHostContext('localhost:4200', 'example.com')).toEqual({
+      host: 'localhost',
+      isAdminHost: false,
+    });
+
+    expect(parseHostContext('customdomain.com', 'example.com')).toEqual({
+      host: 'customdomain.com',
+      isAdminHost: false,
+    });
+  });
 });
