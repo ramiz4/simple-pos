@@ -7,8 +7,8 @@ import { AccountService } from '../../../application/services/account.service';
 import { AuthService } from '../../../application/services/auth.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { PlatformService } from '../../../infrastructure/services/platform.service';
-import { AutoFocusDirective } from '../../../ui/directives/auto-focus.directive';
 import { ButtonComponent } from '../../components/shared/button/button.component';
+import { AutoFocusDirective } from '../../directives/auto-focus.directive';
 
 @Component({
   selector: 'app-staff-selection',

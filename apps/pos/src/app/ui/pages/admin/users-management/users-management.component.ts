@@ -5,7 +5,6 @@ import { User } from '@simple-pos/shared/types';
 import { AuthService } from '../../../../application/services/auth.service';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { UserManagementService } from '../../../../application/services/user-management.service';
-import { AutoFocusDirective } from '../../../../ui/directives/auto-focus.directive';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
 import { AdminDataTableComponent } from '../../../components/admin/shared/data-table/data-table.component';
 import { AdminPageLayoutComponent } from '../../../components/admin/shared/page-layout/page-layout.component';
@@ -13,6 +12,7 @@ import { AdminSearchInputComponent } from '../../../components/admin/shared/sear
 import { AlertComponent } from '../../../components/shared/alert/alert.component';
 import { ButtonComponent } from '../../../components/shared/button/button.component';
 import { ModalComponent } from '../../../components/shared/modal/modal.component';
+import { AutoFocusDirective } from '../../../directives/auto-focus.directive';
 
 @Component({
   selector: 'app-users-management',

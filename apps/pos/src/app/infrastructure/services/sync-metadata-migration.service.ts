@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import Database from '@tauri-apps/plugin-sql';
-import { PlatformService } from '../../infrastructure/services/platform.service';
+import { PlatformService } from './platform.service';
 
 @Injectable({
   providedIn: 'root',
