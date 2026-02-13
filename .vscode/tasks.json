@@ -11,24 +11,6 @@
       "group": "test"
     },
     {
-      "label": "pnpm lint",
-      "type": "shell",
-      "command": "pnpm",
-      "args": ["lint"],
-      "isBackground": false,
-      "problemMatcher": [],
-      "group": "test"
-    },
-    {
-      "label": "pnpm lint",
-      "type": "shell",
-      "command": "pnpm",
-      "args": ["lint"],
-      "isBackground": false,
-      "problemMatcher": [],
-      "group": "test"
-    },
-    {
       "label": "pnpm nx affected:test",
       "type": "shell",
       "command": "pnpm",

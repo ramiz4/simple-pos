@@ -17,9 +17,9 @@ All `project.json` files currently have `"tags": []` and the ESLint `@nx/enforce
 
 - **Agent**: `nx-engineer`
 
-## Current State
+## Previous State (Before Implementation)
 
-### Project Tags (all empty)
+### Project Tags (all were empty)
 
 | Project        | File                             | Tags |
 | -------------- | -------------------------------- | ---- |
@@ -30,15 +30,41 @@ All `project.json` files currently have `"tags": []` and the ESLint `@nx/enforce
 | `shared-types` | `libs/shared/types/project.json` | `[]` |
 | `shared-utils` | `libs/shared/utils/project.json` | `[]` |
 
-### Current ESLint Rule (no-op)
+### Previous ESLint Rule (no-op)
 
 ```js
-// eslint.config.mjs
+// eslint.config.mjs (before)
 depConstraints: [
   {
     sourceTag: '*',
     onlyDependOnLibsWithTags: ['*'],
   },
+],
+```
+
+## Implemented State
+
+### Project Tags (now populated)
+
+| Project        | File                             | Tags                               |
+| -------------- | -------------------------------- | ---------------------------------- |
+| `pos`          | `apps/pos/project.json`          | `["scope:pos", "type:app"]`        |
+| `api`          | `apps/api/project.json`          | `["scope:api", "type:app"]`        |
+| `native`       | `apps/native/project.json`       | `["scope:native", "type:app"]`     |
+| `domain`       | `libs/domain/project.json`       | `["scope:shared", "type:domain"]`  |
+| `shared-types` | `libs/shared/types/project.json` | `["scope:shared", "type:types"]`   |
+| `shared-utils` | `libs/shared/utils/project.json` | `["scope:shared", "type:utils"]`   |
+
+### Current ESLint Rule (enforcing boundaries)
+
+```js
+// eslint.config.mjs (after)
+depConstraints: [
+  { sourceTag: 'type:app', onlyDependOnLibsWithTags: ['type:domain', 'type:types', 'type:utils'] },
+  { sourceTag: 'type:domain', onlyDependOnLibsWithTags: ['type:types'] },
+  { sourceTag: 'type:utils', onlyDependOnLibsWithTags: ['type:types'] },
+  { sourceTag: 'type:types', onlyDependOnLibsWithTags: [] },
+  { sourceTag: '*', onlyDependOnLibsWithTags: ['type:domain', 'type:types', 'type:utils'] },
 ],
 ```
 
