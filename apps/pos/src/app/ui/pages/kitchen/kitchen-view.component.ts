@@ -144,10 +144,10 @@ interface KitchenOrder {
             <div class="bg-white rounded-lg shadow-lg border-2 border-gray-200 overflow-hidden">
               <!-- Order Header -->
               <div class="bg-linear-to-r from-orange-500 to-red-500 text-white p-4">
-                <div class="flex justify-between items-start mb-2">
+                <div class="flex justify-between items-start">
                   <div>
-                    <div class="text-3xl font-bold">{{ order.order.orderNumber }}</div>
-                    <div class="text-sm opacity-90">{{ order.orderType }}</div>
+                    <div class="text-3xl font-bold mb-2">{{ order.orderType }}</div>
+                    <div class="text-sm opacity-90">{{ formatDate(order.order.createdAt) }}</div>
                   </div>
                   @if (order.table) {
                     <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-center">
@@ -155,9 +155,6 @@ interface KitchenOrder {
                       <div class="text-2xl font-bold">{{ order.table.number }}</div>
                     </div>
                   }
-                </div>
-                <div class="text-xs opacity-80">
-                  {{ formatTime(order.order.createdAt) }}
                 </div>
               </div>
 
@@ -426,6 +423,17 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     } catch (err) {
       this.error.set('Failed to print ticket: ' + (err as Error).message);
     }
+  }
+
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    // Format as "dd.MM.YYYY mm:hh"
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
   }
 
   formatTime(dateString: string): string {
