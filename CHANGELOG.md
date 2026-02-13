@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/ramiz4/simple-pos/compare/v1.1.1...v1.1.2) (2026-02-13)
+
+### Bug Fixes
+
+- **ci:** remove redundant tauri artifact upload step ([563a187](https://github.com/ramiz4/simple-pos/commit/563a187446faeed98c335973b0ae53422bd46a04))
+
 ## [1.1.1](https://github.com/ramiz4/simple-pos/compare/v1.1.0...v1.1.1) (2026-02-13)
 
 ### Bug Fixes
