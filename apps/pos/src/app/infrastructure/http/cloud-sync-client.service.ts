@@ -9,7 +9,7 @@ import {
   SyncPushRequest,
   SyncPushResponse,
   SyncStatusResponse,
-} from '@simple-pos/shared/types';
+} from '@simple-pos/shared/dto';
 import { firstValueFrom, timeout } from 'rxjs';
 import { ApiConfigService } from './api-config.service';
 

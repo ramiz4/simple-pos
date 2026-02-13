@@ -8,7 +8,7 @@ import {
   SyncPullResponse,
   SyncPushRequest,
   SyncPushResponse,
-} from '@simple-pos/shared/types';
+} from '@simple-pos/shared/dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TenantId } from '../tenants/tenant.decorator';
 import { SyncService } from './sync.service';
