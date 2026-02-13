@@ -9,26 +9,7 @@ import { ProductService } from '../application/services/product.service';
 import { SeedService } from '../application/services/seed.service';
 import { TableService } from '../application/services/table.service';
 import { VariantService } from '../application/services/variant.service';
-import { IndexedDBCategoryRepository } from '../infrastructure/repositories/indexeddb-category.repository';
-import { IndexedDBCodeTableRepository } from '../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../infrastructure/repositories/indexeddb-code-translation.repository';
-import { IndexedDBExtraRepository } from '../infrastructure/repositories/indexeddb-extra.repository';
-import { IndexedDBIngredientRepository } from '../infrastructure/repositories/indexeddb-ingredient.repository';
-import { IndexedDBProductExtraRepository } from '../infrastructure/repositories/indexeddb-product-extra.repository';
-import { IndexedDBProductIngredientRepository } from '../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../infrastructure/repositories/indexeddb-product.repository';
-import { IndexedDBTableRepository } from '../infrastructure/repositories/indexeddb-table.repository';
-import { IndexedDBVariantRepository } from '../infrastructure/repositories/indexeddb-variant.repository';
-import { SQLiteCategoryRepository } from '../infrastructure/repositories/sqlite-category.repository';
-import { SQLiteCodeTableRepository } from '../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../infrastructure/repositories/sqlite-code-translation.repository';
-import { SQLiteExtraRepository } from '../infrastructure/repositories/sqlite-extra.repository';
-import { SQLiteIngredientRepository } from '../infrastructure/repositories/sqlite-ingredient.repository';
-import { SQLiteProductExtraRepository } from '../infrastructure/repositories/sqlite-product-extra.repository';
-import { SQLiteProductIngredientRepository } from '../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../infrastructure/repositories/sqlite-product.repository';
-import { SQLiteTableRepository } from '../infrastructure/repositories/sqlite-table.repository';
-import { SQLiteVariantRepository } from '../infrastructure/repositories/sqlite-variant.repository';
+import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
 import { INDEXEDDB_NAME, IndexedDBService } from '../infrastructure/services/indexeddb.service';
 import { PlatformService } from '../shared/utilities/platform.service';
 
@@ -93,8 +74,6 @@ describe('Test Data Seeding Integration', () => {
       providers: [
         SeedService,
         EnumMappingService,
-        IndexedDBService,
-        PlatformService,
         TableService,
         CategoryService,
         ProductService,
@@ -103,26 +82,9 @@ describe('Test Data Seeding Integration', () => {
         IngredientService,
         ProductExtraService,
         ProductIngredientService,
-        IndexedDBCodeTableRepository,
-        IndexedDBCodeTranslationRepository,
-        IndexedDBTableRepository,
-        IndexedDBCategoryRepository,
-        IndexedDBProductRepository,
-        IndexedDBVariantRepository,
-        IndexedDBExtraRepository,
-        IndexedDBIngredientRepository,
-        IndexedDBProductExtraRepository,
-        IndexedDBProductIngredientRepository,
-        { provide: SQLiteCodeTableRepository, useValue: {} },
-        { provide: SQLiteCodeTranslationRepository, useValue: {} },
-        { provide: SQLiteTableRepository, useValue: {} },
-        { provide: SQLiteCategoryRepository, useValue: {} },
-        { provide: SQLiteProductRepository, useValue: {} },
-        { provide: SQLiteVariantRepository, useValue: {} },
-        { provide: SQLiteExtraRepository, useValue: {} },
-        { provide: SQLiteIngredientRepository, useValue: {} },
-        { provide: SQLiteProductExtraRepository, useValue: {} },
-        { provide: SQLiteProductIngredientRepository, useValue: {} },
+        IndexedDBService,
+        PlatformService,
+        ...REPOSITORY_PROVIDERS,
       ],
     });
 

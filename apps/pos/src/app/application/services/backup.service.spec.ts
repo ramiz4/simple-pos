@@ -1,26 +1,31 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
-import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import {
+  CATEGORY_REPOSITORY,
+  CODE_TABLE_REPOSITORY,
+  CODE_TRANSLATION_REPOSITORY,
+  EXTRA_REPOSITORY,
+  INGREDIENT_REPOSITORY,
+  ORDER_ITEM_EXTRA_REPOSITORY,
+  ORDER_ITEM_REPOSITORY,
+  ORDER_REPOSITORY,
+  PRODUCT_EXTRA_REPOSITORY,
+  PRODUCT_INGREDIENT_REPOSITORY,
+  PRODUCT_REPOSITORY,
+  TABLE_REPOSITORY,
+  USER_REPOSITORY,
+  VARIANT_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
 import { BackupService, type BackupDataInner } from './backup.service';
-
-// Mock other repositories as needed...
-// For brevity, we'll mock the repositories used in the service
 
 describe('BackupService', () => {
   let service: BackupService;
-  let indexedDBRepo: {
+  let mockCodeTableRepo: {
     findAll: Mock;
     create: Mock;
   };
 
   beforeEach(() => {
-    const platformMock = {
-      isTauri: vi.fn().mockReturnValue(false),
-      isWeb: vi.fn().mockReturnValue(true),
-    };
-
     const repoMock = {
       findAll: vi.fn().mockResolvedValue([]),
       create: vi.fn().mockResolvedValue(undefined),
@@ -63,42 +68,28 @@ describe('BackupService', () => {
     TestBed.configureTestingModule({
       providers: [
         BackupService,
-        { provide: PlatformService, useValue: platformMock },
-        // Providing mocks for all required repositories
-        { provide: SQLiteCodeTableRepository, useValue: repoMock },
-        { provide: IndexedDBCodeTableRepository, useValue: repoMock },
-        { provide: SQLiteCodeTranslationRepository, useValue: repoMock },
-        { provide: IndexedDBCodeTranslationRepository, useValue: repoMock },
-        { provide: SQLiteUserRepository, useValue: repoMock },
-        { provide: IndexedDBUserRepository, useValue: repoMock },
-        { provide: SQLiteTableRepository, useValue: repoMock },
-        { provide: IndexedDBTableRepository, useValue: repoMock },
-        { provide: SQLiteCategoryRepository, useValue: repoMock },
-        { provide: IndexedDBCategoryRepository, useValue: repoMock },
-        { provide: SQLiteProductRepository, useValue: repoMock },
-        { provide: IndexedDBProductRepository, useValue: repoMock },
-        { provide: SQLiteVariantRepository, useValue: repoMock },
-        { provide: IndexedDBVariantRepository, useValue: repoMock },
-        { provide: SQLiteExtraRepository, useValue: repoMock },
-        { provide: IndexedDBExtraRepository, useValue: repoMock },
-        { provide: SQLiteIngredientRepository, useValue: repoMock },
-        { provide: IndexedDBIngredientRepository, useValue: repoMock },
-        { provide: SQLiteProductExtraRepository, useValue: repoMock },
-        { provide: IndexedDBProductExtraRepository, useValue: repoMock },
-        { provide: SQLiteProductIngredientRepository, useValue: repoMock },
-        { provide: IndexedDBProductIngredientRepository, useValue: repoMock },
-        { provide: SQLiteOrderRepository, useValue: repoMock },
-        { provide: IndexedDBOrderRepository, useValue: repoMock },
-        { provide: SQLiteOrderItemRepository, useValue: repoMock },
-        { provide: IndexedDBOrderItemRepository, useValue: repoMock },
-        { provide: SQLiteOrderItemExtraRepository, useValue: repoMock },
-        { provide: IndexedDBOrderItemExtraRepository, useValue: repoMock },
+        { provide: CODE_TABLE_REPOSITORY, useValue: repoMock },
+        { provide: CODE_TRANSLATION_REPOSITORY, useValue: repoMock },
+        { provide: USER_REPOSITORY, useValue: repoMock },
+        { provide: TABLE_REPOSITORY, useValue: repoMock },
+        { provide: CATEGORY_REPOSITORY, useValue: repoMock },
+        { provide: PRODUCT_REPOSITORY, useValue: repoMock },
+        { provide: VARIANT_REPOSITORY, useValue: repoMock },
+        { provide: EXTRA_REPOSITORY, useValue: repoMock },
+        { provide: INGREDIENT_REPOSITORY, useValue: repoMock },
+        { provide: PRODUCT_EXTRA_REPOSITORY, useValue: repoMock },
+        { provide: PRODUCT_INGREDIENT_REPOSITORY, useValue: repoMock },
+        { provide: ORDER_REPOSITORY, useValue: repoMock },
+        { provide: ORDER_ITEM_REPOSITORY, useValue: repoMock },
+        { provide: ORDER_ITEM_EXTRA_REPOSITORY, useValue: repoMock },
       ],
     });
 
     service = TestBed.inject(BackupService);
     // Grab a handle to one of the repos for verification
-    indexedDBRepo = TestBed.inject(IndexedDBCodeTableRepository) as unknown as typeof indexedDBRepo;
+    mockCodeTableRepo = TestBed.inject(
+      CODE_TABLE_REPOSITORY,
+    ) as unknown as typeof mockCodeTableRepo;
   });
 
   it('should be created', () => {
@@ -107,7 +98,7 @@ describe('BackupService', () => {
 
   it('should create a valid unencrypted backup', async () => {
     // Mock data return
-    indexedDBRepo.findAll.mockResolvedValue([
+    mockCodeTableRepo.findAll.mockResolvedValue([
       { id: 1, codeType: 'test', code: 'test', sortOrder: 1, isActive: true },
     ]);
 
@@ -137,7 +128,7 @@ describe('BackupService', () => {
     const result = await service.restoreBackup(originalBackup, password);
 
     expect(result.success).toBe(true);
-    expect(indexedDBRepo.create).toHaveBeenCalled();
+    expect(mockCodeTableRepo.create).toHaveBeenCalled();
   });
 
   it('should fail restore with incorrect password', async () => {
@@ -156,31 +147,3 @@ describe('BackupService', () => {
     expect(result.message).toContain('Failed to restore backup');
   });
 });
-
-// Import the missing classes to satisfy TestBed
-import { IndexedDBCategoryRepository } from '../../infrastructure/repositories/indexeddb-category.repository';
-import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
-import { IndexedDBExtraRepository } from '../../infrastructure/repositories/indexeddb-extra.repository';
-import { IndexedDBIngredientRepository } from '../../infrastructure/repositories/indexeddb-ingredient.repository';
-import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
-import { IndexedDBProductExtraRepository } from '../../infrastructure/repositories/indexeddb-product-extra.repository';
-import { IndexedDBProductIngredientRepository } from '../../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../../infrastructure/repositories/indexeddb-product.repository';
-import { IndexedDBTableRepository } from '../../infrastructure/repositories/indexeddb-table.repository';
-import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
-import { IndexedDBVariantRepository } from '../../infrastructure/repositories/indexeddb-variant.repository';
-import { SQLiteCategoryRepository } from '../../infrastructure/repositories/sqlite-category.repository';
-import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
-import { SQLiteExtraRepository } from '../../infrastructure/repositories/sqlite-extra.repository';
-import { SQLiteIngredientRepository } from '../../infrastructure/repositories/sqlite-ingredient.repository';
-import { SQLiteOrderItemExtraRepository } from '../../infrastructure/repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../../infrastructure/repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../../infrastructure/repositories/sqlite-order.repository';
-import { SQLiteProductExtraRepository } from '../../infrastructure/repositories/sqlite-product-extra.repository';
-import { SQLiteProductIngredientRepository } from '../../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlite-product.repository';
-import { SQLiteTableRepository } from '../../infrastructure/repositories/sqlite-table.repository';
-import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
-import { SQLiteVariantRepository } from '../../infrastructure/repositories/sqlite-variant.repository';

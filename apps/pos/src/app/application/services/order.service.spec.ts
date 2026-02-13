@@ -9,21 +9,18 @@ import {
   TableStatusEnum,
 } from '@simple-pos/shared/types';
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
-import { SQLiteOrderItemExtraRepository } from '../../infrastructure/repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../../infrastructure/repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../../infrastructure/repositories/sqlite-order.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import {
+  ORDER_ITEM_EXTRA_REPOSITORY,
+  ORDER_ITEM_REPOSITORY,
+  ORDER_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
 import { EnumMappingService } from './enum-mapping.service';
 import { CreateOrderData, OrderService } from './order.service';
 import { TableService } from './table.service';
 
 describe('OrderService', () => {
   let service: OrderService;
-  let mockPlatformService: { isTauri: Mock };
-  let mockSqliteOrderRepo: {
+  let mockOrderRepo: {
     findById: Mock;
     findAll: Mock;
     findByTable: Mock;
@@ -35,8 +32,7 @@ describe('OrderService', () => {
     count: Mock;
     getNextOrderNumber: Mock;
   };
-  let mockIndexedDBOrderRepo: typeof mockSqliteOrderRepo;
-  let mockSqliteOrderItemRepo: {
+  let mockOrderItemRepo: {
     findById: Mock;
     findAll: Mock;
     findByOrderId: Mock;
@@ -45,8 +41,7 @@ describe('OrderService', () => {
     delete: Mock;
     count: Mock;
   };
-  let mockIndexedDBOrderItemRepo: typeof mockSqliteOrderItemRepo;
-  let mockSqliteOrderItemExtraRepo: {
+  let mockOrderItemExtraRepo: {
     findById: Mock;
     findAll: Mock;
     findByOrderItemId: Mock;
@@ -55,7 +50,6 @@ describe('OrderService', () => {
     delete: Mock;
     count: Mock;
   };
-  let mockIndexedDBOrderItemExtraRepo: typeof mockSqliteOrderItemExtraRepo;
   let mockEnumMappingService: {
     init: Mock;
     getTranslation: Mock;
@@ -126,13 +120,8 @@ describe('OrderService', () => {
   };
 
   beforeEach(() => {
-    // Mock PlatformService
-    mockPlatformService = {
-      isTauri: vi.fn().mockReturnValue(false),
-    };
-
-    // Mock SQLite Order Repository
-    mockSqliteOrderRepo = {
+    // Mock Order Repository
+    mockOrderRepo = {
       findById: vi.fn(),
       findAll: vi.fn(),
       findByTable: vi.fn(),
@@ -145,22 +134,8 @@ describe('OrderService', () => {
       getNextOrderNumber: vi.fn(),
     };
 
-    // Mock IndexedDB Order Repository
-    mockIndexedDBOrderRepo = {
-      findById: vi.fn(),
-      findAll: vi.fn(),
-      findByTable: vi.fn(),
-      findByStatus: vi.fn(),
-      findActiveOrders: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      count: vi.fn(),
-      getNextOrderNumber: vi.fn(),
-    };
-
-    // Mock SQLite OrderItem Repository
-    mockSqliteOrderItemRepo = {
+    // Mock OrderItem Repository
+    mockOrderItemRepo = {
       findById: vi.fn(),
       findAll: vi.fn(),
       findByOrderId: vi.fn(),
@@ -170,30 +145,8 @@ describe('OrderService', () => {
       count: vi.fn(),
     };
 
-    // Mock IndexedDB OrderItem Repository
-    mockIndexedDBOrderItemRepo = {
-      findById: vi.fn(),
-      findAll: vi.fn(),
-      findByOrderId: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      count: vi.fn(),
-    };
-
-    // Mock SQLite OrderItemExtra Repository
-    mockSqliteOrderItemExtraRepo = {
-      findById: vi.fn(),
-      findAll: vi.fn(),
-      findByOrderItemId: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      count: vi.fn(),
-    };
-
-    // Mock IndexedDB OrderItemExtra Repository
-    mockIndexedDBOrderItemExtraRepo = {
+    // Mock OrderItemExtra Repository
+    mockOrderItemExtraRepo = {
       findById: vi.fn(),
       findAll: vi.fn(),
       findByOrderItemId: vi.fn(),
@@ -218,16 +171,9 @@ describe('OrderService', () => {
     TestBed.configureTestingModule({
       providers: [
         OrderService,
-        { provide: PlatformService, useValue: mockPlatformService },
-        { provide: SQLiteOrderRepository, useValue: mockSqliteOrderRepo },
-        { provide: IndexedDBOrderRepository, useValue: mockIndexedDBOrderRepo },
-        { provide: SQLiteOrderItemRepository, useValue: mockSqliteOrderItemRepo },
-        { provide: IndexedDBOrderItemRepository, useValue: mockIndexedDBOrderItemRepo },
-        { provide: SQLiteOrderItemExtraRepository, useValue: mockSqliteOrderItemExtraRepo },
-        {
-          provide: IndexedDBOrderItemExtraRepository,
-          useValue: mockIndexedDBOrderItemExtraRepo,
-        },
+        { provide: ORDER_REPOSITORY, useValue: mockOrderRepo },
+        { provide: ORDER_ITEM_REPOSITORY, useValue: mockOrderItemRepo },
+        { provide: ORDER_ITEM_EXTRA_REPOSITORY, useValue: mockOrderItemExtraRepo },
         { provide: EnumMappingService, useValue: mockEnumMappingService },
         { provide: TableService, useValue: mockTableService },
       ],
@@ -251,35 +197,12 @@ describe('OrderService', () => {
     });
   });
 
-  describe('Platform Selection', () => {
-    it('should use IndexedDB repositories on web platform', async () => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-
-      await service.getOrderById(1);
-
-      expect(mockIndexedDBOrderRepo.findById).toHaveBeenCalledWith(1);
-      expect(mockSqliteOrderRepo.findById).not.toHaveBeenCalled();
-    });
-
-    it('should use SQLite repositories on Tauri platform', async () => {
-      mockPlatformService.isTauri.mockReturnValue(true);
-      mockSqliteOrderRepo.findById.mockResolvedValue(mockOrder);
-
-      await service.getOrderById(1);
-
-      expect(mockSqliteOrderRepo.findById).toHaveBeenCalledWith(1);
-      expect(mockIndexedDBOrderRepo.findById).not.toHaveBeenCalled();
-    });
-  });
-
   describe('createOrder', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-001');
-      mockIndexedDBOrderRepo.create.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderItemRepo.create.mockResolvedValue(mockOrderItem);
-      mockIndexedDBOrderItemExtraRepo.create.mockResolvedValue({
+      mockOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-001');
+      mockOrderRepo.create.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.create.mockResolvedValue(mockOrderItem);
+      mockOrderItemExtraRepo.create.mockResolvedValue({
         id: 1,
         orderId: 1,
         orderItemId: 1,
@@ -293,8 +216,8 @@ describe('OrderService', () => {
       const result = await service.createOrder(mockCreateOrderData);
 
       expect(result).toEqual(mockOrder);
-      expect(mockIndexedDBOrderRepo.getNextOrderNumber).toHaveBeenCalled();
-      expect(mockIndexedDBOrderRepo.create).toHaveBeenCalledWith(
+      expect(mockOrderRepo.getNextOrderNumber).toHaveBeenCalled();
+      expect(mockOrderRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           orderNumber: 'ORD-001',
           typeId: mockCreateOrderData.typeId,
@@ -313,7 +236,7 @@ describe('OrderService', () => {
     it('should create order items for all cart items', async () => {
       await service.createOrder(mockCreateOrderData);
 
-      expect(mockIndexedDBOrderItemRepo.create).toHaveBeenCalledWith(
+      expect(mockOrderItemRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           orderId: mockOrder.id,
           productId: mockCartItem.productId,
@@ -330,13 +253,13 @@ describe('OrderService', () => {
       await service.createOrder(mockCreateOrderData);
 
       // Should create 2 extras (extraIds: [1, 2])
-      expect(mockIndexedDBOrderItemExtraRepo.create).toHaveBeenCalledTimes(2);
-      expect(mockIndexedDBOrderItemExtraRepo.create).toHaveBeenCalledWith({
+      expect(mockOrderItemExtraRepo.create).toHaveBeenCalledTimes(2);
+      expect(mockOrderItemExtraRepo.create).toHaveBeenCalledWith({
         orderId: mockOrder.id,
         orderItemId: mockOrderItem.id,
         extraId: 1,
       });
-      expect(mockIndexedDBOrderItemExtraRepo.create).toHaveBeenCalledWith({
+      expect(mockOrderItemExtraRepo.create).toHaveBeenCalledWith({
         orderId: mockOrder.id,
         orderItemId: mockOrderItem.id,
         extraId: 2,
@@ -391,7 +314,7 @@ describe('OrderService', () => {
     });
 
     it('should handle errors during order creation', async () => {
-      mockIndexedDBOrderRepo.create.mockRejectedValue(new Error('Database error'));
+      mockOrderRepo.create.mockRejectedValue(new Error('Database error'));
 
       await expect(service.createOrder(mockCreateOrderData)).rejects.toThrow(
         'Failed to create order: Database error',
@@ -401,7 +324,6 @@ describe('OrderService', () => {
 
   describe('getOpenOrderByTable', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
       mockEnumMappingService.getCodeTableId.mockImplementation(
         async (table: string, status: string) => {
           if (status === OrderStatusEnum.COMPLETED) return 6;
@@ -413,16 +335,16 @@ describe('OrderService', () => {
 
     it('should return open order for table', async () => {
       const openOrder = { ...mockOrder, statusId: 1 };
-      mockIndexedDBOrderRepo.findByTable.mockResolvedValue([openOrder]);
+      mockOrderRepo.findByTable.mockResolvedValue([openOrder]);
 
       const result = await service.getOpenOrderByTable(1);
 
       expect(result).toEqual(openOrder);
-      expect(mockIndexedDBOrderRepo.findByTable).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.findByTable).toHaveBeenCalledWith(1);
     });
 
     it('should return null when no orders exist for table', async () => {
-      mockIndexedDBOrderRepo.findByTable.mockResolvedValue([]);
+      mockOrderRepo.findByTable.mockResolvedValue([]);
 
       const result = await service.getOpenOrderByTable(1);
 
@@ -432,7 +354,7 @@ describe('OrderService', () => {
     it('should return null when only completed/cancelled orders exist', async () => {
       const completedOrder = { ...mockOrder, statusId: 6 };
       const cancelledOrder = { ...mockOrder, id: 2, statusId: 7 };
-      mockIndexedDBOrderRepo.findByTable.mockResolvedValue([completedOrder, cancelledOrder]);
+      mockOrderRepo.findByTable.mockResolvedValue([completedOrder, cancelledOrder]);
 
       const result = await service.getOpenOrderByTable(1);
 
@@ -442,7 +364,7 @@ describe('OrderService', () => {
     it('should throw error when multiple active orders exist for table', async () => {
       const order1 = { ...mockOrder, statusId: 1 };
       const order2 = { ...mockOrder, id: 2, statusId: 2 };
-      mockIndexedDBOrderRepo.findByTable.mockResolvedValue([order1, order2]);
+      mockOrderRepo.findByTable.mockResolvedValue([order1, order2]);
 
       await expect(service.getOpenOrderByTable(1)).rejects.toThrow(
         'Multiple active orders (2) found for table 1. Expected at most one.',
@@ -452,26 +374,25 @@ describe('OrderService', () => {
 
   describe('addItemsToOrder', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderItemRepo.create.mockResolvedValue(mockOrderItem);
-      mockIndexedDBOrderItemExtraRepo.create.mockResolvedValue({
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.create.mockResolvedValue(mockOrderItem);
+      mockOrderItemExtraRepo.create.mockResolvedValue({
         id: 1,
         orderId: 1,
         orderItemId: 1,
         extraId: 1,
       });
-      mockIndexedDBOrderRepo.update.mockResolvedValue({ ...mockOrder, subtotal: 200 });
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, subtotal: 200 });
       mockEnumMappingService.getCodeTableId.mockResolvedValue(1);
-      mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.OPEN });
     });
 
     it('should add items to existing order', async () => {
       await service.addItemsToOrder(1, [mockCartItem]);
 
-      expect(mockIndexedDBOrderRepo.findById).toHaveBeenCalledWith(1);
-      expect(mockIndexedDBOrderItemRepo.create).toHaveBeenCalledWith(
+      expect(mockOrderRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockOrderItemRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           orderId: mockOrder.id,
           productId: mockCartItem.productId,
@@ -484,7 +405,7 @@ describe('OrderService', () => {
     it('should update order totals after adding items', async () => {
       await service.addItemsToOrder(1, [mockCartItem]);
 
-      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(
+      expect(mockOrderRepo.update).toHaveBeenCalledWith(
         1,
         expect.objectContaining({
           subtotal: expect.any(Number),
@@ -495,7 +416,7 @@ describe('OrderService', () => {
     });
 
     it('should throw error when order is not found', async () => {
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(null);
+      mockOrderRepo.findById.mockResolvedValue(null);
 
       await expect(service.addItemsToOrder(999, [mockCartItem])).rejects.toThrow(
         'Order 999 not found',
@@ -505,26 +426,22 @@ describe('OrderService', () => {
     it('should create extras for added items', async () => {
       await service.addItemsToOrder(1, [mockCartItem]);
 
-      expect(mockIndexedDBOrderItemExtraRepo.create).toHaveBeenCalledTimes(2);
+      expect(mockOrderItemExtraRepo.create).toHaveBeenCalledTimes(2);
     });
   });
 
   describe('getOrderById', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return order by id', async () => {
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
 
       const result = await service.getOrderById(1);
 
       expect(result).toEqual(mockOrder);
-      expect(mockIndexedDBOrderRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockOrderRepo.findById).toHaveBeenCalledWith(1);
     });
 
     it('should return null when order not found', async () => {
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(null);
+      mockOrderRepo.findById.mockResolvedValue(null);
 
       const result = await service.getOrderById(999);
 
@@ -533,24 +450,19 @@ describe('OrderService', () => {
   });
 
   describe('getAllOrders', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return all orders', async () => {
       const orders = [mockOrder, { ...mockOrder, id: 2 }];
-      mockIndexedDBOrderRepo.findAll.mockResolvedValue(orders);
+      mockOrderRepo.findAll.mockResolvedValue(orders);
 
       const result = await service.getAllOrders();
 
       expect(result).toEqual(orders);
-      expect(mockIndexedDBOrderRepo.findAll).toHaveBeenCalled();
+      expect(mockOrderRepo.findAll).toHaveBeenCalled();
     });
   });
 
   describe('getActiveOrders', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
       mockEnumMappingService.getCodeTableId.mockImplementation(
         async (table: string, status: string) => {
           if (status === OrderStatusEnum.COMPLETED) return 6;
@@ -569,7 +481,7 @@ describe('OrderService', () => {
         { ...mockOrder, id: 4, statusId: 6 }, // COMPLETED
         { ...mockOrder, id: 5, statusId: 7 }, // CANCELLED
       ];
-      mockIndexedDBOrderRepo.findActiveOrders.mockResolvedValue(orders);
+      mockOrderRepo.findActiveOrders.mockResolvedValue(orders);
 
       const result = await service.getActiveOrders();
 
@@ -581,7 +493,6 @@ describe('OrderService', () => {
 
   describe('getActiveAndServedOrders', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
       mockEnumMappingService.getCodeTableId.mockImplementation(
         async (table: string, status: string) => {
           if (status === OrderStatusEnum.COMPLETED) return 6;
@@ -598,7 +509,7 @@ describe('OrderService', () => {
         { ...mockOrder, id: 3, statusId: 6 }, // COMPLETED
         { ...mockOrder, id: 4, statusId: 7 }, // CANCELLED
       ];
-      mockIndexedDBOrderRepo.findActiveOrders.mockResolvedValue(orders);
+      mockOrderRepo.findActiveOrders.mockResolvedValue(orders);
 
       const result = await service.getActiveAndServedOrders();
 
@@ -610,7 +521,6 @@ describe('OrderService', () => {
 
   describe('getOrdersByStatus', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
       mockEnumMappingService.getCodeTableId.mockResolvedValue(2);
     });
 
@@ -619,7 +529,7 @@ describe('OrderService', () => {
         { ...mockOrder, statusId: 2 },
         { ...mockOrder, id: 2, statusId: 2 },
       ];
-      mockIndexedDBOrderRepo.findByStatus.mockResolvedValue(orders);
+      mockOrderRepo.findByStatus.mockResolvedValue(orders);
 
       const result = await service.getOrdersByStatus(OrderStatusEnum.PREPARING);
 
@@ -628,43 +538,27 @@ describe('OrderService', () => {
         'ORDER_STATUS',
         OrderStatusEnum.PREPARING,
       );
-      expect(mockIndexedDBOrderRepo.findByStatus).toHaveBeenCalledWith(2);
+      expect(mockOrderRepo.findByStatus).toHaveBeenCalledWith(2);
     });
   });
 
   describe('updateOrder', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should update an order with partial data', async () => {
       const partialData = { tip: 15, total: 133 };
-      mockIndexedDBOrderRepo.update.mockResolvedValue({ ...mockOrder, ...partialData });
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, ...partialData });
 
       const result = await service.updateOrder(1, partialData);
 
-      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(1, partialData);
+      expect(mockOrderRepo.update).toHaveBeenCalledWith(1, partialData);
       expect(result.tip).toBe(15);
       expect(result.total).toBe(133);
-    });
-
-    it('should use SQLite repository on Tauri platform', async () => {
-      mockPlatformService.isTauri.mockReturnValue(true);
-      const partialData = { statusId: 2 };
-      mockSqliteOrderRepo.update.mockResolvedValue({ ...mockOrder, ...partialData });
-
-      await service.updateOrder(1, partialData);
-
-      expect(mockSqliteOrderRepo.update).toHaveBeenCalledWith(1, partialData);
-      expect(mockIndexedDBOrderRepo.update).not.toHaveBeenCalled();
     });
   });
 
   describe('updateOrderStatus', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 2 });
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 2 });
       mockEnumMappingService.getCodeTableId.mockResolvedValue(1);
     });
 
@@ -673,12 +567,12 @@ describe('OrderService', () => {
 
       const result = await service.updateOrderStatus(1, 2);
 
-      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(1, { statusId: 2 });
+      expect(mockOrderRepo.update).toHaveBeenCalledWith(1, { statusId: 2 });
       expect(result.statusId).toBe(2);
     });
 
     it('should throw error when order not found', async () => {
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(null);
+      mockOrderRepo.findById.mockResolvedValue(null);
 
       await expect(service.updateOrderStatus(999, 2)).rejects.toThrow(
         'Order with id 999 not found',
@@ -690,7 +584,7 @@ describe('OrderService', () => {
 
       await service.updateOrderStatus(1, 6);
 
-      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(
+      expect(mockOrderRepo.update).toHaveBeenCalledWith(
         1,
         expect.objectContaining({
           statusId: 6,
@@ -713,7 +607,7 @@ describe('OrderService', () => {
 
       await service.updateOrderStatus(1, 7);
 
-      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(
+      expect(mockOrderRepo.update).toHaveBeenCalledWith(
         1,
         expect.objectContaining({
           statusId: 7,
@@ -734,9 +628,8 @@ describe('OrderService', () => {
 
   describe('cancelOrder', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderRepo.update.mockResolvedValue({
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderRepo.update.mockResolvedValue({
         ...mockOrder,
         statusId: 7,
         cancelledReason: 'Test reason',
@@ -747,7 +640,7 @@ describe('OrderService', () => {
     it('should cancel order with reason', async () => {
       await service.cancelOrder(1, 'Customer request');
 
-      expect(mockIndexedDBOrderRepo.update).toHaveBeenCalledWith(
+      expect(mockOrderRepo.update).toHaveBeenCalledWith(
         1,
         expect.objectContaining({
           statusId: 7,
@@ -772,7 +665,7 @@ describe('OrderService', () => {
     });
 
     it('should throw error when order not found', async () => {
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(null);
+      mockOrderRepo.findById.mockResolvedValue(null);
 
       await expect(service.cancelOrder(999, 'Test reason')).rejects.toThrow(
         'Order with id 999 not found',
@@ -782,9 +675,8 @@ describe('OrderService', () => {
 
   describe('completeOrder', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 6 });
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 6 });
       mockEnumMappingService.getCodeTableId.mockResolvedValue(6); // COMPLETED
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.COMPLETED });
     });
@@ -801,46 +693,37 @@ describe('OrderService', () => {
   });
 
   describe('getOrderItems', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return all items for an order', async () => {
       const items = [mockOrderItem, { ...mockOrderItem, id: 2 }];
-      mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue(items);
+      mockOrderItemRepo.findByOrderId.mockResolvedValue(items);
 
       const result = await service.getOrderItems(1);
 
       expect(result).toEqual(items);
-      expect(mockIndexedDBOrderItemRepo.findByOrderId).toHaveBeenCalledWith(1);
+      expect(mockOrderItemRepo.findByOrderId).toHaveBeenCalledWith(1);
     });
   });
 
   describe('getOrderItemExtras', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return extra ids for order item', async () => {
       const extras = [
         { id: 1, orderId: 1, orderItemId: 1, extraId: 10 },
         { id: 2, orderId: 1, orderItemId: 1, extraId: 20 },
       ];
-      mockIndexedDBOrderItemExtraRepo.findByOrderItemId.mockResolvedValue(extras);
+      mockOrderItemExtraRepo.findByOrderItemId.mockResolvedValue(extras);
 
       const result = await service.getOrderItemExtras(1);
 
       expect(result).toEqual([10, 20]);
-      expect(mockIndexedDBOrderItemExtraRepo.findByOrderItemId).toHaveBeenCalledWith(1);
+      expect(mockOrderItemExtraRepo.findByOrderItemId).toHaveBeenCalledWith(1);
     });
   });
 
   describe('updateOrderItemStatus', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderItemRepo.update.mockResolvedValue({ ...mockOrderItem, statusId: 3 });
-      mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.update.mockResolvedValue({ ...mockOrderItem, statusId: 3 });
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
       mockEnumMappingService.getCodeTableId.mockResolvedValue(3);
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.PREPARING });
     });
@@ -848,7 +731,7 @@ describe('OrderService', () => {
     it('should update order item status', async () => {
       const result = await service.updateOrderItemStatus(1, 3);
 
-      expect(mockIndexedDBOrderItemRepo.update).toHaveBeenCalledWith(1, { statusId: 3 });
+      expect(mockOrderItemRepo.update).toHaveBeenCalledWith(1, { statusId: 3 });
       expect(result.statusId).toBe(3);
     });
 
@@ -856,31 +739,27 @@ describe('OrderService', () => {
       await service.updateOrderItemStatus(1, 3);
 
       // Verify that it fetches order items to check status
-      expect(mockIndexedDBOrderItemRepo.findByOrderId).toHaveBeenCalledWith(mockOrderItem.orderId);
+      expect(mockOrderItemRepo.findByOrderId).toHaveBeenCalledWith(mockOrderItem.orderId);
     });
   });
 
   describe('Edge Cases and Validation', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should handle empty cart items when creating order', async () => {
-      mockIndexedDBOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-002');
-      mockIndexedDBOrderRepo.create.mockResolvedValue(mockOrder);
+      mockOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-002');
+      mockOrderRepo.create.mockResolvedValue(mockOrder);
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderTypeEnum.TAKEAWAY });
 
       const orderData = { ...mockCreateOrderData, items: [] };
       const result = await service.createOrder(orderData);
 
       expect(result).toEqual(mockOrder);
-      expect(mockIndexedDBOrderItemRepo.create).not.toHaveBeenCalled();
+      expect(mockOrderItemRepo.create).not.toHaveBeenCalled();
     });
 
     it('should handle cart items with no extras', async () => {
-      mockIndexedDBOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-003');
-      mockIndexedDBOrderRepo.create.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderItemRepo.create.mockResolvedValue(mockOrderItem);
+      mockOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-003');
+      mockOrderRepo.create.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.create.mockResolvedValue(mockOrderItem);
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderTypeEnum.TAKEAWAY });
 
       const itemWithNoExtras: CartItem = { ...mockCartItem, extraIds: [] };
@@ -888,13 +767,13 @@ describe('OrderService', () => {
 
       await service.createOrder(orderData);
 
-      expect(mockIndexedDBOrderItemExtraRepo.create).not.toHaveBeenCalled();
+      expect(mockOrderItemExtraRepo.create).not.toHaveBeenCalled();
     });
 
     it('should handle order without table (takeaway/delivery)', async () => {
       const orderWithoutTable = { ...mockOrder, tableId: null };
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(orderWithoutTable);
-      mockIndexedDBOrderRepo.update.mockResolvedValue({ ...orderWithoutTable, statusId: 6 });
+      mockOrderRepo.findById.mockResolvedValue(orderWithoutTable);
+      mockOrderRepo.update.mockResolvedValue({ ...orderWithoutTable, statusId: 6 });
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.COMPLETED });
 
       await service.updateOrderStatus(1, 6);
@@ -904,22 +783,20 @@ describe('OrderService', () => {
     });
 
     it('should calculate tax correctly when adding items', async () => {
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderItemRepo.create.mockResolvedValue(mockOrderItem);
-      mockIndexedDBOrderRepo.update.mockImplementation(
-        async (id: number, data: Partial<Order>) => ({
-          ...mockOrder,
-          ...data,
-        }),
-      );
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.create.mockResolvedValue(mockOrderItem);
+      mockOrderRepo.update.mockImplementation(async (id: number, data: Partial<Order>) => ({
+        ...mockOrder,
+        ...data,
+      }));
       mockEnumMappingService.getCodeTableId.mockResolvedValue(1);
-      mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.OPEN });
 
       await service.addItemsToOrder(1, [mockCartItem]);
 
       // Verify tax calculation (18% tax rate)
-      const updateCall = mockIndexedDBOrderRepo.update.mock.calls[0];
+      const updateCall = mockOrderRepo.update.mock.calls[0];
       const updateData = updateCall[1];
       const expectedSubtotal = mockOrder.subtotal + mockCartItem.lineTotal;
       const expectedTax = (expectedSubtotal * TAX_RATE) / (1 + TAX_RATE);
@@ -931,36 +808,31 @@ describe('OrderService', () => {
 
   describe('Order Status Transitions', () => {
     beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
-      mockIndexedDBOrderRepo.findById.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderRepo.update.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([mockOrderItem]);
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
+      mockOrderRepo.update.mockResolvedValue(mockOrder);
     });
 
     it('should handle order with no items', async () => {
-      mockIndexedDBOrderItemRepo.findByOrderId.mockResolvedValue([]);
-      mockIndexedDBOrderItemRepo.update.mockResolvedValue(mockOrderItem);
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([]);
+      mockOrderItemRepo.update.mockResolvedValue(mockOrderItem);
 
       await service.updateOrderItemStatus(1, 3);
 
       // Should not update order status when no items exist
-      expect(mockIndexedDBOrderRepo.update).not.toHaveBeenCalled();
+      expect(mockOrderRepo.update).not.toHaveBeenCalled();
     });
   });
 
   describe('Error Handling', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should handle repository errors in getOrderById', async () => {
-      mockIndexedDBOrderRepo.findById.mockRejectedValue(new Error('Database connection lost'));
+      mockOrderRepo.findById.mockRejectedValue(new Error('Database connection lost'));
 
       await expect(service.getOrderById(1)).rejects.toThrow('Database connection lost');
     });
 
     it('should handle repository errors in getAllOrders', async () => {
-      mockIndexedDBOrderRepo.findAll.mockRejectedValue(new Error('Query failed'));
+      mockOrderRepo.findAll.mockRejectedValue(new Error('Query failed'));
 
       await expect(service.getAllOrders()).rejects.toThrow('Query failed');
     });
@@ -974,9 +846,9 @@ describe('OrderService', () => {
     });
 
     it('should handle errors during order item creation', async () => {
-      mockIndexedDBOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-004');
-      mockIndexedDBOrderRepo.create.mockResolvedValue(mockOrder);
-      mockIndexedDBOrderItemRepo.create.mockRejectedValue(new Error('Item creation failed'));
+      mockOrderRepo.getNextOrderNumber.mockResolvedValue('ORD-004');
+      mockOrderRepo.create.mockResolvedValue(mockOrder);
+      mockOrderItemRepo.create.mockRejectedValue(new Error('Item creation failed'));
 
       await expect(service.createOrder(mockCreateOrderData)).rejects.toThrow(
         'Failed to create order: Item creation failed',

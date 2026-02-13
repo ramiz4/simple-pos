@@ -1,24 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { Product } from '@simple-pos/shared/types';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import { IndexedDBProductRepository } from '../../infrastructure/repositories/indexeddb-product.repository';
-import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlite-product.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PRODUCT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 import { ProductService } from './product.service';
 
 describe('ProductService', () => {
   let service: ProductService;
-  let mockPlatformService: { isTauri: Mock; isWeb: Mock };
-  let mockSqliteProductRepo: {
-    findById: Mock;
-    findAll: Mock;
-    findByCategory: Mock;
-    create: Mock;
-    update: Mock;
-    delete: Mock;
-    count: Mock;
-  };
-  let mockIndexedDBProductRepo: {
+  let mockProductRepo: {
     findById: Mock;
     findAll: Mock;
     findByCategory: Mock;
@@ -56,25 +44,8 @@ describe('ProductService', () => {
   };
 
   beforeEach(() => {
-    // Mock PlatformService
-    mockPlatformService = {
-      isTauri: vi.fn().mockReturnValue(false),
-      isWeb: vi.fn().mockReturnValue(true),
-    };
-
-    // Mock SQLite Product Repository
-    mockSqliteProductRepo = {
-      findById: vi.fn(),
-      findAll: vi.fn(),
-      findByCategory: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      count: vi.fn(),
-    };
-
-    // Mock IndexedDB Product Repository
-    mockIndexedDBProductRepo = {
+    // Mock Product Repository
+    mockProductRepo = {
       findById: vi.fn(),
       findAll: vi.fn(),
       findByCategory: vi.fn(),
@@ -86,12 +57,7 @@ describe('ProductService', () => {
 
     // Configure TestBed
     TestBed.configureTestingModule({
-      providers: [
-        ProductService,
-        { provide: PlatformService, useValue: mockPlatformService },
-        { provide: SQLiteProductRepository, useValue: mockSqliteProductRepo },
-        { provide: IndexedDBProductRepository, useValue: mockIndexedDBProductRepo },
-      ],
+      providers: [ProductService, { provide: PRODUCT_REPOSITORY, useValue: mockProductRepo }],
     });
 
     service = TestBed.inject(ProductService);
@@ -108,61 +74,30 @@ describe('ProductService', () => {
   });
 
   describe('Platform Selection', () => {
-    it('should use IndexedDB repository on web platform', async () => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
+    it('should use the injected repository', async () => {
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
 
       const result = await service.getById(1);
 
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledWith(1);
-      expect(mockSqliteProductRepo.findById).not.toHaveBeenCalled();
-      expect(result).toEqual(mockProduct);
-    });
-
-    it('should use SQLite repository on Tauri platform', async () => {
-      // Reconfigure with Tauri platform
-      mockPlatformService.isTauri.mockReturnValue(true);
-
-      // Recreate the service with the new platform configuration
-      TestBed.resetTestingModule();
-      TestBed.configureTestingModule({
-        providers: [
-          ProductService,
-          { provide: PlatformService, useValue: mockPlatformService },
-          { provide: SQLiteProductRepository, useValue: mockSqliteProductRepo },
-          { provide: IndexedDBProductRepository, useValue: mockIndexedDBProductRepo },
-        ],
-      });
-      service = TestBed.inject(ProductService);
-
-      mockSqliteProductRepo.findById.mockResolvedValue(mockProduct);
-
-      const result = await service.getById(1);
-
-      expect(mockSqliteProductRepo.findById).toHaveBeenCalledWith(1);
-      expect(mockIndexedDBProductRepo.findById).not.toHaveBeenCalled();
+      expect(mockProductRepo.findById).toHaveBeenCalledWith(1);
       expect(result).toEqual(mockProduct);
     });
   });
 
   describe('getAll', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return all products', async () => {
       const products = [mockProduct, mockProduct2, mockProduct3];
-      mockIndexedDBProductRepo.findAll.mockResolvedValue(products);
+      mockProductRepo.findAll.mockResolvedValue(products);
 
       const result = await service.getAll();
 
       expect(result).toEqual(products);
       expect(result).toHaveLength(3);
-      expect(mockIndexedDBProductRepo.findAll).toHaveBeenCalled();
+      expect(mockProductRepo.findAll).toHaveBeenCalled();
     });
 
     it('should return empty array when no products exist', async () => {
-      mockIndexedDBProductRepo.findAll.mockResolvedValue([]);
+      mockProductRepo.findAll.mockResolvedValue([]);
 
       const result = await service.getAll();
 
@@ -171,37 +106,33 @@ describe('ProductService', () => {
     });
 
     it('should handle repository errors', async () => {
-      mockIndexedDBProductRepo.findAll.mockRejectedValue(new Error('Database error'));
+      mockProductRepo.findAll.mockRejectedValue(new Error('Database error'));
 
       await expect(service.getAll()).rejects.toThrow('Database error');
     });
   });
 
   describe('getById', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return product by id', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
 
       const result = await service.getById(1);
 
       expect(result).toEqual(mockProduct);
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockProductRepo.findById).toHaveBeenCalledWith(1);
     });
 
     it('should return null when product not found', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(null);
+      mockProductRepo.findById.mockResolvedValue(null);
 
       const result = await service.getById(999);
 
       expect(result).toBeNull();
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledWith(999);
+      expect(mockProductRepo.findById).toHaveBeenCalledWith(999);
     });
 
     it('should handle different product types', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct3);
+      mockProductRepo.findById.mockResolvedValue(mockProduct3);
 
       const result = await service.getById(3);
 
@@ -211,30 +142,26 @@ describe('ProductService', () => {
     });
 
     it('should handle repository errors', async () => {
-      mockIndexedDBProductRepo.findById.mockRejectedValue(new Error('Connection lost'));
+      mockProductRepo.findById.mockRejectedValue(new Error('Connection lost'));
 
       await expect(service.getById(1)).rejects.toThrow('Connection lost');
     });
   });
 
   describe('getByCategory', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should return products by category id', async () => {
       const categoryProducts = [mockProduct, mockProduct2];
-      mockIndexedDBProductRepo.findByCategory.mockResolvedValue(categoryProducts);
+      mockProductRepo.findByCategory.mockResolvedValue(categoryProducts);
 
       const result = await service.getByCategory(1);
 
       expect(result).toEqual(categoryProducts);
       expect(result).toHaveLength(2);
-      expect(mockIndexedDBProductRepo.findByCategory).toHaveBeenCalledWith(1);
+      expect(mockProductRepo.findByCategory).toHaveBeenCalledWith(1);
     });
 
     it('should return empty array when category has no products', async () => {
-      mockIndexedDBProductRepo.findByCategory.mockResolvedValue([]);
+      mockProductRepo.findByCategory.mockResolvedValue([]);
 
       const result = await service.getByCategory(99);
 
@@ -243,7 +170,7 @@ describe('ProductService', () => {
     });
 
     it('should filter products correctly by category', async () => {
-      mockIndexedDBProductRepo.findByCategory.mockResolvedValue([mockProduct3]);
+      mockProductRepo.findByCategory.mockResolvedValue([mockProduct3]);
 
       const result = await service.getByCategory(2);
 
@@ -252,17 +179,13 @@ describe('ProductService', () => {
     });
 
     it('should handle repository errors', async () => {
-      mockIndexedDBProductRepo.findByCategory.mockRejectedValue(new Error('Query failed'));
+      mockProductRepo.findByCategory.mockRejectedValue(new Error('Query failed'));
 
       await expect(service.getByCategory(1)).rejects.toThrow('Query failed');
     });
   });
 
   describe('create', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should create a new product successfully', async () => {
       const newProduct: Omit<Product, 'id'> = {
         name: 'New Product',
@@ -272,12 +195,12 @@ describe('ProductService', () => {
         isAvailable: true,
       };
       const createdProduct = { id: 4, ...newProduct };
-      mockIndexedDBProductRepo.create.mockResolvedValue(createdProduct);
+      mockProductRepo.create.mockResolvedValue(createdProduct);
 
       const result = await service.create(newProduct);
 
       expect(result).toEqual(createdProduct);
-      expect(mockIndexedDBProductRepo.create).toHaveBeenCalledWith(newProduct);
+      expect(mockProductRepo.create).toHaveBeenCalledWith(newProduct);
     });
 
     it('should create product with zero stock', async () => {
@@ -289,7 +212,7 @@ describe('ProductService', () => {
         isAvailable: false,
       };
       const createdProduct = { id: 5, ...newProduct };
-      mockIndexedDBProductRepo.create.mockResolvedValue(createdProduct);
+      mockProductRepo.create.mockResolvedValue(createdProduct);
 
       const result = await service.create(newProduct);
 
@@ -306,7 +229,7 @@ describe('ProductService', () => {
         isAvailable: true,
       };
       const createdProduct = { id: 6, ...newProduct };
-      mockIndexedDBProductRepo.create.mockResolvedValue(createdProduct);
+      mockProductRepo.create.mockResolvedValue(createdProduct);
 
       const result = await service.create(newProduct);
 
@@ -321,35 +244,31 @@ describe('ProductService', () => {
         stock: 100,
         isAvailable: true,
       };
-      mockIndexedDBProductRepo.create.mockRejectedValue(new Error('Constraint violation'));
+      mockProductRepo.create.mockRejectedValue(new Error('Constraint violation'));
 
       await expect(service.create(newProduct)).rejects.toThrow('Constraint violation');
     });
   });
 
   describe('update', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should update product successfully', async () => {
       const updates: Partial<Product> = {
         name: 'Updated Product Name',
         price: 34.99,
       };
       const updatedProduct = { ...mockProduct, ...updates };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.update(1, updates);
 
       expect(result).toEqual(updatedProduct);
-      expect(mockIndexedDBProductRepo.update).toHaveBeenCalledWith(1, updates);
+      expect(mockProductRepo.update).toHaveBeenCalledWith(1, updates);
     });
 
     it('should update only specified fields', async () => {
       const updates: Partial<Product> = { stock: 150 };
       const updatedProduct = { ...mockProduct, stock: 150 };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.update(1, updates);
 
@@ -361,7 +280,7 @@ describe('ProductService', () => {
     it('should update product availability', async () => {
       const updates: Partial<Product> = { isAvailable: false };
       const updatedProduct = { ...mockProduct, isAvailable: false };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.update(1, updates);
 
@@ -371,7 +290,7 @@ describe('ProductService', () => {
     it('should update product category', async () => {
       const updates: Partial<Product> = { categoryId: 3 };
       const updatedProduct = { ...mockProduct, categoryId: 3 };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.update(1, updates);
 
@@ -387,7 +306,7 @@ describe('ProductService', () => {
         categoryId: 2,
       };
       const updatedProduct = { ...mockProduct, ...updates };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.update(1, updates);
 
@@ -399,69 +318,61 @@ describe('ProductService', () => {
     });
 
     it('should handle repository errors during update', async () => {
-      mockIndexedDBProductRepo.update.mockRejectedValue(new Error('Update failed'));
+      mockProductRepo.update.mockRejectedValue(new Error('Update failed'));
 
       await expect(service.update(1, { price: 39.99 })).rejects.toThrow('Update failed');
     });
   });
 
   describe('delete', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should delete product successfully', async () => {
-      mockIndexedDBProductRepo.delete.mockResolvedValue(undefined);
+      mockProductRepo.delete.mockResolvedValue(undefined);
 
       await service.delete(1);
 
-      expect(mockIndexedDBProductRepo.delete).toHaveBeenCalledWith(1);
+      expect(mockProductRepo.delete).toHaveBeenCalledWith(1);
     });
 
     it('should handle deletion of non-existent product', async () => {
-      mockIndexedDBProductRepo.delete.mockRejectedValue(new Error('Product not found'));
+      mockProductRepo.delete.mockRejectedValue(new Error('Product not found'));
 
       await expect(service.delete(999)).rejects.toThrow('Product not found');
     });
 
     it('should handle repository errors during deletion', async () => {
-      mockIndexedDBProductRepo.delete.mockRejectedValue(new Error('Foreign key constraint'));
+      mockProductRepo.delete.mockRejectedValue(new Error('Foreign key constraint'));
 
       await expect(service.delete(1)).rejects.toThrow('Foreign key constraint');
     });
   });
 
   describe('toggleAvailability', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should toggle product availability from true to false', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
       const updatedProduct = { ...mockProduct, isAvailable: false };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.toggleAvailability(1);
 
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledWith(1);
-      expect(mockIndexedDBProductRepo.update).toHaveBeenCalledWith(1, { isAvailable: false });
+      expect(mockProductRepo.findById).toHaveBeenCalledWith(1);
+      expect(mockProductRepo.update).toHaveBeenCalledWith(1, { isAvailable: false });
       expect(result.isAvailable).toBe(false);
     });
 
     it('should toggle product availability from false to true', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct3);
+      mockProductRepo.findById.mockResolvedValue(mockProduct3);
       const updatedProduct = { ...mockProduct3, isAvailable: true };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.toggleAvailability(3);
 
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledWith(3);
-      expect(mockIndexedDBProductRepo.update).toHaveBeenCalledWith(3, { isAvailable: true });
+      expect(mockProductRepo.findById).toHaveBeenCalledWith(3);
+      expect(mockProductRepo.update).toHaveBeenCalledWith(3, { isAvailable: true });
       expect(result.isAvailable).toBe(true);
     });
 
     it('should throw error when product not found', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(null);
+      mockProductRepo.findById.mockResolvedValue(null);
 
       await expect(service.toggleAvailability(999)).rejects.toThrow(
         'Product with id 999 not found',
@@ -469,16 +380,16 @@ describe('ProductService', () => {
     });
 
     it('should handle repository errors during toggle', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
-      mockIndexedDBProductRepo.update.mockRejectedValue(new Error('Update failed'));
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.update.mockRejectedValue(new Error('Update failed'));
 
       await expect(service.toggleAvailability(1)).rejects.toThrow('Update failed');
     });
 
     it('should maintain other product properties when toggling', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
       const updatedProduct = { ...mockProduct, isAvailable: false };
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.toggleAvailability(1);
 
@@ -490,13 +401,9 @@ describe('ProductService', () => {
   });
 
   describe('Edge Cases and Validation', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should handle product with very large stock number', async () => {
       const largeStockProduct = { ...mockProduct, stock: 999999 };
-      mockIndexedDBProductRepo.findById.mockResolvedValue(largeStockProduct);
+      mockProductRepo.findById.mockResolvedValue(largeStockProduct);
 
       const result = await service.getById(1);
 
@@ -505,7 +412,7 @@ describe('ProductService', () => {
 
     it('should handle product with very high price', async () => {
       const expensiveProduct = { ...mockProduct, price: 9999.99 };
-      mockIndexedDBProductRepo.findById.mockResolvedValue(expensiveProduct);
+      mockProductRepo.findById.mockResolvedValue(expensiveProduct);
 
       const result = await service.getById(1);
 
@@ -514,7 +421,7 @@ describe('ProductService', () => {
 
     it('should handle product with price of zero', async () => {
       const freeProduct = { ...mockProduct, price: 0 };
-      mockIndexedDBProductRepo.findById.mockResolvedValue(freeProduct);
+      mockProductRepo.findById.mockResolvedValue(freeProduct);
 
       const result = await service.getById(1);
 
@@ -526,7 +433,7 @@ describe('ProductService', () => {
         ...mockProduct,
         name: "Product™ with Special & Char's!",
       };
-      mockIndexedDBProductRepo.findById.mockResolvedValue(specialNameProduct);
+      mockProductRepo.findById.mockResolvedValue(specialNameProduct);
 
       const result = await service.getById(1);
 
@@ -534,7 +441,7 @@ describe('ProductService', () => {
     });
 
     it('should handle empty result set from getAll', async () => {
-      mockIndexedDBProductRepo.findAll.mockResolvedValue([]);
+      mockProductRepo.findAll.mockResolvedValue([]);
 
       const result = await service.getAll();
 
@@ -543,7 +450,7 @@ describe('ProductService', () => {
     });
 
     it('should handle negative category id in getByCategory', async () => {
-      mockIndexedDBProductRepo.findByCategory.mockResolvedValue([]);
+      mockProductRepo.findByCategory.mockResolvedValue([]);
 
       const result = await service.getByCategory(-1);
 
@@ -552,10 +459,6 @@ describe('ProductService', () => {
   });
 
   describe('Multiple Operations Sequence', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should handle create then read sequence', async () => {
       const newProduct: Omit<Product, 'id'> = {
         name: 'Sequential Product',
@@ -566,8 +469,8 @@ describe('ProductService', () => {
       };
       const createdProduct = { id: 7, ...newProduct };
 
-      mockIndexedDBProductRepo.create.mockResolvedValue(createdProduct);
-      mockIndexedDBProductRepo.findById.mockResolvedValue(createdProduct);
+      mockProductRepo.create.mockResolvedValue(createdProduct);
+      mockProductRepo.findById.mockResolvedValue(createdProduct);
 
       const created = await service.create(newProduct);
       const retrieved = await service.getById(created.id);
@@ -580,8 +483,8 @@ describe('ProductService', () => {
       const updates = { price: 44.99 };
       const updatedProduct = { ...mockProduct, ...updates };
 
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
-      mockIndexedDBProductRepo.findById.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.findById.mockResolvedValue(updatedProduct);
 
       await service.update(1, updates);
       const result = await service.getById(1);
@@ -592,10 +495,10 @@ describe('ProductService', () => {
     it('should handle toggle then read sequence', async () => {
       const toggledProduct = { ...mockProduct, isAvailable: false };
 
-      mockIndexedDBProductRepo.findById
+      mockProductRepo.findById
         .mockResolvedValueOnce(mockProduct)
         .mockResolvedValueOnce(toggledProduct);
-      mockIndexedDBProductRepo.update.mockResolvedValue(toggledProduct);
+      mockProductRepo.update.mockResolvedValue(toggledProduct);
 
       await service.toggleAvailability(1);
       const result = await service.getById(1);
@@ -605,12 +508,8 @@ describe('ProductService', () => {
   });
 
   describe('Concurrent Operations', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should handle multiple getById calls', async () => {
-      mockIndexedDBProductRepo.findById.mockImplementation(async (id: number) => {
+      mockProductRepo.findById.mockImplementation(async (id: number) => {
         if (id === 1) return mockProduct;
         if (id === 2) return mockProduct2;
         if (id === 3) return mockProduct3;
@@ -629,7 +528,7 @@ describe('ProductService', () => {
     });
 
     it('should handle multiple getByCategory calls', async () => {
-      mockIndexedDBProductRepo.findByCategory.mockImplementation(async (categoryId: number) => {
+      mockProductRepo.findByCategory.mockImplementation(async (categoryId: number) => {
         if (categoryId === 1) return [mockProduct, mockProduct2];
         if (categoryId === 2) return [mockProduct3];
         return [];
@@ -643,16 +542,12 @@ describe('ProductService', () => {
   });
 
   describe('Data Integrity', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should preserve product data during update', async () => {
       const originalProduct = { ...mockProduct };
       const updates = { price: 39.99 };
       const updatedProduct = { ...originalProduct, ...updates };
 
-      mockIndexedDBProductRepo.update.mockResolvedValue(updatedProduct);
+      mockProductRepo.update.mockResolvedValue(updatedProduct);
 
       const result = await service.update(1, updates);
 
@@ -666,7 +561,7 @@ describe('ProductService', () => {
 
     it('should not modify original product object', async () => {
       const originalProduct = { ...mockProduct };
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
 
       await service.getById(1);
 
@@ -675,17 +570,13 @@ describe('ProductService', () => {
   });
 
   describe('Performance and Scalability', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should handle large number of products', async () => {
       const largeProductList = Array.from({ length: 1000 }, (_, i) => ({
         ...mockProduct,
         id: i + 1,
         name: `Product ${i + 1}`,
       }));
-      mockIndexedDBProductRepo.findAll.mockResolvedValue(largeProductList);
+      mockProductRepo.findAll.mockResolvedValue(largeProductList);
 
       const result = await service.getAll();
 
@@ -698,7 +589,7 @@ describe('ProductService', () => {
         id: i + 1,
         name: `Category Product ${i + 1}`,
       }));
-      mockIndexedDBProductRepo.findByCategory.mockResolvedValue(manyProducts);
+      mockProductRepo.findByCategory.mockResolvedValue(manyProducts);
 
       const result = await service.getByCategory(1);
 
@@ -707,32 +598,28 @@ describe('ProductService', () => {
   });
 
   describe('Repository Method Verification', () => {
-    beforeEach(() => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-    });
-
     it('should call repository methods with correct parameters', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
-      mockIndexedDBProductRepo.findAll.mockResolvedValue([mockProduct]);
-      mockIndexedDBProductRepo.findByCategory.mockResolvedValue([mockProduct]);
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.findAll.mockResolvedValue([mockProduct]);
+      mockProductRepo.findByCategory.mockResolvedValue([mockProduct]);
 
       await service.getById(1);
       await service.getAll();
       await service.getByCategory(1);
 
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledTimes(1);
-      expect(mockIndexedDBProductRepo.findAll).toHaveBeenCalledTimes(1);
-      expect(mockIndexedDBProductRepo.findByCategory).toHaveBeenCalledTimes(1);
+      expect(mockProductRepo.findById).toHaveBeenCalledTimes(1);
+      expect(mockProductRepo.findAll).toHaveBeenCalledTimes(1);
+      expect(mockProductRepo.findByCategory).toHaveBeenCalledTimes(1);
     });
 
     it('should not call repository methods multiple times unnecessarily', async () => {
-      mockIndexedDBProductRepo.findById.mockResolvedValue(mockProduct);
+      mockProductRepo.findById.mockResolvedValue(mockProduct);
 
       await service.getById(1);
 
-      expect(mockIndexedDBProductRepo.findById).toHaveBeenCalledTimes(1);
-      expect(mockIndexedDBProductRepo.findAll).not.toHaveBeenCalled();
-      expect(mockIndexedDBProductRepo.findByCategory).not.toHaveBeenCalled();
+      expect(mockProductRepo.findById).toHaveBeenCalledTimes(1);
+      expect(mockProductRepo.findAll).not.toHaveBeenCalled();
+      expect(mockProductRepo.findByCategory).not.toHaveBeenCalled();
     });
   });
 });

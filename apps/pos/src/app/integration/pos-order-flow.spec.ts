@@ -16,7 +16,7 @@ import { ProductService } from '../application/services/product.service';
 import { SeedService } from '../application/services/seed.service';
 import { TableService } from '../application/services/table.service';
 import { VariantService } from '../application/services/variant.service';
-import { RepositoryFactory } from '../infrastructure/adapters/repository.factory';
+import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
 import { PlatformService } from '../shared/utilities/platform.service';
 
 /**
@@ -67,7 +67,7 @@ describe('Core POS Flow', () => {
         CartService,
         SeedService,
         EnumMappingService,
-        RepositoryFactory,
+        ...REPOSITORY_PROVIDERS,
         {
           provide: PlatformService,
           useValue: {
