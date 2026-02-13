@@ -1,3 +1,13 @@
+# [1.5.0](https://github.com/ramiz4/simple-pos/compare/v1.4.2...v1.5.0) (2026-02-13)
+
+### Bug Fixes
+
+- **shared-dto:** address dto review feedback ([f6c10a9](https://github.com/ramiz4/simple-pos/commit/f6c10a9c3e79a62c6bf92e9bc028a2c209495537))
+
+### Features
+
+- **shared-types:** add shared dto contracts for sync endpoints ([95b0cac](https://github.com/ramiz4/simple-pos/commit/95b0cace60ccfb9287aff214097408e8c22990dc))
+
 ## [1.4.2](https://github.com/ramiz4/simple-pos/compare/v1.4.1...v1.4.2) (2026-02-13)
 
 ### Bug Fixes
