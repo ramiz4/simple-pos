@@ -59,7 +59,7 @@ libs/shared/types/src/lib/
 
 ## Proposed Solution
 
-### Option A: Create a shared DTO library (Recommended)
+### Create a shared DTO library
 
 Create a new library for request/response contracts that both apps import:
 
@@ -161,21 +161,6 @@ async pushProduct(product: Product): Promise<ProductResponseDto> {
   return this.http.post<ProductResponseDto>('/api/products', dto);
 }
 ```
-
-### Option B: Extend Shared Types (Lighter Touch)
-
-If a full DTO library is premature, ensure the API at minimum imports entity interfaces from `@simple-pos/shared/types` and its DTOs reference them:
-
-```typescript
-// apps/api/src/app/products/dto/create-product.dto.ts
-import { Product } from '@simple-pos/shared/types';
-
-export class CreateProductDto implements Omit<Product, 'id' | 'createdAt' | 'updatedAt'> {
-  // NestJS validation decorators here
-}
-```
-
-This at least gives compile-time errors when `Product` interface changes.
 
 ### Step 6: Tag the New Library
 
