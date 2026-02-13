@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
 import { USER_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
@@ -176,7 +177,7 @@ describe('AuthService', () => {
 
       // Create new service instance to trigger constructor
       const newService = new AuthService(
-        mockUserRepo as any,
+        mockUserRepo as unknown as BaseRepository<User>,
         mockEnumMappingService as unknown as EnumMappingService,
         mockAccountService as unknown as AccountService,
         mockInputSanitizer as unknown as InputSanitizerService,
@@ -193,7 +194,7 @@ describe('AuthService', () => {
 
       // Create new service instance to trigger constructor
       const newService = new AuthService(
-        mockUserRepo as any,
+        mockUserRepo as unknown as BaseRepository<User>,
         mockEnumMappingService as unknown as EnumMappingService,
         mockAccountService as unknown as AccountService,
         mockInputSanitizer as unknown as InputSanitizerService,
