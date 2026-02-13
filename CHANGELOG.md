@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/ramiz4/simple-pos/compare/v1.2.0...v1.3.0) (2026-02-13)
+
+### Features
+
+- **pos:** enhance kitchen order display with formatted date and order type ([b4bebbd](https://github.com/ramiz4/simple-pos/commit/b4bebbda81f68bbe0be9c7edd909ac63bfeef9d6))
+
 # [1.2.0](https://github.com/ramiz4/simple-pos/compare/v1.1.3...v1.2.0) (2026-02-13)
 
 ### Bug Fixes
