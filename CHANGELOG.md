@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/ramiz4/simple-pos/compare/v1.5.0...v1.5.1) (2026-02-13)
+
+### Bug Fixes
+
+- **api:** adjust api-common vitest config and expand host util test ([4f83975](https://github.com/ramiz4/simple-pos/commit/4f839759550e50613505a3ff784b50953170bdb2))
+- **api:** extract shared api-common library and update task docs ([c36e2ce](https://github.com/ramiz4/simple-pos/commit/c36e2ce9905fb7738334a6dcba395b04de27f07b))
+
 # [1.5.0](https://github.com/ramiz4/simple-pos/compare/v1.4.2...v1.5.0) (2026-02-13)
 
 ### Bug Fixes
