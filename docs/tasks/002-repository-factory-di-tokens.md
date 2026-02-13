@@ -200,23 +200,6 @@ export class ProductService {
 
 Once all services are migrated, delete `apps/pos/src/app/infrastructure/adapters/repository.factory.ts`.
 
-## Alternative: Expand Existing Factory
-
-If the DI token approach is too large a refactor, the simpler alternative is to add a method per entity to the existing factory:
-
-```typescript
-@Injectable({ providedIn: 'root' })
-export class RepositoryFactory {
-  constructor(private platform: PlatformService, /* inject all repos */) {}
-
-  getProductRepository(): BaseRepository<Product> { ... }
-  getCategoryRepository(): BaseRepository<Category> { ... }
-  getOrderRepository(): BaseRepository<Order> { ... }
-  // ... etc
-}
-```
-
-**Trade-off:** This approach works but creates a god-service with 30+ constructor dependencies. The DI token approach is preferred.
 
 ## Acceptance Criteria
 
