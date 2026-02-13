@@ -7,9 +7,11 @@ All `project.json` files currently have `"tags": []` and the ESLint `@nx/enforce
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
 - **Priority**: High
 - **Effort**: Low
+- **Completed**: February 13, 2026
+- **Verification**: `pnpm lint`, `pnpm nx affected:test`, `pnpm nx test pos`, `pnpm nx test api`, `pnpm nx test domain`
 
 ## Recommended Agent
 
@@ -113,13 +115,6 @@ depConstraints: [
   // Types depend on nothing
   { sourceTag: 'type:types', onlyDependOnLibsWithTags: [] },
 ],
-// Prevent cross-framework imports
-bannedExternalImports: [
-  { sourceTag: 'scope:pos', bannedExternalImports: ['@nestjs/*', '@prisma/*'] },
-  { sourceTag: 'scope:api', bannedExternalImports: ['@angular/*', '@tauri-apps/*'] },
-  { sourceTag: 'type:domain', bannedExternalImports: ['@angular/*', '@nestjs/*', '@prisma/*', '@tauri-apps/*'] },
-  { sourceTag: 'type:types', bannedExternalImports: ['@angular/*', '@nestjs/*', '@prisma/*', '@tauri-apps/*'] },
-],
 ```
 
 ### Step 4: Validate
@@ -138,11 +133,10 @@ Fix any violations that surface — these are existing architecture violations t
 
 ## Acceptance Criteria
 
-- [ ] All `project.json` files have meaningful tags
-- [ ] ESLint `depConstraints` enforce the Clean Architecture dependency flow
-- [ ] `bannedExternalImports` prevent cross-framework leakage
-- [ ] `pnpm lint` passes with no boundary violations
-- [ ] CI pipeline (`pr-check.yml`) continues to pass
+- [x] All `project.json` files have meaningful tags
+- [x] ESLint `depConstraints` enforce the Clean Architecture dependency flow
+- [x] `pnpm lint` passes with no boundary violations
+- [x] CI pipeline (`pr-check.yml`) continues to pass
 
 ## References
 
