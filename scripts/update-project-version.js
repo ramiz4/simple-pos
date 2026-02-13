@@ -30,10 +30,3 @@ if (fs.existsSync(constantsPath)) {
   fs.writeFileSync(constantsPath, constants);
   console.log(`Updated constants.ts to version ${version}`);
 }
-
-// Update constants.ts
-const constantsPath = path.join(__dirname, '../libs/shared/utils/src/lib/constants.ts');
-let constants = fs.readFileSync(constantsPath, 'utf8');
-constants = constants.replace(/export const APP_VERSION = '.*';/, `export const APP_VERSION = '${version}';`);
-fs.writeFileSync(constantsPath, constants);
-console.log(`Updated constants.ts to version ${version}`);
