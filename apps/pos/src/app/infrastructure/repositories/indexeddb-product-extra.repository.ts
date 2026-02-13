@@ -40,7 +40,7 @@ export class IndexedDBProductExtraRepository implements BaseRepository<ProductEx
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const id = Date.now();
+      const id = Date.now() + Math.random();
       const newEntity = { ...entity, id };
       const request = store.add(newEntity);
 

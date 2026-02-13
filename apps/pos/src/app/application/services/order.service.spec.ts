@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { TAX_RATE } from '@simple-pos/domain';
 import {
   CartItem,
   Order,
@@ -912,7 +913,7 @@ describe('OrderService', () => {
       const updateCall = mockIndexedDBOrderRepo.update.mock.calls[0];
       const updateData = updateCall[1];
       const expectedSubtotal = mockOrder.subtotal + mockCartItem.lineTotal;
-      const expectedTax = (expectedSubtotal * 0.18) / 1.18;
+      const expectedTax = (expectedSubtotal * TAX_RATE) / (1 + TAX_RATE);
 
       expect(updateData.subtotal).toBe(expectedSubtotal);
       expect(Math.abs(updateData.tax - expectedTax)).toBeLessThan(0.01);

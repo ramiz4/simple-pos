@@ -9,18 +9,41 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private isDomainOrderStatus(status: string): status is OrderStatusEnum {
+    return (Object.values(OrderStatusEnum) as string[]).includes(status);
+  }
+
+  private isCreateTotalsValid(createOrderDto: CreateOrderDto): boolean {
+    const itemsTotal = PricingCalculator.calculateOrderTotal(
+      createOrderDto.items.map((item) => ({
+        productPrice: item.price,
+        quantity: item.quantity,
+      })),
+    );
+
+    const round = (num: number) => Math.round(num * 100) / 100;
+
+    const strictDomainValid = PricingCalculator.validateOrderTotals(
+      createOrderDto.totalAmount,
+      createOrderDto.tax,
+      createOrderDto.items.map((item) => ({
+        productPrice: item.price,
+        quantity: item.quantity,
+      })),
+    );
+
+    const legacySubtotalValid = round(createOrderDto.subtotal) === round(itemsTotal);
+    const legacyTotalValid =
+      round(createOrderDto.totalAmount) ===
+      round(createOrderDto.subtotal + createOrderDto.tax + (createOrderDto.tip ?? 0));
+
+    return strictDomainValid || (legacySubtotalValid && legacyTotalValid);
+  }
+
   async create(tenantId: string, userId: string, createOrderDto: CreateOrderDto) {
     const { items, ...orderData } = createOrderDto;
 
-    // Validate order totals using domain logic
-    const isValid = PricingCalculator.validateOrderTotals(
-      createOrderDto.totalAmount,
-      createOrderDto.tax,
-      items.map((i) => ({
-        productPrice: i.price,
-        quantity: i.quantity,
-      })),
-    );
+    const isValid = this.isCreateTotalsValid(createOrderDto);
 
     if (!isValid) {
       throw new BadRequestException('Order totals validation failed');
@@ -110,14 +133,16 @@ export class OrdersService {
 
       // Validate status transition if status is being updated
       if (orderData.status) {
-        const isValidTransition = OrderStateMachine.canTransition(
-          order.status as OrderStatusEnum,
-          orderData.status as OrderStatusEnum,
-        );
-        if (!isValidTransition) {
-          throw new BadRequestException(
-            `Invalid status transition from ${order.status} to ${orderData.status}`,
-          );
+        const currentStatus = String(order.status);
+        const nextStatus = String(orderData.status);
+
+        if (this.isDomainOrderStatus(currentStatus) && this.isDomainOrderStatus(nextStatus)) {
+          const isValidTransition = OrderStateMachine.canTransition(currentStatus, nextStatus);
+          if (!isValidTransition) {
+            throw new BadRequestException(
+              `Invalid status transition from ${order.status} to ${orderData.status}`,
+            );
+          }
         }
       }
 

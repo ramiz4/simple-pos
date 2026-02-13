@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { TAX_RATE } from '@simple-pos/domain';
 import {
   CartItem,
   OrderStatusEnum,
@@ -17,9 +18,6 @@ import { TableService } from '../application/services/table.service';
 import { VariantService } from '../application/services/variant.service';
 import { RepositoryFactory } from '../infrastructure/adapters/repository.factory';
 import { PlatformService } from '../shared/utilities/platform.service';
-
-// Centralized tax rate constant - matches CartService.TAX_RATE (18% Kosovo VAT)
-const TAX_RATE = 0.18;
 
 /**
  * Phase 3 Integration Tests - Core POS Flow
