@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../common/prisma/prisma.module';
+import { PrismaModule } from '@simple-pos/api-common';
 import { DnsVerificationService } from './dns-verification.service';
 import { EnterpriseAdminController } from './enterprise-admin.controller';
 import { EnterpriseController } from './enterprise.controller';

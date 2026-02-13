@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
+import { PrismaService } from '@simple-pos/api-common';
 import { randomBytes } from 'crypto';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { DnsVerificationService } from './dns-verification.service';
 import {
   CreateProfessionalServiceRequestDto,

@@ -8,6 +8,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { JwtAuthGuard } from '@simple-pos/api-common';
 import { AuthService } from './auth.service';
 import {
   AuthResponse,
@@ -16,7 +17,6 @@ import {
   RefreshTokenDto,
   RegisterRequestDto,
 } from './dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {

@@ -26,7 +26,7 @@ export default [
             },
             {
               sourceTag: 'type:utils',
-              onlyDependOnLibsWithTags: ['type:types'],
+              onlyDependOnLibsWithTags: ['type:types', 'type:utils'],
             },
             {
               sourceTag: 'type:types',
@@ -34,12 +34,7 @@ export default [
             },
             {
               sourceTag: '*',
-              onlyDependOnLibsWithTags: [
-                'type:domain',
-                'type:dto',
-                'type:types',
-                'type:utils',
-              ],
+              onlyDependOnLibsWithTags: ['type:domain', 'type:dto', 'type:types', 'type:utils'],
             },
           ],
         },

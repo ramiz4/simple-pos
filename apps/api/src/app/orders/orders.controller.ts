@@ -1,7 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { CurrentUser } from '../auth/current-user.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { TenantId } from '../tenants/tenant.decorator';
+import { CurrentUser, JwtAuthGuard, TenantId } from '@simple-pos/api-common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { OrdersService } from './orders.service';

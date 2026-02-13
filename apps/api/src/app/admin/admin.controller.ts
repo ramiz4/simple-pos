@@ -1,7 +1,5 @@
 import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { JwtAuthGuard, Roles, RolesGuard } from '@simple-pos/api-common';
 import { AdminService } from './admin.service';
 import { ListTenantsQueryDto } from './dto/list-tenants-query.dto';
 

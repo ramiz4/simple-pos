@@ -7,9 +7,10 @@ The NestJS API (`apps/api`) contains shared infrastructure code inside `apps/api
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
 - **Priority**: Medium
 - **Effort**: Medium
+- **Completed**: February 13, 2026
 
 ## Recommended Agent
 
@@ -203,14 +204,14 @@ To minimize risk, migrate in phases:
 
 ## Acceptance Criteria
 
-- [ ] New `libs/api-common` library created with `@simple-pos/api-common` import path
-- [ ] `PrismaModule` and `PrismaService` moved and re-exported
-- [ ] Auth guards and decorators moved (feature logic remains in `apps/api`)
-- [ ] Tenant middleware and decorator moved
-- [ ] All API module imports updated to `@simple-pos/api-common`
-- [ ] `apps/api/src/app/common/` directory removed
-- [ ] All tests pass
-- [ ] Lint passes with proper Nx tags
+- [x] New `libs/api-common` library created with `@simple-pos/api-common` import path
+- [x] `PrismaModule` and `PrismaService` moved and re-exported
+- [x] Auth guards and decorators moved (feature logic remains in `apps/api`)
+- [x] Tenant middleware and decorator moved
+- [x] All API module imports updated to `@simple-pos/api-common`
+- [x] `apps/api/src/app/common/` directory removed
+- [x] All tests pass
+- [x] Lint passes with proper Nx tags
 
 ## References
 

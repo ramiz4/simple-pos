@@ -8,9 +8,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import type { Prisma } from '@prisma/client';
 
+import { PrismaService } from '@simple-pos/api-common';
 import { AuthService } from '../auth/auth.service';
 import { AuthResponse } from '../auth/dto';
-import { PrismaService } from '../common/prisma/prisma.service';
 import {
   CreateSsoProviderDto,
   OauthAuthorizeRequestDto,

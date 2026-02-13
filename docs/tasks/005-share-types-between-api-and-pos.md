@@ -7,9 +7,10 @@ The NestJS API (`apps/api`) defines its own DTOs and interfaces independently in
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
 - **Priority**: Medium
 - **Effort**: Medium
+- **Completed**: February 13, 2026
 
 ## Recommended Agent
 
@@ -175,13 +176,13 @@ Update ESLint boundaries: apps can depend on `type:dto`, but `type:domain` and `
 
 ## Acceptance Criteria
 
-- [ ] Shared DTO library created at `libs/shared/dto` (or shared types are imported by API)
-- [ ] Path alias `@simple-pos/shared/dto` configured in `tsconfig.base.json`
-- [ ] API controllers/services use shared DTOs for request/response shapes
-- [ ] POS sync client uses the same shared DTOs
-- [ ] Compile-time errors surface if DTO shapes diverge
-- [ ] All tests pass for both `pos` and `api`
-- [ ] Nx boundary rules updated to include new library
+- [x] Shared DTO library created at `libs/shared/dto` (or shared types are imported by API)
+- [x] Path alias `@simple-pos/shared/dto` configured in `tsconfig.base.json`
+- [x] API sync controller/service use shared DTOs for request/response sync shapes
+- [x] POS sync client uses the same shared DTOs
+- [x] Compile-time errors surface if shared sync DTO shapes diverge
+- [x] All tests pass for both shared DTO library and `api`
+- [x] Nx boundary rules updated to include new library
 
 ## References
 

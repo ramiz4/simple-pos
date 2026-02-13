@@ -7,14 +7,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { getJwtRefreshSecret, PrismaService } from '@simple-pos/api-common';
 import { ValidationUtils } from '@simple-pos/shared/utils';
 import * as bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import { PrismaService } from '../common/prisma/prisma.service';
 import { getTenantPlanConfig, normalizeTenantPlan } from '../tenants/tenant-plan.config';
 import { AuthResponse, AuthTenantResponse, AuthUserResponse, RegisterRequestDto } from './dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { getJwtRefreshSecret } from './jwt-config';
 
 interface StoredUser {
   id: string;
