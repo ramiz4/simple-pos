@@ -1,4 +1,5 @@
 export * from './lib/account.interface';
+export * from './lib/base-repository.interface';
 export * from './lib/cart.dto';
 export * from './lib/category.interface';
 export * from './lib/code-table.interface';

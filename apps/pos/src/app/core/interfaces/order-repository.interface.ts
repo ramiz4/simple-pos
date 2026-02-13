@@ -1,5 +1,4 @@
-import { Order } from '@simple-pos/shared/types';
-import { BaseRepository } from './base-repository.interface';
+import { BaseRepository, Order } from '@simple-pos/shared/types';
 
 export interface OrderRepository extends BaseRepository<Order> {
   getNextOrderNumber(): Promise<string>;

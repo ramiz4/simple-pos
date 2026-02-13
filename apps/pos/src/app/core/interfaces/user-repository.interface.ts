@@ -1,5 +1,4 @@
-import { User } from '@simple-pos/shared/types';
-import { BaseRepository } from './base-repository.interface';
+import { BaseRepository, User } from '@simple-pos/shared/types';
 
 export interface UserRepository extends BaseRepository<User> {
   findByName(name: string): Promise<User | null>;

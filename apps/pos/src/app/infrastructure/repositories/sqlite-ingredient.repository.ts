@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Ingredient } from '@simple-pos/shared/types';
+import { BaseRepository, Ingredient } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 
 @Injectable({
   providedIn: 'root',

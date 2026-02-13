@@ -1,5 +1,4 @@
-import { ProductIngredient } from '@simple-pos/shared/types';
-import { BaseRepository } from './base-repository.interface';
+import { BaseRepository, ProductIngredient } from '@simple-pos/shared/types';
 
 export interface ProductIngredientRepository extends BaseRepository<ProductIngredient> {
   findByProduct(productId: number): Promise<ProductIngredient[]>;

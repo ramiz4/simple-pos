@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TestEntity } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { BaseRepository, TestEntity } from '@simple-pos/shared/types';
 
 /**
  * IndexedDB repository implementation for web/PWA mode
