@@ -1,15 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {
+  CodeTable,
+  CodeTranslation,
   OrderStatusEnum,
   OrderTypeEnum,
   TableStatusEnum,
   UserRoleEnum,
 } from '@simple-pos/shared/types';
-import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
-import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import {
+  CODE_TABLE_REPOSITORY,
+  CODE_TRANSLATION_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
 import { CategoryService } from './category.service';
 import { ExtraService } from './extra.service';
 import { IngredientService } from './ingredient.service';
@@ -141,12 +143,15 @@ export class SeedService {
     },
   ];
 
+  private codeTableRepo: BaseRepository<CodeTable> & {
+    findByCodeType: (codeType: string) => Promise<CodeTable[]>;
+    findByCodeTypeAndCode: (codeType: string, code: string) => Promise<CodeTable | null>;
+  };
+  private codeTranslationRepo: BaseRepository<CodeTranslation>;
+
   constructor(
-    private platformService: PlatformService,
-    private sqliteCodeTableRepo: SQLiteCodeTableRepository,
-    private indexedDBCodeTableRepo: IndexedDBCodeTableRepository,
-    private sqliteCodeTranslationRepo: SQLiteCodeTranslationRepository,
-    private indexedDBCodeTranslationRepo: IndexedDBCodeTranslationRepository,
+    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: BaseRepository<CodeTable>,
+    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: BaseRepository<CodeTranslation>,
     private tableService: TableService,
     private categoryService: CategoryService,
     private productService: ProductService,
@@ -155,34 +160,34 @@ export class SeedService {
     private ingredientService: IngredientService,
     private productExtraService: ProductExtraService,
     private productIngredientService: ProductIngredientService,
-  ) {}
+  ) {
+    this.codeTableRepo = codeTableRepo as typeof this.codeTableRepo;
+    this.codeTranslationRepo = codeTranslationRepo;
+  }
 
   async seedDatabase(): Promise<void> {
-    const codeTableRepo = this.getCodeTableRepo();
-    const codeTranslationRepo = this.getCodeTranslationRepo();
-
     console.log('Checking database seeding...');
 
     // Seed code tables
     for (const data of this.seedData) {
-      const existing = await codeTableRepo.findByCodeTypeAndCode(data.codeType, data.code);
+      const existing = await this.codeTableRepo.findByCodeTypeAndCode(data.codeType, data.code);
       if (existing) continue;
 
       console.log(`Seeding: ${data.codeType}.${data.code}`);
-      const codeTable = await codeTableRepo.create({
+      const codeTable = await this.codeTableRepo.create({
         codeType: data.codeType,
         code: data.code,
         sortOrder: data.sortOrder,
         isActive: true,
       });
 
-      await codeTranslationRepo.create({
+      await this.codeTranslationRepo.create({
         codeTableId: codeTable.id,
         language: 'en',
         label: data.translations.en,
       });
 
-      await codeTranslationRepo.create({
+      await this.codeTranslationRepo.create({
         codeTableId: codeTable.id,
         language: 'sq',
         label: data.translations.sq,
@@ -203,8 +208,7 @@ export class SeedService {
     console.log('Seeding test data...');
 
     // Get the status IDs we'll need for tables
-    const codeTableRepo = this.getCodeTableRepo();
-    const tableStatuses = await codeTableRepo.findByCodeType('TABLE_STATUS');
+    const tableStatuses = await this.codeTableRepo.findByCodeType('TABLE_STATUS');
     const freeStatus = tableStatuses.find((s) => s.code === TableStatusEnum.FREE);
     if (!freeStatus || freeStatus.id == null) {
       throw new Error(
@@ -861,16 +865,6 @@ export class SeedService {
       await new Promise((resolve) => setTimeout(resolve, 2));
     }
     console.log('Product-ingredient relationships seeding completed');
-  }
-
-  private getCodeTableRepo() {
-    return this.platformService.isTauri() ? this.sqliteCodeTableRepo : this.indexedDBCodeTableRepo;
-  }
-
-  private getCodeTranslationRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteCodeTranslationRepo
-      : this.indexedDBCodeTranslationRepo;
   }
 
   private getRequiredId<K, V>(map: Map<K, V>, key: K, mapName: string): V {

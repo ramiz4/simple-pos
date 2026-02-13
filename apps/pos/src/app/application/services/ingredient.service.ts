@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Ingredient } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBIngredientRepository } from '../../infrastructure/repositories/indexeddb-ingredient.repository';
-import { SQLiteIngredientRepository } from '../../infrastructure/repositories/sqlite-ingredient.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { INGREDIENT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +10,10 @@ export class IngredientService {
   private repo: BaseRepository<Ingredient>;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteIngredientRepository,
-    private indexedDBRepo: IndexedDBIngredientRepository,
+    @Inject(INGREDIENT_REPOSITORY)
+    repo: BaseRepository<Ingredient>,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo;
   }
 
   async getAll(): Promise<Ingredient[]> {

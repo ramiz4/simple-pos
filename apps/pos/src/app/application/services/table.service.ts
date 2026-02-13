@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Table } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBTableRepository } from '../../infrastructure/repositories/indexeddb-table.repository';
-import { SQLiteTableRepository } from '../../infrastructure/repositories/sqlite-table.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { TABLE_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +10,10 @@ export class TableService {
   private repo: BaseRepository<Table>;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteTableRepository,
-    private indexedDBRepo: IndexedDBTableRepository,
+    @Inject(TABLE_REPOSITORY)
+    repo: BaseRepository<Table>,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo;
   }
 
   async getAll(): Promise<Table[]> {

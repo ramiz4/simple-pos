@@ -16,6 +16,7 @@ import { SyncModeService } from './application/services/sync-mode.service';
 import { GlobalErrorHandler } from './core/error-handler.global';
 import { LoggerService } from './core/services/logger.service';
 import { syncAuthInterceptor } from './infrastructure/http/sync-auth.interceptor';
+import { REPOSITORY_PROVIDERS } from './infrastructure/providers/repository.providers';
 
 /**
  * Check if the app is running inside a Tauri WebView.
@@ -35,6 +36,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([syncAuthInterceptor])),
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    ...REPOSITORY_PROVIDERS,
     // Initialize scheduled backup service on app startup
     {
       provide: APP_INITIALIZER,

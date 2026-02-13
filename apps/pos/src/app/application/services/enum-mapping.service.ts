@@ -1,24 +1,35 @@
-import { Injectable } from '@angular/core';
-import { CodeTable } from '@simple-pos/shared/types';
-import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
-import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { Inject, Injectable } from '@angular/core';
+import { CodeTable, CodeTranslation } from '@simple-pos/shared/types';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import {
+  CODE_TABLE_REPOSITORY,
+  CODE_TRANSLATION_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
+
 @Injectable({
   providedIn: 'root',
 })
 export class EnumMappingService {
   private codeTableCache: Map<string, CodeTable[]> = new Map();
   private reverseCache: Map<number, { codeType: string; code: string }> = new Map();
+  private codeTableRepo: BaseRepository<CodeTable> & {
+    findByCodeType: (codeType: string) => Promise<CodeTable[]>;
+    findByCodeTypeAndCode: (codeType: string, code: string) => Promise<CodeTable | null>;
+  };
+  private codeTranslationRepo: BaseRepository<CodeTranslation> & {
+    findByCodeTableIdAndLanguage: (
+      codeTableId: number,
+      language: string,
+    ) => Promise<CodeTranslation | null>;
+  };
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteCodeTableRepo: SQLiteCodeTableRepository,
-    private indexedDBCodeTableRepo: IndexedDBCodeTableRepository,
-    private sqliteCodeTranslationRepo: SQLiteCodeTranslationRepository,
-    private indexedDBCodeTranslationRepo: IndexedDBCodeTranslationRepository,
-  ) {}
+    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: BaseRepository<CodeTable>,
+    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: BaseRepository<CodeTranslation>,
+  ) {
+    this.codeTableRepo = codeTableRepo as typeof this.codeTableRepo;
+    this.codeTranslationRepo = codeTranslationRepo as typeof this.codeTranslationRepo;
+  }
 
   async init(): Promise<void> {
     await this.loadCache();
@@ -31,8 +42,7 @@ export class EnumMappingService {
       if (entry) return entry.id;
     }
 
-    const repo = this.getCodeTableRepo();
-    const entry = await repo.findByCodeTypeAndCode(codeType, enumValue);
+    const entry = await this.codeTableRepo.findByCodeTypeAndCode(codeType, enumValue);
     if (!entry) {
       throw new Error(`CodeTable entry not found for ${codeType}.${enumValue}`);
     }
@@ -48,8 +58,7 @@ export class EnumMappingService {
       return cached;
     }
 
-    const repo = this.getCodeTableRepo();
-    const entry = await repo.findById(id);
+    const entry = await this.codeTableRepo.findById(id);
     if (!entry) {
       throw new Error(`CodeTable entry not found for id ${id}`);
     }
@@ -63,8 +72,7 @@ export class EnumMappingService {
     code: string,
     codeType = 'USER_ROLE',
   ): Promise<{ id: number; code: string; codeType: string }> {
-    const repo = this.getCodeTableRepo();
-    const entry = await repo.findByCodeTypeAndCode(codeType, code);
+    const entry = await this.codeTableRepo.findByCodeTypeAndCode(codeType, code);
     if (!entry) {
       throw new Error(`CodeTable entry not found for ${codeType}.${code}`);
     }
@@ -75,8 +83,7 @@ export class EnumMappingService {
     if (id === undefined || id === null) {
       return '';
     }
-    const translationRepo = this.getCodeTranslationRepo();
-    const translation = await translationRepo.findByCodeTableIdAndLanguage(id, language);
+    const translation = await this.codeTranslationRepo.findByCodeTableIdAndLanguage(id, language);
     return translation?.label || '';
   }
 
@@ -86,15 +93,13 @@ export class EnumMappingService {
       return cached;
     }
 
-    const repo = this.getCodeTableRepo();
-    const entries = await repo.findByCodeType(codeType);
+    const entries = await this.codeTableRepo.findByCodeType(codeType);
     this.codeTableCache.set(codeType, entries);
     return entries;
   }
 
   private async loadCache(): Promise<void> {
-    const repo = this.getCodeTableRepo();
-    const allEntries = await repo.findAll();
+    const allEntries = await this.codeTableRepo.findAll();
 
     this.codeTableCache.clear();
     this.reverseCache.clear();
@@ -109,15 +114,5 @@ export class EnumMappingService {
         code: entry.code,
       });
     }
-  }
-
-  private getCodeTableRepo() {
-    return this.platformService.isTauri() ? this.sqliteCodeTableRepo : this.indexedDBCodeTableRepo;
-  }
-
-  private getCodeTranslationRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteCodeTranslationRepo
-      : this.indexedDBCodeTranslationRepo;
   }
 }

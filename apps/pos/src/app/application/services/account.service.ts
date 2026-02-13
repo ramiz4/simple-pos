@@ -1,31 +1,35 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Account } from '@simple-pos/shared/types';
-import { IndexedDBAccountRepository } from '../../infrastructure/repositories/indexeddb-account.repository';
-import { SQLiteAccountRepository } from '../../infrastructure/repositories/sqlite-account.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ACCOUNT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
+  private accountRepo: BaseRepository<Account> & {
+    findByEmail: (email: string) => Promise<Account | null>;
+  };
+
   constructor(
-    private platformService: PlatformService,
-    private sqliteOrgRepo: SQLiteAccountRepository,
-    private indexedDBOrgRepo: IndexedDBAccountRepository,
-  ) {}
+    @Inject(ACCOUNT_REPOSITORY)
+    repo: BaseRepository<Account>,
+  ) {
+    this.accountRepo = repo as BaseRepository<Account> & {
+      findByEmail: (email: string) => Promise<Account | null>;
+    };
+  }
 
   async createAccount(name: string, email: string): Promise<Account> {
-    const orgRepo = this.getAccountRepo();
-
     // Check if account with email already exists
-    const existing = await orgRepo.findByEmail(email);
+    const existing = await this.accountRepo.findByEmail(email);
     if (existing) {
       throw new Error(
         'An account is already registered with this email address. Please use a different email or contact support if you believe this is an error.',
       );
     }
 
-    return await orgRepo.create({
+    return await this.accountRepo.create({
       name,
       email,
       active: true,
@@ -34,31 +38,22 @@ export class AccountService {
   }
 
   async getAccountById(id: number): Promise<Account | null> {
-    const orgRepo = this.getAccountRepo();
-    return await orgRepo.findById(id);
+    return await this.accountRepo.findById(id);
   }
 
   async getAccountByEmail(email: string): Promise<Account | null> {
-    const orgRepo = this.getAccountRepo();
-    return await orgRepo.findByEmail(email);
+    return await this.accountRepo.findByEmail(email);
   }
 
   async getAllAccounts(): Promise<Account[]> {
-    const orgRepo = this.getAccountRepo();
-    return await orgRepo.findAll();
+    return await this.accountRepo.findAll();
   }
 
   async updateAccount(id: number, updates: Partial<Account>): Promise<Account> {
-    const orgRepo = this.getAccountRepo();
-    return await orgRepo.update(id, updates);
+    return await this.accountRepo.update(id, updates);
   }
 
   async deleteAccount(id: number): Promise<void> {
-    const orgRepo = this.getAccountRepo();
-    await orgRepo.delete(id);
-  }
-
-  private getAccountRepo() {
-    return this.platformService.isTauri() ? this.sqliteOrgRepo : this.indexedDBOrgRepo;
+    await this.accountRepo.delete(id);
   }
 }

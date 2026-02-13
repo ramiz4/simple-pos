@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ProductExtra } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBProductExtraRepository } from '../../infrastructure/repositories/indexeddb-product-extra.repository';
-import { SQLiteProductExtraRepository } from '../../infrastructure/repositories/sqlite-product-extra.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { PRODUCT_EXTRA_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -15,11 +13,13 @@ export class ProductExtraService {
   };
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteProductExtraRepository,
-    private indexedDBRepo: IndexedDBProductExtraRepository,
+    @Inject(PRODUCT_EXTRA_REPOSITORY)
+    repo: BaseRepository<ProductExtra>,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo as BaseRepository<ProductExtra> & {
+      findByProduct: (productId: number) => Promise<ProductExtra[]>;
+      deleteByProductAndExtra: (productId: number, extraId: number) => Promise<void>;
+    };
   }
 
   async getByProduct(productId: number): Promise<ProductExtra[]> {

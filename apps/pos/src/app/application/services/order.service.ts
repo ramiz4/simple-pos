@@ -1,20 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { OrderStateMachine, PricingCalculator } from '@simple-pos/domain';
 import {
   CartItem,
   Order,
   OrderItem,
+  OrderItemExtra,
   OrderStatusEnum,
   OrderTypeEnum,
   TableStatusEnum,
 } from '@simple-pos/shared/types';
-import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
-import { SQLiteOrderItemExtraRepository } from '../../infrastructure/repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../../infrastructure/repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../../infrastructure/repositories/sqlite-order.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import {
+  ORDER_ITEM_EXTRA_REPOSITORY,
+  ORDER_ITEM_REPOSITORY,
+  ORDER_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
 import { EnumMappingService } from './enum-mapping.service';
 import { TableService } from './table.service';
 
@@ -35,22 +35,35 @@ export interface CreateOrderData {
   providedIn: 'root',
 })
 export class OrderService {
+  private orderRepo: BaseRepository<Order> & {
+    getNextOrderNumber: () => Promise<string>;
+    findByTable: (tableId: number) => Promise<Order[]>;
+    findActiveOrders: () => Promise<Order[]>;
+    findByStatus: (statusId: number) => Promise<Order[]>;
+  };
+  private orderItemRepo: BaseRepository<OrderItem> & {
+    findByOrderId: (orderId: number) => Promise<OrderItem[]>;
+  };
+  private orderItemExtraRepo: BaseRepository<OrderItemExtra> & {
+    findByOrderItemId: (orderItemId: number) => Promise<OrderItemExtra[]>;
+  };
+
   constructor(
-    private platformService: PlatformService,
-    private sqliteOrderRepo: SQLiteOrderRepository,
-    private indexedDBOrderRepo: IndexedDBOrderRepository,
-    private sqliteOrderItemRepo: SQLiteOrderItemRepository,
-    private indexedDBOrderItemRepo: IndexedDBOrderItemRepository,
-    private sqliteOrderItemExtraRepo: SQLiteOrderItemExtraRepository,
-    private indexedDBOrderItemExtraRepo: IndexedDBOrderItemExtraRepository,
+    @Inject(ORDER_REPOSITORY) orderRepo: BaseRepository<Order>,
+    @Inject(ORDER_ITEM_REPOSITORY) orderItemRepo: BaseRepository<OrderItem>,
+    @Inject(ORDER_ITEM_EXTRA_REPOSITORY) orderItemExtraRepo: BaseRepository<OrderItemExtra>,
     private enumMappingService: EnumMappingService,
     private tableService: TableService,
-  ) {}
+  ) {
+    this.orderRepo = orderRepo as typeof this.orderRepo;
+    this.orderItemRepo = orderItemRepo as typeof this.orderItemRepo;
+    this.orderItemExtraRepo = orderItemExtraRepo as typeof this.orderItemExtraRepo;
+  }
 
   async createOrder(data: CreateOrderData): Promise<Order> {
-    const orderRepo = this.getOrderRepo();
-    const orderItemRepo = this.getOrderItemRepo();
-    const orderItemExtraRepo = this.getOrderItemExtraRepo();
+    const orderRepo = this.orderRepo;
+    const orderItemRepo = this.orderItemRepo;
+    const orderItemExtraRepo = this.orderItemExtraRepo;
 
     try {
       // Generate order number
@@ -125,7 +138,7 @@ export class OrderService {
   }
 
   async getOpenOrderByTable(tableId: number): Promise<Order | null> {
-    const orderRepo = this.getOrderRepo();
+    const orderRepo = this.orderRepo;
     const allOrders = await orderRepo.findByTable(tableId);
 
     // Get status IDs to exclude
@@ -159,9 +172,9 @@ export class OrderService {
   }
 
   async addItemsToOrder(orderId: number, items: CartItem[]): Promise<Order> {
-    const orderRepo = this.getOrderRepo();
-    const orderItemRepo = this.getOrderItemRepo();
-    const orderItemExtraRepo = this.getOrderItemExtraRepo();
+    const orderRepo = this.orderRepo;
+    const orderItemRepo = this.orderItemRepo;
+    const orderItemExtraRepo = this.orderItemExtraRepo;
 
     const order = await orderRepo.findById(orderId);
     if (!order) throw new Error(`Order ${orderId} not found`);
@@ -215,15 +228,15 @@ export class OrderService {
   }
 
   async getOrderById(id: number): Promise<Order | null> {
-    return await this.getOrderRepo().findById(id);
+    return await this.orderRepo.findById(id);
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return await this.getOrderRepo().findAll();
+    return await this.orderRepo.findAll();
   }
 
   async getActiveOrders(): Promise<Order[]> {
-    const orders = await this.getOrderRepo().findActiveOrders();
+    const orders = await this.orderRepo.findActiveOrders();
 
     const completedStatusId = await this.enumMappingService.getCodeTableId(
       'ORDER_STATUS',
@@ -248,7 +261,7 @@ export class OrderService {
   }
 
   async getActiveAndServedOrders(): Promise<Order[]> {
-    const orders = await this.getOrderRepo().findActiveOrders();
+    const orders = await this.orderRepo.findActiveOrders();
 
     const completedStatusId = await this.enumMappingService.getCodeTableId(
       'ORDER_STATUS',
@@ -267,15 +280,15 @@ export class OrderService {
 
   async getOrdersByStatus(statusEnum: OrderStatusEnum): Promise<Order[]> {
     const statusId = await this.enumMappingService.getCodeTableId('ORDER_STATUS', statusEnum);
-    return await this.getOrderRepo().findByStatus(statusId);
+    return await this.orderRepo.findByStatus(statusId);
   }
 
   async updateOrder(id: number, data: Partial<Order>): Promise<Order> {
-    return await this.getOrderRepo().update(id, data);
+    return await this.orderRepo.update(id, data);
   }
 
   async updateOrderStatus(id: number, newStatusId: number): Promise<Order> {
-    const orderRepo = this.getOrderRepo();
+    const orderRepo = this.orderRepo;
     const order = await orderRepo.findById(id);
 
     if (!order) {
@@ -319,7 +332,7 @@ export class OrderService {
       'ORDER_STATUS',
       OrderStatusEnum.CANCELLED,
     );
-    const orderRepo = this.getOrderRepo();
+    const orderRepo = this.orderRepo;
     const order = await orderRepo.findById(id);
 
     if (!order) {
@@ -353,16 +366,16 @@ export class OrderService {
   }
 
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
-    return await this.getOrderItemRepo().findByOrderId(orderId);
+    return await this.orderItemRepo.findByOrderId(orderId);
   }
 
   async getOrderItemExtras(orderItemId: number): Promise<number[]> {
-    const extras = await this.getOrderItemExtraRepo().findByOrderItemId(orderItemId);
+    const extras = await this.orderItemExtraRepo.findByOrderItemId(orderItemId);
     return extras.map((e) => e.extraId);
   }
 
   async updateOrderItemStatus(itemId: number, statusId: number): Promise<OrderItem> {
-    const orderItemRepo = this.getOrderItemRepo();
+    const orderItemRepo = this.orderItemRepo;
     const updatedItem = await orderItemRepo.update(itemId, { statusId });
 
     // After updating an item, check if we should update the whole order status
@@ -372,8 +385,8 @@ export class OrderService {
   }
 
   private async checkAndUpdateOrderStatusByItems(orderId: number): Promise<void> {
-    const orderRepo = this.getOrderRepo();
-    const orderItemRepo = this.getOrderItemRepo();
+    const orderRepo = this.orderRepo;
+    const orderItemRepo = this.orderItemRepo;
     const items = await orderItemRepo.findByOrderId(orderId);
 
     if (items.length === 0) return;
@@ -444,19 +457,5 @@ export class OrderService {
         }
       }
     }
-  }
-
-  private getOrderRepo() {
-    return this.platformService.isTauri() ? this.sqliteOrderRepo : this.indexedDBOrderRepo;
-  }
-
-  private getOrderItemRepo() {
-    return this.platformService.isTauri() ? this.sqliteOrderItemRepo : this.indexedDBOrderItemRepo;
-  }
-
-  private getOrderItemExtraRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteOrderItemExtraRepo
-      : this.indexedDBOrderItemExtraRepo;
   }
 }
