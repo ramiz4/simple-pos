@@ -32,6 +32,10 @@ export default [
               sourceTag: 'type:types',
               onlyDependOnLibsWithTags: [],
             },
+            {
+              sourceTag: '*',
+              onlyDependOnLibsWithTags: ['type:domain', 'type:types', 'type:utils'],
+            },
           ],
         },
       ],
