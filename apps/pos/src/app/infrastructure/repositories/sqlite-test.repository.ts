@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { TestEntity } from '@simple-pos/shared/types';
+import { BaseRepository, TestEntity } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 
 /**
  * SQLite repository implementation for Tauri desktop mode

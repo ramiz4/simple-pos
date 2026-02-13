@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Category } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { BaseRepository, Category } from '@simple-pos/shared/types';
 import { CATEGORY_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({

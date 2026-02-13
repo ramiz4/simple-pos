@@ -15,7 +15,7 @@
     "build:ci": "nx affected -t build --parallel=3 --exclude=native",
     "test": "nx run-many -t test --watch",
     "test:all": "nx run-many -t test --run",
-    "test:ci": "nx affected -t test --run --parallel=3",
+    "test:ci": "node ./scripts/run-test-ci.js",
     "test:ci:coverage": "nx affected -t test --coverage --run --parallel=3",
     "lint": "nx run-many -t lint",
     "lint:ci": "nx affected -t lint --parallel=3",

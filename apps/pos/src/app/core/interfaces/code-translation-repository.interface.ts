@@ -1,5 +1,4 @@
-import { CodeTranslation } from '@simple-pos/shared/types';
-import { BaseRepository } from './base-repository.interface';
+import { BaseRepository, CodeTranslation } from '@simple-pos/shared/types';
 
 export interface CodeTranslationRepository extends BaseRepository<CodeTranslation> {
   findByCodeTableIdAndLanguage(

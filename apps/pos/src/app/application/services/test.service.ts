@@ -1,6 +1,5 @@
 import { Inject, Injectable, signal } from '@angular/core';
-import { TestEntity } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { BaseRepository, TestEntity } from '@simple-pos/shared/types';
 import { TEST_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 /**

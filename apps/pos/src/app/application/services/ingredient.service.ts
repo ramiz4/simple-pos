@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Ingredient } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { BaseRepository, Ingredient } from '@simple-pos/shared/types';
 import { INGREDIENT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({

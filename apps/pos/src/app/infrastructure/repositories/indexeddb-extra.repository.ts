@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Extra } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { BaseRepository, Extra } from '@simple-pos/shared/types';
 import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({

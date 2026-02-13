@@ -1,7 +1,13 @@
 import { InjectionToken } from '@angular/core';
-import { Category, Extra, Ingredient, Table, TestEntity } from '@simple-pos/shared/types';
+import {
+  BaseRepository,
+  Category,
+  Extra,
+  Ingredient,
+  Table,
+  TestEntity,
+} from '@simple-pos/shared/types';
 import { AccountRepository } from '../../core/interfaces/account-repository.interface';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { CodeTableRepository } from '../../core/interfaces/code-table-repository.interface';
 import { CodeTranslationRepository } from '../../core/interfaces/code-translation-repository.interface';
 import { OrderItemExtraRepository } from '../../core/interfaces/order-item-extra-repository.interface';

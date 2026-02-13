@@ -1,5 +1,4 @@
-import { CodeTable } from '@simple-pos/shared/types';
-import { BaseRepository } from './base-repository.interface';
+import { BaseRepository, CodeTable } from '@simple-pos/shared/types';
 
 export interface CodeTableRepository extends BaseRepository<CodeTable> {
   findByCodeType(codeType: string): Promise<CodeTable[]>;

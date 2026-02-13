@@ -1,6 +1,7 @@
 import { Inject, Injectable, signal } from '@angular/core';
 import {
   Account,
+  BaseRepository,
   Category,
   CodeTable,
   CodeTranslation,
@@ -20,7 +21,6 @@ import {
   Table,
   User,
 } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
 import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
 import { VariantRepository } from '../../core/interfaces/variant-repository.interface';

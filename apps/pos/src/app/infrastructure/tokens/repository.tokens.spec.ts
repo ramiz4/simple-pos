@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { BaseRepository } from '@simple-pos/shared/types';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
 import { PlatformService } from '../../shared/utilities/platform.service';
 import { REPOSITORY_PROVIDERS } from '../providers/repository.providers';
 import {

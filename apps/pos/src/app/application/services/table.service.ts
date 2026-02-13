@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { Table } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { BaseRepository, Table } from '@simple-pos/shared/types';
 import { TABLE_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
