@@ -232,3 +232,4 @@ pids
 vitest.config.*.timestamp*
 
 graph.json
+package-lock.json

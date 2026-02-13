@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Variant } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBVariantRepository implements BaseRepository<Variant> {
+export class IndexedDBVariantRepository implements VariantRepository {
   private readonly STORE_NAME = 'variant';
 
   constructor(private indexedDBService: IndexedDBService) {}

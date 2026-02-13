@@ -1,25 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ProductIngredient } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBProductIngredientRepository } from '../../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { SQLiteProductIngredientRepository } from '../../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
+import { PRODUCT_INGREDIENT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductIngredientService {
-  private repo: BaseRepository<ProductIngredient> & {
-    findByProduct: (productId: number) => Promise<ProductIngredient[]>;
-    deleteByProductAndIngredient: (productId: number, ingredientId: number) => Promise<void>;
-  };
+  private repo: ProductIngredientRepository;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteProductIngredientRepository,
-    private indexedDBRepo: IndexedDBProductIngredientRepository,
+    @Inject(PRODUCT_INGREDIENT_REPOSITORY)
+    repo: ProductIngredientRepository,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo;
   }
 
   async getByProduct(productId: number): Promise<ProductIngredient[]> {

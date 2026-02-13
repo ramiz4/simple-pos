@@ -46,14 +46,14 @@ depConstraints: [
 
 ### Project Tags (now populated)
 
-| Project        | File                             | Tags                               |
-| -------------- | -------------------------------- | ---------------------------------- |
-| `pos`          | `apps/pos/project.json`          | `["scope:pos", "type:app"]`        |
-| `api`          | `apps/api/project.json`          | `["scope:api", "type:app"]`        |
-| `native`       | `apps/native/project.json`       | `["scope:native", "type:app"]`     |
-| `domain`       | `libs/domain/project.json`       | `["scope:shared", "type:domain"]`  |
-| `shared-types` | `libs/shared/types/project.json` | `["scope:shared", "type:types"]`   |
-| `shared-utils` | `libs/shared/utils/project.json` | `["scope:shared", "type:utils"]`   |
+| Project        | File                             | Tags                              |
+| -------------- | -------------------------------- | --------------------------------- |
+| `pos`          | `apps/pos/project.json`          | `["scope:pos", "type:app"]`       |
+| `api`          | `apps/api/project.json`          | `["scope:api", "type:app"]`       |
+| `native`       | `apps/native/project.json`       | `["scope:native", "type:app"]`    |
+| `domain`       | `libs/domain/project.json`       | `["scope:shared", "type:domain"]` |
+| `shared-types` | `libs/shared/types/project.json` | `["scope:shared", "type:types"]`  |
+| `shared-utils` | `libs/shared/utils/project.json` | `["scope:shared", "type:utils"]`  |
 
 ### Current ESLint Rule (enforcing boundaries)
 

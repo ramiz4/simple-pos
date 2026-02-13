@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ProductExtra } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SQLiteProductExtraRepository implements BaseRepository<ProductExtra> {
+export class SQLiteProductExtraRepository implements ProductExtraRepository {
   private db: Database | null = null;
 
   async findById(id: number): Promise<ProductExtra | null> {

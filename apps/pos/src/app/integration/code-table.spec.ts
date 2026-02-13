@@ -7,10 +7,8 @@ import {
 } from '@simple-pos/shared/types';
 import { EnumMappingService } from '../application/services/enum-mapping.service';
 import { SeedService } from '../application/services/seed.service';
+import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
 import { IndexedDBCodeTableRepository } from '../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../infrastructure/repositories/indexeddb-code-translation.repository';
-import { SQLiteCodeTableRepository } from '../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../infrastructure/repositories/sqlite-code-translation.repository';
 import { IndexedDBService } from '../infrastructure/services/indexeddb.service';
 import { PlatformService } from '../shared/utilities/platform.service';
 
@@ -26,10 +24,7 @@ describe('CodeTable System Integration', () => {
         EnumMappingService,
         IndexedDBService,
         PlatformService,
-        IndexedDBCodeTableRepository,
-        IndexedDBCodeTranslationRepository,
-        { provide: SQLiteCodeTableRepository, useValue: {} },
-        { provide: SQLiteCodeTranslationRepository, useValue: {} },
+        ...REPOSITORY_PROVIDERS,
       ],
     });
 

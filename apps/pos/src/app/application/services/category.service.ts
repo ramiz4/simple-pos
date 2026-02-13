@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Category } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBCategoryRepository } from '../../infrastructure/repositories/indexeddb-category.repository';
-import { SQLiteCategoryRepository } from '../../infrastructure/repositories/sqlite-category.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { CATEGORY_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +10,10 @@ export class CategoryService {
   private repo: BaseRepository<Category>;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteCategoryRepository,
-    private indexedDBRepo: IndexedDBCategoryRepository,
+    @Inject(CATEGORY_REPOSITORY)
+    repo: BaseRepository<Category>,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo;
   }
 
   async getAll(): Promise<Category[]> {

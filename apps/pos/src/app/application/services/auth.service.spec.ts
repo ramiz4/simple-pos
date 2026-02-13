@@ -1,11 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
-import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
-import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
+import { USER_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
 import { AccountService } from './account.service';
 import { AuthService, UserSession } from './auth.service';
 import { EnumMappingService } from './enum-mapping.service';
@@ -22,8 +21,7 @@ vi.mock('bcryptjs', () => ({
 
 describe('AuthService', () => {
   let service: AuthService;
-  let mockPlatformService: { isTauri: Mock; isWeb: Mock };
-  let mockSqliteUserRepo: {
+  let mockUserRepo: {
     findByName: Mock;
     findByNameAndAccount: Mock;
     findByEmail: Mock;
@@ -35,7 +33,6 @@ describe('AuthService', () => {
     count: Mock;
     findAll: Mock;
   };
-  let mockIndexedDBUserRepo: typeof mockSqliteUserRepo;
   let mockEnumMappingService: {
     getEnumFromId: Mock;
     getEnumFromCode: Mock;
@@ -107,27 +104,8 @@ describe('AuthService', () => {
       writable: true,
     });
 
-    // Mock PlatformService
-    mockPlatformService = {
-      isTauri: vi.fn().mockReturnValue(false),
-      isWeb: vi.fn().mockReturnValue(true),
-    };
-
-    // Mock user repositories
-    mockSqliteUserRepo = {
-      findByName: vi.fn(),
-      findByNameAndAccount: vi.fn(),
-      findByEmail: vi.fn(),
-      findById: vi.fn(),
-      findByAccountId: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      count: vi.fn(),
-      findAll: vi.fn(),
-    };
-
-    mockIndexedDBUserRepo = {
+    // Mock user repository
+    mockUserRepo = {
       findByName: vi.fn(),
       findByNameAndAccount: vi.fn(),
       findByEmail: vi.fn(),
@@ -170,9 +148,7 @@ describe('AuthService', () => {
     TestBed.configureTestingModule({
       providers: [
         AuthService,
-        { provide: PlatformService, useValue: mockPlatformService },
-        { provide: SQLiteUserRepository, useValue: mockSqliteUserRepo },
-        { provide: IndexedDBUserRepository, useValue: mockIndexedDBUserRepo },
+        { provide: USER_REPOSITORY, useValue: mockUserRepo },
         { provide: EnumMappingService, useValue: mockEnumMappingService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: InputSanitizerService, useValue: mockInputSanitizer },
@@ -201,9 +177,7 @@ describe('AuthService', () => {
 
       // Create new service instance to trigger constructor
       const newService = new AuthService(
-        mockPlatformService as unknown as PlatformService,
-        mockSqliteUserRepo as unknown as SQLiteUserRepository,
-        mockIndexedDBUserRepo as unknown as IndexedDBUserRepository,
+        mockUserRepo as unknown as UserRepository,
         mockEnumMappingService as unknown as EnumMappingService,
         mockAccountService as unknown as AccountService,
         mockInputSanitizer as unknown as InputSanitizerService,
@@ -220,9 +194,7 @@ describe('AuthService', () => {
 
       // Create new service instance to trigger constructor
       const newService = new AuthService(
-        mockPlatformService as unknown as PlatformService,
-        mockSqliteUserRepo as unknown as SQLiteUserRepository,
-        mockIndexedDBUserRepo as unknown as IndexedDBUserRepository,
+        mockUserRepo as unknown as UserRepository,
         mockEnumMappingService as unknown as EnumMappingService,
         mockAccountService as unknown as AccountService,
         mockInputSanitizer as unknown as InputSanitizerService,
@@ -234,29 +206,9 @@ describe('AuthService', () => {
     });
   });
 
-  describe('Repository Selection', () => {
-    it('should use SQLite repository when running on Tauri', () => {
-      mockPlatformService.isTauri.mockReturnValue(true);
-      mockSqliteUserRepo.count.mockResolvedValue(5);
-
-      const count = service.isSetupComplete();
-
-      expect(count).toBeDefined();
-    });
-
-    it('should use IndexedDB repository when running on Web', () => {
-      mockPlatformService.isTauri.mockReturnValue(false);
-      mockIndexedDBUserRepo.count.mockResolvedValue(3);
-
-      const count = service.isSetupComplete();
-
-      expect(count).toBeDefined();
-    });
-  });
-
   describe('Login with Username and PIN', () => {
     it('should successfully login with valid credentials', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
 
       const session = await service.login('testuser', '1234');
 
@@ -269,16 +221,16 @@ describe('AuthService', () => {
     });
 
     it('should successfully login with accountId specified', async () => {
-      mockIndexedDBUserRepo.findByNameAndAccount.mockResolvedValue(mockUser);
+      mockUserRepo.findByNameAndAccount.mockResolvedValue(mockUser);
 
       const session = await service.login('testuser', '1234', 1);
 
-      expect(mockIndexedDBUserRepo.findByNameAndAccount).toHaveBeenCalledWith('testuser', 1);
+      expect(mockUserRepo.findByNameAndAccount).toHaveBeenCalledWith('testuser', 1);
       expect(session.user).toEqual(mockUser);
     });
 
     it('should sanitize username and pin inputs', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
 
       await service.login(' testuser ', ' 1234 ');
 
@@ -299,20 +251,20 @@ describe('AuthService', () => {
     });
 
     it('should throw error for non-existent user', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(null);
+      mockUserRepo.findByName.mockResolvedValue(null);
 
       await expect(service.login('nonexistent', '1234')).rejects.toThrow('Invalid username or PIN');
     });
 
     it('should throw error for inactive user', async () => {
       const inactiveUser = { ...mockUser, active: false };
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(inactiveUser);
+      mockUserRepo.findByName.mockResolvedValue(inactiveUser);
 
       await expect(service.login('testuser', '1234')).rejects.toThrow('User account is inactive');
     });
 
     it('should throw error for incorrect PIN', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);
 
       await expect(service.login('testuser', 'wrongpin')).rejects.toThrow(
@@ -321,7 +273,7 @@ describe('AuthService', () => {
     });
 
     it('should throw error when account not found', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       mockAccountService.getAccountById.mockResolvedValue(null);
 
       await expect(service.login('testuser', '1234')).rejects.toThrow(
@@ -330,7 +282,7 @@ describe('AuthService', () => {
     });
 
     it('should save session to storage after successful login', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
 
       await service.login('testuser', '1234');
 
@@ -338,7 +290,7 @@ describe('AuthService', () => {
     });
 
     it('should set current session after successful login', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
 
       await service.login('testuser', '1234');
 
@@ -349,7 +301,7 @@ describe('AuthService', () => {
 
   describe('Login with Email and Password', () => {
     it('should successfully login with valid email and password', async () => {
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(mockUser);
+      mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
       const session = await service.loginWithEmail('test@example.com', 'password123');
 
@@ -360,7 +312,7 @@ describe('AuthService', () => {
     });
 
     it('should sanitize email input', async () => {
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(mockUser);
+      mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
       await service.loginWithEmail(' TEST@EXAMPLE.COM ', 'password123');
 
@@ -382,7 +334,7 @@ describe('AuthService', () => {
     });
 
     it('should throw error for non-existent user', async () => {
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(null);
+      mockUserRepo.findByEmail.mockResolvedValue(null);
 
       await expect(service.loginWithEmail('unknown@example.com', 'password123')).rejects.toThrow(
         'Invalid email or password',
@@ -391,7 +343,7 @@ describe('AuthService', () => {
 
     it('should throw error for inactive user', async () => {
       const inactiveUser = { ...mockUser, active: false };
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(inactiveUser);
+      mockUserRepo.findByEmail.mockResolvedValue(inactiveUser);
 
       await expect(service.loginWithEmail('test@example.com', 'password123')).rejects.toThrow(
         'User account is inactive',
@@ -400,7 +352,7 @@ describe('AuthService', () => {
 
     it('should throw error when user has no password hash', async () => {
       const userWithoutPassword = { ...mockUser, passwordHash: undefined };
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(userWithoutPassword);
+      mockUserRepo.findByEmail.mockResolvedValue(userWithoutPassword);
 
       await expect(service.loginWithEmail('test@example.com', 'password123')).rejects.toThrow(
         'Password login not enabled for this user',
@@ -408,7 +360,7 @@ describe('AuthService', () => {
     });
 
     it('should throw error for incorrect password', async () => {
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(mockUser);
+      mockUserRepo.findByEmail.mockResolvedValue(mockUser);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);
 
       await expect(service.loginWithEmail('test@example.com', 'wrongpass')).rejects.toThrow(
@@ -417,7 +369,7 @@ describe('AuthService', () => {
     });
 
     it('should throw error when account not found', async () => {
-      mockIndexedDBUserRepo.findByEmail.mockResolvedValue(mockUser);
+      mockUserRepo.findByEmail.mockResolvedValue(mockUser);
       mockAccountService.getAccountById.mockResolvedValue(null);
 
       await expect(service.loginWithEmail('test@example.com', 'password123')).rejects.toThrow(
@@ -428,7 +380,7 @@ describe('AuthService', () => {
 
   describe('Logout', () => {
     it('should clear current session on logout', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
 
       await service.login('testuser', '1234');
       expect(service.isLoggedIn()).toBe(true);
@@ -448,7 +400,7 @@ describe('AuthService', () => {
 
   describe('Session Management', () => {
     it('should return current session', async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
 
       const session = await service.login('testuser', '1234');
 
@@ -462,7 +414,7 @@ describe('AuthService', () => {
     it('should correctly report login status', async () => {
       expect(service.isLoggedIn()).toBe(false);
 
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
 
       expect(service.isLoggedIn()).toBe(true);
@@ -471,7 +423,7 @@ describe('AuthService', () => {
 
   describe('Staff Active Status', () => {
     beforeEach(async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
     });
 
@@ -509,7 +461,7 @@ describe('AuthService', () => {
 
   describe('Role Checking', () => {
     beforeEach(async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
     });
 
@@ -559,7 +511,7 @@ describe('AuthService', () => {
 
   describe('User Registration', () => {
     beforeEach(() => {
-      mockIndexedDBUserRepo.create.mockResolvedValue({
+      mockUserRepo.create.mockResolvedValue({
         ...mockUser,
         id: 1,
       });
@@ -576,7 +528,7 @@ describe('AuthService', () => {
       expect(result.user).toBeDefined();
       expect(result.account).toBeDefined();
       expect(mockAccountService.createAccount).toHaveBeenCalled();
-      expect(mockIndexedDBUserRepo.create).toHaveBeenCalled();
+      expect(mockUserRepo.create).toHaveBeenCalled();
     });
 
     it('should derive username from email when not provided', async () => {
@@ -594,7 +546,7 @@ describe('AuthService', () => {
     it('should use default PIN when not provided', async () => {
       await service.register('owner@example.com');
 
-      const createCall = mockIndexedDBUserRepo.create.mock.calls[0][0];
+      const createCall = mockUserRepo.create.mock.calls[0][0];
       expect(createCall.pinHash).toBe('hashedvalue');
       expect(bcrypt.hash).toHaveBeenCalledWith('0000', 10);
     });
@@ -608,7 +560,7 @@ describe('AuthService', () => {
     it('should hash provided password', async () => {
       await service.register('owner@example.com', 'user', '135790', 'securepass');
 
-      const createCall = mockIndexedDBUserRepo.create.mock.calls[0][0];
+      const createCall = mockUserRepo.create.mock.calls[0][0];
       expect(createCall.passwordHash).toBe('hashedvalue');
     });
 
@@ -619,24 +571,24 @@ describe('AuthService', () => {
     });
 
     it('should handle username collision by appending suffix', async () => {
-      mockIndexedDBUserRepo.create
+      mockUserRepo.create
         .mockRejectedValueOnce(new Error('UNIQUE constraint failed'))
         .mockResolvedValueOnce({ ...mockUser, name: 'testuser1' });
 
       const result = await service.register('test@example.com', 'testuser', '135790');
 
-      expect(mockIndexedDBUserRepo.create).toHaveBeenCalledTimes(2);
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(2);
       expect(result.user.name).toBe('testuser1');
     });
 
     it('should throw error after max collision attempts', async () => {
-      mockIndexedDBUserRepo.create.mockRejectedValue(new Error('UNIQUE constraint failed'));
+      mockUserRepo.create.mockRejectedValue(new Error('UNIQUE constraint failed'));
 
       await expect(service.register('test@example.com', 'testuser', '135790')).rejects.toThrow(
         'Unable to create user. Please try a different username.',
       );
 
-      expect(mockIndexedDBUserRepo.create).toHaveBeenCalledTimes(10);
+      expect(mockUserRepo.create).toHaveBeenCalledTimes(10);
     });
 
     it('should throw error for invalid account name', async () => {
@@ -656,7 +608,7 @@ describe('AuthService', () => {
     it('should create user with ADMIN role', async () => {
       await service.register('test@example.com');
 
-      const createCall = mockIndexedDBUserRepo.create.mock.calls[0][0];
+      const createCall = mockUserRepo.create.mock.calls[0][0];
       expect(createCall.roleId).toBe(mockRoleInfo.id);
       expect(mockEnumMappingService.getEnumFromCode).toHaveBeenCalledWith(UserRoleEnum.ADMIN);
     });
@@ -664,14 +616,14 @@ describe('AuthService', () => {
     it('should mark user as owner', async () => {
       await service.register('test@example.com');
 
-      const createCall = mockIndexedDBUserRepo.create.mock.calls[0][0];
+      const createCall = mockUserRepo.create.mock.calls[0][0];
       expect(createCall.isOwner).toBe(true);
     });
 
     it('should set user as active', async () => {
       await service.register('test@example.com');
 
-      const createCall = mockIndexedDBUserRepo.create.mock.calls[0][0];
+      const createCall = mockUserRepo.create.mock.calls[0][0];
       expect(createCall.active).toBe(true);
     });
   });
@@ -679,11 +631,11 @@ describe('AuthService', () => {
   describe('User Creation', () => {
     it('should create user with specified parameters', async () => {
       vi.mocked(bcrypt.hash).mockResolvedValueOnce('hashedpin' as never);
-      mockIndexedDBUserRepo.create.mockResolvedValue(mockUser);
+      mockUserRepo.create.mockResolvedValue(mockUser);
 
       const result = await service.createUser('newuser', '1234', 2, 1, 'user@example.com');
 
-      expect(mockIndexedDBUserRepo.create).toHaveBeenCalledWith({
+      expect(mockUserRepo.create).toHaveBeenCalledWith({
         name: 'newuser',
         email: 'user@example.com',
         roleId: 2,
@@ -697,17 +649,17 @@ describe('AuthService', () => {
 
     it('should create user without email', async () => {
       vi.mocked(bcrypt.hash).mockResolvedValueOnce('hashedpin' as never);
-      mockIndexedDBUserRepo.create.mockResolvedValue(mockUser);
+      mockUserRepo.create.mockResolvedValue(mockUser);
 
       await service.createUser('newuser', '1234', 2, 1);
 
-      const createCall = mockIndexedDBUserRepo.create.mock.calls[0][0];
+      const createCall = mockUserRepo.create.mock.calls[0][0];
       expect(createCall.email).toBeUndefined();
     });
 
     it('should hash PIN before creating user', async () => {
       vi.mocked(bcrypt.hash).mockResolvedValueOnce('hashedpin' as never);
-      mockIndexedDBUserRepo.create.mockResolvedValue(mockUser);
+      mockUserRepo.create.mockResolvedValue(mockUser);
 
       await service.createUser('newuser', '9876', 2, 1);
 
@@ -718,16 +670,16 @@ describe('AuthService', () => {
   describe('Get Users by Account', () => {
     it('should return users for specified account', async () => {
       const users = [mockUser, { ...mockUser, id: 2, name: 'user2' }];
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue(users);
+      mockUserRepo.findByAccountId.mockResolvedValue(users);
 
       const result = await service.getUsersByAccount(1);
 
-      expect(mockIndexedDBUserRepo.findByAccountId).toHaveBeenCalledWith(1);
+      expect(mockUserRepo.findByAccountId).toHaveBeenCalledWith(1);
       expect(result).toEqual(users);
     });
 
     it('should return empty array when no users found', async () => {
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([]);
+      mockUserRepo.findByAccountId.mockResolvedValue([]);
 
       const result = await service.getUsersByAccount(999);
 
@@ -737,7 +689,7 @@ describe('AuthService', () => {
 
   describe('Setup Completion Check', () => {
     it('should return true when users exist', async () => {
-      mockIndexedDBUserRepo.count.mockResolvedValue(5);
+      mockUserRepo.count.mockResolvedValue(5);
 
       const result = await service.isSetupComplete();
 
@@ -745,7 +697,7 @@ describe('AuthService', () => {
     });
 
     it('should return false when no users exist', async () => {
-      mockIndexedDBUserRepo.count.mockResolvedValue(0);
+      mockUserRepo.count.mockResolvedValue(0);
 
       const result = await service.isSetupComplete();
 
@@ -755,13 +707,13 @@ describe('AuthService', () => {
 
   describe('Owner Password Verification', () => {
     beforeEach(async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
     });
 
     it('should return true for correct owner password', async () => {
       const ownerUser = { ...mockUser, isOwner: true, passwordHash: 'ownerpasshash' };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([ownerUser]);
+      mockUserRepo.findByAccountId.mockResolvedValue([ownerUser]);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(true as never);
 
       const result = await service.verifyOwnerPassword('correctpassword');
@@ -771,7 +723,7 @@ describe('AuthService', () => {
 
     it('should return false for incorrect owner password', async () => {
       const ownerUser = { ...mockUser, isOwner: true, passwordHash: 'ownerpasshash' };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([ownerUser]);
+      mockUserRepo.findByAccountId.mockResolvedValue([ownerUser]);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);
 
       const result = await service.verifyOwnerPassword('wrongpassword');
@@ -788,7 +740,7 @@ describe('AuthService', () => {
     });
 
     it('should return false when no owners found', async () => {
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([]);
+      mockUserRepo.findByAccountId.mockResolvedValue([]);
 
       const result = await service.verifyOwnerPassword('password');
 
@@ -798,10 +750,7 @@ describe('AuthService', () => {
     it('should skip owners without password hash', async () => {
       const ownerWithoutPassword = { ...mockUser, isOwner: true, passwordHash: undefined };
       const ownerWithPassword = { ...mockUser, id: 2, isOwner: true, passwordHash: 'hash' };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([
-        ownerWithoutPassword,
-        ownerWithPassword,
-      ]);
+      mockUserRepo.findByAccountId.mockResolvedValue([ownerWithoutPassword, ownerWithPassword]);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(true as never);
 
       const result = await service.verifyOwnerPassword('password');
@@ -812,7 +761,7 @@ describe('AuthService', () => {
     it('should check multiple owners', async () => {
       const owner1 = { ...mockUser, id: 1, isOwner: true, passwordHash: 'hash1' };
       const owner2 = { ...mockUser, id: 2, isOwner: true, passwordHash: 'hash2' };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([owner1, owner2]);
+      mockUserRepo.findByAccountId.mockResolvedValue([owner1, owner2]);
       vi.mocked(bcrypt.compare)
         .mockResolvedValueOnce(false as never)
         .mockResolvedValueOnce(true as never);
@@ -845,58 +794,58 @@ describe('AuthService', () => {
   describe('Update User PIN', () => {
     it('should update user PIN with new hash', async () => {
       vi.mocked(bcrypt.hash).mockResolvedValueOnce('newhash' as never);
-      mockIndexedDBUserRepo.update.mockResolvedValue(undefined);
+      mockUserRepo.update.mockResolvedValue(undefined);
 
       await service.updateUserPin(1, '5678');
 
       expect(bcrypt.hash).toHaveBeenCalledWith('5678', 10);
-      expect(mockIndexedDBUserRepo.update).toHaveBeenCalledWith(1, { pinHash: 'newhash' });
+      expect(mockUserRepo.update).toHaveBeenCalledWith(1, { pinHash: 'newhash' });
     });
   });
 
   describe('Update User Profile', () => {
     beforeEach(async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
     });
 
     it('should update user name', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
 
       await service.updateUserProfile(2, 'New Name');
 
-      expect(mockIndexedDBUserRepo.update).toHaveBeenCalledWith(2, { name: 'New Name' });
+      expect(mockUserRepo.update).toHaveBeenCalledWith(2, { name: 'New Name' });
     });
 
     it('should update user email', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
 
       await service.updateUserProfile(2, undefined, 'new@example.com');
 
-      expect(mockIndexedDBUserRepo.update).toHaveBeenCalledWith(2, { email: 'new@example.com' });
+      expect(mockUserRepo.update).toHaveBeenCalledWith(2, { email: 'new@example.com' });
     });
 
     it('should update both name and email', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
 
       await service.updateUserProfile(2, 'New Name', 'new@example.com');
 
-      expect(mockIndexedDBUserRepo.update).toHaveBeenCalledWith(2, {
+      expect(mockUserRepo.update).toHaveBeenCalledWith(2, {
         name: 'New Name',
         email: 'new@example.com',
       });
     });
 
     it('should allow empty email', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
 
       await service.updateUserProfile(2, undefined, '  ');
 
-      expect(mockIndexedDBUserRepo.update).toHaveBeenCalledWith(2, { email: undefined });
+      expect(mockUserRepo.update).toHaveBeenCalledWith(2, { email: undefined });
     });
 
     it('should throw error for non-existent user', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue(null);
+      mockUserRepo.findById.mockResolvedValue(null);
 
       await expect(service.updateUserProfile(999, 'Name')).rejects.toThrow('User not found');
     });
@@ -904,10 +853,10 @@ describe('AuthService', () => {
     it('should throw error when not owner', async () => {
       service.logout();
       const nonOwnerUser = { ...mockUser, isOwner: false };
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(nonOwnerUser);
+      mockUserRepo.findByName.mockResolvedValue(nonOwnerUser);
       await service.login('testuser', '1234');
 
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
 
       await expect(service.updateUserProfile(2, 'Name')).rejects.toThrow(
         'Only the account owner can update user profiles',
@@ -916,7 +865,7 @@ describe('AuthService', () => {
 
     it('should throw error when no session', async () => {
       service.logout();
-      mockIndexedDBUserRepo.findById.mockResolvedValue(mockUser);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
 
       await expect(service.updateUserProfile(1, 'Name')).rejects.toThrow(
         'Only the account owner can update user profiles',
@@ -925,7 +874,7 @@ describe('AuthService', () => {
 
     it('should throw error for user from different account', async () => {
       const differentAccountUser = { ...mockUser, id: 2, accountId: 999 };
-      mockIndexedDBUserRepo.findById.mockResolvedValue(differentAccountUser);
+      mockUserRepo.findById.mockResolvedValue(differentAccountUser);
 
       await expect(service.updateUserProfile(2, 'Name')).rejects.toThrow(
         'User does not belong to your account',
@@ -933,14 +882,14 @@ describe('AuthService', () => {
     });
 
     it('should throw error for invalid name', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
       mockInputSanitizer.sanitizeName.mockReturnValue('x'); // Too short
 
       await expect(service.updateUserProfile(2, 'x')).rejects.toThrow('Invalid name');
     });
 
     it('should throw error for invalid email', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
       mockInputSanitizer.sanitizeEmail.mockReturnValue('invalid');
 
       await expect(service.updateUserProfile(2, undefined, 'invalid')).rejects.toThrow(
@@ -949,7 +898,7 @@ describe('AuthService', () => {
     });
 
     it('should sanitize inputs', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
+      mockUserRepo.findById.mockResolvedValue({ ...mockUser, id: 2 });
 
       await service.updateUserProfile(2, ' Name ', ' EMAIL@EXAMPLE.COM ');
 
@@ -960,13 +909,13 @@ describe('AuthService', () => {
 
   describe('Verify Admin PIN', () => {
     beforeEach(async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
     });
 
     it('should return true for correct admin PIN', async () => {
       const adminUser = { ...mockUser, roleId: mockRoleInfo.id };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([adminUser]);
+      mockUserRepo.findByAccountId.mockResolvedValue([adminUser]);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(true as never);
 
       const result = await service.verifyAdminPin('1234');
@@ -976,7 +925,7 @@ describe('AuthService', () => {
 
     it('should return false for incorrect admin PIN', async () => {
       const adminUser = { ...mockUser, roleId: mockRoleInfo.id };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([adminUser]);
+      mockUserRepo.findByAccountId.mockResolvedValue([adminUser]);
       vi.mocked(bcrypt.compare).mockResolvedValueOnce(false as never);
 
       const result = await service.verifyAdminPin('9999');
@@ -993,7 +942,7 @@ describe('AuthService', () => {
     });
 
     it('should return false when no admins found', async () => {
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([]);
+      mockUserRepo.findByAccountId.mockResolvedValue([]);
 
       const result = await service.verifyAdminPin('1234');
 
@@ -1003,7 +952,7 @@ describe('AuthService', () => {
     it('should check multiple admins', async () => {
       const admin1 = { ...mockUser, id: 1, roleId: mockRoleInfo.id };
       const admin2 = { ...mockUser, id: 2, roleId: mockRoleInfo.id };
-      mockIndexedDBUserRepo.findByAccountId.mockResolvedValue([admin1, admin2]);
+      mockUserRepo.findByAccountId.mockResolvedValue([admin1, admin2]);
       vi.mocked(bcrypt.compare)
         .mockResolvedValueOnce(false as never)
         .mockResolvedValueOnce(true as never);
@@ -1016,22 +965,22 @@ describe('AuthService', () => {
 
   describe('Delete User', () => {
     beforeEach(async () => {
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(mockUser);
+      mockUserRepo.findByName.mockResolvedValue(mockUser);
       await service.login('testuser', '1234');
     });
 
     it('should delete user successfully', async () => {
       const userToDelete = { ...mockUser, id: 2, isOwner: false };
-      mockIndexedDBUserRepo.findById.mockResolvedValue(userToDelete);
-      mockIndexedDBUserRepo.delete.mockResolvedValue(undefined);
+      mockUserRepo.findById.mockResolvedValue(userToDelete);
+      mockUserRepo.delete.mockResolvedValue(undefined);
 
       await service.deleteUser(2);
 
-      expect(mockIndexedDBUserRepo.delete).toHaveBeenCalledWith(2);
+      expect(mockUserRepo.delete).toHaveBeenCalledWith(2);
     });
 
     it('should throw error for non-existent user', async () => {
-      mockIndexedDBUserRepo.findById.mockResolvedValue(null);
+      mockUserRepo.findById.mockResolvedValue(null);
 
       await expect(service.deleteUser(999)).rejects.toThrow('User not found');
     });
@@ -1039,11 +988,11 @@ describe('AuthService', () => {
     it('should throw error when not owner', async () => {
       service.logout();
       const nonOwnerUser = { ...mockUser, isOwner: false };
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(nonOwnerUser);
+      mockUserRepo.findByName.mockResolvedValue(nonOwnerUser);
       await service.login('testuser', '1234');
 
       const userToDelete = { ...mockUser, id: 2, isOwner: false };
-      mockIndexedDBUserRepo.findById.mockResolvedValue(userToDelete);
+      mockUserRepo.findById.mockResolvedValue(userToDelete);
 
       await expect(service.deleteUser(2)).rejects.toThrow(
         'Only the account owner can delete users',
@@ -1052,7 +1001,7 @@ describe('AuthService', () => {
 
     it('should throw error when no session', async () => {
       service.logout();
-      mockIndexedDBUserRepo.findById.mockResolvedValue(mockUser);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
 
       await expect(service.deleteUser(1)).rejects.toThrow(
         'Only the account owner can delete users',
@@ -1061,21 +1010,21 @@ describe('AuthService', () => {
 
     it('should throw error for user from different account', async () => {
       const differentAccountUser = { ...mockUser, id: 2, accountId: 999, isOwner: false };
-      mockIndexedDBUserRepo.findById.mockResolvedValue(differentAccountUser);
+      mockUserRepo.findById.mockResolvedValue(differentAccountUser);
 
       await expect(service.deleteUser(2)).rejects.toThrow('User does not belong to your account');
     });
 
     it('should throw error when trying to delete owner', async () => {
       const ownerUser = { ...mockUser, id: 2, isOwner: true };
-      mockIndexedDBUserRepo.findById.mockResolvedValue(ownerUser);
+      mockUserRepo.findById.mockResolvedValue(ownerUser);
 
       await expect(service.deleteUser(2)).rejects.toThrow('Account owner cannot be deleted');
     });
 
     it('should throw error when trying to delete own profile', async () => {
       const userToDelete = { ...mockUser, id: 1, isOwner: false };
-      mockIndexedDBUserRepo.findById.mockResolvedValue(userToDelete);
+      mockUserRepo.findById.mockResolvedValue(userToDelete);
 
       await expect(service.deleteUser(1)).rejects.toThrow('You cannot delete your own profile');
     });
@@ -1104,14 +1053,14 @@ describe('AuthService', () => {
 
   describe('Integration Scenarios', () => {
     it('should handle complete user lifecycle', async () => {
-      mockIndexedDBUserRepo.create.mockResolvedValue(mockUser);
+      mockUserRepo.create.mockResolvedValue(mockUser);
 
       // Register - use valid PIN that passes all validation
       const { user } = await service.register('test@example.com', 'testuser', '791357', 'password');
       expect(user).toBeDefined();
 
       // Login
-      mockIndexedDBUserRepo.findByName.mockResolvedValue(user);
+      mockUserRepo.findByName.mockResolvedValue(user);
       const session = await service.login('testuser', '791357');
       expect(session.user).toEqual(user);
 
@@ -1129,7 +1078,7 @@ describe('AuthService', () => {
       expect(result).toBe(false);
 
       // Try to delete user without login
-      mockIndexedDBUserRepo.findById.mockResolvedValue(mockUser);
+      mockUserRepo.findById.mockResolvedValue(mockUser);
       await expect(service.deleteUser(1)).rejects.toThrow(
         'Only the account owner can delete users',
       );

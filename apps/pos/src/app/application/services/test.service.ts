@@ -1,7 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Inject, Injectable, signal } from '@angular/core';
 import { TestEntity } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { RepositoryFactory } from '../../infrastructure/adapters/repository.factory';
+import { TEST_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 /**
  * Service for testing and demonstrating the persistence layer
@@ -17,8 +17,11 @@ export class TestService {
   isLoading = signal(false);
   error = signal<string | null>(null);
 
-  constructor(private repositoryFactory: RepositoryFactory) {
-    this.repository = this.repositoryFactory.getTestRepository();
+  constructor(
+    @Inject(TEST_REPOSITORY)
+    repo: BaseRepository<TestEntity>,
+  ) {
+    this.repository = repo;
     this.loadAll();
   }
 

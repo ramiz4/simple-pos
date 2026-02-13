@@ -1,20 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryService } from '../application/services/category.service';
+import { IngredientService } from '../application/services/ingredient.service';
 import { InventoryService } from '../application/services/inventory.service';
+import { ProductIngredientService } from '../application/services/product-ingredient.service';
 import { ProductService } from '../application/services/product.service';
-import { SQLiteCategoryRepository } from '../infrastructure/repositories/sqlite-category.repository';
+import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
 import { IndexedDBService } from '../infrastructure/services/indexeddb.service';
 import { PlatformService } from '../shared/utilities/platform.service';
-
-import { IngredientService } from '../application/services/ingredient.service';
-import { ProductIngredientService } from '../application/services/product-ingredient.service';
-import { IndexedDBCategoryRepository } from '../infrastructure/repositories/indexeddb-category.repository';
-import { IndexedDBIngredientRepository } from '../infrastructure/repositories/indexeddb-ingredient.repository';
-import { IndexedDBProductIngredientRepository } from '../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../infrastructure/repositories/indexeddb-product.repository';
-import { SQLiteIngredientRepository } from '../infrastructure/repositories/sqlite-ingredient.repository';
-import { SQLiteProductIngredientRepository } from '../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../infrastructure/repositories/sqlite-product.repository';
 
 describe('POS Integration Flow', () => {
   let categoryService: CategoryService;
@@ -27,24 +19,11 @@ describe('POS Integration Flow', () => {
         CategoryService,
         ProductService,
         InventoryService,
-        IndexedDBService,
-        PlatformService,
-
-        // Repositories
-        IndexedDBCategoryRepository,
-        IndexedDBProductRepository,
-        IndexedDBIngredientRepository,
-        IndexedDBProductIngredientRepository,
-
-        // Mock SQLite Repos
-        { provide: SQLiteCategoryRepository, useValue: {} },
-        { provide: SQLiteProductRepository, useValue: {} },
-        { provide: SQLiteIngredientRepository, useValue: {} },
-        { provide: SQLiteProductIngredientRepository, useValue: {} },
-
-        // Other Services
         IngredientService,
         ProductIngredientService,
+        IndexedDBService,
+        PlatformService,
+        ...REPOSITORY_PROVIDERS,
       ],
     });
 

@@ -1,24 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Variant } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBVariantRepository } from '../../infrastructure/repositories/indexeddb-variant.repository';
-import { SQLiteVariantRepository } from '../../infrastructure/repositories/sqlite-variant.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
+import { VARIANT_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VariantService {
-  private repo: BaseRepository<Variant> & {
-    findByProduct: (productId: number) => Promise<Variant[]>;
-  };
+  private repo: VariantRepository;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteVariantRepository,
-    private indexedDBRepo: IndexedDBVariantRepository,
+    @Inject(VARIANT_REPOSITORY)
+    repo: VariantRepository,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo;
   }
 
   async getAll(): Promise<Variant[]> {

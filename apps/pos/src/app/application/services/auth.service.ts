@@ -1,12 +1,11 @@
-import { Injectable, Optional } from '@angular/core';
+import { Inject, Injectable, Optional } from '@angular/core';
 import { Account, User, UserRoleEnum } from '@simple-pos/shared/types';
 import { ValidationUtils } from '@simple-pos/shared/utils';
 import * as bcrypt from 'bcryptjs';
+import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { CloudAuthClientService } from '../../infrastructure/http/cloud-auth-client.service';
-import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
-import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
+import { USER_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 import { InputSanitizerService } from '../../shared/utilities/input-sanitizer.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
 import { AccountService } from './account.service';
 import { EnumMappingService } from './enum-mapping.service';
 
@@ -36,16 +35,16 @@ export class AuthService {
   private readonly LOCAL_SETUP_DOMAIN = 'local.pos';
   private readonly MAX_USERNAME_COLLISION_ATTEMPTS = 10;
   private readonly CLOUD_SESSION_STORAGE_KEY = 'cloudSession';
+  private userRepo: UserRepository;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteUserRepo: SQLiteUserRepository,
-    private indexedDBUserRepo: IndexedDBUserRepository,
+    @Inject(USER_REPOSITORY) repo: UserRepository,
     private enumMappingService: EnumMappingService,
     private accountService: AccountService,
     private inputSanitizer: InputSanitizerService,
     @Optional() private cloudAuthClient?: CloudAuthClientService,
   ) {
+    this.userRepo = repo;
     this.loadSessionFromStorage();
     this.loadCloudSessionFromStorage();
   }
@@ -59,7 +58,7 @@ export class AuthService {
       throw new Error('Invalid username or PIN');
     }
 
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     let user: User | null;
 
     if (accountId) {
@@ -152,7 +151,7 @@ export class AuthService {
       throw new Error('Invalid email or password');
     }
 
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const user = await userRepo.findByEmail(sanitizedEmail);
 
     if (!user) {
@@ -300,7 +299,7 @@ export class AuthService {
     const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
 
     // Create owner user
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const pinHash = await this.hashPin(sanitizedPin);
     const passwordHash = ownerPassword ? await this.hashPassword(ownerPassword) : undefined;
 
@@ -349,7 +348,7 @@ export class AuthService {
     accountId: number,
     email?: string,
   ): Promise<User> {
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const pinHash = await this.hashPin(pin);
 
     return await userRepo.create({
@@ -364,7 +363,7 @@ export class AuthService {
   }
 
   async getUsersByAccount(accountId: number): Promise<User[]> {
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     return await userRepo.findByAccountId(accountId);
   }
 
@@ -451,19 +450,15 @@ export class AuthService {
     }
   }
 
-  private getUserRepo() {
-    return this.platformService.isTauri() ? this.sqliteUserRepo : this.indexedDBUserRepo;
-  }
-
   async isSetupComplete(): Promise<boolean> {
-    const count = await this.getUserRepo().count();
+    const count = await this.userRepo.count();
     return count > 0;
   }
 
   async verifyOwnerPassword(password: string): Promise<boolean> {
     if (!this.currentSession) return false;
 
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     // Verify against any owner in the current account
     const users = await userRepo.findByAccountId(this.currentSession.accountId);
     const owners = users.filter((u: User) => u.isOwner);
@@ -507,7 +502,7 @@ export class AuthService {
   }
 
   async updateUserPin(userId: number, newPin: string): Promise<void> {
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const pinHash = await this.hashPin(newPin);
 
     // Use targeted update to only modify the pinHash field
@@ -515,7 +510,7 @@ export class AuthService {
   }
 
   async updateUserProfile(userId: number, name?: string, email?: string): Promise<void> {
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const user = await userRepo.findById(userId);
 
     if (!user) {
@@ -561,7 +556,7 @@ export class AuthService {
   async verifyAdminPin(pin: string): Promise<boolean> {
     if (!this.currentSession) return false;
 
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const adminRole = await this.enumMappingService.getEnumFromCode(UserRoleEnum.ADMIN);
 
     const users = await userRepo.findByAccountId(this.currentSession.accountId);
@@ -577,7 +572,7 @@ export class AuthService {
   }
 
   async deleteUser(userId: number): Promise<void> {
-    const userRepo = this.getUserRepo();
+    const userRepo = this.userRepo;
     const user = await userRepo.findById(userId);
 
     if (!user) {

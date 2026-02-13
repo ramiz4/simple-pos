@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ProductIngredient } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
 import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBProductIngredientRepository implements BaseRepository<ProductIngredient> {
+export class IndexedDBProductIngredientRepository implements ProductIngredientRepository {
   private readonly STORE_NAME = 'product_ingredient';
 
   constructor(private indexedDBService: IndexedDBService) {}

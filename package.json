@@ -12,7 +12,7 @@
     "tauri": "tauri",
     "dev": "nx run-many -t serve --projects=pos,api --parallel",
     "build": "nx run-many -t build",
-    "build:ci": "nx affected -t build --parallel=3",
+    "build:ci": "nx affected -t build --parallel=3 --exclude=native",
     "test": "nx run-many -t test --watch",
     "test:all": "nx run-many -t test --run",
     "test:ci": "nx affected -t test --run --parallel=3",

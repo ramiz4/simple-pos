@@ -1,9 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Extra } from '@simple-pos/shared/types';
 import { BaseRepository } from '../../core/interfaces/base-repository.interface';
-import { IndexedDBExtraRepository } from '../../infrastructure/repositories/indexeddb-extra.repository';
-import { SQLiteExtraRepository } from '../../infrastructure/repositories/sqlite-extra.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { EXTRA_REPOSITORY } from '../../infrastructure/tokens/repository.tokens';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +10,10 @@ export class ExtraService {
   private repo: BaseRepository<Extra>;
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteRepo: SQLiteExtraRepository,
-    private indexedDBRepo: IndexedDBExtraRepository,
+    @Inject(EXTRA_REPOSITORY)
+    repo: BaseRepository<Extra>,
   ) {
-    this.repo = this.platformService.isTauri() ? this.sqliteRepo : this.indexedDBRepo;
+    this.repo = repo;
   }
 
   async getAll(): Promise<Extra[]> {

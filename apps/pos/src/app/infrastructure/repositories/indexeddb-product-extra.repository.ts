@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ProductExtra } from '@simple-pos/shared/types';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
 import { IndexedDBService } from '../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBProductExtraRepository implements BaseRepository<ProductExtra> {
+export class IndexedDBProductExtraRepository implements ProductExtraRepository {
   private readonly STORE_NAME = 'product_extra';
 
   constructor(private indexedDBService: IndexedDBService) {}

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {
   Category,
   CodeTable,
@@ -15,35 +15,26 @@ import {
   User,
   Variant,
 } from '@simple-pos/shared/types';
-import { IndexedDBCategoryRepository } from '../../infrastructure/repositories/indexeddb-category.repository';
-import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
-import { IndexedDBExtraRepository } from '../../infrastructure/repositories/indexeddb-extra.repository';
-import { IndexedDBIngredientRepository } from '../../infrastructure/repositories/indexeddb-ingredient.repository';
-import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
-import { IndexedDBProductExtraRepository } from '../../infrastructure/repositories/indexeddb-product-extra.repository';
-import { IndexedDBProductIngredientRepository } from '../../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../../infrastructure/repositories/indexeddb-product.repository';
-import { IndexedDBTableRepository } from '../../infrastructure/repositories/indexeddb-table.repository';
-import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
-import { IndexedDBVariantRepository } from '../../infrastructure/repositories/indexeddb-variant.repository';
-import { SQLiteCategoryRepository } from '../../infrastructure/repositories/sqlite-category.repository';
-import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
-import { SQLiteExtraRepository } from '../../infrastructure/repositories/sqlite-extra.repository';
-import { SQLiteIngredientRepository } from '../../infrastructure/repositories/sqlite-ingredient.repository';
-import { SQLiteOrderItemExtraRepository } from '../../infrastructure/repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../../infrastructure/repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../../infrastructure/repositories/sqlite-order.repository';
-import { SQLiteProductExtraRepository } from '../../infrastructure/repositories/sqlite-product-extra.repository';
-import { SQLiteProductIngredientRepository } from '../../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlite-product.repository';
-import { SQLiteTableRepository } from '../../infrastructure/repositories/sqlite-table.repository';
-import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
-import { SQLiteVariantRepository } from '../../infrastructure/repositories/sqlite-variant.repository';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
+import {
+  CATEGORY_REPOSITORY,
+  CODE_TABLE_REPOSITORY,
+  CODE_TRANSLATION_REPOSITORY,
+  EXTRA_REPOSITORY,
+  INGREDIENT_REPOSITORY,
+  ORDER_ITEM_EXTRA_REPOSITORY,
+  ORDER_ITEM_REPOSITORY,
+  ORDER_REPOSITORY,
+  PRODUCT_EXTRA_REPOSITORY,
+  PRODUCT_INGREDIENT_REPOSITORY,
+  PRODUCT_REPOSITORY,
+  TABLE_REPOSITORY,
+  USER_REPOSITORY,
+  VARIANT_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
 
 export interface BackupData {
   version: string;
@@ -89,35 +80,22 @@ export class BackupService {
   private readonly BACKUP_VERSION = '1.0.0';
 
   constructor(
-    private platformService: PlatformService,
-    private sqliteCodeTableRepo: SQLiteCodeTableRepository,
-    private indexedDBCodeTableRepo: IndexedDBCodeTableRepository,
-    private sqliteCodeTranslationRepo: SQLiteCodeTranslationRepository,
-    private indexedDBCodeTranslationRepo: IndexedDBCodeTranslationRepository,
-    private sqliteUserRepo: SQLiteUserRepository,
-    private indexedDBUserRepo: IndexedDBUserRepository,
-    private sqliteTableRepo: SQLiteTableRepository,
-    private indexedDBTableRepo: IndexedDBTableRepository,
-    private sqliteCategoryRepo: SQLiteCategoryRepository,
-    private indexedDBCategoryRepo: IndexedDBCategoryRepository,
-    private sqliteProductRepo: SQLiteProductRepository,
-    private indexedDBProductRepo: IndexedDBProductRepository,
-    private sqliteVariantRepo: SQLiteVariantRepository,
-    private indexedDBVariantRepo: IndexedDBVariantRepository,
-    private sqliteExtraRepo: SQLiteExtraRepository,
-    private indexedDBExtraRepo: IndexedDBExtraRepository,
-    private sqliteIngredientRepo: SQLiteIngredientRepository,
-    private indexedDBIngredientRepo: IndexedDBIngredientRepository,
-    private sqliteProductExtraRepo: SQLiteProductExtraRepository,
-    private indexedDBProductExtraRepo: IndexedDBProductExtraRepository,
-    private sqliteProductIngredientRepo: SQLiteProductIngredientRepository,
-    private indexedDBProductIngredientRepo: IndexedDBProductIngredientRepository,
-    private sqliteOrderRepo: SQLiteOrderRepository,
-    private indexedDBOrderRepo: IndexedDBOrderRepository,
-    private sqliteOrderItemRepo: SQLiteOrderItemRepository,
-    private indexedDBOrderItemRepo: IndexedDBOrderItemRepository,
-    private sqliteOrderItemExtraRepo: SQLiteOrderItemExtraRepository,
-    private indexedDBOrderItemExtraRepo: IndexedDBOrderItemExtraRepository,
+    @Inject(CODE_TABLE_REPOSITORY) private codeTableRepo: BaseRepository<CodeTable>,
+    @Inject(CODE_TRANSLATION_REPOSITORY)
+    private codeTranslationRepo: BaseRepository<CodeTranslation>,
+    @Inject(USER_REPOSITORY) private userRepo: BaseRepository<User>,
+    @Inject(TABLE_REPOSITORY) private tableRepo: BaseRepository<Table>,
+    @Inject(CATEGORY_REPOSITORY) private categoryRepo: BaseRepository<Category>,
+    @Inject(PRODUCT_REPOSITORY) private productRepo: BaseRepository<Product>,
+    @Inject(VARIANT_REPOSITORY) private variantRepo: VariantRepository,
+    @Inject(EXTRA_REPOSITORY) private extraRepo: BaseRepository<Extra>,
+    @Inject(INGREDIENT_REPOSITORY) private ingredientRepo: BaseRepository<Ingredient>,
+    @Inject(PRODUCT_EXTRA_REPOSITORY) private productExtraRepo: ProductExtraRepository,
+    @Inject(PRODUCT_INGREDIENT_REPOSITORY)
+    private productIngredientRepo: ProductIngredientRepository,
+    @Inject(ORDER_REPOSITORY) private orderRepo: BaseRepository<Order>,
+    @Inject(ORDER_ITEM_REPOSITORY) private orderItemRepo: BaseRepository<OrderItem>,
+    @Inject(ORDER_ITEM_EXTRA_REPOSITORY) private orderItemExtraRepo: BaseRepository<OrderItemExtra>,
   ) {}
 
   /**
@@ -130,20 +108,20 @@ export class BackupService {
         createdAt: new Date().toISOString(),
         encrypted: options?.encrypt || false,
         data: {
-          codeTables: await this.getCodeTableRepo().findAll(),
-          codeTranslations: await this.getCodeTranslationRepo().findAll(),
-          users: await this.sanitizeUsers(await this.getUserRepo().findAll()),
-          tables: await this.getTableRepo().findAll(),
-          categories: await this.getCategoryRepo().findAll(),
-          products: await this.getProductRepo().findAll(),
-          variants: await this.getVariantRepo().findAll(),
-          extras: await this.getExtraRepo().findAll(),
-          ingredients: await this.getIngredientRepo().findAll(),
-          productExtras: await this.getProductExtraRepo().findAll(),
-          productIngredients: await this.getProductIngredientRepo().findAll(),
-          orders: await this.getOrderRepo().findAll(),
-          orderItems: await this.getOrderItemRepo().findAll(),
-          orderItemExtras: await this.getOrderItemExtraRepo().findAll(),
+          codeTables: await this.codeTableRepo.findAll(),
+          codeTranslations: await this.codeTranslationRepo.findAll(),
+          users: await this.sanitizeUsers(await this.userRepo.findAll()),
+          tables: await this.tableRepo.findAll(),
+          categories: await this.categoryRepo.findAll(),
+          products: await this.productRepo.findAll(),
+          variants: await this.variantRepo.findAll(),
+          extras: await this.extraRepo.findAll(),
+          ingredients: await this.ingredientRepo.findAll(),
+          productExtras: await this.productExtraRepo.findAll(),
+          productIngredients: await this.productIngredientRepo.findAll(),
+          orders: await this.orderRepo.findAll(),
+          orderItems: await this.orderItemRepo.findAll(),
+          orderItemExtras: await this.orderItemExtraRepo.findAll(),
         },
       };
 
@@ -196,96 +174,96 @@ export class BackupService {
       // 1. Code tables and translations (foundation)
       for (const item of data.codeTables) {
         const { id: _id, ...rest } = item;
-        await this.getCodeTableRepo().create(rest);
+        await this.codeTableRepo.create(rest);
         itemsRestored++;
       }
 
       for (const item of data.codeTranslations) {
         const { id: _id, ...rest } = item;
-        await this.getCodeTranslationRepo().create(rest);
+        await this.codeTranslationRepo.create(rest);
         itemsRestored++;
       }
 
       // 2. Users
       for (const item of data.users) {
         const { id: _id, ...rest } = item;
-        await this.getUserRepo().create(rest);
+        await this.userRepo.create(rest);
         itemsRestored++;
       }
 
       // 3. Tables
       for (const item of data.tables) {
         const { id: _id, ...rest } = item;
-        await this.getTableRepo().create(rest);
+        await this.tableRepo.create(rest);
         itemsRestored++;
       }
 
       // 4. Categories
       for (const item of data.categories) {
         const { id: _id, ...rest } = item;
-        await this.getCategoryRepo().create(rest);
+        await this.categoryRepo.create(rest);
         itemsRestored++;
       }
 
       // 5. Products
       for (const item of data.products) {
         const { id: _id, ...rest } = item;
-        await this.getProductRepo().create(rest);
+        await this.productRepo.create(rest);
         itemsRestored++;
       }
 
       // 6. Variants
       for (const item of data.variants) {
         const { id: _id, ...rest } = item;
-        await this.getVariantRepo().create(rest);
+        await this.variantRepo.create(rest);
         itemsRestored++;
       }
 
       // 7. Extras
       for (const item of data.extras) {
         const { id: _id, ...rest } = item;
-        await this.getExtraRepo().create(rest);
+        await this.extraRepo.create(rest);
         itemsRestored++;
       }
 
       // 8. Ingredients
       for (const item of data.ingredients) {
         const { id: _id, ...rest } = item;
-        await this.getIngredientRepo().create(rest);
+        await this.ingredientRepo.create(rest);
         itemsRestored++;
       }
 
       // 9. Product relationships
       for (const item of data.productExtras) {
         const { id: _id, ...rest } = item;
-        await this.getProductExtraRepo().create(rest);
+        await this.productExtraRepo.create(rest);
         itemsRestored++;
       }
 
       for (const item of data.productIngredients) {
         const { id: _id, ...rest } = item;
-        await this.getProductIngredientRepo().create(rest);
+        await this.productIngredientRepo.create(rest);
         itemsRestored++;
       }
 
       // 10. Orders
       for (const item of data.orders) {
         const { id: _id, ...rest } = item;
-        await this.getOrderRepo().create(rest);
+        await this.orderRepo.create(rest);
         itemsRestored++;
       }
 
       // 11. Order items
       for (const item of data.orderItems) {
         const { id: _id, ...rest } = item;
-        await this.getOrderItemRepo().create(rest);
+        await this.orderItemRepo.create(rest);
         itemsRestored++;
       }
 
       // 12. Order item extras
       for (const item of data.orderItemExtras) {
         const { id: _id, ...rest } = item;
-        await this.getOrderItemExtraRepo().create(rest);
+        await this.orderItemExtraRepo.create(rest);
         itemsRestored++;
       }
 
@@ -480,73 +458,5 @@ export class BackupService {
       console.error('Decryption error:', error);
       throw new Error('Failed to decrypt data - invalid password or corrupted backup');
     }
-  }
-
-  // Repository getters based on platform
-
-  private getCodeTableRepo() {
-    return this.platformService.isTauri() ? this.sqliteCodeTableRepo : this.indexedDBCodeTableRepo;
-  }
-
-  private getCodeTranslationRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteCodeTranslationRepo
-      : this.indexedDBCodeTranslationRepo;
-  }
-
-  private getUserRepo() {
-    return this.platformService.isTauri() ? this.sqliteUserRepo : this.indexedDBUserRepo;
-  }
-
-  private getTableRepo() {
-    return this.platformService.isTauri() ? this.sqliteTableRepo : this.indexedDBTableRepo;
-  }
-
-  private getCategoryRepo() {
-    return this.platformService.isTauri() ? this.sqliteCategoryRepo : this.indexedDBCategoryRepo;
-  }
-
-  private getProductRepo() {
-    return this.platformService.isTauri() ? this.sqliteProductRepo : this.indexedDBProductRepo;
-  }
-
-  private getVariantRepo() {
-    return this.platformService.isTauri() ? this.sqliteVariantRepo : this.indexedDBVariantRepo;
-  }
-
-  private getExtraRepo() {
-    return this.platformService.isTauri() ? this.sqliteExtraRepo : this.indexedDBExtraRepo;
-  }
-
-  private getIngredientRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteIngredientRepo
-      : this.indexedDBIngredientRepo;
-  }
-
-  private getProductExtraRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteProductExtraRepo
-      : this.indexedDBProductExtraRepo;
-  }
-
-  private getProductIngredientRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteProductIngredientRepo
-      : this.indexedDBProductIngredientRepo;
-  }
-
-  private getOrderRepo() {
-    return this.platformService.isTauri() ? this.sqliteOrderRepo : this.indexedDBOrderRepo;
-  }
-
-  private getOrderItemRepo() {
-    return this.platformService.isTauri() ? this.sqliteOrderItemRepo : this.indexedDBOrderItemRepo;
-  }
-
-  private getOrderItemExtraRepo() {
-    return this.platformService.isTauri()
-      ? this.sqliteOrderItemExtraRepo
-      : this.indexedDBOrderItemExtraRepo;
   }
 }

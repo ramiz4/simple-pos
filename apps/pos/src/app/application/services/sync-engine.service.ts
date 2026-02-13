@@ -1,46 +1,48 @@
-import { Injectable, signal } from '@angular/core';
+import { Inject, Injectable, signal } from '@angular/core';
 import {
+  Account,
+  Category,
+  CodeTable,
+  CodeTranslation,
   ConflictResolutionStrategy,
+  Extra,
+  Ingredient,
+  Order,
+  OrderItem,
+  OrderItemExtra,
+  Product,
   ResolveConflictResponse,
   SYNC_ENTITIES,
   SyncChangeSet,
   SyncConflict,
   SyncEntityName,
   SyncOperation,
+  Table,
+  User,
 } from '@simple-pos/shared/types';
+import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
+import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 import { CloudSyncClientService } from '../../infrastructure/http/cloud-sync-client.service';
-import { IndexedDBAccountRepository } from '../../infrastructure/repositories/indexeddb-account.repository';
-import { IndexedDBCategoryRepository } from '../../infrastructure/repositories/indexeddb-category.repository';
-import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
-import { IndexedDBExtraRepository } from '../../infrastructure/repositories/indexeddb-extra.repository';
-import { IndexedDBIngredientRepository } from '../../infrastructure/repositories/indexeddb-ingredient.repository';
-import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
-import { IndexedDBProductExtraRepository } from '../../infrastructure/repositories/indexeddb-product-extra.repository';
-import { IndexedDBProductIngredientRepository } from '../../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../../infrastructure/repositories/indexeddb-product.repository';
-import { IndexedDBTableRepository } from '../../infrastructure/repositories/indexeddb-table.repository';
-import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
-import { IndexedDBVariantRepository } from '../../infrastructure/repositories/indexeddb-variant.repository';
-import { SQLiteAccountRepository } from '../../infrastructure/repositories/sqlite-account.repository';
-import { SQLiteCategoryRepository } from '../../infrastructure/repositories/sqlite-category.repository';
-import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
-import { SQLiteExtraRepository } from '../../infrastructure/repositories/sqlite-extra.repository';
-import { SQLiteIngredientRepository } from '../../infrastructure/repositories/sqlite-ingredient.repository';
-import { SQLiteOrderItemExtraRepository } from '../../infrastructure/repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../../infrastructure/repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../../infrastructure/repositories/sqlite-order.repository';
-import { SQLiteProductExtraRepository } from '../../infrastructure/repositories/sqlite-product-extra.repository';
-import { SQLiteProductIngredientRepository } from '../../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlite-product.repository';
-import { SQLiteTableRepository } from '../../infrastructure/repositories/sqlite-table.repository';
-import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
-import { SQLiteVariantRepository } from '../../infrastructure/repositories/sqlite-variant.repository';
 import { SyncMetadataMigrationService } from '../../infrastructure/services/sync-metadata-migration.service';
-import { PlatformService } from '../../shared/utilities/platform.service';
+import {
+  ACCOUNT_REPOSITORY,
+  CATEGORY_REPOSITORY,
+  CODE_TABLE_REPOSITORY,
+  CODE_TRANSLATION_REPOSITORY,
+  EXTRA_REPOSITORY,
+  INGREDIENT_REPOSITORY,
+  ORDER_ITEM_EXTRA_REPOSITORY,
+  ORDER_ITEM_REPOSITORY,
+  ORDER_REPOSITORY,
+  PRODUCT_EXTRA_REPOSITORY,
+  PRODUCT_INGREDIENT_REPOSITORY,
+  PRODUCT_REPOSITORY,
+  TABLE_REPOSITORY,
+  USER_REPOSITORY,
+  VARIANT_REPOSITORY,
+} from '../../infrastructure/tokens/repository.tokens';
 import { AuthService } from './auth.service';
 import { SyncModeService } from './sync-mode.service';
 
@@ -73,43 +75,47 @@ export class SyncEngineService {
   private readonly cursorStorageKey = 'sync_cursor_state_v1';
   private readonly deviceIdStorageKey = 'sync_device_id';
 
+  private readonly repositoryMap: Map<SyncEntityName, CrudRepository>;
+
   constructor(
     private readonly cloudSyncClient: CloudSyncClientService,
     private readonly syncModeService: SyncModeService,
     private readonly authService: AuthService,
-    private readonly platformService: PlatformService,
     private readonly syncMetadataMigrationService: SyncMetadataMigrationService,
-    private readonly sqliteAccountRepo: SQLiteAccountRepository,
-    private readonly indexedDbAccountRepo: IndexedDBAccountRepository,
-    private readonly sqliteUserRepo: SQLiteUserRepository,
-    private readonly indexedDbUserRepo: IndexedDBUserRepository,
-    private readonly sqliteCodeTableRepo: SQLiteCodeTableRepository,
-    private readonly indexedDbCodeTableRepo: IndexedDBCodeTableRepository,
-    private readonly sqliteCodeTranslationRepo: SQLiteCodeTranslationRepository,
-    private readonly indexedDbCodeTranslationRepo: IndexedDBCodeTranslationRepository,
-    private readonly sqliteCategoryRepo: SQLiteCategoryRepository,
-    private readonly indexedDbCategoryRepo: IndexedDBCategoryRepository,
-    private readonly sqliteExtraRepo: SQLiteExtraRepository,
-    private readonly indexedDbExtraRepo: IndexedDBExtraRepository,
-    private readonly sqliteIngredientRepo: SQLiteIngredientRepository,
-    private readonly indexedDbIngredientRepo: IndexedDBIngredientRepository,
-    private readonly sqliteTableRepo: SQLiteTableRepository,
-    private readonly indexedDbTableRepo: IndexedDBTableRepository,
-    private readonly sqliteProductRepo: SQLiteProductRepository,
-    private readonly indexedDbProductRepo: IndexedDBProductRepository,
-    private readonly sqliteVariantRepo: SQLiteVariantRepository,
-    private readonly indexedDbVariantRepo: IndexedDBVariantRepository,
-    private readonly sqliteProductExtraRepo: SQLiteProductExtraRepository,
-    private readonly indexedDbProductExtraRepo: IndexedDBProductExtraRepository,
-    private readonly sqliteProductIngredientRepo: SQLiteProductIngredientRepository,
-    private readonly indexedDbProductIngredientRepo: IndexedDBProductIngredientRepository,
-    private readonly sqliteOrderRepo: SQLiteOrderRepository,
-    private readonly indexedDbOrderRepo: IndexedDBOrderRepository,
-    private readonly sqliteOrderItemRepo: SQLiteOrderItemRepository,
-    private readonly indexedDbOrderItemRepo: IndexedDBOrderItemRepository,
-    private readonly sqliteOrderItemExtraRepo: SQLiteOrderItemExtraRepository,
-    private readonly indexedDbOrderItemExtraRepo: IndexedDBOrderItemExtraRepository,
-  ) {}
+    @Inject(ACCOUNT_REPOSITORY) accountRepo: BaseRepository<Account>,
+    @Inject(USER_REPOSITORY) userRepo: BaseRepository<User>,
+    @Inject(CODE_TABLE_REPOSITORY) codeTableRepo: BaseRepository<CodeTable>,
+    @Inject(CODE_TRANSLATION_REPOSITORY) codeTranslationRepo: BaseRepository<CodeTranslation>,
+    @Inject(CATEGORY_REPOSITORY) categoryRepo: BaseRepository<Category>,
+    @Inject(EXTRA_REPOSITORY) extraRepo: BaseRepository<Extra>,
+    @Inject(INGREDIENT_REPOSITORY) ingredientRepo: BaseRepository<Ingredient>,
+    @Inject(TABLE_REPOSITORY) tableRepo: BaseRepository<Table>,
+    @Inject(PRODUCT_REPOSITORY) productRepo: BaseRepository<Product>,
+    @Inject(VARIANT_REPOSITORY) variantRepo: VariantRepository,
+    @Inject(PRODUCT_EXTRA_REPOSITORY) productExtraRepo: ProductExtraRepository,
+    @Inject(PRODUCT_INGREDIENT_REPOSITORY) productIngredientRepo: ProductIngredientRepository,
+    @Inject(ORDER_REPOSITORY) orderRepo: BaseRepository<Order>,
+    @Inject(ORDER_ITEM_REPOSITORY) orderItemRepo: BaseRepository<OrderItem>,
+    @Inject(ORDER_ITEM_EXTRA_REPOSITORY) orderItemExtraRepo: BaseRepository<OrderItemExtra>,
+  ) {
+    this.repositoryMap = new Map<SyncEntityName, CrudRepository>([
+      ['account', accountRepo],
+      ['user', userRepo],
+      ['code_table', codeTableRepo],
+      ['code_translation', codeTranslationRepo],
+      ['category', categoryRepo],
+      ['extra', extraRepo],
+      ['ingredient', ingredientRepo],
+      ['table', tableRepo],
+      ['product', productRepo],
+      ['variant', variantRepo],
+      ['product_extra', productExtraRepo],
+      ['product_ingredient', productIngredientRepo],
+      ['order', orderRepo],
+      ['order_item', orderItemRepo],
+      ['order_item_extra', orderItemExtraRepo],
+    ]);
+  }
 
   async start(): Promise<void> {
     if (this.started) {
@@ -322,42 +328,11 @@ export class SyncEngineService {
   }
 
   private getRepository(entity: SyncEntityName): CrudRepository {
-    const isTauri = this.platformService.isTauri();
-
-    switch (entity) {
-      case 'account':
-        return isTauri ? this.sqliteAccountRepo : this.indexedDbAccountRepo;
-      case 'user':
-        return isTauri ? this.sqliteUserRepo : this.indexedDbUserRepo;
-      case 'code_table':
-        return isTauri ? this.sqliteCodeTableRepo : this.indexedDbCodeTableRepo;
-      case 'code_translation':
-        return isTauri ? this.sqliteCodeTranslationRepo : this.indexedDbCodeTranslationRepo;
-      case 'category':
-        return isTauri ? this.sqliteCategoryRepo : this.indexedDbCategoryRepo;
-      case 'extra':
-        return isTauri ? this.sqliteExtraRepo : this.indexedDbExtraRepo;
-      case 'ingredient':
-        return isTauri ? this.sqliteIngredientRepo : this.indexedDbIngredientRepo;
-      case 'table':
-        return isTauri ? this.sqliteTableRepo : this.indexedDbTableRepo;
-      case 'product':
-        return isTauri ? this.sqliteProductRepo : this.indexedDbProductRepo;
-      case 'variant':
-        return isTauri ? this.sqliteVariantRepo : this.indexedDbVariantRepo;
-      case 'product_extra':
-        return isTauri ? this.sqliteProductExtraRepo : this.indexedDbProductExtraRepo;
-      case 'product_ingredient':
-        return isTauri ? this.sqliteProductIngredientRepo : this.indexedDbProductIngredientRepo;
-      case 'order':
-        return isTauri ? this.sqliteOrderRepo : this.indexedDbOrderRepo;
-      case 'order_item':
-        return isTauri ? this.sqliteOrderItemRepo : this.indexedDbOrderItemRepo;
-      case 'order_item_extra':
-        return isTauri ? this.sqliteOrderItemExtraRepo : this.indexedDbOrderItemExtraRepo;
-      default:
-        throw new Error(`Unknown sync entity: ${entity}`);
+    const repo = this.repositoryMap.get(entity);
+    if (!repo) {
+      throw new Error(`Unknown sync entity: ${entity}`);
     }
+    return repo;
   }
 
   private getRecordKey(entity: SyncEntityName, record: EntityRecord): string | null {

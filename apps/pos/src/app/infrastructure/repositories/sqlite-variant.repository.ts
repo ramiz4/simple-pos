@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Variant } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { BaseRepository } from '../../core/interfaces/base-repository.interface';
+import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SQLiteVariantRepository implements BaseRepository<Variant> {
+export class SQLiteVariantRepository implements VariantRepository {
   private db: Database | null = null;
 
   async findById(id: number): Promise<Variant | null> {
