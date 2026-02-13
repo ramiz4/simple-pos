@@ -2,6 +2,7 @@ import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Order, OrderStatusEnum, OrderTypeEnum } from '@simple-pos/shared/types';
+import { roundCurrency } from '@simple-pos/shared/utils';
 import { AuthService } from '../../../application/services/auth.service';
 import { CartService } from '../../../application/services/cart.service';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
@@ -35,21 +36,26 @@ export class PaymentComponent implements OnInit {
 
   // Cash payment: amount received and change calculation
   overriddenTotalWithTip = signal<number | null>(null);
-  totalWithTip = computed(() =>
-    Math.max(this.grandTotal(), this.overriddenTotalWithTip() ?? this.grandTotal()),
-  );
+  totalWithTip = computed(() => {
+    const value = Math.max(this.grandTotal(), this.overriddenTotalWithTip() ?? this.grandTotal());
+    return roundCurrency(value);
+  });
   isTotalInvalid = computed(() => {
     const overridden = this.overriddenTotalWithTip();
     return overridden !== null && overridden < this.grandTotal();
   });
-  tipAmount = computed(() => Math.max(0, this.totalWithTip() - this.grandTotal()));
+  tipAmount = computed(() => {
+    const tip = Math.max(0, this.totalWithTip() - this.grandTotal());
+    return roundCurrency(tip);
+  });
 
   amountReceived = signal<number | null>(null);
   changeAmount = computed(() => {
     const received = this.amountReceived();
     const total = this.totalWithTip();
     if (received === null || received < 0 || received < total) return 0;
-    return received - total;
+    const change = received - total;
+    return roundCurrency(change);
   });
 
   constructor(

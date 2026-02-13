@@ -10,6 +10,16 @@ export interface BaseOrderItem {
  */
 export const TAX_RATE = 0.18;
 
+/**
+ * Round a monetary value to 2 decimal places
+ * This eliminates JavaScript floating-point precision errors
+ * @param value The value to round
+ * @returns The value rounded to 2 decimal places
+ */
+function roundCurrency(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
 export class PricingCalculator {
   /**
    * Calculate line total for an order item
@@ -53,8 +63,9 @@ export class PricingCalculator {
     const calculatedTotal = this.calculateOrderTotal(items);
     const calculatedTax = this.calculateTaxFromInclusiveTotal(calculatedTotal);
 
-    const round = (num: number) => Math.round(num * 100) / 100;
-
-    return round(total) === round(calculatedTotal) && round(tax) === round(calculatedTax);
+    return (
+      roundCurrency(total) === roundCurrency(calculatedTotal) &&
+      roundCurrency(tax) === roundCurrency(calculatedTax)
+    );
   }
 }

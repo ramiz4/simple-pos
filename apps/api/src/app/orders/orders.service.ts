@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { OrderStateMachine, PricingCalculator } from '@simple-pos/domain';
 import { OrderStatusEnum } from '@simple-pos/shared/types';
+import { roundCurrency } from '@simple-pos/shared/utils';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -21,8 +22,6 @@ export class OrdersService {
       })),
     );
 
-    const round = (num: number) => Math.round(num * 100) / 100;
-
     const strictDomainValid = PricingCalculator.validateOrderTotals(
       createOrderDto.totalAmount,
       createOrderDto.tax,
@@ -32,10 +31,11 @@ export class OrdersService {
       })),
     );
 
-    const legacySubtotalValid = round(createOrderDto.subtotal) === round(itemsTotal);
+    const legacySubtotalValid =
+      roundCurrency(createOrderDto.subtotal) === roundCurrency(itemsTotal);
     const legacyTotalValid =
-      round(createOrderDto.totalAmount) ===
-      round(createOrderDto.subtotal + createOrderDto.tax + (createOrderDto.tip ?? 0));
+      roundCurrency(createOrderDto.totalAmount) ===
+      roundCurrency(createOrderDto.subtotal + createOrderDto.tax + (createOrderDto.tip ?? 0));
 
     return strictDomainValid || (legacySubtotalValid && legacyTotalValid);
   }
