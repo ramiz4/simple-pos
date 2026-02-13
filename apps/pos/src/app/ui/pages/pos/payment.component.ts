@@ -35,21 +35,26 @@ export class PaymentComponent implements OnInit {
 
   // Cash payment: amount received and change calculation
   overriddenTotalWithTip = signal<number | null>(null);
-  totalWithTip = computed(() =>
-    Math.max(this.grandTotal(), this.overriddenTotalWithTip() ?? this.grandTotal()),
-  );
+  totalWithTip = computed(() => {
+    const value = Math.max(this.grandTotal(), this.overriddenTotalWithTip() ?? this.grandTotal());
+    return Math.round(value * 100) / 100;
+  });
   isTotalInvalid = computed(() => {
     const overridden = this.overriddenTotalWithTip();
     return overridden !== null && overridden < this.grandTotal();
   });
-  tipAmount = computed(() => Math.max(0, this.totalWithTip() - this.grandTotal()));
+  tipAmount = computed(() => {
+    const tip = Math.max(0, this.totalWithTip() - this.grandTotal());
+    return Math.round(tip * 100) / 100;
+  });
 
   amountReceived = signal<number | null>(null);
   changeAmount = computed(() => {
     const received = this.amountReceived();
     const total = this.totalWithTip();
     if (received === null || received < 0 || received < total) return 0;
-    return received - total;
+    const change = received - total;
+    return Math.round(change * 100) / 100;
   });
 
   constructor(
