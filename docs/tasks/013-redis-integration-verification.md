@@ -10,6 +10,10 @@ The architecture diagram in `docs/architecture.md` (formerly `docs/saas-onprem-t
 - **Status**: Open
 - **Priority**: Medium (Architecture/Code Mismatch)
 
+## Recommended Agent
+
+- **Agent**: `nestjs-engineer`
+
 ## Discrepancy Details
 
 - **Documented Architecture**: Backend includes Redis for caching and job queues.

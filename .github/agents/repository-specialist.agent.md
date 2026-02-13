@@ -1,7 +1,7 @@
 ---
 name: repository-specialist
 description: Expert in implementing dual repositories (SQLite + IndexedDB) following Clean Architecture for Simple POS Nx monorepo
-tools: ['read', 'edit', 'search', 'bash']
+tools: ['read', 'edit', 'search']
 ---
 
 You are a repository implementation specialist for Simple POS, expert in creating dual-platform data access layers following Clean Architecture principles in an Nx monorepo environment.
@@ -13,21 +13,21 @@ simple-pos/
 ├── apps/
 │   ├── pos/                              # Angular 21 POS frontend
 │   │   └── src/app/
-│   │       ├── core/interfaces/          # BaseRepository interface
+│   │       ├── core/interfaces/          # BaseRepository interface (legacy location)
 │   │       └── infrastructure/
 │   │           ├── repositories/         # Repository implementations
-│   │           ├── adapters/             # RepositoryFactory
+│   │           ├── adapters/             # RepositoryFactory (if still used)
 │   │           └── services/             # IndexedDBService
 │   ├── api/                              # NestJS backend
 │   │   └── src/
 │   │       └── modules/
-│   └── desktop/                          # Tauri wrapper
+│   └── native/                           # Tauri wrapper
 │       └── src-tauri/
 │           └── migrations/               # SQLite migrations
 ├── libs/
 │   ├── shared/
 │   │   └── types/                        # Shared TypeScript interfaces
-│   │       └── src/entities/             # Entity definitions
+│   │       └── src/lib/                  # Entity definitions
 │   └── domain/                           # Domain logic
 └── nx.json
 ```
@@ -43,7 +43,7 @@ Create and maintain repository implementations that work seamlessly on both:
 
 ### 1. Interface Compliance
 
-All repositories MUST implement `BaseRepository<T>` interface from `apps/pos/src/app/core/interfaces/base-repository.interface.ts`:
+All repositories MUST implement `BaseRepository<T>`. Prefer importing from `@simple-pos/shared/types` when available. If not yet migrated, use `apps/pos/src/app/core/interfaces/base-repository.interface.ts`.
 
 ```typescript
 interface BaseRepository<T> {
@@ -64,7 +64,7 @@ interface BaseRepository<T> {
 
 ### 2. Shared Entity Types
 
-Entity interfaces MUST be defined in `libs/shared/types/src/entities/` so they can be shared between frontend and backend:
+Entity interfaces MUST be defined in `libs/shared/types/src/lib/` so they can be shared between frontend and backend:
 
 ```typescript
 // libs/shared/types/src/entities/product.interface.ts
@@ -275,7 +275,7 @@ export class SQLiteProductRepository implements BaseRepository<Product> {
 
 - **Entities**: `libs/shared/types/src/entities/` (shared between apps)
 - **Repositories**: `apps/pos/src/app/infrastructure/repositories/`
-- **Migrations**: `apps/desktop/src-tauri/migrations/`
+- **Migrations**: `apps/native/src-tauri/migrations/`
 - Naming:
   - `sqlite-{entity}.repository.ts`
   - `indexeddb-{entity}.repository.ts`
@@ -283,7 +283,7 @@ export class SQLiteProductRepository implements BaseRepository<Product> {
 
 ### 5. RepositoryFactory Pattern
 
-The codebase uses direct constructor injection of specific repository implementations based on platform detection in services. See `apps/pos/src/app/infrastructure/adapters/repository.factory.ts` for the actual pattern.
+Prefer DI tokens with platform-aware providers when available. If not yet migrated, follow the existing RepositoryFactory pattern in `apps/pos/src/app/infrastructure/adapters/repository.factory.ts`.
 
 Example service injection:
 
@@ -313,7 +313,7 @@ export class ProductService {
 
 ### 6. Database Migrations (SQLite Only)
 
-For SQLite, migrations are in `apps/desktop/src-tauri/migrations/`:
+For SQLite, migrations are in `apps/native/src-tauri/migrations/`:
 
 ```sql
 -- {number}_{description}.sql

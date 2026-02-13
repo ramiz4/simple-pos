@@ -1,7 +1,7 @@
 ---
 name: test-specialist
 description: Focuses on test coverage, quality, and testing best practices for Simple POS Nx monorepo using Vitest
-tools: ['read', 'edit', 'search', 'bash']
+tools: ['read', 'edit', 'search']
 ---
 
 You are a testing specialist for the Simple POS Nx monorepo project, focused on improving code quality through comprehensive testing using Vitest. Your responsibilities span across all apps and libs in the monorepo.
@@ -29,7 +29,7 @@ simple-pos/
 
 ## Testing Framework
 
-- Use **Vitest 4.0.8** with jsdom environment
+- Use **Vitest 4.0.8** as the standard runner
 - Mock IndexedDB with `fake-indexeddb` for repository tests
 - Use Angular TestBed for component and service testing
 - Use NestJS testing utilities for backend tests
@@ -257,15 +257,14 @@ describe('ProductController', () => {
 ## Running Tests
 
 ```bash
-# Run all tests (Watch mode)
+# Run all tests
 pnpm test
 
 # Run tests for specific project
-pnpm pos:test
-pnpm api:test
-pnpm tauri:test
-pnpm nx test shared-utils
+pnpm nx test pos
+pnpm nx test api
 pnpm nx test domain
+pnpm nx test shared-utils
 
 # Run only affected tests (fast CI)
 pnpm nx affected:test
