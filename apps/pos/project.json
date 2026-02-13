@@ -2,6 +2,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "pos",
   "projectType": "application",
+  "tags": ["scope:pos", "type:app"],
   "generators": {},
   "sourceRoot": "apps/pos/src",
   "prefix": "app",

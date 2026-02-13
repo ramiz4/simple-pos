@@ -2,6 +2,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "native",
   "projectType": "application",
+  "tags": ["scope:native", "type:app"],
   "sourceRoot": "apps/native/src-tauri/src",
   "targets": {
     "dev": {

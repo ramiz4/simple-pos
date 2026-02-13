@@ -1,0 +1,50 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pnpm lint",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["lint"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "pnpm nx affected:test",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["nx", "affected:test"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "pnpm nx test pos",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["nx", "test", "pos"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "pnpm nx test api",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["nx", "test", "api"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "pnpm nx test domain",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["nx", "test", "domain"],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ]
+}
