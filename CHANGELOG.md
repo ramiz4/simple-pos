@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/ramiz4/simple-pos/compare/v1.4.0...v1.4.1) (2026-02-13)
+
+### Bug Fixes
+
+- **domain:** revert to local roundCurrency due to module boundary rules ([2028006](https://github.com/ramiz4/simple-pos/commit/2028006bf868a126ca902a7a6d0093af29415aa9))
+- **pos:** resolve UI issues with badge text and decimal precision ([04eade8](https://github.com/ramiz4/simple-pos/commit/04eade859a23256a8936072219312d0519a3f219))
+
 # [1.4.0](https://github.com/ramiz4/simple-pos/compare/v1.3.0...v1.4.0) (2026-02-13)
 
 ### Bug Fixes
