@@ -1,3 +1,9 @@
+## [1.4.2](https://github.com/ramiz4/simple-pos/compare/v1.4.1...v1.4.2) (2026-02-13)
+
+### Bug Fixes
+
+- **pos:** simplify local import paths after shared dissolve ([ebf7d6f](https://github.com/ramiz4/simple-pos/commit/ebf7d6fbe6836117ab574ec4405448b4b4a81e0c))
+
 ## [1.4.1](https://github.com/ramiz4/simple-pos/compare/v1.4.0...v1.4.1) (2026-02-13)
 
 ### Bug Fixes
