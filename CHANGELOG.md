@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/ramiz4/simple-pos/compare/v1.1.2...v1.1.3) (2026-02-13)
+
+### Bug Fixes
+
+- remove duplicate task labels and update task documentation ([51fa989](https://github.com/ramiz4/simple-pos/commit/51fa989f027cce289e049b2612c88ba8785e30b9))
+
 # 1.0.0 (2026-02-13)
 
 ### Bug Fixes
