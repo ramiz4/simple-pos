@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ReportAggregator } from '@simple-pos/domain';
 import { Order, OrderStatusEnum } from '@simple-pos/shared/types';
 import { EnumMappingService } from './enum-mapping.service';
 import { OrderService } from './order.service';
@@ -73,9 +74,12 @@ export class ReportingService {
     const orders = await this.getOrdersInDateRange(filter);
     const completedOrders = await this.filterOrdersByStatus(orders, OrderStatusEnum.COMPLETED);
 
-    const totalRevenue = completedOrders.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = ReportAggregator.calculateTotalRevenue(completedOrders);
     const totalOrders = completedOrders.length;
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const averageOrderValue = ReportAggregator.calculateAverageOrderValue(
+      totalRevenue,
+      totalOrders,
+    );
 
     return {
       date: filter.startDate,
@@ -159,10 +163,13 @@ export class ReportingService {
     const completedOrders = await this.filterOrdersByStatus(orders, OrderStatusEnum.COMPLETED);
 
     const totalOrders = completedOrders.length;
-    const totalRevenue = completedOrders.reduce((sum, order) => sum + order.total, 0);
+    const totalRevenue = ReportAggregator.calculateTotalRevenue(completedOrders);
     const totalVAT = completedOrders.reduce((sum, order) => sum + order.tax, 0);
     const totalTips = completedOrders.reduce((sum, order) => sum + order.tip, 0);
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+    const averageOrderValue = ReportAggregator.calculateAverageOrderValue(
+      totalRevenue,
+      totalOrders,
+    );
 
     // Revenue by type
     const revenueByType = await this.getRevenueByOrderType(filter);

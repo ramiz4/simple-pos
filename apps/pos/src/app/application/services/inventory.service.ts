@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { InventoryManager } from '@simple-pos/domain';
 import { IngredientService } from './ingredient.service';
 import { ProductIngredientService } from './product-ingredient.service';
 import { ProductService } from './product.service';
@@ -29,11 +30,11 @@ export class InventoryService {
     const product = await this.productService.getById(productId);
     if (!product) throw new Error(`Product ${productId} not found`);
 
-    const newStock = product.stock - quantity;
-    if (newStock < 0) {
+    if (!InventoryManager.isStockAvailable(product, quantity)) {
       throw new Error(`Insufficient stock for product ${product.name}`);
     }
 
+    const newStock = InventoryManager.calculateNewProductStock(product, quantity);
     await this.productService.update(productId, { stock: newStock });
   }
 
@@ -46,13 +47,11 @@ export class InventoryService {
       const ingredient = await this.ingredientService.getById(pi.ingredientId);
       if (!ingredient) continue;
 
-      const requiredQuantity = pi.quantity * quantity;
-      const newStock = ingredient.stockQuantity - requiredQuantity;
-
-      if (newStock < 0) {
+      if (!InventoryManager.isIngredientAvailable(pi, ingredient, quantity)) {
         throw new Error(`Insufficient stock for ingredient ${ingredient.name}`);
       }
 
+      const newStock = InventoryManager.calculateNewIngredientStock(pi, ingredient, quantity);
       await this.ingredientService.update(pi.ingredientId, { stockQuantity: newStock });
     }
   }
@@ -70,7 +69,7 @@ export class InventoryService {
       return { available: false, message: 'Product not found' };
     }
 
-    if (product.stock < quantity) {
+    if (!InventoryManager.isStockAvailable(product, quantity)) {
       return { available: false, message: `Only ${product.stock} units available` };
     }
 
@@ -79,8 +78,8 @@ export class InventoryService {
       const ingredient = await this.ingredientService.getById(pi.ingredientId);
       if (!ingredient) continue;
 
-      const requiredQuantity = pi.quantity * quantity;
-      if (ingredient.stockQuantity < requiredQuantity) {
+      if (!InventoryManager.isIngredientAvailable(pi, ingredient, quantity)) {
+        const requiredQuantity = pi.quantity * quantity;
         return {
           available: false,
           message: `Insufficient ${ingredient.name} (need ${requiredQuantity} ${ingredient.unit})`,

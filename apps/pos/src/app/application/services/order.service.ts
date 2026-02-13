@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { calculateGrandTotal, calculateTaxInclusive } from '@simple-pos/domain';
+import { OrderStateMachine, PricingCalculator } from '@simple-pos/domain';
 import {
   CartItem,
   Order,
@@ -198,8 +198,8 @@ export class OrderService {
     // Update order totals
     const newSubtotal = order.subtotal + additionalSubtotal;
     // Recalculate tax (tax-inclusive pricing: tax = subtotal * rate / (1 + rate))
-    const newTax = calculateTaxInclusive(newSubtotal);
-    const newTotal = calculateGrandTotal(newSubtotal, order.tip);
+    const newTax = PricingCalculator.calculateTaxFromInclusiveTotal(newSubtotal);
+    const newTotal = PricingCalculator.calculateGrandTotal(newSubtotal, order.tip);
 
     const updatedOrder = await orderRepo.update(orderId, {
       subtotal: newSubtotal,
@@ -281,13 +281,18 @@ export class OrderService {
       throw new Error(`Order with id ${id} not found`);
     }
 
+    const currentStatusEnum = (await this.enumMappingService.getEnumFromId(order.statusId))
+      .code as OrderStatusEnum;
     const newStatus = await this.enumMappingService.getEnumFromId(newStatusId);
+    const newStatusEnum = newStatus.code as OrderStatusEnum;
 
-    // If status is COMPLETED or CANCELLED, set completedAt and free table
-    if (
-      newStatus.code === OrderStatusEnum.COMPLETED ||
-      newStatus.code === OrderStatusEnum.CANCELLED
-    ) {
+    // Validate transition
+    if (!OrderStateMachine.canTransition(currentStatusEnum, newStatusEnum)) {
+      throw new Error(`Invalid status transition from ${currentStatusEnum} to ${newStatusEnum}`);
+    }
+
+    // If status is a final state, set completedAt and free table
+    if (OrderStateMachine.isFinalStatus(newStatusEnum)) {
       const updated = await orderRepo.update(id, {
         statusId: newStatusId,
         completedAt: new Date().toISOString(),

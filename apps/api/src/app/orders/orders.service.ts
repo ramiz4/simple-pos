@@ -1,4 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { OrderStateMachine, PricingCalculator } from '@simple-pos/domain';
+import { OrderStatusEnum } from '@simple-pos/shared/types';
 import { PrismaService } from '../common/prisma/prisma.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -9,6 +11,20 @@ export class OrdersService {
 
   async create(tenantId: string, userId: string, createOrderDto: CreateOrderDto) {
     const { items, ...orderData } = createOrderDto;
+
+    // Validate order totals using domain logic
+    const isValid = PricingCalculator.validateOrderTotals(
+      createOrderDto.totalAmount,
+      createOrderDto.tax,
+      items.map((i) => ({
+        productPrice: i.price,
+        quantity: i.quantity,
+      })),
+    );
+
+    if (!isValid) {
+      throw new BadRequestException('Order totals validation failed');
+    }
 
     return this.prisma.withRls(tenantId, (tx) =>
       tx.order.create({
@@ -90,6 +106,19 @@ export class OrdersService {
 
       if (!order) {
         throw new NotFoundException(`Order not found`);
+      }
+
+      // Validate status transition if status is being updated
+      if (orderData.status) {
+        const isValidTransition = OrderStateMachine.canTransition(
+          order.status as OrderStatusEnum,
+          orderData.status as OrderStatusEnum,
+        );
+        if (!isValidTransition) {
+          throw new BadRequestException(
+            `Invalid status transition from ${order.status} to ${orderData.status}`,
+          );
+        }
       }
 
       return tx.order.update({

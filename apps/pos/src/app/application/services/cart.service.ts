@@ -1,13 +1,11 @@
 import { computed, effect, Injectable, signal } from '@angular/core';
+import { CartLogic, PricingCalculator } from '@simple-pos/domain';
 import { CartItem, CartSummary } from '@simple-pos/shared/types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  // Kosovo VAT rate (18%) - prices already include this tax (tax-inclusive pricing)
-  private readonly TAX_RATE = 0.18;
-
   // Storage keys
   private readonly STORAGE_KEY_CARTS = 'simple_pos_carts';
 
@@ -57,21 +55,17 @@ export class CartService {
     const currentCarts = { ...this.allCarts() };
     const items = currentCarts[currentKey] || [];
 
-    const existingIndex = items.findIndex(
-      (i) =>
-        i.productId === item.productId &&
-        i.variantId === item.variantId &&
-        this.arraysEqual(i.extraIds, item.extraIds) &&
-        i.notes === item.notes,
-    );
+    const existingIndex = items.findIndex((i) => CartLogic.areCartItemsEqual(i, item));
 
     if (existingIndex >= 0) {
       const updated = [...items];
       updated[existingIndex] = {
         ...updated[existingIndex],
         quantity: updated[existingIndex].quantity + item.quantity,
-        lineTotal:
-          updated[existingIndex].unitPrice * (updated[existingIndex].quantity + item.quantity),
+        lineTotal: PricingCalculator.calculateLineTotal({
+          ...updated[existingIndex],
+          quantity: updated[existingIndex].quantity + item.quantity,
+        }),
       };
       currentCarts[currentKey] = updated;
     } else {
@@ -96,7 +90,10 @@ export class CartService {
       updated[index] = {
         ...updated[index],
         quantity,
-        lineTotal: updated[index].unitPrice * quantity,
+        lineTotal: PricingCalculator.calculateLineTotal({
+          ...updated[index],
+          quantity,
+        }),
       };
       currentCarts[currentKey] = updated;
       this.allCarts.set(currentCarts);
@@ -113,22 +110,7 @@ export class CartService {
   }
 
   getSummary(): CartSummary {
-    const items = this.cart();
-    const subtotal = items.reduce((sum: number, item: CartItem) => sum + item.lineTotal, 0);
-    // Calculate included tax (tax already in price): tax = subtotal * rate / (1 + rate)
-    const tax = (subtotal * this.TAX_RATE) / (1 + this.TAX_RATE);
-    // Total = subtotal (prices are tax-inclusive)
-    const total = subtotal;
-    const itemCount = items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
-
-    return {
-      items,
-      subtotal,
-      taxRate: this.TAX_RATE,
-      tax,
-      total,
-      itemCount,
-    };
+    return CartLogic.summarizeCart(this.cart());
   }
 
   clear(): void {
@@ -141,12 +123,5 @@ export class CartService {
 
   isEmpty(): boolean {
     return this.cart().length === 0;
-  }
-
-  private arraysEqual(a: number[], b: number[]): boolean {
-    if (a.length !== b.length) return false;
-    const sortedA = [...a].sort();
-    const sortedB = [...b].sort();
-    return sortedA.every((val, idx) => val === sortedB[idx]);
   }
 }
