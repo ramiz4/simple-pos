@@ -1,3 +1,9 @@
+# [1.7.0](https://github.com/ramiz4/simple-pos/compare/v1.6.0...v1.7.0) (2026-02-17)
+
+### Features
+
+- **order-settings:** enable configuration for order types and delivery service ([a80b052](https://github.com/ramiz4/simple-pos/commit/a80b0522593718071929c3f382578cef51c294cd))
+
 # [1.6.0](https://github.com/ramiz4/simple-pos/compare/v1.5.1...v1.6.0) (2026-02-17)
 
 ### Features
