@@ -38,7 +38,7 @@ export class IndexedDBCodeTableRepository implements BaseRepository<CodeTable> {
     });
   }
 
-  async findByCodeType(codeType: string): Promise<CodeTable[]> {
+  async findByCodeType(codeType: string, includeInactive = false): Promise<CodeTable[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -48,7 +48,7 @@ export class IndexedDBCodeTableRepository implements BaseRepository<CodeTable> {
 
       request.onsuccess = () => {
         const results = (request.result || [])
-          .filter((item) => item.isActive)
+          .filter((item) => includeInactive || item.isActive)
           .sort((a, b) => a.sortOrder - b.sortOrder);
         resolve(results);
       };
@@ -56,8 +56,12 @@ export class IndexedDBCodeTableRepository implements BaseRepository<CodeTable> {
     });
   }
 
-  async findByCodeTypeAndCode(codeType: string, code: string): Promise<CodeTable | null> {
-    const items = await this.findByCodeType(codeType);
+  async findByCodeTypeAndCode(
+    codeType: string,
+    code: string,
+    includeInactive = false,
+  ): Promise<CodeTable | null> {
+    const items = await this.findByCodeType(codeType, includeInactive);
     return items.find((item) => item.code === code) || null;
   }
 

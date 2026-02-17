@@ -35,11 +35,27 @@ export class EnumMappingService {
       if (entry) return entry.id;
     }
 
-    const entry = await this.codeTableRepo.findByCodeTypeAndCode(codeType, enumValue);
+    const entry = await this.codeTableRepo.findByCodeTypeAndCode(codeType, enumValue, true);
     if (!entry) {
       throw new Error(`CodeTable entry not found for ${codeType}.${enumValue}`);
     }
     return entry.id;
+  }
+
+  async isOrderTypeEnabled(enumValue: string): Promise<boolean> {
+    const entry = await this.codeTableRepo.findByCodeTypeAndCode('ORDER_TYPE', enumValue, true);
+    return entry?.isActive ?? false;
+  }
+
+  async setOrderTypeEnabled(enumValue: string, isEnabled: boolean): Promise<void> {
+    const entry = await this.codeTableRepo.findByCodeTypeAndCode('ORDER_TYPE', enumValue, true);
+    if (entry) {
+      await this.codeTableRepo.update(entry.id, { isActive: isEnabled });
+      // Clear cache to ensure fresh data
+      this.codeTableCache.delete('ORDER_TYPE');
+      this.reverseCache.clear();
+      await this.loadCache();
+    }
   }
 
   async getEnumFromId(id: number): Promise<{ codeType: string; code: string }> {

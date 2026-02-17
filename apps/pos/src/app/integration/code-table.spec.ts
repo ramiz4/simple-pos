@@ -51,7 +51,7 @@ describe('CodeTable System Integration', () => {
     expect(freeStatus?.isActive).toBe(true);
 
     // Verify ORDER_TYPE codes exist
-    const orderTypes = await codeTableRepo.findByCodeType('ORDER_TYPE');
+    const orderTypes = await codeTableRepo.findByCodeType('ORDER_TYPE', true);
     expect(orderTypes.length).toBeGreaterThanOrEqual(3);
 
     const dineInType = orderTypes.find((t) => t.code === OrderTypeEnum.DINE_IN);

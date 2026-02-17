@@ -19,16 +19,33 @@ export class SQLiteCodeTableRepository implements BaseRepository<CodeTable> {
     return await db.select<CodeTable[]>('SELECT * FROM code_table ORDER BY sortOrder');
   }
 
-  async findByCodeType(codeType: string): Promise<CodeTable[]> {
+  async findByCodeType(codeType: string, includeInactive = false): Promise<CodeTable[]> {
     const db = await this.getDb();
+    if (includeInactive) {
+      return await db.select<CodeTable[]>(
+        'SELECT * FROM code_table WHERE codeType = ? ORDER BY sortOrder',
+        [codeType],
+      );
+    }
     return await db.select<CodeTable[]>(
       'SELECT * FROM code_table WHERE codeType = ? AND isActive = 1 ORDER BY sortOrder',
       [codeType],
     );
   }
 
-  async findByCodeTypeAndCode(codeType: string, code: string): Promise<CodeTable | null> {
+  async findByCodeTypeAndCode(
+    codeType: string,
+    code: string,
+    includeInactive = false,
+  ): Promise<CodeTable | null> {
     const db = await this.getDb();
+    if (includeInactive) {
+      const results = await db.select<CodeTable[]>(
+        'SELECT * FROM code_table WHERE codeType = ? AND code = ?',
+        [codeType, code],
+      );
+      return results.length > 0 ? results[0] : null;
+    }
     const results = await db.select<CodeTable[]>(
       'SELECT * FROM code_table WHERE codeType = ? AND code = ? AND isActive = 1',
       [codeType, code],

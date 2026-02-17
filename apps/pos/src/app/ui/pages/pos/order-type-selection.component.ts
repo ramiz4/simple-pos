@@ -1,26 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderTypeEnum } from '@simple-pos/shared/types';
-import { EnumMappingService } from '../../../application/services/enum-mapping.service';
-
 import { CartService } from '../../../application/services/cart.service';
+import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 
 @Component({
   selector: 'app-order-type-selection',
   standalone: true,
   imports: [],
   template: `
-    <main class="p-6 max-w-4xl mx-auto animate-fade-in">
+    <main class="p-6 max-w-6xl mx-auto animate-fade-in">
       <div class="mb-12 text-center">
         <h2 class="text-3xl font-black text-surface-900 mb-2">How can we help?</h2>
         <p class="text-surface-500 font-medium">Select your preferred service type below.</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="flex flex-wrap items-center justify-center gap-8 px-4">
         <!-- Dine In -->
         <button
           (click)="selectOrderType(OrderType.DINE_IN)"
-          class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
+          class="glass-card group p-8 w-full md:w-72 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
         >
           <div class="relative z-10">
             <div
@@ -43,7 +42,7 @@ import { CartService } from '../../../application/services/cart.service';
         <!-- Takeaway -->
         <button
           (click)="selectOrderType(OrderType.TAKEAWAY)"
-          class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
+          class="glass-card group p-8 w-full md:w-72 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
         >
           <div class="relative z-10">
             <div
@@ -64,39 +63,54 @@ import { CartService } from '../../../application/services/cart.service';
         </button>
 
         <!-- Delivery -->
-        <button
-          (click)="selectOrderType(OrderType.DELIVERY)"
-          class="glass-card group p-8 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
-        >
-          <div class="relative z-10">
-            <div
-              class="w-20 h-20 mx-auto bg-green-100 rounded-2xl flex items-center justify-center text-5xl mb-6 group-hover:scale-110 transition-transform duration-500"
-            >
-              🚗
-            </div>
-            <h3 class="text-2xl font-black text-surface-900 mb-2">Delivery</h3>
-            <p class="text-surface-500 font-medium leading-relaxed">
-              We'll bring the food to your door.
-            </p>
-          </div>
-          <div
-            class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+        @if (isDeliveryEnabled()) {
+          <button
+            (click)="selectOrderType(OrderType.DELIVERY)"
+            class="glass-card group p-8 w-full md:w-72 hover:ring-4 hover:ring-primary-100 transition-all duration-300 relative overflow-hidden"
           >
-            <div class="text-9xl">🚗</div>
-          </div>
-        </button>
+            <div class="relative z-10">
+              <div
+                class="w-20 h-20 mx-auto bg-green-100 rounded-2xl flex items-center justify-center text-5xl mb-6 group-hover:scale-110 transition-transform duration-500"
+              >
+                🚗
+              </div>
+              <h3 class="text-2xl font-black text-surface-900 mb-2">Delivery</h3>
+              <p class="text-surface-500 font-medium leading-relaxed">
+                We'll bring the food to your door.
+              </p>
+            </div>
+            <div
+              class="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity"
+            >
+              <div class="text-9xl">🚗</div>
+            </div>
+          </button>
+        }
       </div>
     </main>
   `,
 })
 export class OrderTypeSelectionComponent {
   readonly OrderType = OrderTypeEnum;
+  isDeliveryEnabled = signal(false);
 
   constructor(
     private router: Router,
     private enumMappingService: EnumMappingService,
     private cartService: CartService,
-  ) {}
+  ) {
+    this.checkDeliveryEnabled();
+  }
+
+  private async checkDeliveryEnabled() {
+    try {
+      const isEnabled = await this.enumMappingService.isOrderTypeEnabled(OrderTypeEnum.DELIVERY);
+      this.isDeliveryEnabled.set(isEnabled);
+    } catch (error) {
+      console.error('Error checking delivery enabled status:', error);
+      this.isDeliveryEnabled.set(false);
+    }
+  }
 
   async selectOrderType(type: OrderTypeEnum): Promise<void> {
     const typeId = await this.enumMappingService.getCodeTableId('ORDER_TYPE', type);
