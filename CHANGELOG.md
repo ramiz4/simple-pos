@@ -1,3 +1,14 @@
+# [1.8.0](https://github.com/ramiz4/simple-pos/compare/v1.7.0...v1.8.0) (2026-02-17)
+
+### Bug Fixes
+
+- **pos:** address accessibility and error handling review comments ([31624ed](https://github.com/ramiz4/simple-pos/commit/31624ed3ae44fe79b64de3bd502d6264cb05cb0b))
+- **pos:** ensure consistent display state initialization in payment component ([b53cbbb](https://github.com/ramiz4/simple-pos/commit/b53cbbbb12e6b9949cf34567b0da1e6719fbcac2))
+
+### Features
+
+- **pos:** refactor UI layout and improve order status handling logic ([a1c6146](https://github.com/ramiz4/simple-pos/commit/a1c6146f82783396679288254db15474fd074c9f))
+
 # [1.7.0](https://github.com/ramiz4/simple-pos/compare/v1.6.0...v1.7.0) (2026-02-17)
 
 ### Features
