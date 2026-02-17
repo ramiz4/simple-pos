@@ -24,6 +24,7 @@ interface SeedData {
   codeType: string;
   code: string;
   sortOrder: number;
+  isActive?: boolean;
   translations: {
     en: string;
     sq: string;
@@ -71,6 +72,7 @@ export class SeedService {
       code: OrderTypeEnum.DELIVERY,
       sortOrder: 3,
       translations: { en: 'Delivery', sq: 'Dërgim' },
+      isActive: false,
     },
 
     {
@@ -174,7 +176,7 @@ export class SeedService {
         codeType: data.codeType,
         code: data.code,
         sortOrder: data.sortOrder,
-        isActive: true,
+        isActive: data.isActive ?? true,
       });
 
       await this.codeTranslationRepo.create({

@@ -46,6 +46,12 @@ export class AdminDashboardComponent {
       description: 'Manage ingredients & stock',
     },
     {
+      name: 'Order Settings',
+      icon: '🛒',
+      route: '/admin/order-settings',
+      description: 'Configure order types & delivery',
+    },
+    {
       name: 'Printers',
       icon: '🖨️',
       route: '/admin/printer',

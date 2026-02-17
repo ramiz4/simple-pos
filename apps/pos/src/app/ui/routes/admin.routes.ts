@@ -61,6 +61,14 @@ export const ADMIN_ROUTES: Routes = [
         data: { title: 'Manage Ingredients' },
       },
       {
+        path: 'order-settings',
+        loadComponent: () =>
+          import('../pages/admin/order-settings/order-settings.component').then(
+            (m) => m.OrderSettingsComponent,
+          ),
+        data: { title: 'Order Settings' },
+      },
+      {
         path: 'printer',
         loadComponent: () =>
           import('../pages/admin/printer-settings/printer-settings.component').then(

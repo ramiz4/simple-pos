@@ -188,6 +188,7 @@ export class AdminSidebarComponent {
       path: '#',
       children: [
         { label: 'Tables', path: '/admin/tables' },
+        { label: 'Order Settings', path: '/admin/order-settings' },
         { label: 'Printer Settings', path: '/admin/printer' },
       ],
     },
