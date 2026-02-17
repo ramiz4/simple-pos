@@ -118,6 +118,8 @@ export class PaymentComponent implements OnInit {
     const val = this.overriddenTotalWithTip();
     if (val !== null) {
       this.displayTotalWithTip.set(val.toFixed(2));
+    } else {
+      this.displayTotalWithTip.set('');
     }
   }
 
@@ -135,6 +137,8 @@ export class PaymentComponent implements OnInit {
     const val = this.amountReceived();
     if (val !== null) {
       this.displayAmountReceived.set(val.toFixed(2));
+    } else {
+      this.displayAmountReceived.set('');
     }
   }
 

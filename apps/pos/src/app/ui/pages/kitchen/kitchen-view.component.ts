@@ -198,6 +198,7 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
   }
 
   async markItemAsPreparing(itemId: number) {
+    const previousOrders = this.orders();
     this.updateItemStatusCodeLocally(itemId, OrderStatusEnum.PREPARING);
 
     try {
@@ -207,13 +208,16 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
       );
       await this.orderService.updateOrderItemStatus(itemId, statusId);
     } catch (err) {
-      this.error.set('Failed to update status: ' + (err as Error).message);
+      // Revert optimistic update on error
+      this.orders.set(previousOrders);
+      this.error.set('Failed to update item to preparing: ' + (err as Error).message);
     } finally {
       await this.loadOrders();
     }
   }
 
   async markItemAsReady(itemId: number) {
+    const previousOrders = this.orders();
     this.updateItemStatusCodeLocally(itemId, OrderStatusEnum.READY);
 
     try {
@@ -223,7 +227,9 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
       );
       await this.orderService.updateOrderItemStatus(itemId, statusId);
     } catch (err) {
-      this.error.set('Failed to update status: ' + (err as Error).message);
+      // Revert optimistic update on error
+      this.orders.set(previousOrders);
+      this.error.set('Failed to update item to ready: ' + (err as Error).message);
     } finally {
       await this.loadOrders();
     }

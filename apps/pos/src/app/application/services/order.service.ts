@@ -276,10 +276,18 @@ export class OrderService {
   }
 
   async updateOrder(id: number, data: Partial<Order>): Promise<Order> {
+    // Get current order to check if status is actually changing
+    const currentOrder = data.statusId ? await this.orderRepo.findById(id) : null;
     const updated = await this.orderRepo.update(id, data);
 
     // If status changed to a final state, free the table if any
-    if (data.statusId && updated.tableId) {
+    // Only process if status is actually changing
+    if (
+      data.statusId &&
+      updated.tableId &&
+      currentOrder &&
+      currentOrder.statusId !== data.statusId
+    ) {
       const status = await this.enumMappingService.getEnumFromId(data.statusId);
       const statusEnum = status?.code as OrderStatusEnum;
 

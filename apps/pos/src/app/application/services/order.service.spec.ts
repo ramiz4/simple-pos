@@ -566,6 +566,7 @@ describe('OrderService', () => {
       const freeStatusId = 1;
       const partialData = { statusId };
 
+      mockOrderRepo.findById.mockResolvedValue(mockOrder);
       mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId });
       mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.COMPLETED });
       mockEnumMappingService.getCodeTableId.mockResolvedValue(freeStatusId);
@@ -576,6 +577,38 @@ describe('OrderService', () => {
         mockOrder.tableId,
         freeStatusId,
       );
+    });
+
+    it('should not free table when status updated to COMPLETED but tableId is null', async () => {
+      const statusId = 6;
+      const freeStatusId = 1;
+      const partialData = { statusId };
+      const orderWithoutTable = { ...mockOrder, tableId: null };
+
+      mockOrderRepo.findById.mockResolvedValue(orderWithoutTable);
+      mockOrderRepo.update.mockResolvedValue({ ...orderWithoutTable, statusId });
+      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.COMPLETED });
+      mockEnumMappingService.getCodeTableId.mockResolvedValue(freeStatusId);
+
+      await service.updateOrder(1, partialData);
+
+      expect(mockTableService.updateTableStatus).not.toHaveBeenCalled();
+    });
+
+    it('should not free table when status is unchanged (already COMPLETED)', async () => {
+      const statusId = 6;
+      const freeStatusId = 1;
+      const partialData = { statusId };
+      const orderAlreadyCompleted = { ...mockOrder, statusId: 6 };
+
+      mockOrderRepo.findById.mockResolvedValue(orderAlreadyCompleted);
+      mockOrderRepo.update.mockResolvedValue(orderAlreadyCompleted);
+      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.COMPLETED });
+      mockEnumMappingService.getCodeTableId.mockResolvedValue(freeStatusId);
+
+      await service.updateOrder(1, partialData);
+
+      expect(mockTableService.updateTableStatus).not.toHaveBeenCalled();
     });
   });
 

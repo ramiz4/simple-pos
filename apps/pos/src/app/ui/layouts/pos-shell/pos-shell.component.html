@@ -50,6 +50,7 @@
               : 'text-surface-500 hover:bg-surface-50 hover:text-surface-900'
           "
           [title]="item.label"
+          [attr.aria-label]="'Navigate to ' + item.label"
         >
           <div
             class="w-6 h-6 flex items-center justify-center shrink-0"
@@ -118,6 +119,7 @@
         <button
           (click)="router.navigate(['/dashboard'])"
           class="md:hidden w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white"
+          aria-label="Go to dashboard"
         >
           <img src="logo.svg" alt="" class="h-6 w-6 brightness-0 invert" />
         </button>
@@ -147,6 +149,7 @@
         <button
           (click)="onLock()"
           class="md:hidden p-2 text-surface-400 hover:text-surface-900 transition-colors"
+          aria-label="Lock session"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -186,6 +189,7 @@
           }"
           class="flex flex-col items-center justify-center gap-1 w-full h-full rounded-xl transition-all"
           [class]="rlaMobile.isActive ? 'text-primary-600' : 'text-surface-400'"
+          [attr.aria-label]="'Navigate to ' + item.label"
         >
           <div
             class="w-6 h-6 flex items-center justify-center transition-transform active:scale-90"
