@@ -1,3 +1,9 @@
+# [1.6.0](https://github.com/ramiz4/simple-pos/compare/v1.5.1...v1.6.0) (2026-02-17)
+
+### Features
+
+- **nx:** add skills for generating code, managing plugins, running tasks, and exploring workspaces ([60a108f](https://github.com/ramiz4/simple-pos/commit/60a108f44612cc6d27ae6b3003154fac33a3848a))
+
 ## [1.5.1](https://github.com/ramiz4/simple-pos/compare/v1.5.0...v1.5.1) (2026-02-13)
 
 ### Bug Fixes
