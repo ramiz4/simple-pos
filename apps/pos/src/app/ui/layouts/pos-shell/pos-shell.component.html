@@ -1,0 +1,206 @@
+<!-- Skip to main content link for keyboard navigation -->
+<a
+  href="#main-content"
+  class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-9999 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:font-bold"
+>
+  Skip to main content
+</a>
+
+<div class="h-screen flex flex-col md:flex-row overflow-hidden bg-[#F8FAFC]">
+  <!-- Desktop Sidebar (md and up) -->
+  <aside
+    class="hidden md:flex flex-col w-20 lg:w-64 bg-white border-r border-surface-200 z-30 transition-all duration-300"
+  >
+    <!-- Logo & Branding -->
+    <div class="h-16 flex items-center px-4 lg:px-6 shrink-0 border-b border-surface-50">
+      <button
+        type="button"
+        class="flex items-center gap-3 cursor-pointer group"
+        (click)="router.navigate(['/dashboard'])"
+        aria-label="Go to dashboard"
+      >
+        <div
+          class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-200 group-hover:scale-105 transition-transform shrink-0"
+        >
+          <img src="logo.svg" alt="" class="h-6 w-6 brightness-0 invert" aria-hidden="true" />
+        </div>
+        <div class="hidden lg:flex flex-col leading-tight overflow-hidden">
+          <span class="text-xs font-black text-primary-600 uppercase tracking-widest truncate"
+            >Portal</span
+          >
+          <span class="text-surface-900 font-black text-sm truncate">Simple POS</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto no-scrollbar">
+      @for (item of menuItems(); track item.path) {
+        <a
+          [routerLink]="item.path"
+          #rlaSidebar="routerLinkActive"
+          routerLinkActive
+          [routerLinkActiveOptions]="{
+            exact: item.path === '/dashboard' || item.path === '/pos',
+          }"
+          class="flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative"
+          [class]="
+            rlaSidebar.isActive
+              ? 'bg-primary-50 text-primary-600 shadow-sm shadow-primary-100/50'
+              : 'text-surface-500 hover:bg-surface-50 hover:text-surface-900'
+          "
+          [title]="item.label"
+          [attr.aria-label]="'Navigate to ' + item.label"
+        >
+          <div
+            class="w-6 h-6 flex items-center justify-center shrink-0"
+            [innerHTML]="item.safeIcon"
+          ></div>
+          <span class="hidden lg:block font-bold text-sm tracking-tight capitalize">{{
+            item.label
+          }}</span>
+
+          <!-- Active Indicator Line (Desktop) -->
+          @if (rlaSidebar.isActive) {
+            <div
+              class="absolute left-0 top-3 bottom-3 w-1 bg-primary-600 rounded-r-full lg:hidden"
+            ></div>
+          }
+        </a>
+      }
+    </nav>
+
+    <!-- User Profile (Sidebar Bottom) -->
+    <div class="p-4 border-t border-surface-100 space-y-3">
+      <div class="hidden lg:flex items-center gap-3 p-2 bg-surface-50 rounded-2xl">
+        <div
+          class="w-10 h-10 rounded-xl bg-surface-200 flex items-center justify-center text-surface-600 font-bold"
+        >
+          {{ session?.user?.name?.[0] || 'U' }}
+        </div>
+        <div class="flex flex-col leading-tight min-w-0">
+          <span class="text-surface-900 font-bold text-sm truncate">{{ session?.user?.name }}</span>
+          <span class="text-[10px] font-black text-surface-400 uppercase tracking-widest">{{
+            session?.roleCode
+          }}</span>
+        </div>
+      </div>
+      <button
+        (click)="onLock()"
+        class="w-full flex items-center justify-center lg:justify-start gap-3 p-3 text-surface-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+          />
+        </svg>
+        <span class="hidden lg:block font-bold text-sm">Lock Session</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+    <!-- Slim Header -->
+    <header
+      class="h-16 flex items-center justify-between px-4 lg:px-8 bg-white/80 backdrop-blur-md border-b border-surface-100 sticky top-0 z-20 shrink-0"
+    >
+      <div class="flex items-center gap-4">
+        <!-- Mobile Logo -->
+        <button
+          (click)="router.navigate(['/dashboard'])"
+          class="md:hidden w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white"
+          aria-label="Go to dashboard"
+        >
+          <img src="logo.svg" alt="" class="h-6 w-6 brightness-0 invert" />
+        </button>
+        <h1 class="text-xl font-black text-surface-900 tracking-tight">{{ title() }}</h1>
+      </div>
+
+      <div class="flex items-center gap-3">
+        @if (updateAvailable()) {
+          <button
+            type="button"
+            (click)="onUpdate()"
+            class="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors border border-green-100 animate-pulse"
+          >
+            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span class="text-xs font-bold uppercase tracking-wider">Update</span>
+          </button>
+        }
+
+        <!-- Profile (Mobile/Tablet Compact) -->
+        <div class="flex flex-col items-end leading-none mr-2 lg:hidden">
+          <span class="text-[8px] font-black text-surface-400 uppercase tracking-widest">{{
+            session?.roleCode
+          }}</span>
+          <span class="font-bold text-surface-900 text-xs">{{ session?.user?.name }}</span>
+        </div>
+
+        <button
+          (click)="onLock()"
+          class="md:hidden p-2 text-surface-400 hover:text-surface-900 transition-colors"
+          aria-label="Lock session"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content" class="flex-1 overflow-y-auto bg-surface-50 p-4 lg:p-8" role="main">
+      <div class="max-w-7xl mx-auto h-full">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav
+      class="md:hidden h-20 bg-white border-t border-surface-200 flex items-center justify-around px-2 pb-[env(safe-area-inset-bottom)] shrink-0"
+    >
+      @for (item of menuItems().slice(0, 5); track item.path) {
+        <a
+          [routerLink]="item.path"
+          #rlaMobile="routerLinkActive"
+          routerLinkActive
+          [routerLinkActiveOptions]="{
+            exact: item.path === '/dashboard' || item.path === '/pos',
+          }"
+          class="flex flex-col items-center justify-center gap-1 w-full h-full rounded-xl transition-all"
+          [class]="rlaMobile.isActive ? 'text-primary-600' : 'text-surface-400'"
+          [attr.aria-label]="'Navigate to ' + item.label"
+        >
+          <div
+            class="w-6 h-6 flex items-center justify-center transition-transform active:scale-90"
+            [innerHTML]="item.safeIcon"
+          ></div>
+          <span class="text-[10px] font-black uppercase tracking-tighter">{{ item.label }}</span>
+          @if (rlaMobile.isActive) {
+            <div class="w-1 h-1 bg-primary-600 rounded-full mt-0.5"></div>
+          }
+        </a>
+      }
+    </nav>
+  </div>
+</div>

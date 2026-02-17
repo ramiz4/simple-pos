@@ -276,12 +276,35 @@ export class OrderService {
   }
 
   async updateOrder(id: number, data: Partial<Order>): Promise<Order> {
-    return await this.orderRepo.update(id, data);
+    // Get current order to check if status is actually changing
+    const currentOrder = data.statusId ? await this.orderRepo.findById(id) : null;
+    const updated = await this.orderRepo.update(id, data);
+
+    // If status changed to a final state, free the table if any
+    // Only process if status is actually changing
+    if (
+      data.statusId &&
+      updated.tableId &&
+      currentOrder &&
+      currentOrder.statusId !== data.statusId
+    ) {
+      const status = await this.enumMappingService.getEnumFromId(data.statusId);
+      const statusEnum = status?.code as OrderStatusEnum;
+
+      if (statusEnum && OrderStateMachine.isFinalStatus(statusEnum)) {
+        const freeStatusId = await this.enumMappingService.getCodeTableId(
+          'TABLE_STATUS',
+          TableStatusEnum.FREE,
+        );
+        await this.tableService.updateTableStatus(updated.tableId, freeStatusId);
+      }
+    }
+
+    return updated;
   }
 
   async updateOrderStatus(id: number, newStatusId: number): Promise<Order> {
-    const orderRepo = this.orderRepo;
-    const order = await orderRepo.findById(id);
+    const order = await this.orderRepo.findById(id);
 
     if (!order) {
       throw new Error(`Order with id ${id} not found`);
@@ -297,26 +320,14 @@ export class OrderService {
       throw new Error(`Invalid status transition from ${currentStatusEnum} to ${newStatusEnum}`);
     }
 
-    // If status is a final state, set completedAt and free table
+    const updateData: Partial<Order> = { statusId: newStatusId };
+
+    // If status is a final state, set completedAt
     if (OrderStateMachine.isFinalStatus(newStatusEnum)) {
-      const updated = await orderRepo.update(id, {
-        statusId: newStatusId,
-        completedAt: new Date().toISOString(),
-      });
-
-      // Free the table if it was a DINE_IN order
-      if (order.tableId) {
-        const freeStatusId = await this.enumMappingService.getCodeTableId(
-          'TABLE_STATUS',
-          TableStatusEnum.FREE,
-        );
-        await this.tableService.updateTableStatus(order.tableId, freeStatusId);
-      }
-
-      return updated;
+      updateData.completedAt = new Date().toISOString();
     }
 
-    return await orderRepo.update(id, { statusId: newStatusId });
+    return await this.updateOrder(id, updateData);
   }
 
   async cancelOrder(id: number, reason: string): Promise<Order> {
@@ -324,29 +335,17 @@ export class OrderService {
       'ORDER_STATUS',
       OrderStatusEnum.CANCELLED,
     );
-    const orderRepo = this.orderRepo;
-    const order = await orderRepo.findById(id);
 
+    const order = await this.orderRepo.findById(id);
     if (!order) {
       throw new Error(`Order with id ${id} not found`);
     }
 
-    const updated = await orderRepo.update(id, {
+    return await this.updateOrder(id, {
       statusId: cancelledStatusId,
       cancelledReason: reason,
       completedAt: new Date().toISOString(),
     });
-
-    // Free the table if it was a DINE_IN order
-    if (order.tableId) {
-      const freeStatusId = await this.enumMappingService.getCodeTableId(
-        'TABLE_STATUS',
-        TableStatusEnum.FREE,
-      );
-      await this.tableService.updateTableStatus(order.tableId, freeStatusId);
-    }
-
-    return updated;
   }
 
   async completeOrder(id: number): Promise<Order> {

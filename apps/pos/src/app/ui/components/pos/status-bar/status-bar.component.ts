@@ -7,7 +7,7 @@ import { ButtonComponent } from '../../shared/button/button.component';
   imports: [ButtonComponent],
   template: `
     <div
-      class="fixed bottom-0 left-0 right-0 z-40 px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:px-4 sm:pb-8 pointer-events-none"
+      class="fixed bottom-20 md:bottom-0 left-0 md:left-20 lg:left-64 right-0 z-40 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:pb-8 pointer-events-none transition-all duration-300"
     >
       <div class="max-w-4xl mx-auto pointer-events-auto">
         <div
