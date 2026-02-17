@@ -52,6 +52,8 @@ describe('OrderService', () => {
   };
   let mockEnumMappingService: {
     init: Mock;
+    getEnumFromId: Mock;
+    getCodeTableId: Mock;
     getTranslation: Mock;
     getStatusName: Mock;
     getTypeName: Mock;
@@ -158,13 +160,18 @@ describe('OrderService', () => {
 
     // Mock EnumMappingService
     mockEnumMappingService = {
+      init: vi.fn(),
       getEnumFromId: vi.fn(),
       getCodeTableId: vi.fn(),
+      getTranslation: vi.fn(),
+      getStatusName: vi.fn(),
+      getTypeName: vi.fn(),
     };
 
     // Mock TableService
     mockTableService = {
       updateTableStatus: vi.fn(),
+      getTableById: vi.fn(),
     };
 
     // Configure TestBed
@@ -553,6 +560,23 @@ describe('OrderService', () => {
       expect(result.tip).toBe(15);
       expect(result.total).toBe(133);
     });
+
+    it('should free table when status updated to COMPLETED', async () => {
+      const statusId = 6;
+      const freeStatusId = 1;
+      const partialData = { statusId };
+
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId });
+      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.COMPLETED });
+      mockEnumMappingService.getCodeTableId.mockResolvedValue(freeStatusId);
+
+      await service.updateOrder(1, partialData);
+
+      expect(mockTableService.updateTableStatus).toHaveBeenCalledWith(
+        mockOrder.tableId,
+        freeStatusId,
+      );
+    });
   });
 
   describe('updateOrderStatus', () => {
@@ -635,6 +659,7 @@ describe('OrderService', () => {
         cancelledReason: 'Test reason',
       });
       mockEnumMappingService.getCodeTableId.mockResolvedValue(7); // CANCELLED
+      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.CANCELLED });
     });
 
     it('should cancel order with reason', async () => {

@@ -50,12 +50,12 @@
             >€</span
           >
           <input
-            type="number"
+            type="text"
+            inputmode="decimal"
             id="total-with-tip"
-            [ngModel]="overriddenTotalWithTip()"
-            (ngModelChange)="overriddenTotalWithTip.set($event)"
-            [min]="grandTotal()"
-            step="0.01"
+            [ngModel]="displayTotalWithTip()"
+            (ngModelChange)="onTotalWithTipChange($event)"
+            (blur)="onTotalWithTipBlur()"
             class="w-full border rounded-xl pl-8 pr-4 py-3 text-white text-2xl font-black focus:outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             [class.bg-primary-400/10]="!isTotalInvalid()"
             [class.border-primary-400/20]="!isTotalInvalid()"
@@ -95,12 +95,12 @@
                 >€</span
               >
               <input
-                type="number"
+                type="text"
+                inputmode="decimal"
                 id="amount-received"
-                [ngModel]="amountReceived()"
-                (ngModelChange)="amountReceived.set($event)"
-                [min]="0"
-                step="0.01"
+                [ngModel]="displayAmountReceived()"
+                (ngModelChange)="onAmountReceivedChange($event)"
+                (blur)="onAmountReceivedBlur()"
                 [placeholder]="grandTotal().toFixed(2)"
                 class="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-4 py-2 text-white text-lg font-bold placeholder-white/30 focus:outline-none focus:border-primary-400 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               />

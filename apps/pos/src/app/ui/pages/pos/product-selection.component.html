@@ -1,10 +1,8 @@
-<!-- Category Navbar - Fixed Position -->
-<div
-  class="fixed top-[calc(120px+env(safe-area-inset-top))] lg:top-16 left-0 right-0 z-40 bg-white/80 backdrop-blur-md border-b border-surface-100"
->
-  <div class="max-w-7xl mx-auto px-4 pt-3 pb-3 lg:pt-4 lg:pb-4">
+<!-- Category Navbar - Sticky at top of content -->
+<div class="sticky top-0 z-30 bg-surface-50/95 backdrop-blur-sm -mx-4 px-4 lg:-mx-8 lg:px-8 pb-4">
+  <div class="max-w-7xl mx-auto">
     <div
-      class="flex bg-surface-100 p-1 rounded-xl shadow-inner overflow-x-auto no-scrollbar scroll-smooth"
+      class="flex bg-surface-100 p-1 rounded-2xl shadow-inner overflow-x-auto no-scrollbar scroll-smooth"
       style="-webkit-overflow-scrolling: touch"
     >
       @for (category of activeCategories(); track category.id) {
@@ -14,7 +12,7 @@
           [class.text-primary-600]="selectedCategoryId() === category.id"
           [class.shadow-sm]="selectedCategoryId() === category.id"
           [class.text-surface-500]="selectedCategoryId() !== category.id"
-          class="px-5 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 hover:text-primary-500 whitespace-nowrap shrink-0"
+          class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 hover:text-primary-500 whitespace-nowrap shrink-0 active:scale-95"
         >
           {{ category.name }}
         </button>
@@ -23,11 +21,11 @@
   </div>
 </div>
 
-<!-- Main Content with top padding to account for fixed filter -->
-<main class="animate-fade-in pb-32 pt-[calc(88px+env(safe-area-inset-top))] lg:pt-18">
-  <div class="max-w-7xl mx-auto px-4 py-6">
+<!-- Products Grid Area -->
+<div class="animate-fade-in pb-32">
+  <div class="max-w-7xl mx-auto py-2">
     <!-- Products Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-8">
       @for (product of filteredProducts(); track product.id) {
         <app-product-card
           [product]="product"
@@ -44,7 +42,7 @@
       </div>
     }
   </div>
-</main>
+</div>
 
 <!-- Modern Cart Summary Bar -->
 <app-status-bar

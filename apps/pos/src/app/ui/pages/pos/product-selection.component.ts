@@ -4,12 +4,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CartItem, Category, Extra, Order, Product, Variant } from '@simple-pos/shared/types';
 import { CartService } from '../../../application/services/cart.service';
 import { CategoryService } from '../../../application/services/category.service';
-import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { ExtraService } from '../../../application/services/extra.service';
 import { OrderService } from '../../../application/services/order.service';
 import { ProductExtraService } from '../../../application/services/product-extra.service';
 import { ProductService } from '../../../application/services/product.service';
-import { TableService } from '../../../application/services/table.service';
 import { VariantService } from '../../../application/services/variant.service';
 import { ProductCardComponent } from '../../components/pos/product-card/product-card.component';
 import { QuantitySelectorComponent } from '../../components/pos/quantity-selector/quantity-selector.component';
@@ -67,11 +65,9 @@ export class ProductSelectionComponent implements OnInit {
 
   filteredProducts = computed(() => {
     const categoryId = this.selectedCategoryId();
-    let products = this.products();
+    const products = this.products();
 
     if (!categoryId) return [];
-
-    products = products.concat(products).concat(products).concat(products).concat(products);
 
     return products.filter((p) => p.categoryId === categoryId && p.isAvailable);
   });
@@ -120,8 +116,6 @@ export class ProductSelectionComponent implements OnInit {
     private extraService: ExtraService,
     private productExtraService: ProductExtraService,
     private cartService: CartService,
-    private tableService: TableService,
-    private enumMappingService: EnumMappingService,
     private orderService: OrderService,
   ) {}
 

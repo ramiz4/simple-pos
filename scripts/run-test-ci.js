@@ -30,7 +30,7 @@ function run() {
   const nxCommand = process.platform === 'win32' ? 'nx.cmd' : 'nx';
   const result = spawnSync(
     nxCommand,
-    ['affected', '-t', 'test', '--run', '--parallel=3', `--base=${base}`, '--head=HEAD'],
+    ['affected', '-t', 'test', '--run', '--parallel=3', `--base=${base}`],
     { stdio: 'inherit', env },
   );
 

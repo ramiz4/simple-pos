@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -17,206 +18,20 @@ import { UpdateService } from '../../../application/services/update.service';
   selector: 'app-pos-shell',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
-  template: `
-    <!-- Skip to main content link for keyboard navigation -->
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-9999 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:font-bold"
-    >
-      Skip to main content
-    </a>
-
-    <div class="min-h-screen bg-[#F8FAFC] flex flex-col">
-      <!-- Navigation Header -->
-      <header
-        class="nav-blur sticky top-0 z-50 transition-all duration-300 pt-[env(safe-area-inset-top)]"
-        role="banner"
-      >
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between h-16 items-center">
-            <!-- Brand & Context -->
-            <div class="flex items-center gap-4">
-              <button
-                type="button"
-                class="flex items-center gap-2 cursor-pointer group"
-                (click)="router.navigate(['/dashboard'])"
-                aria-label="Go to dashboard"
-              >
-                <div
-                  class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary-200 group-hover:scale-105 transition-transform"
-                >
-                  <img
-                    src="logo.svg"
-                    alt=""
-                    class="h-6 w-6 brightness-0 invert"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div class="hidden sm:flex flex-col leading-tight">
-                  <span class="text-xs font-black text-primary-600 uppercase tracking-widest"
-                    >Portal</span
-                  >
-                  <span class="text-surface-900 font-black text-sm">{{ title() }}</span>
-                </div>
-              </button>
-            </div>
-
-            <!-- Desktop Navigation -->
-            <nav
-              class="hidden lg:flex items-center gap-1 bg-surface-50 p-1 rounded-2xl border border-surface-100"
-              aria-label="Main navigation"
-            >
-              @for (item of menuItems(); track item.path) {
-                <a
-                  [routerLink]="item.path"
-                  #rlaDesktop="routerLinkActive"
-                  routerLinkActive
-                  [routerLinkActiveOptions]="{
-                    exact: item.path === '/dashboard' || item.path === '/pos',
-                  }"
-                  class="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 hover:bg-white/50"
-                  [class.bg-white]="rlaDesktop.isActive"
-                  [class.text-primary-600]="rlaDesktop.isActive"
-                  [class.shadow-sm]="rlaDesktop.isActive"
-                  [class.text-surface-600]="!rlaDesktop.isActive"
-                  [class.hover:text-surface-900]="!rlaDesktop.isActive"
-                >
-                  {{ item.label }}
-                </a>
-              }
-            </nav>
-
-            <!-- Actions & Session -->
-            <div class="flex items-center gap-3">
-              @if (updateAvailable()) {
-                <button
-                  type="button"
-                  (click)="onUpdate()"
-                  class="flex p-2 bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors animate-pulse"
-                  aria-label="Install available update"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                </button>
-              }
-
-              <div class="hidden md:flex flex-col items-end leading-none">
-                <span
-                  class="text-[10px] font-black text-surface-400 uppercase tracking-widest mb-1"
-                  >{{ session?.roleCode }}</span
-                >
-                <span class="font-bold text-surface-900 text-sm">{{ session?.user?.name }}</span>
-              </div>
-
-              <div class="flex items-center gap-2 pl-3 border-l border-surface-100">
-                <button
-                  type="button"
-                  (click)="onLock()"
-                  class="p-2 hover:bg-surface-100 text-surface-600 rounded-full transition-all active:scale-95"
-                  aria-label="Lock Terminal"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Mobile Quick Nav (Scrollable) -->
-          <div
-            class="lg:hidden flex overflow-x-auto no-scrollbar py-2 px-1 border-t border-surface-50"
-          >
-            <div
-              class="flex items-center gap-1 bg-surface-50 p-1 rounded-2xl border border-surface-100"
-            >
-              @for (item of menuItems(); track item.path) {
-                <a
-                  [routerLink]="item.path"
-                  #rla="routerLinkActive"
-                  routerLinkActive
-                  [routerLinkActiveOptions]="{
-                    exact: item.path === '/dashboard' || item.path === '/pos',
-                  }"
-                  class="px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 hover:bg-white/50 whitespace-nowrap"
-                  [class.bg-white]="rla.isActive"
-                  [class.text-primary-600]="rla.isActive"
-                  [class.shadow-sm]="rla.isActive"
-                  [class.text-surface-600]="!rla.isActive"
-                  [class.hover:text-surface-900]="!rla.isActive"
-                >
-                  {{ item.label }}
-                </a>
-              }
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Main Content Area -->
-      <main
-        id="main-content"
-        tabindex="-1"
-        class="grow overflow-y-auto pb-[env(safe-area-inset-bottom)]"
-        role="main"
-      >
-        <router-outlet></router-outlet>
-      </main>
-    </div>
-  `,
-  styles: [
-    `
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .nav-blur {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid rgba(241, 245, 249, 1);
-      }
-    `,
-  ],
+  templateUrl: './pos-shell.component.html',
 })
 export class PosShellComponent implements OnInit {
   protected router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private updateService = inject(UpdateService);
+  private sanitizer = inject(DomSanitizer);
 
   title = signal('POS');
   session: UserSession | null = null;
   updateAvailable = this.updateService.updateAvailable;
 
-  menuItems = signal<{ label: string; path: string }[]>([]);
+  menuItems = signal<{ label: string; path: string; safeIcon: SafeHtml }[]>([]);
 
   constructor() {
     this.session = this.authService.getCurrentSession();
@@ -245,23 +60,45 @@ export class PosShellComponent implements OnInit {
   }
 
   private setupMenu() {
-    const items = [];
+    const items: { label: string; path: string; icon: string }[] = [];
 
     if (this.authService.hasAnyRole([UserRoleEnum.CASHIER, UserRoleEnum.ADMIN])) {
-      items.push({ label: 'New Order', path: '/pos' });
-      items.push({ label: 'Active Orders', path: '/active-orders' });
+      items.push({
+        label: 'Pos',
+        path: '/pos',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
+      });
+      items.push({
+        label: 'Orders',
+        path: '/active-orders',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"></path><path d="m16.2 7.8 2.9-2.9"></path><path d="M18 12h4"></path><path d="m16.2 16.2 2.9 2.9"></path><path d="M12 18v4"></path><path d="m4.9 19.1 2.9-2.9"></path><path d="M2 12h4"></path><path d="m4.9 4.9 2.9 2.9"></path></svg>',
+      });
     }
 
     if (this.authService.hasAnyRole([UserRoleEnum.KITCHEN, UserRoleEnum.ADMIN])) {
-      items.push({ label: 'Kitchen', path: '/kitchen' });
+      items.push({
+        label: 'Kitchen',
+        path: '/kitchen',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"></path><line x1="6" y1="17" x2="18" y2="17"></line></svg>',
+      });
     }
 
     if (this.authService.hasAnyRole([UserRoleEnum.ADMIN])) {
-      items.push({ label: 'Reports', path: '/reports' });
-      items.push({ label: 'Admin', path: '/admin' });
+      items.push({
+        label: 'Reports',
+        path: '/reports',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m19 9-5 5-4-4-3 3"></path></svg>',
+      });
+      items.push({
+        label: 'Admin',
+        path: '/admin',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>',
+      });
     }
 
-    this.menuItems.set(items);
+    this.menuItems.set(
+      items.map((i) => ({ ...i, safeIcon: this.sanitizer.bypassSecurityTrustHtml(i.icon) })),
+    );
   }
 
   private updateHeader(data: Record<string, unknown>) {

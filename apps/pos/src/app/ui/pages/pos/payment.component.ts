@@ -36,6 +36,8 @@ export class PaymentComponent implements OnInit {
 
   // Cash payment: amount received and change calculation
   overriddenTotalWithTip = signal<number | null>(null);
+  displayTotalWithTip = signal<string>('');
+
   totalWithTip = computed(() => {
     const value = Math.max(this.grandTotal(), this.overriddenTotalWithTip() ?? this.grandTotal());
     return roundCurrency(value);
@@ -50,6 +52,8 @@ export class PaymentComponent implements OnInit {
   });
 
   amountReceived = signal<number | null>(null);
+  displayAmountReceived = signal<string>('');
+
   changeAmount = computed(() => {
     const received = this.amountReceived();
     const total = this.totalWithTip();
@@ -93,9 +97,45 @@ export class PaymentComponent implements OnInit {
 
       // Initialize the overridden value once when the component loads or the order is fetched
       if (this.overriddenTotalWithTip() === null) {
-        this.overriddenTotalWithTip.set(this.grandTotal());
+        const total = this.grandTotal();
+        this.overriddenTotalWithTip.set(total);
+        this.displayTotalWithTip.set(total.toFixed(2));
       }
     });
+  }
+
+  onTotalWithTipChange(value: string): void {
+    this.displayTotalWithTip.set(value);
+    const num = parseFloat(value);
+    if (!isNaN(num)) {
+      this.overriddenTotalWithTip.set(num);
+    } else if (value === '') {
+      this.overriddenTotalWithTip.set(null);
+    }
+  }
+
+  onTotalWithTipBlur(): void {
+    const val = this.overriddenTotalWithTip();
+    if (val !== null) {
+      this.displayTotalWithTip.set(val.toFixed(2));
+    }
+  }
+
+  onAmountReceivedChange(value: string): void {
+    this.displayAmountReceived.set(value);
+    const num = parseFloat(value);
+    if (!isNaN(num)) {
+      this.amountReceived.set(num);
+    } else {
+      this.amountReceived.set(null);
+    }
+  }
+
+  onAmountReceivedBlur(): void {
+    const val = this.amountReceived();
+    if (val !== null) {
+      this.displayAmountReceived.set(val.toFixed(2));
+    }
   }
 
   async confirmPayment(): Promise<void> {
