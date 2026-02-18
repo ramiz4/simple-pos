@@ -67,7 +67,7 @@ jobs:
         run: pnpm nx affected -t lint test build --exclude=native --parallel=3
 
       - name: Nx Cloud Fix CI
-        run: npx nx-cloud fix-ci
+        run: pnpm exec nx-cloud fix-ci
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +136,7 @@ jobs:
         run: pnpm nx build pos --base-href=/simple-pos/
 
       - name: Nx Cloud Fix CI
-        run: npx nx-cloud fix-ci
+        run: pnpm exec nx-cloud fix-ci
         if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
