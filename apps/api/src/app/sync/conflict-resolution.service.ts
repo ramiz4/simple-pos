@@ -2,6 +2,16 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '@simple-pos/api-common';
 import { ConflictResolutionStrategy } from '@simple-pos/shared/types';
+import { ConflictResolution } from '@simple-pos/sync';
+
+/** Maps the shared-types strategy names to the pure sync-lib resolution enum. */
+const _STRATEGY_MAP: Record<ConflictResolutionStrategy, ConflictResolution> = {
+  SERVER_WINS: 'SERVER_WINS',
+  CLIENT_WINS: 'CLIENT_WINS',
+  LAST_WRITE_WINS: 'CLIENT_WINS',
+  MANUAL: 'MANUAL',
+  MERGE: 'MERGE',
+};
 
 @Injectable()
 export class ConflictResolutionService {

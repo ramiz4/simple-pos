@@ -21,6 +21,7 @@ import {
   Table,
   User,
 } from '@simple-pos/shared/types';
+import { SYNC_INTERVAL_MS } from '@simple-pos/sync';
 import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
 import { ProductIngredientRepository } from '../../core/interfaces/product-ingredient-repository.interface';
 import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
@@ -133,12 +134,9 @@ export class SyncEngineService {
       window.addEventListener('online', this.handleOnline);
     }
 
-    this.syncTimer = setInterval(
-      () => {
-        void this.syncNow();
-      },
-      5 * 60 * 1000,
-    );
+    this.syncTimer = setInterval(() => {
+      void this.syncNow();
+    }, SYNC_INTERVAL_MS);
 
     // Only attempt initial sync when in cloud/hybrid mode.
     // In local mode (no API server) this avoids wasted work at startup.
