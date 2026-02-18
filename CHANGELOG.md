@@ -1,3 +1,32 @@
+# [1.12.0](https://github.com/ramiz4/simple-pos/compare/v1.11.0...v1.12.0) (2026-02-18)
+
+### Bug Fixes
+
+- **api-e2e:** remove any cast in global setup and teardown ([b78a576](https://github.com/ramiz4/simple-pos/commit/b78a576ba101a0b94c75448314ddbd0378a9b703))
+- **api-e2e:** remove globalTeardown from Vitest configuration ([89baa09](https://github.com/ramiz4/simple-pos/commit/89baa095abedca2fddf49bf3d8076a3c5ba52c88))
+- **api-e2e:** set axios baseURL outside of setup function ([961060a](https://github.com/ramiz4/simple-pos/commit/961060a4978eeb05b2a4c967c0b16a4e6faee4f4))
+- **api:** resolve api-e2e connection error in CI by starting background API and database ([bce5ae4](https://github.com/ramiz4/simple-pos/commit/bce5ae4ecacdc82657ee2c11ddf7bb4427f27eb6))
+- **ci:** bypass Nx Cloud authentication for affected check ([11801cd](https://github.com/ramiz4/simple-pos/commit/11801cdb7e4e1a9be8521f78ded7a953d2747b6b))
+- **ci:** consolidate nx cloud env variables at global level ([eb04c7b](https://github.com/ramiz4/simple-pos/commit/eb04c7bb5218b42eeb4591afa4053e215a326683))
+- **ci:** disable prisma-generate cache and revert Pool config to connectionString only ([d1848fe](https://github.com/ramiz4/simple-pos/commit/d1848fe0e3048128f3fb209fa697898a38d01edc))
+- **ci:** fix broken YAML syntax in deploy-desktop job ([f5ccd13](https://github.com/ramiz4/simple-pos/commit/f5ccd1304418f10f094f66d0badcb49951f51573))
+- **ci:** remove NX_CLOUD_ID from workflow and add it back to nx.json ([2d5e9af](https://github.com/ramiz4/simple-pos/commit/2d5e9afa437a3067a319d9ef85ede955e24d61da))
+- **ci:** resolve postgres root role missing and webpack build errors on main ([5c36968](https://github.com/ramiz4/simple-pos/commit/5c36968f3f14c72c20fcee32654b39b47339f5fd))
+- **ci:** resolve prisma client missing error and postgres auth failure ([f6c1770](https://github.com/ramiz4/simple-pos/commit/f6c1770069eb8b55ff297f05f73740a990f644c7))
+- **ci:** restore postgres env vars and improve PrismaService connection robustness ([2e0e1c8](https://github.com/ramiz4/simple-pos/commit/2e0e1c82725a19a418833c9f8a98ed5a0356cb95))
+- **ci:** use prisma db push instead of migrate deploy to handle out-of-sync migration history ([71c02a2](https://github.com/ramiz4/simple-pos/commit/71c02a26bc6186f0928aac797415717b8424b177))
+- **deps:** remove nxCloudId from nx.json and move to ci env ([3f6cf20](https://github.com/ramiz4/simple-pos/commit/3f6cf204f6602816643c4f018084caec2a47531c))
+- **deps:** update nx-cloud to version 19.1.0 and add ini@4.1.3 ([4f0fae5](https://github.com/ramiz4/simple-pos/commit/4f0fae5a063c156bbcba2ae4861a2ee45f888bbc))
+- **domain:** update PricingCalculator and InventoryManager to use correct types ([33a942f](https://github.com/ramiz4/simple-pos/commit/33a942fce0e74bb17ec90549f77dc7ac9ad26b12))
+
+### Features
+
+- **api-e2e:** migrate from Jest to Vitest and remove Jest dependencies ([bd852b8](https://github.com/ramiz4/simple-pos/commit/bd852b8233e700cbc1abb371a3a292d98d916c18))
+- **api:** add dedicated health endpoint and update CI readiness check ([0066533](https://github.com/ramiz4/simple-pos/commit/0066533dc6812550f61ea4c4f5adbdb25c482a46))
+- **api:** re-enable prisma-generate cache with broader outputs ([731e0ea](https://github.com/ramiz4/simple-pos/commit/731e0ea2162812c7f405f68f3e302193fd238922))
+- **ci:** add NX_CLOUD_ACCESS_TOKEN environment variable to CI jobs ([01d3ef9](https://github.com/ramiz4/simple-pos/commit/01d3ef9bcf6a83dd754a2dbef5bbaccc91396d06))
+- **ci:** update Nx Cloud fix command to use pnpm exec and add nx-cloud dependency ([55e9da7](https://github.com/ramiz4/simple-pos/commit/55e9da7e54325f725360db3b25836cb109f0035b))
+
 # [1.11.0](https://github.com/ramiz4/simple-pos/compare/v1.10.0...v1.11.0) (2026-02-18)
 
 ### Features
