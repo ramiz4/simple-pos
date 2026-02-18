@@ -14,7 +14,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       throw new Error('DATABASE_URL is required to initialize PrismaService.');
     }
 
-    const pool = new Pool({ connectionString });
+    const pool = new Pool({
+      connectionString,
+      // Fallback to env vars if connection string parsing has issues in some environments
+      user: process.env['PGUSER'] || process.env['POSTGRES_USER'],
+      password: process.env['PGPASSWORD'] || process.env['POSTGRES_PASSWORD'],
+      database: process.env['PGDATABASE'] || process.env['POSTGRES_DB'],
+      host: process.env['PGHOST'] || 'localhost',
+      port: process.env['PGPORT'] ? Number(process.env['PGPORT']) : 5432,
+    });
     const adapter = new PrismaPg(pool);
     super({ adapter });
     this.pool = pool;
