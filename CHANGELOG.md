@@ -1,3 +1,12 @@
+# [1.10.0](https://github.com/ramiz4/simple-pos/compare/v1.9.0...v1.10.0) (2026-02-18)
+
+### Features
+
+- **ci:** add CI workflow and remove PR check workflow ([edec6aa](https://github.com/ramiz4/simple-pos/commit/edec6aa24935f7bcaf586bcd9e273d4d73903884))
+- **nx-cloud:** setup nx cloud workspace ([b853b0f](https://github.com/ramiz4/simple-pos/commit/b853b0f8be5f86534fd97d78d2c2d8857882c5ca))
+- **seed:** optimize product extra and ingredient seeding logic ([9144922](https://github.com/ramiz4/simple-pos/commit/91449226b8abb9c80557b38f0d537a20372c2580))
+- **service:** add getAll method to ProductExtraService and ProductIngredientService ([8243275](https://github.com/ramiz4/simple-pos/commit/82432757e802f6cd9aa43a698947f17b62f2ea3a))
+
 # [1.9.0](https://github.com/ramiz4/simple-pos/compare/v1.8.0...v1.9.0) (2026-02-18)
 
 ### Features
