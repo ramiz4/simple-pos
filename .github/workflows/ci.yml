@@ -14,6 +14,9 @@ permissions:
   issues: write
   pull-requests: write
 
+env:
+  NX_CLOUD_ID: 69955cf60d96b5bcfd47ca16
+
 jobs:
   main:
     name: CI (Lint, Test, Build)
@@ -66,8 +69,6 @@ jobs:
 
       - name: Nx Affected Check
         run: pnpm nx affected -t lint test build --exclude=native --parallel=3
-        env:
-          NX_NO_CLOUD: true
 
       - name: Nx Cloud Fix CI
         run: pnpm exec nx-cloud fix-ci
@@ -138,8 +139,6 @@ jobs:
 
       - name: Build Web
         run: pnpm nx build pos --base-href=/simple-pos/
-        env:
-          NX_NO_CLOUD: true
 
       - name: Nx Cloud Fix CI
         run: pnpm exec nx-cloud fix-ci
