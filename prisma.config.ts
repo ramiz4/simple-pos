@@ -1,7 +1,9 @@
 import { config } from 'dotenv';
 import { defineConfig, env } from 'prisma/config';
 
-config({ path: 'apps/api/.env' });
+if (!process.env['DATABASE_URL']) {
+  config({ path: 'apps/api/.env' });
+}
 
 export default defineConfig({
   schema: 'apps/api/prisma/schema.prisma',
