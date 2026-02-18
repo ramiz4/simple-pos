@@ -9,7 +9,7 @@
       "options": {
         "command": "prisma generate"
       },
-      "cache": false,
+      "cache": true,
       "inputs": ["{projectRoot}/prisma/schema.prisma", "{workspaceRoot}/prisma.config.ts"],
       "outputs": ["{workspaceRoot}/node_modules/.prisma"]
     },
