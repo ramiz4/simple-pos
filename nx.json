@@ -1,5 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "nxCloudId": "69955cf60d96b5bcfd47ca16",
   "targetDefaults": {
     "build": {
       "cache": true,
@@ -48,6 +49,5 @@
         "serveStaticTargetName": "serve-static"
       }
     }
-  ],
-  "nxCloudId": "69955cf60d96b5bcfd47ca16"
+  ]
 }

@@ -7,9 +7,10 @@ The root `tsconfig.base.json` uses `"module": "commonjs"` and `"moduleResolution
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
 - **Priority**: Medium
 - **Effort**: Low
+- **Completed**: February 18, 2026
 
 ## Recommended Agent
 

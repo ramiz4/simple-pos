@@ -4,11 +4,11 @@
   "implicitDependencies": ["api"],
   "projectType": "application",
   "targets": {
-    "e2e": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/api-e2e/jest.config.cts",
+        "config": "apps/api-e2e/vitest.config.mts",
         "passWithNoTests": true
       },
       "dependsOn": ["api:build"]

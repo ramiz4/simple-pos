@@ -11,7 +11,7 @@
       },
       "cache": true,
       "inputs": ["{projectRoot}/prisma/schema.prisma", "{workspaceRoot}/prisma.config.ts"],
-      "outputs": []
+      "outputs": ["{workspaceRoot}/node_modules/.prisma/client"]
     },
     "build": {
       "executor": "nx:run-commands",
