@@ -19,230 +19,229 @@
           class="w-20 h-20 shadow-xl shadow-primary-200 rounded-3xl"
         />
       </div>
-      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Create Owner Account</h1>
+      <h1 class="text-3xl font-black text-surface-900 tracking-tight">Create Account</h1>
     </div>
 
     <form (ngSubmit)="onRegister()" class="space-y-6">
-      <!-- Account Details -->
-      <div class="space-y-4 pb-4 border-b border-surface-100">
-        <div class="space-y-2">
-          <label
-            for="orgEmail"
-            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
-          >
-            Email Address
-          </label>
-          <div class="relative">
-            <input
-              type="email"
-              id="orgEmail"
-              [value]="accountEmail()"
-              (input)="accountEmail.set($any($event.target).value)"
-              class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!accountEmail()"
-              [class.border-green-400]="emailValid()"
-              [class.border-red-400]="accountEmail() && !emailValid()"
-              [class.focus:ring-2]="true"
-              [class.focus:ring-primary-400]="true"
-              [class.focus:border-transparent]="true"
-              placeholder="contact@myrestaurant.com"
-              [disabled]="isLoading()"
-              required
-            />
-            @if (accountEmail() && emailValid()) {
-              <span
-                class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
-                role="status"
-                aria-live="polite"
-                aria-label="Valid email address"
-                >✓</span
-              >
-            }
-          </div>
-        </div>
-
-        <div class="space-y-2">
-          <label
-            for="password"
-            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
-          >
-            Password
-          </label>
-          <div class="relative">
-            <input
-              [type]="showPassword() ? 'text' : 'password'"
-              id="password"
-              [value]="password()"
-              (input)="password.set($any($event.target).value)"
-              class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!password()"
-              [class.border-green-400]="passwordValid()"
-              [class.border-red-400]="password() && !passwordValid()"
-              [class.focus:ring-2]="true"
-              [class.focus:ring-primary-400]="true"
-              [class.focus:border-transparent]="true"
-              placeholder="••••••••"
-              [disabled]="isLoading()"
-              required
-              minlength="8"
-            />
-            <button
-              type="button"
-              (click)="togglePasswordVisibility()"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
-              [disabled]="isLoading()"
-              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
-              [attr.aria-pressed]="showPassword()"
+      <div class="space-y-2 animate-fade-in">
+        <label
+          for="orgEmail"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Email Address
+        </label>
+        <div class="relative">
+          <input
+            type="email"
+            id="orgEmail"
+            [value]="accountEmail()"
+            (input)="accountEmail.set($any($event.target).value)"
+            class="w-full h-14 px-5 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            [class.border-surface-100]="!accountEmail()"
+            [class.border-green-400]="emailValid()"
+            [class.border-red-400]="accountEmail() && !emailValid()"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary-400]="true"
+            [class.focus:border-transparent]="true"
+            placeholder="contact@myrestaurant.com"
+            [disabled]="isLoading()"
+            required
+          />
+          @if (accountEmail() && emailValid()) {
+            <span
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-green-500"
+              role="status"
+              aria-live="polite"
+              aria-label="Valid email address"
+              >✓</span
             >
-              @if (showPassword()) {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
-              } @else {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              }
-            </button>
-          </div>
-
-          <!-- Password Strength Meter -->
-          @if (password()) {
-            <div class="space-y-1">
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-surface-500 font-semibold">Password Strength:</span>
-                <span class="font-bold" [class]="passwordStrengthTextColor()">
-                  {{ passwordStrengthLabel() }}
-                </span>
-              </div>
-              <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
-                <div
-                  class="h-full transition-all duration-300 rounded-full"
-                  [class]="passwordStrengthColor()"
-                  [style.width.%]="passwordStrength()"
-                ></div>
-              </div>
-            </div>
           }
         </div>
+      </div>
 
-        <div class="space-y-2">
-          <label
-            for="confirmPassword"
-            class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+      <div class="space-y-2 animate-fade-in">
+        <label
+          for="password"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Password
+        </label>
+        <div class="relative">
+          <input
+            [type]="showPassword() ? 'text' : 'password'"
+            id="password"
+            [value]="password()"
+            (input)="password.set($any($event.target).value)"
+            class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            [class.border-surface-100]="!password()"
+            [class.border-green-400]="passwordValid()"
+            [class.border-red-400]="password() && !passwordValid()"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary-400]="true"
+            [class.focus:border-transparent]="true"
+            placeholder="••••••••"
+            [disabled]="isLoading()"
+            required
+            minlength="8"
+          />
+          <button
+            type="button"
+            (click)="togglePasswordVisibility()"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
+            [disabled]="isLoading()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-pressed]="showPassword()"
           >
-            Confirm Password
-          </label>
-          <div class="relative">
-            <input
-              [type]="showConfirmPassword() ? 'text' : 'password'"
-              id="confirmPassword"
-              [value]="confirmPassword()"
-              (input)="confirmPassword.set($any($event.target).value)"
-              class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
-              [class.border-surface-100]="!confirmPassword()"
-              [class.border-green-400]="passwordsMatch()"
-              [class.border-red-400]="confirmPassword() && !passwordsMatch()"
-              [class.focus:ring-2]="true"
-              [class.focus:ring-primary-400]="true"
-              [class.focus:border-transparent]="true"
-              placeholder="••••••••"
-              [disabled]="isLoading()"
-              required
-              minlength="8"
-            />
-            <button
-              type="button"
-              (click)="toggleConfirmPasswordVisibility()"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
-              [disabled]="isLoading()"
-              [attr.aria-label]="
-                showConfirmPassword() ? 'Hide confirm password' : 'Show confirm password'
-              "
-              [attr.aria-pressed]="showConfirmPassword()"
-            >
-              @if (showConfirmPassword()) {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
-              } @else {
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              }
-            </button>
-            @if (confirmPassword() && passwordsMatch()) {
-              <span
-                class="absolute right-14 top-1/2 -translate-y-1/2 text-green-500"
-                role="status"
-                aria-live="polite"
-                aria-label="Passwords match"
-                >✓</span
+            @if (showPassword()) {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                />
+              </svg>
+            } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
             }
+          </button>
+        </div>
+
+        <!-- Password Strength Meter -->
+        @if (password()) {
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-surface-500 font-semibold">Password Strength:</span>
+              <span class="font-bold" [class]="passwordStrengthTextColor()">
+                {{ passwordStrengthLabel() }}
+              </span>
+            </div>
+            <div class="h-2 bg-surface-100 rounded-full overflow-hidden">
+              <div
+                class="h-full transition-all duration-300 rounded-full"
+                [class]="passwordStrengthColor()"
+                [style.width.%]="passwordStrength()"
+              ></div>
+            </div>
           </div>
+        }
+      </div>
+
+      <div class="space-y-2 animate-fade-in">
+        <label
+          for="confirmPassword"
+          class="text-xs font-black text-surface-400 uppercase tracking-widest ml-1"
+        >
+          Confirm Password
+        </label>
+        <div class="relative">
+          <input
+            [type]="showConfirmPassword() ? 'text' : 'password'"
+            id="confirmPassword"
+            [value]="confirmPassword()"
+            (input)="confirmPassword.set($any($event.target).value)"
+            class="w-full h-14 px-5 pr-12 bg-surface-50 rounded-2xl border transition-all font-bold text-surface-800 placeholder:text-surface-300"
+            [class.border-surface-100]="!confirmPassword()"
+            [class.border-green-400]="passwordsMatch()"
+            [class.border-red-400]="confirmPassword() && !passwordsMatch()"
+            [class.focus:ring-2]="true"
+            [class.focus:ring-primary-400]="true"
+            [class.focus:border-transparent]="true"
+            placeholder="••••••••"
+            [disabled]="isLoading()"
+            required
+            minlength="8"
+          />
+          <button
+            type="button"
+            (click)="toggleConfirmPasswordVisibility()"
+            class="absolute right-4 top-1/2 -translate-y-1/2 text-surface-400 hover:text-surface-600 transition-colors"
+            [disabled]="isLoading()"
+            [attr.aria-label]="
+              showConfirmPassword() ? 'Hide confirm password' : 'Show confirm password'
+            "
+            [attr.aria-pressed]="showConfirmPassword()"
+          >
+            @if (showConfirmPassword()) {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                />
+              </svg>
+            } @else {
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+            }
+          </button>
+          @if (confirmPassword() && passwordsMatch()) {
+            <span
+              class="absolute right-14 top-1/2 -translate-y-1/2 text-green-500"
+              role="status"
+              aria-live="polite"
+              aria-label="Passwords match"
+              >✓</span
+            >
+          }
         </div>
       </div>
 
       @if (errorMessage()) {
         <div
           class="bg-red-50 text-red-500 p-4 rounded-2xl text-sm font-bold animate-fade-in border border-red-100"
+          role="alert"
+          aria-live="assertive"
         >
           {{ errorMessage() }}
         </div>
@@ -251,7 +250,7 @@
       <app-button
         type="submit"
         [isLoading]="isLoading()"
-        label="Register & Continue"
+        label="Register"
         [hasRightIcon]="!isLoading()"
         size="lg"
         [fullWidth]="true"
@@ -273,7 +272,7 @@
         </svg>
       </app-button>
 
-      <div class="text-center pt-4">
+      <div class="text-center pt-2 animate-fade-in">
         <button
           type="button"
           (click)="goToLogin()"
@@ -284,17 +283,10 @@
       </div>
     </form>
 
-    <div class="mt-8 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+    <div class="mt-6 p-4 bg-blue-50 rounded-2xl border border-blue-100">
       <p class="text-xs text-surface-600 font-medium">
         <strong class="text-primary-600">Note:</strong> As the account owner, you will be
-        automatically assigned as the super-user. You can add admin, cashier and kitchen users after
-        registration. For each user creation it is necessary to know the owner password.
-      </p>
-    </div>
-
-    <div class="mt-6 pt-6 border-t border-surface-100 text-center">
-      <p class="text-[10px] font-black uppercase tracking-[0.2em] text-surface-300">
-        Simple POS System v1.0 • Offline Ready
+        automatically assigned as the super-user.
       </p>
     </div>
   </div>
