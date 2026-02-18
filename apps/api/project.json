@@ -9,9 +9,7 @@
       "options": {
         "command": "prisma generate"
       },
-      "cache": true,
-      "inputs": ["{projectRoot}/prisma/schema.prisma", "{workspaceRoot}/prisma.config.ts"],
-      "outputs": ["{workspaceRoot}/node_modules/.prisma"]
+      "cache": false
     },
     "build": {
       "executor": "nx:run-commands",

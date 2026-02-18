@@ -37,14 +37,6 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://postgres:postgrespassword@localhost:5432/simplepos?schema=public
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
-      POSTGRES_DB: simplepos
-      PGUSER: postgres
-      PGPASSWORD: postgrespassword
-      PGDATABASE: simplepos
-      PGHOST: localhost
-      PGPORT: 5432
       JWT_SECRET: ci-secret
       JWT_REFRESH_SECRET: ci-refresh-secret
       STRIPE_SECRET_KEY: sk_test_ci
