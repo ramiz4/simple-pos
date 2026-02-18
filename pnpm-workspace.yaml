@@ -1,0 +1,16 @@
+packages:
+  - 'apps/*'
+  - 'libs/*'
+  - 'libs/shared/*'
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@parcel/watcher'
+  - '@prisma/engines'
+  - '@swc/core'
+  - esbuild
+  - less
+  - lmdb
+  - msgpackr-extract
+  - nx
+  - prisma
+  - unrs-resolver

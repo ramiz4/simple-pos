@@ -19,7 +19,8 @@
       "@simple-pos/shared/utils": ["libs/shared/utils/src/index.ts"],
       "@simple-pos/shared/dto": ["libs/shared/dto/src/index.ts"],
       "@simple-pos/domain": ["libs/domain/src/index.ts"],
-      "@simple-pos/api-common": ["libs/api-common/src/index.ts"]
+      "@simple-pos/api-common": ["libs/api-common/src/index.ts"],
+      "@simple-pos/sync": ["libs/sync/src/index.ts"]
     }
   },
   "angularCompilerOptions": {
