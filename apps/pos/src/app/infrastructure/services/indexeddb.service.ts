@@ -234,4 +234,15 @@ export class IndexedDBService {
 
     return this.connectionPromise;
   }
+
+  /**
+   * Closes the database connection and clears internal state.
+   */
+  async close(): Promise<void> {
+    if (this.db) {
+      this.db.close();
+      this.db = null;
+    }
+    this.connectionPromise = null;
+  }
 }

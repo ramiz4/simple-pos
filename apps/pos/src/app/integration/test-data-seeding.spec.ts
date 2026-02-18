@@ -107,10 +107,7 @@ describe('Test Data Seeding Integration', () => {
   afterEach(async () => {
     // Close any open IndexedDB connections
     const indexedDBService = TestBed.inject(IndexedDBService);
-    const db = await indexedDBService.getDb();
-    if (db) {
-      db.close();
-    }
+    await indexedDBService.close();
   });
 
   it('should seed all test data successfully', async () => {
