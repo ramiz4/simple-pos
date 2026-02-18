@@ -1,6 +1,12 @@
-import { OrderStatusEnum } from '@simple-pos/shared/types';
+import { CartItem, OrderStatusEnum, Product } from '@simple-pos/shared/types';
 import { describe, expect, it } from 'vitest';
-import { CartLogic, InventoryManager, OrderStateMachine, PricingCalculator } from '../index';
+import {
+  BaseOrderItem,
+  CartLogic,
+  InventoryManager,
+  OrderStateMachine,
+  PricingCalculator,
+} from '../index';
 
 describe('Domain Logic', () => {
   describe('PricingCalculator', () => {
@@ -12,7 +18,7 @@ describe('Domain Logic', () => {
         quantity: 2,
       };
       // (10 + 2 + 1 + 0.5) * 2 = 13.5 * 2 = 27
-      expect(PricingCalculator.calculateLineTotal(item as any)).toBe(27);
+      expect(PricingCalculator.calculateLineTotal(item as BaseOrderItem)).toBe(27);
     });
 
     it('should calculate order total correctly', () => {
@@ -20,7 +26,7 @@ describe('Domain Logic', () => {
         { productPrice: 10, quantity: 1 },
         { productPrice: 20, quantity: 2 },
       ];
-      expect(PricingCalculator.calculateOrderTotal(items as any)).toBe(50);
+      expect(PricingCalculator.calculateOrderTotal(items as BaseOrderItem[])).toBe(50);
     });
 
     it('should calculate inclusive tax correctly', () => {
@@ -38,14 +44,16 @@ describe('Domain Logic', () => {
       const items = [{ productPrice: 100, quantity: 1 }];
       const total = 100;
       const tax = (100 * 0.18) / 1.18;
-      expect(PricingCalculator.validateOrderTotals(total, tax, items as any)).toBe(true);
-      expect(PricingCalculator.validateOrderTotals(101, tax, items as any)).toBe(false);
+      expect(PricingCalculator.validateOrderTotals(total, tax, items as BaseOrderItem[])).toBe(
+        true,
+      );
+      expect(PricingCalculator.validateOrderTotals(101, tax, items as BaseOrderItem[])).toBe(false);
     });
   });
 
   describe('InventoryManager', () => {
     it('should check stock availability', () => {
-      const product = { stock: 10 } as any;
+      const product = { stock: 10 } as unknown as Product;
       expect(InventoryManager.isStockAvailable(product, 5)).toBe(true);
       expect(InventoryManager.isStockAvailable(product, 15)).toBe(false);
     });
@@ -79,14 +87,34 @@ describe('Domain Logic', () => {
 
   describe('CartLogic', () => {
     it('should identify equal items', () => {
-      const itemA = { productId: 1, variantId: 2, extraIds: [3, 4], notes: 'none' } as any;
-      const itemB = { productId: 1, variantId: 2, extraIds: [4, 3], notes: 'none' } as any;
+      const itemA = {
+        productId: 1,
+        variantId: 2,
+        extraIds: [3, 4],
+        notes: 'none',
+      } as unknown as CartItem;
+      const itemB = {
+        productId: 1,
+        variantId: 2,
+        extraIds: [4, 3],
+        notes: 'none',
+      } as unknown as CartItem;
       expect(CartLogic.areCartItemsEqual(itemA, itemB)).toBe(true);
     });
 
     it('should identify different items', () => {
-      const itemA = { productId: 1, variantId: 2, extraIds: [3], notes: 'none' } as any;
-      const itemB = { productId: 1, variantId: 2, extraIds: [4], notes: 'none' } as any;
+      const itemA = {
+        productId: 1,
+        variantId: 2,
+        extraIds: [3],
+        notes: 'none',
+      } as unknown as CartItem;
+      const itemB = {
+        productId: 1,
+        variantId: 2,
+        extraIds: [4],
+        notes: 'none',
+      } as unknown as CartItem;
       expect(CartLogic.areCartItemsEqual(itemA, itemB)).toBe(false);
     });
   });
