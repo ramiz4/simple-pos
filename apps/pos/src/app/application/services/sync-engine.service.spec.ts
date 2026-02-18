@@ -1,56 +1,26 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CloudSyncClientService } from '../../infrastructure/http/cloud-sync-client.service';
+import { SQLiteAccountRepository } from '../../infrastructure/repositories/account';
+import { SQLiteCategoryRepository } from '../../infrastructure/repositories/category';
 import {
-  IndexedDBAccountRepository,
-  SQLiteAccountRepository,
-} from '../../infrastructure/repositories/account';
-import {
-  IndexedDBCategoryRepository,
-  SQLiteCategoryRepository,
-} from '../../infrastructure/repositories/category';
-import {
-  IndexedDBCodeTableRepository,
-  IndexedDBCodeTranslationRepository,
   SQLiteCodeTableRepository,
   SQLiteCodeTranslationRepository,
 } from '../../infrastructure/repositories/code-table';
+import { SQLiteExtraRepository } from '../../infrastructure/repositories/extra';
+import { SQLiteIngredientRepository } from '../../infrastructure/repositories/ingredient';
 import {
-  IndexedDBExtraRepository,
-  SQLiteExtraRepository,
-} from '../../infrastructure/repositories/extra';
-import {
-  IndexedDBIngredientRepository,
-  SQLiteIngredientRepository,
-} from '../../infrastructure/repositories/ingredient';
-import {
-  IndexedDBOrderItemExtraRepository,
-  IndexedDBOrderItemRepository,
-  IndexedDBOrderRepository,
   SQLiteOrderItemExtraRepository,
   SQLiteOrderItemRepository,
   SQLiteOrderRepository,
 } from '../../infrastructure/repositories/order';
 import {
-  IndexedDBProductExtraRepository,
-  IndexedDBProductIngredientRepository,
-  IndexedDBProductRepository,
   SQLiteProductExtraRepository,
   SQLiteProductIngredientRepository,
   SQLiteProductRepository,
 } from '../../infrastructure/repositories/product';
-import {
-  IndexedDBTableRepository,
-  SQLiteTableRepository,
-} from '../../infrastructure/repositories/table';
-import {
-  IndexedDBUserRepository,
-  SQLiteUserRepository,
-} from '../../infrastructure/repositories/user';
-import {
-  IndexedDBVariantRepository,
-  SQLiteVariantRepository,
-} from '../../infrastructure/repositories/variant';
-import { PlatformService } from '../../infrastructure/services/platform.service';
+import { SQLiteTableRepository } from '../../infrastructure/repositories/table';
+import { SQLiteUserRepository } from '../../infrastructure/repositories/user';
+import { SQLiteVariantRepository } from '../../infrastructure/repositories/variant';
 import { SyncMetadataMigrationService } from '../../infrastructure/services/sync-metadata-migration.service';
 import { AuthService } from './auth.service';
 import { SyncEngineService } from './sync-engine.service';
@@ -85,10 +55,6 @@ describe('SyncEngineService', () => {
       hasCloudSession: vi.fn().mockReturnValue(false),
     } as unknown as AuthService;
 
-    const platform = {
-      isTauri: vi.fn().mockReturnValue(false),
-    } as unknown as PlatformService;
-
     const repo = repoStub();
     const syncMetadataMigrationService = {
       ensure: vi.fn().mockResolvedValue(undefined),
@@ -98,38 +64,22 @@ describe('SyncEngineService', () => {
       cloudClient,
       syncMode,
       auth,
-      platform,
       syncMetadataMigrationService,
       repo as unknown as SQLiteAccountRepository,
-      repo as unknown as IndexedDBAccountRepository,
       repo as unknown as SQLiteUserRepository,
-      repo as unknown as IndexedDBUserRepository,
       repo as unknown as SQLiteCodeTableRepository,
-      repo as unknown as IndexedDBCodeTableRepository,
       repo as unknown as SQLiteCodeTranslationRepository,
-      repo as unknown as IndexedDBCodeTranslationRepository,
       repo as unknown as SQLiteCategoryRepository,
-      repo as unknown as IndexedDBCategoryRepository,
       repo as unknown as SQLiteExtraRepository,
-      repo as unknown as IndexedDBExtraRepository,
       repo as unknown as SQLiteIngredientRepository,
-      repo as unknown as IndexedDBIngredientRepository,
       repo as unknown as SQLiteTableRepository,
-      repo as unknown as IndexedDBTableRepository,
       repo as unknown as SQLiteProductRepository,
-      repo as unknown as IndexedDBProductRepository,
       repo as unknown as SQLiteVariantRepository,
-      repo as unknown as IndexedDBVariantRepository,
       repo as unknown as SQLiteProductExtraRepository,
-      repo as unknown as IndexedDBProductExtraRepository,
       repo as unknown as SQLiteProductIngredientRepository,
-      repo as unknown as IndexedDBProductIngredientRepository,
       repo as unknown as SQLiteOrderRepository,
-      repo as unknown as IndexedDBOrderRepository,
       repo as unknown as SQLiteOrderItemRepository,
-      repo as unknown as IndexedDBOrderItemRepository,
       repo as unknown as SQLiteOrderItemExtraRepository,
-      repo as unknown as IndexedDBOrderItemExtraRepository,
     );
 
     await service.syncNow();
