@@ -234,4 +234,41 @@ export class IndexedDBService {
 
     return this.connectionPromise;
   }
+
+  /**
+   * Closes the database connection and clears internal state.
+   *
+   * This method is safe to call while a connection is still being opened via `getDb()`.
+   * It will await any in-flight connection promise and ensure the resulting
+   * IDBDatabase instance is also closed, preventing leaked connections.
+   */
+  async close(): Promise<void> {
+    // Capture the current in-flight connection (if any) so we can await and close it.
+    const pendingConnection = this.connectionPromise;
+
+    // Clear the shared promise reference so new callers of getDb() will open a fresh connection.
+    this.connectionPromise = null;
+
+    // Close the currently tracked db instance, if one exists.
+    const currentDb = this.db;
+    if (currentDb) {
+      currentDb.close();
+      this.db = null;
+    }
+
+    // If a connection was still being established when close() was called,
+    // wait for it to settle and then close that IDBDatabase as well.
+    if (pendingConnection) {
+      try {
+        const db = await pendingConnection;
+        // It is safe to call close() multiple times on the same IDBDatabase.
+        if (db) {
+          db.close();
+        }
+      } catch {
+        // Swallow errors: close() is best-effort cleanup and callers should
+        // already handle getDb() failures where appropriate.
+      }
+    }
+  }
 }
