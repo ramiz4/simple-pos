@@ -688,9 +688,15 @@ export class SeedService {
       },
     ];
 
+    const currentProductExtras = await this.productExtraService.getAll();
+
     for (const productExtra of productExtras) {
-      const existing = await this.productExtraService.getByProduct(productExtra.productId);
-      if (existing.some((e) => e.extraId === productExtra.extraId)) continue;
+      if (
+        currentProductExtras.some(
+          (e) => e.productId === productExtra.productId && e.extraId === productExtra.extraId,
+        )
+      )
+        continue;
 
       await this.productExtraService.addExtraToProduct(
         productExtra.productId,
@@ -850,9 +856,15 @@ export class SeedService {
       },
     ];
 
+    const currentProductIngredients = await this.productIngredientService.getAll();
+
     for (const pi of productIngredients) {
-      const existing = await this.productIngredientService.getByProduct(pi.productId);
-      if (existing.some((e) => e.ingredientId === pi.ingredientId)) continue;
+      if (
+        currentProductIngredients.some(
+          (e) => e.productId === pi.productId && e.ingredientId === pi.ingredientId,
+        )
+      )
+        continue;
 
       await this.productIngredientService.addIngredientToProduct(
         pi.productId,

@@ -20,6 +20,10 @@ export class ProductIngredientService {
     return this.repo.findByProduct(productId);
   }
 
+  async getAll(): Promise<ProductIngredient[]> {
+    return this.repo.findAll();
+  }
+
   async addIngredientToProduct(
     productId: number,
     ingredientId: number,

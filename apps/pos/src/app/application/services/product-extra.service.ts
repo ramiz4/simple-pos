@@ -20,6 +20,10 @@ export class ProductExtraService {
     return this.repo.findByProduct(productId);
   }
 
+  async getAll(): Promise<ProductExtra[]> {
+    return this.repo.findAll();
+  }
+
   async addExtraToProduct(productId: number, extraId: number): Promise<ProductExtra> {
     return this.repo.create({ productId, extraId });
   }
