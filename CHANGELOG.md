@@ -1,3 +1,9 @@
+# [1.14.0](https://github.com/ramiz4/simple-pos/compare/v1.13.0...v1.14.0) (2026-02-18)
+
+### Features
+
+- **sync:** extract shared sync library with protocol, conflict resolution, and validation ([d907633](https://github.com/ramiz4/simple-pos/commit/d907633cd7276eb5d68c8b547930a6cabc4fbf33))
+
 # [1.13.0](https://github.com/ramiz4/simple-pos/compare/v1.12.1...v1.13.0) (2026-02-18)
 
 ### Bug Fixes
