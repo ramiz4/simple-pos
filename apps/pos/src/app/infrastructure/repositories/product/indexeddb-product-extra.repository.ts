@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
-import { BaseRepository, Category } from '@simple-pos/shared/types';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { ProductExtra } from '@simple-pos/shared/types';
+import { ProductExtraRepository } from '../../../core/interfaces/product-extra-repository.interface';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBCategoryRepository implements BaseRepository<Category> {
-  private readonly STORE_NAME = 'category';
+export class IndexedDBProductExtraRepository implements ProductExtraRepository {
+  private readonly STORE_NAME = 'product_extra';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<Category | null> {
+  async findById(id: number): Promise<ProductExtra | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -22,7 +23,7 @@ export class IndexedDBCategoryRepository implements BaseRepository<Category> {
     });
   }
 
-  async findAll(): Promise<Category[]> {
+  async findAll(): Promise<ProductExtra[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -34,7 +35,7 @@ export class IndexedDBCategoryRepository implements BaseRepository<Category> {
     });
   }
 
-  async create(entity: Omit<Category, 'id'>): Promise<Category> {
+  async create(entity: Omit<ProductExtra, 'id'>): Promise<ProductExtra> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
@@ -48,10 +49,10 @@ export class IndexedDBCategoryRepository implements BaseRepository<Category> {
     });
   }
 
-  async update(id: number, entity: Partial<Category>): Promise<Category> {
+  async update(id: number, entity: Partial<ProductExtra>): Promise<ProductExtra> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`Category with id ${id} not found`);
+    if (!existing) throw new Error(`ProductExtra with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {
@@ -84,6 +85,42 @@ export class IndexedDBCategoryRepository implements BaseRepository<Category> {
       const request = store.count();
 
       request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async findByProduct(productId: number): Promise<ProductExtra[]> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('productId_extraId');
+      const range = IDBKeyRange.bound([productId], [productId, []]);
+      const request = index.getAll(range);
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async deleteByProductAndExtra(productId: number, extraId: number): Promise<void> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('productId_extraId');
+      const range = IDBKeyRange.only([productId, extraId]);
+      const request = index.openCursor(range);
+
+      request.onsuccess = (event: Event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        } else {
+          resolve();
+        }
+      };
       request.onerror = () => reject(request.error);
     });
   }

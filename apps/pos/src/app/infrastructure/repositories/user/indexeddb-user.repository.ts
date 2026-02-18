@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { BaseRepository, CodeTable } from '@simple-pos/shared/types';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { BaseRepository, User } from '@simple-pos/shared/types';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBCodeTableRepository implements BaseRepository<CodeTable> {
-  private readonly STORE_NAME = 'code_table';
+export class IndexedDBUserRepository implements BaseRepository<User> {
+  private readonly STORE_NAME = 'user';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<CodeTable | null> {
+  async findById(id: number): Promise<User | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -22,55 +22,82 @@ export class IndexedDBCodeTableRepository implements BaseRepository<CodeTable> {
     });
   }
 
-  async findAll(): Promise<CodeTable[]> {
+  async findAll(): Promise<User[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
       const request = store.getAll();
 
-      request.onsuccess = () => {
-        const results = request.result || [];
-        results.sort((a, b) => a.sortOrder - b.sortOrder);
-        resolve(results);
-      };
+      request.onsuccess = () => resolve(request.result || []);
       request.onerror = () => reject(request.error);
     });
   }
 
-  async findByCodeType(codeType: string, includeInactive = false): Promise<CodeTable[]> {
+  async findByName(name: string): Promise<User | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
       const store = transaction.objectStore(this.STORE_NAME);
-      const index = store.index('codeType');
-      const request = index.getAll(codeType);
+      const index = store.index('name');
+      const request = index.get(name);
 
       request.onsuccess = () => {
-        const results = (request.result || [])
-          .filter((item) => includeInactive || item.isActive)
-          .sort((a, b) => a.sortOrder - b.sortOrder);
-        resolve(results);
+        const user = request.result;
+        resolve(user && user.active ? user : null);
       };
       request.onerror = () => reject(request.error);
     });
   }
 
-  async findByCodeTypeAndCode(
-    codeType: string,
-    code: string,
-    includeInactive = false,
-  ): Promise<CodeTable | null> {
-    const items = await this.findByCodeType(codeType, includeInactive);
-    return items.find((item) => item.code === code) || null;
+  async findByNameAndAccount(name: string, accountId: number): Promise<User | null> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('accountName');
+      const request = index.get([accountId, name]);
+
+      request.onsuccess = () => {
+        const user = request.result;
+        resolve(user && user.active ? user : null);
+      };
+      request.onerror = () => reject(request.error);
+    });
   }
 
-  async create(entity: Omit<CodeTable, 'id'>): Promise<CodeTable> {
+  async findByAccountId(accountId: number): Promise<User[]> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('accountId');
+      const request = index.getAll(accountId);
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('email');
+      const request = index.get(email);
+
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async create(entity: Omit<User, 'id'>): Promise<User> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const id = Date.now() + Math.random();
+      const id = Date.now();
       const newEntity = { ...entity, id };
       const request = store.add(newEntity);
 
@@ -79,10 +106,10 @@ export class IndexedDBCodeTableRepository implements BaseRepository<CodeTable> {
     });
   }
 
-  async update(id: number, entity: Partial<CodeTable>): Promise<CodeTable> {
+  async update(id: number, entity: Partial<User>): Promise<User> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`CodeTable with id ${id} not found`);
+    if (!existing) throw new Error(`User with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {

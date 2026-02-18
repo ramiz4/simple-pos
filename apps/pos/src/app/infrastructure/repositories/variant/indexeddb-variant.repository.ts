@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Variant } from '@simple-pos/shared/types';
-import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { VariantRepository } from '../../../core/interfaces/variant-repository.interface';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',

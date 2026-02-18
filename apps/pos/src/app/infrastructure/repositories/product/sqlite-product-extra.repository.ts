@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ProductExtra } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { ProductExtraRepository } from '../../core/interfaces/product-extra-repository.interface';
+import { ProductExtraRepository } from '../../../core/interfaces/product-extra-repository.interface';
 
 @Injectable({
   providedIn: 'root',
