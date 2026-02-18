@@ -1,3 +1,10 @@
+## [1.12.1](https://github.com/ramiz4/simple-pos/compare/v1.12.0...v1.12.1) (2026-02-18)
+
+### Bug Fixes
+
+- **api-common:** align module output with ESM standards ([ad8f56e](https://github.com/ramiz4/simple-pos/commit/ad8f56ebe174c687d5ae01e36861e0fadf197f00))
+- **tsconfig:** update module settings for consistency across configurations ([cc798ae](https://github.com/ramiz4/simple-pos/commit/cc798aeb568d7c7892a903787d7eae79a1ee72da))
+
 # [1.12.0](https://github.com/ramiz4/simple-pos/compare/v1.11.0...v1.12.0) (2026-02-18)
 
 ### Bug Fixes
