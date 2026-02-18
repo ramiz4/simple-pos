@@ -11,7 +11,7 @@
 | **Frontend**  | Angular 21.1.2 (Standalone, Signals), TailwindCSS 4, RxJS |
 | **Desktop**   | Tauri 2.9.6 (Rust), SQLite (`@tauri-apps/plugin-sql`)     |
 | **Web (PWA)** | IndexedDB, `@angular/service-worker`, LocalStorage        |
-| **Backend**   | NestJS 10+, PostgreSQL 16+ (Prisma v7), Redis             |
+| **Backend**   | NestJS 10+, PostgreSQL 16+ (Prisma v7)                    |
 | **Tooling**   | Nx 22.4.5, pnpm 10+, Vitest, ESLint, GitHub Actions       |
 
 ## Project Structure (Nx Monorepo)
