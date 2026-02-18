@@ -3,13 +3,11 @@ import { validateEntityChange, validateSyncPushRequest } from './sync-validator'
 
 function validChange(overrides: Partial<EntityChange> = {}): EntityChange {
   return {
-    entityType: 'product',
-    entityId: 1,
+    entity: 'product',
     operation: 'UPDATE',
     data: { name: 'test' },
     timestamp: '2026-01-01T00:00:00.000Z',
     version: 1,
-    metadata: {},
     ...overrides,
   };
 }
@@ -21,10 +19,10 @@ describe('validateEntityChange', () => {
     expect(result.errors).toHaveLength(0);
   });
 
-  it('should reject missing entityType', () => {
-    const result = validateEntityChange(validChange({ entityType: '' }));
+  it('should reject missing entity', () => {
+    const result = validateEntityChange(validChange({ entity: '' as EntityChange['entity'] }));
     expect(result.valid).toBe(false);
-    expect(result.errors).toContain('entityType is required and must be a string');
+    expect(result.errors).toContain('entity is required and must be a string');
   });
 
   it('should reject invalid operation', () => {
@@ -53,7 +51,6 @@ describe('validateSyncPushRequest', () => {
     const request: SyncPushRequest = {
       tenantId: 'tenant-1',
       deviceId: 'device-1',
-      lastSyncTimestamp: '2026-01-01T00:00:00.000Z',
       changes: [validChange()],
     };
 
@@ -65,7 +62,6 @@ describe('validateSyncPushRequest', () => {
     const request: SyncPushRequest = {
       tenantId: '',
       deviceId: 'device-1',
-      lastSyncTimestamp: '2026-01-01T00:00:00.000Z',
       changes: [],
     };
 
@@ -78,7 +74,6 @@ describe('validateSyncPushRequest', () => {
     const request: SyncPushRequest = {
       tenantId: 'tenant-1',
       deviceId: '',
-      lastSyncTimestamp: '2026-01-01T00:00:00.000Z',
       changes: [],
     };
 
@@ -88,11 +83,10 @@ describe('validateSyncPushRequest', () => {
   });
 
   it('should reject batch exceeding max size', () => {
-    const changes = Array.from({ length: 1001 }, (_, i) => validChange({ entityId: i }));
+    const changes = Array.from({ length: 1001 }, () => validChange());
     const request: SyncPushRequest = {
       tenantId: 'tenant-1',
       deviceId: 'device-1',
-      lastSyncTimestamp: '2026-01-01T00:00:00.000Z',
       changes,
     };
 
@@ -105,7 +99,6 @@ describe('validateSyncPushRequest', () => {
     const request: SyncPushRequest = {
       tenantId: 'tenant-1',
       deviceId: 'device-1',
-      lastSyncTimestamp: '2026-01-01T00:00:00.000Z',
       changes: [validChange({ version: -1 })],
     };
 

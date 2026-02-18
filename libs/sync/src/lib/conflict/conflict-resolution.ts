@@ -37,8 +37,8 @@ export class ClientWinsStrategy implements MergeStrategy {
  */
 export class FieldMergeStrategy implements MergeStrategy {
   resolve(client: EntityChange, server: EntityChange): EntityChange {
-    const merged = { ...server.data, ...client.data };
-    return { ...server, data: merged };
+    const merged: Record<string, unknown> = { ...server.data, ...client.data };
+    return { ...server, data: merged as EntityChange['data'] };
   }
 }
 

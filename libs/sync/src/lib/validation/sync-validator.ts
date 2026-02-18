@@ -12,12 +12,8 @@ export interface ValidationResult {
 export function validateEntityChange(change: EntityChange): ValidationResult {
   const errors: string[] = [];
 
-  if (!change.entityType || typeof change.entityType !== 'string') {
-    errors.push('entityType is required and must be a string');
-  }
-
-  if (change.entityId === undefined || change.entityId === null) {
-    errors.push('entityId is required');
+  if (!change.entity || typeof change.entity !== 'string') {
+    errors.push('entity is required and must be a string');
   }
 
   if (!['CREATE', 'UPDATE', 'DELETE'].includes(change.operation)) {

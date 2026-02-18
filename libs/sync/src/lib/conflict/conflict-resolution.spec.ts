@@ -9,13 +9,11 @@ import {
 
 function makeChange(overrides: Partial<EntityChange> = {}): EntityChange {
   return {
-    entityType: 'product',
-    entityId: 1,
+    entity: 'product',
     operation: 'UPDATE',
     data: { name: 'default' },
     timestamp: '2026-01-01T00:00:00.000Z',
     version: 1,
-    metadata: {},
     ...overrides,
   };
 }

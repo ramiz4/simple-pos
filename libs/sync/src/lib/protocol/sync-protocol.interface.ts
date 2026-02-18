@@ -1,35 +1,22 @@
-import { SyncEntityMetadata } from '@simple-pos/shared/types';
+import {
+  ConflictResolutionStrategy,
+  SyncConflict as SharedSyncConflict,
+  SyncPullResponse as SharedSyncPullResponse,
+  SyncPushRequest as SharedSyncPushRequest,
+  SyncChangeSet,
+} from '@simple-pos/shared/types';
 
-export interface SyncPushRequest {
-  tenantId: string;
-  deviceId: string;
-  lastSyncTimestamp: string;
-  changes: EntityChange[];
-}
+/**
+ * Re-export sync protocol types from @simple-pos/shared/types to keep
+ * a single source of truth for the sync contract.
+ */
+export type SyncPushRequest = SharedSyncPushRequest;
 
-export interface SyncPullResponse {
-  serverTimestamp: string;
-  changes: EntityChange[];
-  hasMore: boolean;
-  conflicts: SyncConflict[];
-}
+export type SyncPullResponse = SharedSyncPullResponse;
 
-export interface EntityChange {
-  entityType: string;
-  entityId: number | string;
-  operation: 'CREATE' | 'UPDATE' | 'DELETE';
-  data: Record<string, unknown>;
-  timestamp: string;
-  version: number;
-  metadata: SyncEntityMetadata;
-}
+/** Local alias used by this library; structurally defined in shared/types. */
+export type EntityChange = SyncChangeSet;
 
-export interface SyncConflict {
-  entityType: string;
-  entityId: number | string;
-  clientVersion: EntityChange;
-  serverVersion: EntityChange;
-  resolution: ConflictResolution;
-}
+export type SyncConflict = SharedSyncConflict;
 
-export type ConflictResolution = 'CLIENT_WINS' | 'SERVER_WINS' | 'MERGE' | 'MANUAL';
+export type ConflictResolution = ConflictResolutionStrategy;
