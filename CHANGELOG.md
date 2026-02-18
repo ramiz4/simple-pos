@@ -1,3 +1,9 @@
+# [1.9.0](https://github.com/ramiz4/simple-pos/compare/v1.8.0...v1.9.0) (2026-02-18)
+
+### Features
+
+- **pos:** refactor auth pages with glassmorphism and animations ([2cd6b43](https://github.com/ramiz4/simple-pos/commit/2cd6b43370e5935b4b0859537c6851ba526748bd))
+
 # [1.8.0](https://github.com/ramiz4/simple-pos/compare/v1.7.0...v1.8.0) (2026-02-17)
 
 ### Bug Fixes
