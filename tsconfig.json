@@ -12,6 +12,7 @@
     "importHelpers": true,
     "target": "ES2022",
     "module": "preserve",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
       "@simple-pos/shared/types": ["libs/shared/types/src/index.ts"],
