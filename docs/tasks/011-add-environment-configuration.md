@@ -216,14 +216,13 @@ These should be handled separately via Tauri's config (`tauri.conf.json`) or Rus
 
 All acceptance criteria have been met. See `docs/environment-configuration-implementation.md` for details.
 
+### Files Created:
+1. `apps/pos/src/environments/environment.ts` - Development configuration with local API URLs
+2. `apps/pos/src/environments/environment.prod.ts` - Production configuration with cloud API URLs
+
 ### Files Modified:
 1. `apps/pos/project.json` - Added fileReplacements configuration
 2. `apps/pos/src/app/infrastructure/http/api-config.service.ts` - Updated to use environment configuration
-
-### Files to Create:
-Run `./scripts/setup-pos-environments.sh` or manually create:
-1. `apps/pos/src/environments/environment.ts` (template in `docs/environment.ts.template`)
-2. `apps/pos/src/environments/environment.prod.ts` (template in `docs/environment.prod.ts.template`)
 
 ### Key Features:
 - Type-safe environment configuration with `Environment` type export
