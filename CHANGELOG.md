@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/ramiz4/simple-pos/compare/v1.10.0...v1.11.0) (2026-02-18)
+
+### Features
+
+- **ci:** update Nx Cloud fix command to use npx and add GITHUB_TOKEN environment variable ([3a812a9](https://github.com/ramiz4/simple-pos/commit/3a812a929af1ab29c2470d282ce6cec46de50128))
+- **db:** implement close method for IndexedDBService and update tests to use it ([11b237a](https://github.com/ramiz4/simple-pos/commit/11b237ae29e75cd23430cb652680b992b46aeb83))
+
 # [1.10.0](https://github.com/ramiz4/simple-pos/compare/v1.9.0...v1.10.0) (2026-02-18)
 
 ### Features
