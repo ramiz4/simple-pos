@@ -169,7 +169,7 @@ jobs:
           - platform: 'ubuntu-22.04'
           - platform: 'windows-latest'
     runs-on: ${{ matrix.platform }}
-    env:
+    steps:
       - uses: actions/checkout@v4
 
       - name: install pnpm
