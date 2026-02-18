@@ -4,8 +4,8 @@
   "implicitDependencies": ["api"],
   "projectType": "application",
   "targets": {
-    "e2e": {
-      "executor": "@nx/vitest:vitest",
+    "test": {
+      "executor": "@nx/vitest:test",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "config": "apps/api-e2e/vitest.config.mts",

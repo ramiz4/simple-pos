@@ -21,8 +21,26 @@ jobs:
   main:
     name: CI (Lint, Test, Build)
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: simplepos
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      DATABASE_URL: postgresql://unused:unused@localhost:5432/unused?schema=public
+      DATABASE_URL: postgresql://postgres:postgrespassword@localhost:5432/simplepos?schema=public
+      JWT_SECRET: ci-secret
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      STRIPE_SECRET_KEY: sk_test_ci
+      STRIPE_WEBHOOK_SECRET: whsec_ci
+      PORT: 3000
     steps:
       - uses: actions/checkout@v4
         with:
@@ -64,7 +82,16 @@ jobs:
       - uses: nrwl/nx-set-shas@v4
 
       - name: Generate Prisma Client
-        run: pnpm exec prisma generate
+        run: pnpm nx run api:prisma-generate
+
+      - name: Run Database Migrations
+        run: |
+          pnpm exec prisma migrate deploy --schema=apps/api/prisma/schema.prisma
+
+      - name: Start API in Background
+        run: |
+          pnpm nx serve api &
+          sleep 5 # Give it a moment to start building/starting
 
       - name: Nx Affected Check
         run: pnpm nx affected -t lint test build --exclude=native --parallel=3
