@@ -91,8 +91,10 @@ jobs:
 
       - name: Start API in Background
         run: |
-          pnpm nx serve api &
-          sleep 5 # Give it a moment to start building/starting
+          pnpm nx serve api > api-logs.txt 2>&1 &
+          echo "Waiting for API to be ready..."
+          timeout 60s bash -c 'until curl -s http://localhost:3000/api/v1/health > /dev/null; do sleep 2; done' || (cat api-logs.txt && exit 1)
+          echo "API is ready!"
 
       - name: Nx Affected Check
         run: pnpm nx affected -t lint test build --exclude=native --parallel=3
