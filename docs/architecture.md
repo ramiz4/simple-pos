@@ -66,7 +66,8 @@ The `BaseRepository<T>` interface ensures strictly identical behavior across pla
     (HTTP/WS)                                (Sync Push/Pull)
          ▼                                         ▼
 [ Load Balancer ] ──► [ NestJS API ] ◄──► [ PostgreSQL (RLS) ]
-                                     ◄──► [ Redis (Cache/Jobs) ]
+                                     ◄──► [ Redis (Cache/Jobs) ]* 
+                                           * Planned for v2.x
 ```
 
 ### Multi-Tenancy Strategy
@@ -90,6 +91,23 @@ The `BaseRepository<T>` interface ensures strictly identical behavior across pla
   - **SSO**: SAML/OIDC for Enterprise tenants.
 - **Authorization**: RBAC (Admin, Cashier, Kitchen, Driver).
 - **Compliance**: Audit logging, encrypted backups, TLS 1.3.
+
+## Performance & Caching (Planned)
+
+### Redis Integration (v2.x Roadmap)
+
+**Status**: Not yet implemented. Planned for future optimization.
+
+**Use Cases**:
+- **Session Cache**: JWT token storage and session management
+- **API Response Cache**: Frequently accessed product catalogs, menus
+- **Job Queue**: Background tasks (report generation, bulk imports, email notifications)
+- **Rate Limiting**: API throttling for multi-tenant SaaS
+
+**Why Not in v1.x**: The current architecture prioritizes offline-first capabilities with local databases (SQLite/IndexedDB). Redis will be added when:
+1. Horizontal scaling requires shared session state
+2. API response times need sub-100ms optimization
+3. Background job processing becomes critical
 
 ## Deployment Strategy
 
