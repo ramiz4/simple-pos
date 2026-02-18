@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 const API_BASE_STORAGE_KEY = 'simple_pos_api_base_url';
 
@@ -12,20 +13,8 @@ export class ApiConfigService {
       return fromStorage;
     }
 
-    if (typeof window === 'undefined') {
-      return 'http://localhost:3000/api/v1';
-    }
-
-    // In Tauri production builds window.location uses a custom protocol
-    // (e.g. tauri://localhost or https://tauri.localhost) which would produce
-    // an invalid API URL. Fall back to http://localhost in that case.
-    const { protocol, hostname } = window.location;
-    if (protocol === 'tauri:' || hostname === 'tauri.localhost') {
-      return 'http://localhost:3000/api/v1';
-    }
-
-    const apiPort = '3000';
-    return `${protocol}//${hostname}:${apiPort}/api/v1`;
+    // Use environment configuration as the default
+    return environment.apiBaseUrl;
   }
 
   setBaseUrl(url: string): void {
