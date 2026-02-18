@@ -7,9 +7,11 @@ The Angular POS application (`apps/pos`) has no `environment.ts` / `environment.
 ## Status
 
 - **Identified**: February 13, 2026
-- **Status**: Open
+- **Status**: Completed
 - **Priority**: Low
 - **Effort**: Low
+- **Implemented**: February 13, 2026
+- **Implementation Notes**: See `docs/environment-configuration-implementation.md`
 
 ## Recommended Agent
 
@@ -202,13 +204,31 @@ These should be handled separately via Tauri's config (`tauri.conf.json`) or Rus
 
 ## Acceptance Criteria
 
-- [ ] Environment files created: `environment.ts` (dev) and `environment.prod.ts` (prod)
-- [ ] `fileReplacements` configured in `apps/pos/project.json` production build
-- [ ] `ApiConfigService` (or equivalent) reads from environment rather than hardcoding
-- [ ] Dev mode uses local API URL
-- [ ] Production build uses production API URL
-- [ ] `pnpm pos:build` produces a production build with correct URLs
-- [ ] `pnpm pos:dev` uses dev configuration
+- [x] Environment files created: `environment.ts` (dev) and `environment.prod.ts` (prod)
+- [x] `fileReplacements` configured in `apps/pos/project.json` production build
+- [x] `ApiConfigService` (or equivalent) reads from environment rather than hardcoding
+- [x] Dev mode uses local API URL
+- [x] Production build uses production API URL
+- [x] `pnpm pos:build` produces a production build with correct URLs
+- [x] `pnpm pos:dev` uses dev configuration
+
+## Implementation Summary
+
+All acceptance criteria have been met. See `docs/environment-configuration-implementation.md` for details.
+
+### Files Created:
+1. `apps/pos/src/environments/environment.ts` - Development configuration with local API URLs
+2. `apps/pos/src/environments/environment.prod.ts` - Production configuration with cloud API URLs
+
+### Files Modified:
+1. `apps/pos/project.json` - Added fileReplacements configuration
+2. `apps/pos/src/app/infrastructure/http/api-config.service.ts` - Updated to use environment configuration
+
+### Key Features:
+- Type-safe environment configuration with `Environment` type export
+- Build-time file replacement for production builds
+- Backward compatibility with localStorage override in `ApiConfigService`
+- Follows Angular 21 best practices
 
 ## References
 
