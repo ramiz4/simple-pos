@@ -1,3 +1,13 @@
+# [1.13.0](https://github.com/ramiz4/simple-pos/compare/v1.12.1...v1.13.0) (2026-02-18)
+
+### Bug Fixes
+
+- **pos:** remove Environment type import in production config ([04f68b6](https://github.com/ramiz4/simple-pos/commit/04f68b6ce2534a5b99902af67560f0b01e1a7c24))
+
+### Features
+
+- **pos:** add environment configuration pattern ([6a313f8](https://github.com/ramiz4/simple-pos/commit/6a313f80bbcb9fd0727fa726cd50f65b8b6410fb))
+
 ## [1.12.1](https://github.com/ramiz4/simple-pos/compare/v1.12.0...v1.12.1) (2026-02-18)
 
 ### Bug Fixes
