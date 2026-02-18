@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   root: __dirname,
@@ -15,7 +15,6 @@ export default defineConfig({
       provider: 'v8',
     },
     globalSetup: 'src/support/global-setup.ts',
-    globalTeardown: 'src/support/global-teardown.ts',
     setupFiles: ['src/support/test-setup.ts'],
   },
 });
