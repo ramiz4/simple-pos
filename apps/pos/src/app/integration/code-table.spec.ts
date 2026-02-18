@@ -8,7 +8,7 @@ import {
 import { EnumMappingService } from '../application/services/enum-mapping.service';
 import { SeedService } from '../application/services/seed.service';
 import { REPOSITORY_PROVIDERS } from '../infrastructure/providers/repository.providers';
-import { IndexedDBCodeTableRepository } from '../infrastructure/repositories/indexeddb-code-table.repository';
+import { IndexedDBCodeTableRepository } from '../infrastructure/repositories/code-table';
 import { IndexedDBService } from '../infrastructure/services/indexeddb.service';
 import { PlatformService } from '../infrastructure/services/platform.service';
 

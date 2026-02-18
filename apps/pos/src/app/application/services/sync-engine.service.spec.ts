@@ -1,35 +1,55 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CloudSyncClientService } from '../../infrastructure/http/cloud-sync-client.service';
-import { IndexedDBAccountRepository } from '../../infrastructure/repositories/indexeddb-account.repository';
-import { IndexedDBCategoryRepository } from '../../infrastructure/repositories/indexeddb-category.repository';
-import { IndexedDBCodeTableRepository } from '../../infrastructure/repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../../infrastructure/repositories/indexeddb-code-translation.repository';
-import { IndexedDBExtraRepository } from '../../infrastructure/repositories/indexeddb-extra.repository';
-import { IndexedDBIngredientRepository } from '../../infrastructure/repositories/indexeddb-ingredient.repository';
-import { IndexedDBOrderItemExtraRepository } from '../../infrastructure/repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../../infrastructure/repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../../infrastructure/repositories/indexeddb-order.repository';
-import { IndexedDBProductExtraRepository } from '../../infrastructure/repositories/indexeddb-product-extra.repository';
-import { IndexedDBProductIngredientRepository } from '../../infrastructure/repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../../infrastructure/repositories/indexeddb-product.repository';
-import { IndexedDBTableRepository } from '../../infrastructure/repositories/indexeddb-table.repository';
-import { IndexedDBUserRepository } from '../../infrastructure/repositories/indexeddb-user.repository';
-import { IndexedDBVariantRepository } from '../../infrastructure/repositories/indexeddb-variant.repository';
-import { SQLiteAccountRepository } from '../../infrastructure/repositories/sqlite-account.repository';
-import { SQLiteCategoryRepository } from '../../infrastructure/repositories/sqlite-category.repository';
-import { SQLiteCodeTableRepository } from '../../infrastructure/repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../../infrastructure/repositories/sqlite-code-translation.repository';
-import { SQLiteExtraRepository } from '../../infrastructure/repositories/sqlite-extra.repository';
-import { SQLiteIngredientRepository } from '../../infrastructure/repositories/sqlite-ingredient.repository';
-import { SQLiteOrderItemExtraRepository } from '../../infrastructure/repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../../infrastructure/repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../../infrastructure/repositories/sqlite-order.repository';
-import { SQLiteProductExtraRepository } from '../../infrastructure/repositories/sqlite-product-extra.repository';
-import { SQLiteProductIngredientRepository } from '../../infrastructure/repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../../infrastructure/repositories/sqlite-product.repository';
-import { SQLiteTableRepository } from '../../infrastructure/repositories/sqlite-table.repository';
-import { SQLiteUserRepository } from '../../infrastructure/repositories/sqlite-user.repository';
-import { SQLiteVariantRepository } from '../../infrastructure/repositories/sqlite-variant.repository';
+import {
+  IndexedDBAccountRepository,
+  SQLiteAccountRepository,
+} from '../../infrastructure/repositories/account';
+import {
+  IndexedDBCategoryRepository,
+  SQLiteCategoryRepository,
+} from '../../infrastructure/repositories/category';
+import {
+  IndexedDBCodeTableRepository,
+  IndexedDBCodeTranslationRepository,
+  SQLiteCodeTableRepository,
+  SQLiteCodeTranslationRepository,
+} from '../../infrastructure/repositories/code-table';
+import {
+  IndexedDBExtraRepository,
+  SQLiteExtraRepository,
+} from '../../infrastructure/repositories/extra';
+import {
+  IndexedDBIngredientRepository,
+  SQLiteIngredientRepository,
+} from '../../infrastructure/repositories/ingredient';
+import {
+  IndexedDBOrderItemExtraRepository,
+  IndexedDBOrderItemRepository,
+  IndexedDBOrderRepository,
+  SQLiteOrderItemExtraRepository,
+  SQLiteOrderItemRepository,
+  SQLiteOrderRepository,
+} from '../../infrastructure/repositories/order';
+import {
+  IndexedDBProductExtraRepository,
+  IndexedDBProductIngredientRepository,
+  IndexedDBProductRepository,
+  SQLiteProductExtraRepository,
+  SQLiteProductIngredientRepository,
+  SQLiteProductRepository,
+} from '../../infrastructure/repositories/product';
+import {
+  IndexedDBTableRepository,
+  SQLiteTableRepository,
+} from '../../infrastructure/repositories/table';
+import {
+  IndexedDBUserRepository,
+  SQLiteUserRepository,
+} from '../../infrastructure/repositories/user';
+import {
+  IndexedDBVariantRepository,
+  SQLiteVariantRepository,
+} from '../../infrastructure/repositories/variant';
 import { PlatformService } from '../../infrastructure/services/platform.service';
 import { SyncMetadataMigrationService } from '../../infrastructure/services/sync-metadata-migration.service';
 import { AuthService } from './auth.service';

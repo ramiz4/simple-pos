@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { OrderItemExtra } from '@simple-pos/shared/types';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',

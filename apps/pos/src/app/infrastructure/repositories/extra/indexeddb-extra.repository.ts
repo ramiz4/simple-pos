@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { BaseRepository, Ingredient } from '@simple-pos/shared/types';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { BaseRepository, Extra } from '@simple-pos/shared/types';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBIngredientRepository implements BaseRepository<Ingredient> {
-  private readonly STORE_NAME = 'ingredient';
+export class IndexedDBExtraRepository implements BaseRepository<Extra> {
+  private readonly STORE_NAME = 'extra';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<Ingredient | null> {
+  async findById(id: number): Promise<Extra | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -22,7 +22,7 @@ export class IndexedDBIngredientRepository implements BaseRepository<Ingredient>
     });
   }
 
-  async findAll(): Promise<Ingredient[]> {
+  async findAll(): Promise<Extra[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -34,7 +34,7 @@ export class IndexedDBIngredientRepository implements BaseRepository<Ingredient>
     });
   }
 
-  async create(entity: Omit<Ingredient, 'id'>): Promise<Ingredient> {
+  async create(entity: Omit<Extra, 'id'>): Promise<Extra> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
@@ -48,10 +48,10 @@ export class IndexedDBIngredientRepository implements BaseRepository<Ingredient>
     });
   }
 
-  async update(id: number, entity: Partial<Ingredient>): Promise<Ingredient> {
+  async update(id: number, entity: Partial<Extra>): Promise<Extra> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`Ingredient with id ${id} not found`);
+    if (!existing) throw new Error(`Extra with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {

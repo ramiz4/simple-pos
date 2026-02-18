@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Variant } from '@simple-pos/shared/types';
 import Database from '@tauri-apps/plugin-sql';
-import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
+import { VariantRepository } from '../../../core/interfaces/variant-repository.interface';
 
 @Injectable({
   providedIn: 'root',

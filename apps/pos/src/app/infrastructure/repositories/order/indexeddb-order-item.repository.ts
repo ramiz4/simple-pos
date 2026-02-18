@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { BaseRepository, Extra } from '@simple-pos/shared/types';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { BaseRepository, OrderItem } from '@simple-pos/shared/types';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBExtraRepository implements BaseRepository<Extra> {
-  private readonly STORE_NAME = 'extra';
+export class IndexedDBOrderItemRepository implements BaseRepository<OrderItem> {
+  private readonly STORE_NAME = 'order_item';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<Extra | null> {
+  async findById(id: number): Promise<OrderItem | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -22,7 +22,7 @@ export class IndexedDBExtraRepository implements BaseRepository<Extra> {
     });
   }
 
-  async findAll(): Promise<Extra[]> {
+  async findAll(): Promise<OrderItem[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -34,12 +34,12 @@ export class IndexedDBExtraRepository implements BaseRepository<Extra> {
     });
   }
 
-  async create(entity: Omit<Extra, 'id'>): Promise<Extra> {
+  async create(entity: Omit<OrderItem, 'id'>): Promise<OrderItem> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const id = Date.now() + Math.random();
+      const id = Date.now() + Math.random(); // Ensure unique ID for rapid inserts
       const newEntity = { ...entity, id };
       const request = store.add(newEntity);
 
@@ -48,10 +48,10 @@ export class IndexedDBExtraRepository implements BaseRepository<Extra> {
     });
   }
 
-  async update(id: number, entity: Partial<Extra>): Promise<Extra> {
+  async update(id: number, entity: Partial<OrderItem>): Promise<OrderItem> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`Extra with id ${id} not found`);
+    if (!existing) throw new Error(`OrderItem with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {
@@ -85,6 +85,36 @@ export class IndexedDBExtraRepository implements BaseRepository<Extra> {
 
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
+    });
+  }
+
+  async findByOrderId(orderId: number): Promise<OrderItem[]> {
+    const db = await this.indexedDBService.getDb();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const index = store.index('orderId');
+      const request = index.getAll(orderId);
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async deleteByOrderId(orderId: number): Promise<void> {
+    const items = await this.findByOrderId(orderId);
+    const db = await this.indexedDBService.getDb();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(this.STORE_NAME);
+
+      items.forEach((item) => {
+        store.delete(item.id);
+      });
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
     });
   }
 }

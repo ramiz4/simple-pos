@@ -18,38 +18,39 @@ import { ProductIngredientRepository } from '../../core/interfaces/product-ingre
 import { ProductRepository } from '../../core/interfaces/product-repository.interface';
 import { UserRepository } from '../../core/interfaces/user-repository.interface';
 import { VariantRepository } from '../../core/interfaces/variant-repository.interface';
-import { IndexedDBAccountRepository } from '../repositories/indexeddb-account.repository';
-import { IndexedDBCategoryRepository } from '../repositories/indexeddb-category.repository';
-import { IndexedDBCodeTableRepository } from '../repositories/indexeddb-code-table.repository';
-import { IndexedDBCodeTranslationRepository } from '../repositories/indexeddb-code-translation.repository';
-import { IndexedDBExtraRepository } from '../repositories/indexeddb-extra.repository';
-import { IndexedDBIngredientRepository } from '../repositories/indexeddb-ingredient.repository';
-import { IndexedDBOrderItemExtraRepository } from '../repositories/indexeddb-order-item-extra.repository';
-import { IndexedDBOrderItemRepository } from '../repositories/indexeddb-order-item.repository';
-import { IndexedDBOrderRepository } from '../repositories/indexeddb-order.repository';
-import { IndexedDBProductExtraRepository } from '../repositories/indexeddb-product-extra.repository';
-import { IndexedDBProductIngredientRepository } from '../repositories/indexeddb-product-ingredient.repository';
-import { IndexedDBProductRepository } from '../repositories/indexeddb-product.repository';
-import { IndexedDBTableRepository } from '../repositories/indexeddb-table.repository';
-import { IndexedDBTestRepository } from '../repositories/indexeddb-test.repository';
-import { IndexedDBUserRepository } from '../repositories/indexeddb-user.repository';
-import { IndexedDBVariantRepository } from '../repositories/indexeddb-variant.repository';
-import { SQLiteAccountRepository } from '../repositories/sqlite-account.repository';
-import { SQLiteCategoryRepository } from '../repositories/sqlite-category.repository';
-import { SQLiteCodeTableRepository } from '../repositories/sqlite-code-table.repository';
-import { SQLiteCodeTranslationRepository } from '../repositories/sqlite-code-translation.repository';
-import { SQLiteExtraRepository } from '../repositories/sqlite-extra.repository';
-import { SQLiteIngredientRepository } from '../repositories/sqlite-ingredient.repository';
-import { SQLiteOrderItemExtraRepository } from '../repositories/sqlite-order-item-extra.repository';
-import { SQLiteOrderItemRepository } from '../repositories/sqlite-order-item.repository';
-import { SQLiteOrderRepository } from '../repositories/sqlite-order.repository';
-import { SQLiteProductExtraRepository } from '../repositories/sqlite-product-extra.repository';
-import { SQLiteProductIngredientRepository } from '../repositories/sqlite-product-ingredient.repository';
-import { SQLiteProductRepository } from '../repositories/sqlite-product.repository';
-import { SQLiteTableRepository } from '../repositories/sqlite-table.repository';
-import { SQLiteTestRepository } from '../repositories/sqlite-test.repository';
-import { SQLiteUserRepository } from '../repositories/sqlite-user.repository';
-import { SQLiteVariantRepository } from '../repositories/sqlite-variant.repository';
+import { IndexedDBAccountRepository, SQLiteAccountRepository } from '../repositories/account';
+import { IndexedDBCategoryRepository, SQLiteCategoryRepository } from '../repositories/category';
+import {
+  IndexedDBCodeTableRepository,
+  IndexedDBCodeTranslationRepository,
+  SQLiteCodeTableRepository,
+  SQLiteCodeTranslationRepository,
+} from '../repositories/code-table';
+import { IndexedDBExtraRepository, SQLiteExtraRepository } from '../repositories/extra';
+import {
+  IndexedDBIngredientRepository,
+  SQLiteIngredientRepository,
+} from '../repositories/ingredient';
+import {
+  IndexedDBOrderItemExtraRepository,
+  IndexedDBOrderItemRepository,
+  IndexedDBOrderRepository,
+  SQLiteOrderItemExtraRepository,
+  SQLiteOrderItemRepository,
+  SQLiteOrderRepository,
+} from '../repositories/order';
+import {
+  IndexedDBProductExtraRepository,
+  IndexedDBProductIngredientRepository,
+  IndexedDBProductRepository,
+  SQLiteProductExtraRepository,
+  SQLiteProductIngredientRepository,
+  SQLiteProductRepository,
+} from '../repositories/product';
+import { IndexedDBTableRepository, SQLiteTableRepository } from '../repositories/table';
+import { IndexedDBTestRepository, SQLiteTestRepository } from '../repositories/test';
+import { IndexedDBUserRepository, SQLiteUserRepository } from '../repositories/user';
+import { IndexedDBVariantRepository, SQLiteVariantRepository } from '../repositories/variant';
 import { PlatformService } from '../services/platform.service';
 import {
   ACCOUNT_REPOSITORY,

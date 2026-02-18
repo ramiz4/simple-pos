@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Account, BaseRepository } from '@simple-pos/shared/types';
-import { IndexedDBService } from '../services/indexeddb.service';
+import { BaseRepository, Table } from '@simple-pos/shared/types';
+import { IndexedDBService } from '../../services/indexeddb.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class IndexedDBAccountRepository implements BaseRepository<Account> {
-  private readonly STORE_NAME = 'account';
+export class IndexedDBTableRepository implements BaseRepository<Table> {
+  private readonly STORE_NAME = 'table';
 
   constructor(private indexedDBService: IndexedDBService) {}
 
-  async findById(id: number): Promise<Account | null> {
+  async findById(id: number): Promise<Table | null> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -22,7 +22,7 @@ export class IndexedDBAccountRepository implements BaseRepository<Account> {
     });
   }
 
-  async findAll(): Promise<Account[]> {
+  async findAll(): Promise<Table[]> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readonly');
@@ -34,25 +34,12 @@ export class IndexedDBAccountRepository implements BaseRepository<Account> {
     });
   }
 
-  async findByEmail(email: string): Promise<Account | null> {
-    const db = await this.indexedDBService.getDb();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([this.STORE_NAME], 'readonly');
-      const store = transaction.objectStore(this.STORE_NAME);
-      const index = store.index('email');
-      const request = index.get(email);
-
-      request.onsuccess = () => resolve(request.result || null);
-      request.onerror = () => reject(request.error);
-    });
-  }
-
-  async create(entity: Omit<Account, 'id'>): Promise<Account> {
+  async create(entity: Omit<Table, 'id'>): Promise<Table> {
     const db = await this.indexedDBService.getDb();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const id = Date.now();
+      const id = Date.now() + Math.random();
       const newEntity = { ...entity, id };
       const request = store.add(newEntity);
 
@@ -61,10 +48,10 @@ export class IndexedDBAccountRepository implements BaseRepository<Account> {
     });
   }
 
-  async update(id: number, entity: Partial<Account>): Promise<Account> {
+  async update(id: number, entity: Partial<Table>): Promise<Table> {
     const db = await this.indexedDBService.getDb();
     const existing = await this.findById(id);
-    if (!existing) throw new Error(`Account with id ${id} not found`);
+    if (!existing) throw new Error(`Table with id ${id} not found`);
 
     const updated = { ...existing, ...entity };
     return new Promise((resolve, reject) => {
