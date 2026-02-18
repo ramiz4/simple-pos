@@ -9,9 +9,7 @@ vi.mock('@tauri-apps/plugin-sql', () => {
   };
 });
 
-// import { setupZoneTestEnv } from 'jest-preset-angular/setup-env/zone';
-
-// If jest-preset-angular is not used, we might need basic zone.js setup for Angular testing
+// If vitest-preset-angular is not used, we might need basic zone.js setup for Angular testing
 import { TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import 'zone.js';
