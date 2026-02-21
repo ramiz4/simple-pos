@@ -1,3 +1,15 @@
+# [1.16.0](https://github.com/ramiz4/simple-pos/compare/v1.15.0...v1.16.0) (2026-02-21)
+
+### Bug Fixes
+
+- **pos:** ensure full width for submit button on initial setup ([ff1cff5](https://github.com/ramiz4/simple-pos/commit/ff1cff5834f04c6d357472c12f9b9e2529dc1d84))
+
+### Features
+
+- **deps:** add ios and android dev scripts ([8311e86](https://github.com/ramiz4/simple-pos/commit/8311e86fd78c8a13871648d6c1124c081ce7861a))
+- **native:** add tauri mobile integration artifacts and configurations ([6a9f3d5](https://github.com/ramiz4/simple-pos/commit/6a9f3d566ee49c6d6c3025ab6751183667863d7b))
+- **native:** refactor tauri app to support mobile targets ([6d7942f](https://github.com/ramiz4/simple-pos/commit/6d7942f5667a280ae7097bc57bac36920086f557))
+
 # [1.15.0](https://github.com/ramiz4/simple-pos/compare/v1.14.5...v1.15.0) (2026-02-21)
 
 ### Features
