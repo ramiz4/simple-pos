@@ -1,6 +1,6 @@
 {
   "productName": "Simple POS",
-  "version": "1.14.3",
+  "version": "1.14.4",
   "identifier": "com.simple.pos",
   "build": {
     "beforeDevCommand": {

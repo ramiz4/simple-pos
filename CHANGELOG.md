@@ -1,3 +1,9 @@
+## [1.14.4](https://github.com/ramiz4/simple-pos/compare/v1.14.3...v1.14.4) (2026-02-21)
+
+### Bug Fixes
+
+- **pos:** correct ngsw-config.json schema path to workspace root ([0a51c09](https://github.com/ramiz4/simple-pos/commit/0a51c09e52dcbed9fc23fa4d22b25697d9d087de))
+
 ## [1.14.3](https://github.com/ramiz4/simple-pos/compare/v1.14.2...v1.14.3) (2026-02-21)
 
 ### Bug Fixes
