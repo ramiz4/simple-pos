@@ -195,11 +195,12 @@
 
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background: var(--primary-gradient);
+    background-image: var(--primary-gradient);
   }
 
   .nav-blur {
     @apply sticky top-0 z-40 w-full backdrop-blur-md bg-white/70 border-b border-white/20;
+    padding-top: env(safe-area-inset-top);
   }
 
   .mobile-bottom-nav {

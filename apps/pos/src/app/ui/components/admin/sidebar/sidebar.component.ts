@@ -26,7 +26,10 @@ import { AdminNavItemComponent, NavItem } from './nav-item.component';
       aria-label="Admin Navigation Menu"
     >
       <!-- Logo/Brand Area -->
-      <div class="p-6 flex items-center justify-between border-b border-surface-200">
+      <div
+        class="p-6 flex items-center justify-between border-b border-surface-200"
+        style="padding-top: max(1.5rem, calc(1.5rem + env(safe-area-inset-top)))"
+      >
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 rounded-xl bg-linear-to-tr from-purple-600 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-200"
