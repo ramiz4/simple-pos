@@ -1,3 +1,10 @@
+## [1.14.3](https://github.com/ramiz4/simple-pos/compare/v1.14.2...v1.14.3) (2026-02-21)
+
+### Bug Fixes
+
+- **pos:** add full PWA safe area support for iOS ([56b3486](https://github.com/ramiz4/simple-pos/commit/56b348655b756a6384ec0e118a1fd3acab81b4a8))
+- **pos:** fix mobile-bottom-nav safe-area and remove unrelated pnpm-lock entry ([2e4921d](https://github.com/ramiz4/simple-pos/commit/2e4921d6dc41a31494cb340624793f69df421643))
+
 ## [1.14.2](https://github.com/ramiz4/simple-pos/compare/v1.14.1...v1.14.2) (2026-02-21)
 
 ### Bug Fixes
