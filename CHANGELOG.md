@@ -1,3 +1,9 @@
+## [1.14.5](https://github.com/ramiz4/simple-pos/compare/v1.14.4...v1.14.5) (2026-02-21)
+
+### Bug Fixes
+
+- **pos:** fix UI elements behind device notch in PWA mode ([af453f0](https://github.com/ramiz4/simple-pos/commit/af453f0ce72de1ca47546f0bc3f7f98835d905f3))
+
 ## [1.14.4](https://github.com/ramiz4/simple-pos/compare/v1.14.3...v1.14.4) (2026-02-21)
 
 ### Bug Fixes
