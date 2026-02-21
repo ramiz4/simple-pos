@@ -1,3 +1,9 @@
+# [1.15.0](https://github.com/ramiz4/simple-pos/compare/v1.14.5...v1.15.0) (2026-02-21)
+
+### Features
+
+- **pos:** improve responsive layout and mobile UX ([437e222](https://github.com/ramiz4/simple-pos/commit/437e22225595d38cd11613e7752cf7a9e03e8894))
+
 ## [1.14.5](https://github.com/ramiz4/simple-pos/compare/v1.14.4...v1.14.5) (2026-02-21)
 
 ### Bug Fixes
