@@ -1,3 +1,9 @@
+## [1.14.1](https://github.com/ramiz4/simple-pos/compare/v1.14.0...v1.14.1) (2026-02-21)
+
+### Bug Fixes
+
+- **pos:** fix header and bottom nav always visible on mobile ([5ace4d6](https://github.com/ramiz4/simple-pos/commit/5ace4d6dcc85d58169549b997bf91a535430973e))
+
 # [1.14.0](https://github.com/ramiz4/simple-pos/compare/v1.13.0...v1.14.0) (2026-02-18)
 
 ### Features
