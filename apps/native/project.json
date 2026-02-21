@@ -34,6 +34,20 @@
         "cwd": "apps/native/src-tauri",
         "forwardAllArgs": false
       }
+    },
+    "ios": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tauri ios dev",
+        "cwd": "apps/native"
+      }
+    },
+    "android": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tauri android dev",
+        "cwd": "apps/native"
+      }
     }
   }
 }

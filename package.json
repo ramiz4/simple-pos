@@ -30,6 +30,10 @@
     "tauri:dev": "nx dev native",
     "tauri:build": "nx build native",
     "tauri:test": "nx test native",
+    "ios:dev": "nx ios native",
+    "ios:build": "nx build native --platform ios",
+    "android:dev": "nx android native",
+    "android:build": "nx build native --platform android",
     "format": "nx format:write",
     "db:reset": "node scripts/reset-db.js",
     "prepare": "husky"

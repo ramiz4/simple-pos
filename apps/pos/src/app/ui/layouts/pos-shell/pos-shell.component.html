@@ -6,14 +6,14 @@
   Skip to main content
 </a>
 
-<div class="h-dvh flex flex-col md:flex-row overflow-hidden bg-[#F8FAFC]">
+<div class="h-dvh flex flex-col lg:flex-row overflow-hidden bg-[#F8FAFC]">
   <!-- Desktop Sidebar (md and up) -->
   <aside
-    class="hidden md:flex flex-col w-20 lg:w-64 bg-white border-r border-surface-200 z-30 transition-all duration-300"
+    class="hidden lg:flex flex-col w-64 bg-white border-r border-surface-200 z-30 transition-all duration-300"
   >
     <!-- Logo & Branding -->
     <div
-      class="h-16 flex items-center px-4 lg:px-6 shrink-0 border-b border-surface-50"
+      class="h-16 flex items-center px-6 shrink-0 border-b border-surface-50"
       style="padding-top: env(safe-area-inset-top); height: calc(4rem + env(safe-area-inset-top))"
     >
       <button
@@ -27,7 +27,7 @@
         >
           <img src="logo.svg" alt="" class="h-6 w-6 brightness-0 invert" aria-hidden="true" />
         </div>
-        <div class="hidden lg:flex flex-col leading-tight overflow-hidden">
+        <div class="flex flex-col leading-tight overflow-hidden">
           <span class="text-xs font-black text-primary-600 uppercase tracking-widest truncate"
             >Portal</span
           >
@@ -59,14 +59,12 @@
             class="w-6 h-6 flex items-center justify-center shrink-0"
             [innerHTML]="item.safeIcon"
           ></div>
-          <span class="hidden lg:block font-bold text-sm tracking-tight capitalize">{{
-            item.label
-          }}</span>
+          <span class="block font-bold text-sm tracking-tight capitalize">{{ item.label }}</span>
 
-          <!-- Active Indicator Line (Desktop) -->
+          <!-- Active Indicator Line (icon-only mode, no longer used) -->
           @if (rlaSidebar.isActive) {
             <div
-              class="absolute left-0 top-3 bottom-3 w-1 bg-primary-600 rounded-r-full lg:hidden"
+              class="hidden absolute left-0 top-3 bottom-3 w-1 bg-primary-600 rounded-r-full"
             ></div>
           }
         </a>
@@ -75,7 +73,7 @@
 
     <!-- User Profile (Sidebar Bottom) -->
     <div class="p-4 border-t border-surface-100 space-y-3">
-      <div class="hidden lg:flex items-center gap-3 p-2 bg-surface-50 rounded-2xl">
+      <div class="flex items-center gap-3 p-2 bg-surface-50 rounded-2xl">
         <div
           class="w-10 h-10 rounded-xl bg-surface-200 flex items-center justify-center text-surface-600 font-bold"
         >
@@ -90,7 +88,7 @@
       </div>
       <button
         (click)="onLock()"
-        class="w-full flex items-center justify-center lg:justify-start gap-3 p-3 text-surface-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+        class="w-full flex items-center justify-start gap-3 p-3 text-surface-500 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -106,7 +104,7 @@
             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
           />
         </svg>
-        <span class="hidden lg:block font-bold text-sm">Lock Session</span>
+        <span class="block font-bold text-sm">Lock Session</span>
       </button>
     </div>
   </aside>
@@ -118,12 +116,18 @@
       class="bg-white/80 backdrop-blur-md border-b border-surface-100 sticky top-0 z-20 shrink-0"
       style="padding-top: env(safe-area-inset-top)"
     >
-      <div class="h-16 flex items-center justify-between px-4 lg:px-8">
+      <div
+        class="h-16 flex items-center justify-between px-4 lg:px-8"
+        style="
+          padding-left: max(1rem, env(safe-area-inset-left));
+          padding-right: max(1rem, env(safe-area-inset-right));
+        "
+      >
         <div class="flex items-center gap-4">
           <!-- Mobile Logo -->
           <button
             (click)="router.navigate(['/dashboard'])"
-            class="md:hidden w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white"
+            class="lg:hidden w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white"
             aria-label="Go to dashboard"
           >
             <img src="logo.svg" alt="" class="h-6 w-6 brightness-0 invert" />
@@ -153,7 +157,7 @@
 
           <button
             (click)="onLock()"
-            class="md:hidden p-2 text-surface-400 hover:text-surface-900 transition-colors"
+            class="lg:hidden p-2 text-surface-400 hover:text-surface-900 transition-colors"
             aria-label="Lock session"
           >
             <svg
@@ -175,7 +179,15 @@
       </div>
     </header>
 
-    <main id="main-content" class="flex-1 overflow-y-auto bg-surface-50 p-4 lg:p-8" role="main">
+    <main
+      id="main-content"
+      class="flex-1 overflow-y-auto bg-surface-50 p-4 lg:p-8"
+      style="
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+      "
+      role="main"
+    >
       <div class="max-w-7xl mx-auto h-full">
         <router-outlet></router-outlet>
       </div>
@@ -183,8 +195,12 @@
 
     <!-- Bottom Navigation (Mobile Only) -->
     <nav
-      class="md:hidden h-20 bg-white border-t border-surface-200 flex items-center justify-around px-2 shrink-0"
-      style="padding-bottom: env(safe-area-inset-bottom)"
+      class="lg:hidden bg-white border-t border-surface-200 flex items-center justify-around px-2 shrink-0 pt-2"
+      style="
+        padding-bottom: max(0.375rem, env(safe-area-inset-bottom));
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      "
     >
       @for (item of menuItems().slice(0, 5); track item.path) {
         <a
@@ -194,18 +210,19 @@
           [routerLinkActiveOptions]="{
             exact: item.path === '/dashboard' || item.path === '/pos',
           }"
-          class="flex flex-col items-center justify-center gap-1 w-full h-full rounded-xl transition-all"
+          class="flex flex-col items-center justify-center gap-1 w-full h-fullul rounded-xl transition-all"
           [class]="rlaMobile.isActive ? 'text-primary-600' : 'text-surface-400'"
           [attr.aria-label]="'Navigate to ' + item.label"
+          [attr.aria-current]="rlaMobile.isActive ? 'page' : null"
         >
           <div
-            class="w-6 h-6 flex items-center justify-center transition-transform active:scale-90"
+            class="w-6 h-6 flex items-center justify-center rounded-full transition-all duration-200 active:scale-90"
+            [class.bg-primary-100]="rlaMobile.isActive"
+            [class.text-primary-600]="rlaMobile.isActive"
+            [class.text-surface-400]="!rlaMobile.isActive"
             [innerHTML]="item.safeIcon"
           ></div>
-          <span class="text-[10px] font-black uppercase tracking-tighter">{{ item.label }}</span>
-          @if (rlaMobile.isActive) {
-            <div class="w-1 h-1 bg-primary-600 rounded-full mt-0.5"></div>
-          }
+          <span class="text-xs font-black uppercase tracking-tighter">{{ item.label }}</span>
         </a>
       }
     </nav>
