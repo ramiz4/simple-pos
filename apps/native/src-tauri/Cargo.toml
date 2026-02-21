@@ -5,6 +5,10 @@ description = "Simple POS System"
 authors = ["you"]
 edition = "2021"
 
+[lib]
+name = "app"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
@@ -13,10 +17,10 @@ tauri = { version = "2", features = ["devtools"] }
 tauri-plugin-sql = { version = "2", features = ["sqlite"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri-plugin-updater = "2"
 tauri-plugin-log = "2"
-tauri-plugin-process = "2"
 log = "0.4"
 
 [target."cfg(not(any(target_os = \"android\", target_os = \"ios\")))".dependencies]
 tauri-plugin-shell = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"

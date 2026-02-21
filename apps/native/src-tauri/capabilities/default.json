@@ -12,9 +12,6 @@
     "sql:allow-select",
     "sql:allow-close",
     "log:default",
-    "updater:default",
-    "process:default",
-    "shell:default",
     "core:app:allow-version"
   ]
 }
