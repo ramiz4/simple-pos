@@ -7,7 +7,7 @@ import { ButtonComponent } from '../../shared/button/button.component';
   imports: [ButtonComponent],
   template: `
     <!--
-      Mobile : sits above the bottom nav (~68 px) + safe-area
+      Mobile : sits above the bottom nav (56 px) + safe-area
       Desktop: flush to bottom, offset by the w-64 sidebar
     -->
     <div

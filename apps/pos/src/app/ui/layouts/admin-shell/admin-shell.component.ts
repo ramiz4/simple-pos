@@ -110,7 +110,7 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
 
         <!-- Action row (desktop only) -->
         <div
-          class="hidden lg:flex items-center justify-end gap-2 px-8 shrink-0 bg-white backdrop-blur-md border-b border-white/20 pt-[env(safe-area-inset-top)] md:py-2"
+          class="hidden lg:flex items-center justify-end gap-2 px-8 shrink-0 bg-white backdrop-blur-md border-b border-white/20 pt-[env(safe-area-inset-top)] lg:py-2"
         >
           <a
             routerLink="/dashboard"
