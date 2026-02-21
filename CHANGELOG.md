@@ -1,3 +1,9 @@
+## [1.14.2](https://github.com/ramiz4/simple-pos/compare/v1.14.1...v1.14.2) (2026-02-21)
+
+### Bug Fixes
+
+- **pos:** remove transparent gap between header and category filter on mobile ([dcd378c](https://github.com/ramiz4/simple-pos/commit/dcd378ce7e413fd1477ef40124fbafe363cec37c))
+
 ## [1.14.1](https://github.com/ramiz4/simple-pos/compare/v1.14.0...v1.14.1) (2026-02-21)
 
 ### Bug Fixes
