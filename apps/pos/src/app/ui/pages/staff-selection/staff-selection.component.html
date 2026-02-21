@@ -11,7 +11,10 @@
   ></div>
 
   @if (!isTauri()) {
-    <div class="absolute top-6 right-6 z-20">
+    <div
+      class="absolute right-6 z-20"
+      style="top: max(1.5rem, calc(1.5rem + env(safe-area-inset-top)))"
+    >
       <button
         (click)="logout()"
         class="glass-button flex items-center gap-2 px-5 py-2.5 text-surface-600! hover:text-red-600! hover:bg-white/70! group"
