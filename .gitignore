@@ -30,6 +30,8 @@ npm-debug.log*
 /apps/native/src-tauri/Cargo.lock
 /apps/native/src-tauri/WixTools
 /apps/native/src-tauri/gen/schemas/
+/apps/native/src-tauri/gen/android/
+/apps/native/src-tauri/gen/apple/
 
 # Tauri signing keys (NEVER commit private keys!)
 /apps/native/src-tauri/tauri.key
