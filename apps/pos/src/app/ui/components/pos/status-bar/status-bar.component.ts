@@ -6,12 +6,16 @@ import { ButtonComponent } from '../../shared/button/button.component';
   standalone: true,
   imports: [ButtonComponent],
   template: `
+    <!--
+      Mobile : sits above the bottom nav (~68 px) + safe-area
+      Desktop: flush to bottom, offset by the w-64 sidebar
+    -->
     <div
-      class="fixed bottom-20 md:bottom-0 left-0 md:left-20 lg:left-64 right-0 z-40 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-4 sm:pb-8 pointer-events-none transition-all duration-300"
+      class="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] lg:bottom-0 left-0 lg:left-64 right-0 z-40 px-3 lg:px-6 pb-3 lg:pb-6 pointer-events-none transition-all duration-300"
     >
       <div class="max-w-4xl mx-auto pointer-events-auto">
         <div
-          class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-3 sm:p-4 shadow-2xl flex items-center justify-between gap-2 sm:gap-6 translate-y-0 animate-slide-up"
+          class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-3 sm:p-4 shadow-2xl flex items-center justify-between gap-3 sm:gap-6 translate-y-0 animate-slide-up"
         >
           <div class="flex items-center gap-2 sm:gap-4 min-w-0">
             <div

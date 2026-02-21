@@ -113,6 +113,8 @@
         <input
           appAutoFocus
           type="password"
+          inputmode="numeric"
+          pattern="[0-9]*"
           [(ngModel)]="pinInput"
           class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0 mb-6"
           maxlength="20"
@@ -173,9 +175,10 @@
         <input
           appAutoFocus
           type="password"
+          inputmode="numeric"
+          pattern="[0-9]*"
           [(ngModel)]="pinInput"
           class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0 mb-6"
-          placeholder="****"
           maxlength="6"
           (keyup.enter)="verifyAdminPin()"
         />
@@ -237,6 +240,8 @@
           <input
             appAutoFocus
             type="password"
+            inputmode="numeric"
+            pattern="[0-9]*"
             [(ngModel)]="newPin"
             class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0"
             placeholder="PIN"
@@ -244,6 +249,8 @@
           />
           <input
             type="password"
+            inputmode="numeric"
+            pattern="[0-9]*"
             [(ngModel)]="confirmNewPin"
             class="w-full text-center text-3xl tracking-[0.5em] font-black h-16 bg-surface-50 rounded-2xl border-2 border-surface-100 focus:border-primary-500 focus:ring-0"
             placeholder="Confirm"
@@ -262,6 +269,7 @@
           [isLoading]="isLoading()"
           label="Set PIN & Continue"
           class="w-full h-14 text-lg"
+          [fullWidth]="true"
         ></app-button>
       </div>
     </div>

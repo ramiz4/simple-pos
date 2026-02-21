@@ -9,6 +9,7 @@ import { OrderService } from '../../../application/services/order.service';
 import { ProductExtraService } from '../../../application/services/product-extra.service';
 import { ProductService } from '../../../application/services/product.service';
 import { VariantService } from '../../../application/services/variant.service';
+import { CategoryFilterComponent } from '../../components/pos/category-filter/category-filter.component';
 import { ProductCardComponent } from '../../components/pos/product-card/product-card.component';
 import { QuantitySelectorComponent } from '../../components/pos/quantity-selector/quantity-selector.component';
 import { StatusBarComponent } from '../../components/pos/status-bar/status-bar.component';
@@ -23,6 +24,7 @@ interface ProductWithExtras extends Product {
   standalone: true,
   imports: [
     FormsModule,
+    CategoryFilterComponent,
     ProductCardComponent,
     QuantitySelectorComponent,
     StatusBarComponent,
