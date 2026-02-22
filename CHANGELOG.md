@@ -1,3 +1,9 @@
+## [1.16.1](https://github.com/ramiz4/simple-pos/compare/v1.16.0...v1.16.1) (2026-02-22)
+
+### Bug Fixes
+
+- **pos:** remove duplicate title from admin shell mobile header ([a8bdc40](https://github.com/ramiz4/simple-pos/commit/a8bdc4045adae26270d8bd4b23e4e96b646e67d2))
+
 # [1.16.0](https://github.com/ramiz4/simple-pos/compare/v1.15.0...v1.16.0) (2026-02-21)
 
 ### Bug Fixes
