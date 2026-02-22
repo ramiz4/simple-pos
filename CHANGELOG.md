@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/ramiz4/simple-pos/compare/v1.16.1...v1.16.2) (2026-02-22)
+
+### Bug Fixes
+
+- **pos:** address PR review feedback on table status null-safety and cache efficiency ([a4a9669](https://github.com/ramiz4/simple-pos/commit/a4a96690d428041263b933ce7e6d41f99c6808d3))
+- **pos:** use Occupied/Available labels on admin tables page and remove editable status ([c177faa](https://github.com/ramiz4/simple-pos/commit/c177faa54b9499ec017f32fcba1b8b6030fbb21d))
+
 ## [1.16.1](https://github.com/ramiz4/simple-pos/compare/v1.16.0...v1.16.1) (2026-02-22)
 
 ### Bug Fixes
