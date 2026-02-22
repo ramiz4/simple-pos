@@ -43,14 +43,14 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
               </button>
               <a
                 routerLink="/dashboard"
-                class="flex items-center gap-2 min-w-0"
-                aria-label="Portal home"
+                class="flex items-center gap-2 min-w-0 px-2 py-1 rounded-xl hover:bg-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:bg-white/60"
+
               >
                 <div
                   class="w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm shadow-purple-200"
                 >
                   <img
-                    src="logo.svg"
+                    src="/logo.svg"
                     alt=""
                     class="h-5 w-5 brightness-0 invert"
                     aria-hidden="true"
