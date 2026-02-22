@@ -72,14 +72,13 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
   async loadData() {
     this.isLoading = true;
     try {
-      const [tables, statuses, freeStatusId] = await Promise.all([
+      const [tables, statuses] = await Promise.all([
         this.tableService.getAll(),
         this.enumMappingService.getCodeTableByType('TABLE_STATUS'),
-        this.enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.FREE),
       ]);
       this.tables = tables;
       this.tableStatuses = statuses;
-      this.freeStatusId = freeStatusId;
+      this.freeStatusId = statuses.find((s) => s.code === TableStatusEnum.FREE)?.id ?? null;
       this.errorMessage = '';
     } catch (error) {
       this.errorMessage = 'Failed to load tables data';
@@ -129,6 +128,11 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       this.formData.seats <= 0
     ) {
       this.errorMessage = 'Please fill in all fields correctly';
+      return;
+    }
+
+    if (!this.editingId && this.freeStatusId === null) {
+      this.errorMessage = 'Table status is unavailable. Please reload and try again.';
       return;
     }
 
