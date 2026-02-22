@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { CodeTable, Table } from '@simple-pos/shared/types';
+import { CodeTable, Table, TableStatusEnum } from '@simple-pos/shared/types';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { TableService } from '../../../../application/services/table.service';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
@@ -31,6 +31,7 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
 export class TablesManagementComponent implements OnInit, OnDestroy {
   tables: Table[] = [];
   tableStatuses: CodeTable[] = [];
+  freeStatusId: number | null = null;
   isLoading = false;
   isFormOpen = false;
   isDeleteConfirmOpen = false;
@@ -71,12 +72,14 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
   async loadData() {
     this.isLoading = true;
     try {
-      const [tables, statuses] = await Promise.all([
+      const [tables, statuses, freeStatusId] = await Promise.all([
         this.tableService.getAll(),
         this.enumMappingService.getCodeTableByType('TABLE_STATUS'),
+        this.enumMappingService.getCodeTableId('TABLE_STATUS', TableStatusEnum.FREE),
       ]);
       this.tables = tables;
       this.tableStatuses = statuses;
+      this.freeStatusId = freeStatusId;
       this.errorMessage = '';
     } catch (error) {
       this.errorMessage = 'Failed to load tables data';
@@ -95,7 +98,7 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       this.formData = { ...table };
     } else {
       this.editingId = null;
-      this.formData = this.initializeFormData();
+      this.formData = { ...this.initializeFormData(), statusId: this.freeStatusId ?? 0 };
     }
     this.isFormOpen = true;
     this.errorMessage = '';
@@ -123,8 +126,7 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
     if (
       !this.formData.name ||
       !this.formData.number ||
-      this.formData.seats <= 0 ||
-      !this.formData.statusId
+      this.formData.seats <= 0
     ) {
       this.errorMessage = 'Please fill in all fields correctly';
       return;
