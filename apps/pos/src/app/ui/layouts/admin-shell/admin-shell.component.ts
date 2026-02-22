@@ -16,12 +16,12 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
 
       <!-- Main Content Area (With left padding on large screens to accommodate fixed sidebar) -->
       <div class="flex-1 flex flex-col min-w-0 h-screen lg:pl-72">
-        <!-- Top Header (Mobile Toggle + Page Title) - Fixed at top -->
+        <!-- Top Header (Mobile - Branding + Lock) - Fixed at top -->
         <header
           class="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white backdrop-blur-md border-b border-white/20 pt-[env(safe-area-inset-top)]"
         >
           <div class="flex items-center justify-between p-4 gap-4">
-            <div class="flex items-center gap-4 min-w-0">
+            <div class="flex items-center gap-3 min-w-0">
               <button
                 (click)="isSidebarOpen = true"
                 class="p-2 text-gray-600 hover:bg-white/50 rounded-xl transition-colors shrink-0"
@@ -41,48 +41,31 @@ import { AdminSidebarComponent } from '../../components/admin/sidebar/sidebar.co
                   />
                 </svg>
               </button>
-              <div class="truncate">
-                <h1 class="text-sm font-black tracking-tight text-gray-900 leading-none truncate">
-                  {{ title() }}
-                </h1>
-                @if (subtitle()) {
-                  <p
-                    class="text-[8px] text-gray-500 font-bold uppercase tracking-widest leading-none mt-1 truncate"
-                  >
-                    {{ subtitle() }}
-                  </p>
-                }
-              </div>
-            </div>
-            <!-- Portal Home + Lock buttons (mobile) -->
-            <div class="flex items-center gap-1 shrink-0">
               <a
                 routerLink="/dashboard"
-                class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
-                aria-label="Portal home"
+                class="flex items-center gap-2 min-w-0 px-2 py-1 rounded-xl hover:bg-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white focus-visible:bg-white/60"
+
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  aria-hidden="true"
+                <div
+                  class="w-8 h-8 bg-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm shadow-purple-200"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                  <img
+                    src="/logo.svg"
+                    alt=""
+                    class="h-5 w-5 brightness-0 invert"
+                    aria-hidden="true"
                   />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 22V12h6v10"
-                  />
-                </svg>
+                </div>
+                <div class="flex flex-col leading-none min-w-0">
+                  <span class="text-[10px] font-black text-purple-600 uppercase tracking-widest"
+                    >Portal</span
+                  >
+                  <span class="text-gray-900 font-black text-xs truncate">Simple POS</span>
+                </div>
               </a>
+            </div>
+            <!-- Lock button (mobile) -->
+            <div class="flex items-center gap-1 shrink-0">
               <button
                 (click)="onLock()"
                 class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
