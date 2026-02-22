@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { CodeTable, Table } from '@simple-pos/shared/types';
+import { CodeTable, Table, TableStatusEnum } from '@simple-pos/shared/types';
 import { EnumMappingService } from '../../../../application/services/enum-mapping.service';
 import { TableService } from '../../../../application/services/table.service';
 import { ConfirmDeleteModalComponent } from '../../../components/admin/confirm-delete/confirm-delete.component';
@@ -31,6 +31,7 @@ import { ModalComponent } from '../../../components/shared/modal/modal.component
 export class TablesManagementComponent implements OnInit, OnDestroy {
   tables: Table[] = [];
   tableStatuses: CodeTable[] = [];
+  freeStatusId: number | null = null;
   isLoading = false;
   isFormOpen = false;
   isDeleteConfirmOpen = false;
@@ -77,6 +78,7 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       ]);
       this.tables = tables;
       this.tableStatuses = statuses;
+      this.freeStatusId = statuses.find((s) => s.code === TableStatusEnum.FREE)?.id ?? null;
       this.errorMessage = '';
     } catch (error) {
       this.errorMessage = 'Failed to load tables data';
@@ -95,7 +97,7 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
       this.formData = { ...table };
     } else {
       this.editingId = null;
-      this.formData = this.initializeFormData();
+      this.formData = { ...this.initializeFormData(), statusId: this.freeStatusId ?? 0 };
     }
     this.isFormOpen = true;
     this.errorMessage = '';
@@ -123,10 +125,14 @@ export class TablesManagementComponent implements OnInit, OnDestroy {
     if (
       !this.formData.name ||
       !this.formData.number ||
-      this.formData.seats <= 0 ||
-      !this.formData.statusId
+      this.formData.seats <= 0
     ) {
       this.errorMessage = 'Please fill in all fields correctly';
+      return;
+    }
+
+    if (!this.editingId && this.freeStatusId === null) {
+      this.errorMessage = 'Table status is unavailable. Please reload and try again.';
       return;
     }
 
