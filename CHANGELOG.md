@@ -1,3 +1,9 @@
+## [1.16.3](https://github.com/ramiz4/simple-pos/compare/v1.16.2...v1.16.3) (2026-02-22)
+
+### Bug Fixes
+
+- **ci:** checkout latest main in deploy-web to include semantic-release version bump ([59094dc](https://github.com/ramiz4/simple-pos/commit/59094dcbe8abd8020a052dc79d6d2d2153f634d9))
+
 ## [1.16.2](https://github.com/ramiz4/simple-pos/compare/v1.16.1...v1.16.2) (2026-02-22)
 
 ### Bug Fixes
