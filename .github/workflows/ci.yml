@@ -60,17 +60,18 @@ jobs:
           cache: 'pnpm'
 
       - name: Install Tauri system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libglib2.0-dev \
-            libgtk-3-dev \
-            libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: >-
+            libwebkit2gtk-4.1-dev
+            libglib2.0-dev
+            libgtk-3-dev
+            libsoup-3.0-dev
+            libjavascriptcoregtk-4.1-dev
+            libayatana-appindicator3-dev
+            librsvg2-dev
             pkg-config
+          version: 1.0
 
       - run: pnpm install --frozen-lockfile
 
@@ -218,23 +219,24 @@ jobs:
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libglib2.0-dev \
-            libgtk-3-dev \
-            libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev \
-            libayatana-appindicator3-dev \
-            librsvg2-dev \
-            pkg-config \
-            build-essential \
-            curl \
-            wget \
-            file \
-            libxdo-dev \
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: >-
+            libwebkit2gtk-4.1-dev
+            libglib2.0-dev
+            libgtk-3-dev
+            libsoup-3.0-dev
+            libjavascriptcoregtk-4.1-dev
+            libayatana-appindicator3-dev
+            librsvg2-dev
+            pkg-config
+            build-essential
+            curl
+            wget
+            file
+            libxdo-dev
             libssl-dev
+          version: 1.0
 
       - name: install frontend dependencies
         run: pnpm install --frozen-lockfile
