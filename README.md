@@ -2,6 +2,31 @@
 
 A production-ready, cross-platform Point-of-Sale system built with **Angular**, **Tauri**, and **NestJS** in an **Nx Monorepo**.
 
+## 🍽️ For Restaurant Owners
+
+If you are a restaurant owner looking to set up Simple POS for your business, please follow our **[Restaurant Owner's Guide](docs/restaurant-owner-guide.md)** for a step-by-step walkthrough of installation, setup, and daily operations.
+
+### Quick Start for Owners:
+
+1. **Download** the app for your system (see below).
+2. **Install & Open** the application.
+3. **Follow the Setup Wizard** to create your owner profile and set your secure PIN.
+4. **Add your Products & Tables** in the Admin Dashboard.
+
+## 📥 Downloads
+
+You can find the latest version for your operating system on our [GitHub Releases](https://github.com/ramiz4/simple-pos/releases/latest) page.
+
+| Operating System          | File Extension        | Description                                     |
+| :------------------------ | :-------------------- | :---------------------------------------------- |
+| **Windows**               | `_x64-setup.exe`      | Standard Installer (**Recommended**)            |
+|                           | `_x64_en-US.msi`      | Microsoft Installer (for Enterprise/Management) |
+| **macOS (Apple Silicon)** | `_aarch64.dmg`        | Standard Disk Image (**Recommended**)           |
+|                           | `_aarch64.app.tar.gz` | Portable Binary                                 |
+| **Linux (Universal)**     | `_amd64.AppImage`     | Universal Format (No installation required)     |
+| **Linux (Debian/Ubuntu)** | `_amd64.deb`          | Native Package for Ubuntu/Debian                |
+| **Linux (Fedora/RHEL)**   | `.x86_64.rpm`         | Native Package for RedHat/Fedora/CentOS         |
+
 ## 🚀 Quick Start
 
 ### Prerequisites
