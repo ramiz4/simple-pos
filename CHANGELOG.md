@@ -1,3 +1,10 @@
+## [1.16.4](https://github.com/ramiz4/simple-pos/compare/v1.16.3...v1.16.4) (2026-02-24)
+
+### Bug Fixes
+
+- **pos:** store and clear periodic interval handle in ngOnDestroy ([fe685bd](https://github.com/ramiz4/simple-pos/commit/fe685bd68a50a1638d40de8aea110d1452c8f9e8))
+- **pos:** trigger update check on app foreground for iOS Chrome homescreen ([e645abc](https://github.com/ramiz4/simple-pos/commit/e645abc127ff764dc5d1a31dcd3ec5a63c7bd4e8))
+
 ## [1.16.3](https://github.com/ramiz4/simple-pos/compare/v1.16.2...v1.16.3) (2026-02-22)
 
 ### Bug Fixes
