@@ -929,6 +929,45 @@ describe('OrderService', () => {
       // Should not update order status when no items exist
       expect(mockOrderRepo.update).not.toHaveBeenCalled();
     });
+
+    it('should reopen a SERVED order to OPEN when new items are added', async () => {
+      const servedStatusId = 5;
+      const openStatusId = 1;
+      const servedOrder = { ...mockOrder, statusId: servedStatusId };
+      const newOpenItem = { ...mockOrderItem, statusId: openStatusId };
+
+      mockOrderRepo.findById.mockResolvedValue(servedOrder);
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([newOpenItem]);
+      mockOrderItemRepo.create.mockResolvedValue(newOpenItem);
+      mockOrderItemExtraRepo.create.mockResolvedValue({
+        id: 1,
+        orderId: 1,
+        orderItemId: 1,
+        extraId: 1,
+      });
+      mockOrderRepo.update.mockResolvedValue({ ...servedOrder, subtotal: 200 });
+
+      // getCodeTableId: OPEN (item creation), READY, PREPARING, OPEN (transition target)
+      mockEnumMappingService.getCodeTableId
+        .mockResolvedValueOnce(openStatusId) // OPEN for new item statusId
+        .mockResolvedValueOnce(4) // READY id
+        .mockResolvedValueOnce(2) // PREPARING id
+        .mockResolvedValueOnce(openStatusId); // OPEN id for status transition
+
+      // getEnumFromId: SERVED (check current in checkAndUpdate), SERVED (current in updateOrderStatus), OPEN (new in updateOrderStatus)
+      mockEnumMappingService.getEnumFromId
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED })
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED })
+        .mockResolvedValueOnce({ code: OrderStatusEnum.OPEN });
+
+      await service.addItemsToOrder(1, [mockCartItem]);
+
+      // Verify the second update call sets statusId to OPEN
+      const statusUpdateCall = mockOrderRepo.update.mock.calls.find(
+        (call) => call[1] && call[1].statusId === openStatusId,
+      );
+      expect(statusUpdateCall).toBeDefined();
+    });
   });
 
   describe('Error Handling', () => {

@@ -86,6 +86,12 @@ describe('Domain Logic', () => {
         OrderStateMachine.canTransition(OrderStatusEnum.CANCELLED, OrderStatusEnum.PREPARING),
       ).toBe(false);
     });
+
+    it('should allow SERVED to transition back to OPEN when new items are added', () => {
+      expect(OrderStateMachine.canTransition(OrderStatusEnum.SERVED, OrderStatusEnum.OPEN)).toBe(
+        true,
+      );
+    });
   });
 
   describe('CartLogic', () => {
