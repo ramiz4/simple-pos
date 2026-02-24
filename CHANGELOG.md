@@ -1,3 +1,9 @@
+## [1.16.5](https://github.com/ramiz4/simple-pos/compare/v1.16.4...v1.16.5) (2026-02-24)
+
+### Bug Fixes
+
+- **pos:** update order status to READY when all kitchen items are done ([0d4716f](https://github.com/ramiz4/simple-pos/commit/0d4716f50ab6e1b0a6c2f094f58d577b0a993c5a))
+
 ## [1.16.4](https://github.com/ramiz4/simple-pos/compare/v1.16.3...v1.16.4) (2026-02-24)
 
 ### Bug Fixes
