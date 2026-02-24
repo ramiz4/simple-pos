@@ -13,7 +13,7 @@ If you are a restaurant owner looking to set up Simple POS for your business, pl
 3. **Follow the Setup Wizard** to create your owner profile and set your secure PIN.
 4. **Add your Products & Tables** in the Admin Dashboard.
 
-## � Downloads
+## 📥 Downloads
 
 You can find the latest version for your operating system on our [GitHub Releases](https://github.com/ramiz4/simple-pos/releases/latest) page.
 
