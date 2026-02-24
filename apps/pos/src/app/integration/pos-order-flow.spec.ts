@@ -645,8 +645,58 @@ describe('Core POS Flow', () => {
       expect(readyOrders.some((o) => o.id === order.id)).toBe(true);
     });
 
+    it('should automatically update order status to READY when all items are marked done', async () => {
+      // Create an order in PREPARING with two items
+      const cartItem1 = await createTestCartItem();
+      const cartItem2 = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem1,
+        cartItem2,
+      ]);
+      const order = await orderService.createOrder(orderData);
+      await orderService.updateOrderStatus(order.id, preparingStatusId);
+
+      // Get the created order items
+      const items = await orderService.getOrderItems(order.id);
+      expect(items.length).toBe(2);
+
+      // Mark first item as READY — order should still be PREPARING
+      await orderService.updateOrderItemStatus(items[0].id, readyStatusId);
+      const partialOrder = await orderService.getOrderById(order.id);
+      expect(partialOrder?.statusId).toBe(preparingStatusId);
+
+      // Mark second item as READY — now all items are done, order should become READY
+      await orderService.updateOrderItemStatus(items[1].id, readyStatusId);
+      const fullyReadyOrder = await orderService.getOrderById(order.id);
+      expect(fullyReadyOrder?.statusId).toBe(readyStatusId);
+    });
+
+    it('should revert order status to PREPARING when an item is un-marked after all were done', async () => {
+      // Create an order in PREPARING with two items
+      const cartItem1 = await createTestCartItem();
+      const cartItem2 = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, completedStatusId, null, [
+        cartItem1,
+        cartItem2,
+      ]);
+      const order = await orderService.createOrder(orderData);
+      await orderService.updateOrderStatus(order.id, preparingStatusId);
+
+      const items = await orderService.getOrderItems(order.id);
+
+      // Mark both items as READY — order becomes READY
+      await orderService.updateOrderItemStatus(items[0].id, readyStatusId);
+      await orderService.updateOrderItemStatus(items[1].id, readyStatusId);
+      const readyOrder = await orderService.getOrderById(order.id);
+      expect(readyOrder?.statusId).toBe(readyStatusId);
+
+      // Un-mark one item back to PREPARING — order should revert to PREPARING
+      await orderService.updateOrderItemStatus(items[0].id, preparingStatusId);
+      const revertedOrder = await orderService.getOrderById(order.id);
+      expect(revertedOrder?.statusId).toBe(preparingStatusId);
+    });
+
     it('should display correct orders for kitchen staff', async () => {
-      // Create multiple orders with different statuses
       const cartItem1 = await createTestCartItem();
       const order1Data = await createOrderData(takeawayTypeId, completedStatusId, null, [
         cartItem1,
