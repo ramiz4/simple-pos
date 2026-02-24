@@ -1,3 +1,10 @@
+## [1.16.6](https://github.com/ramiz4/simple-pos/compare/v1.16.5...v1.16.6) (2026-02-24)
+
+### Bug Fixes
+
+- **ci:** cache Tauri apt dependencies to speed up CI ([5002ca3](https://github.com/ramiz4/simple-pos/commit/5002ca3394c4d7942a9245c38bb2e6e96ae5b9a5))
+- **ci:** cache Tauri apt dependencies to speed up CI ([52c292d](https://github.com/ramiz4/simple-pos/commit/52c292d2f99807d02c15b8802e64649a4829930a))
+
 ## [1.16.5](https://github.com/ramiz4/simple-pos/compare/v1.16.4...v1.16.5) (2026-02-24)
 
 ### Bug Fixes
