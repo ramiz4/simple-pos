@@ -235,16 +235,6 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  async markOrderAsServed(orderId: number) {
-    try {
-      await this.orderService.markOrderAsServed(orderId);
-    } catch (err) {
-      this.error.set('Failed to mark order as served: ' + (err as Error).message);
-    } finally {
-      await this.loadOrders();
-    }
-  }
-
   async printTicket(orderId: number) {
     try {
       await this.printerService.printKitchenTicket(orderId);

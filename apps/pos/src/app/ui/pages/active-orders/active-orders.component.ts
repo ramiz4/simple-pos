@@ -1,7 +1,7 @@
 import { DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Order } from '@simple-pos/shared/types';
+import { Order, OrderStatusEnum } from '@simple-pos/shared/types';
 import { EnumMappingService } from '../../../application/services/enum-mapping.service';
 import { OrderService } from '../../../application/services/order.service';
 import { TableService } from '../../../application/services/table.service';
@@ -17,10 +17,13 @@ interface EnrichedOrder extends Order {
   templateUrl: './active-orders.component.html',
 })
 export class ActiveOrdersComponent implements OnInit {
+  readonly OrderStatus = OrderStatusEnum;
+
   orders = signal<EnrichedOrder[]>([]);
   orderStatuses = signal<Record<number, string>>({});
   orderTypes = signal<Record<number, string>>({});
   isLoading = signal<boolean>(true);
+  error = signal<string | null>(null);
 
   constructor(
     private orderService: OrderService,
@@ -35,6 +38,7 @@ export class ActiveOrdersComponent implements OnInit {
 
   async loadOrders() {
     this.isLoading.set(true);
+    this.error.set(null);
     try {
       const orders = await this.orderService.getActiveAndServedOrders();
 
@@ -74,6 +78,16 @@ export class ActiveOrdersComponent implements OnInit {
       console.error('Failed to load orders', error);
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  async markAsServed(event: Event, order: Order) {
+    event.stopPropagation();
+    try {
+      await this.orderService.markOrderAsServed(order.id);
+      await this.loadOrders();
+    } catch (err) {
+      this.error.set('Failed to mark order as served: ' + (err as Error).message);
     }
   }
 

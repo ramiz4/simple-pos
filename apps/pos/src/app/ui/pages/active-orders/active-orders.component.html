@@ -1,4 +1,9 @@
 <main class="max-w-7xl mx-auto px-4 md:px-6 animate-fade-in">
+  @if (error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+      <p class="text-red-800 font-semibold">{{ error() }}</p>
+    </div>
+  }
   @if (isLoading()) {
     <div class="flex items-center justify-center py-20">
       <div class="text-surface-400 font-bold">Loading orders...</div>
@@ -56,6 +61,18 @@
                 {{ orderStatuses()[order.statusId] }}
               </div>
             </div>
+
+            @if (orderStatuses()[order.statusId] === OrderStatus.READY) {
+              <div class="mt-4">
+                <button
+                  (click)="markAsServed($event, order)"
+                  class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-sm font-bold transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>✅</span>
+                  Mark as Served
+                </button>
+              </div>
+            }
           </div>
 
           <div
