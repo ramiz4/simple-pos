@@ -356,6 +356,14 @@ export class OrderService {
     return await this.updateOrderStatus(id, completedStatusId);
   }
 
+  async markOrderAsServed(id: number): Promise<Order> {
+    const servedStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.SERVED,
+    );
+    return await this.updateOrderStatus(id, servedStatusId);
+  }
+
   async getOrderItems(orderId: number): Promise<OrderItem[]> {
     return await this.orderItemRepo.findByOrderId(orderId);
   }

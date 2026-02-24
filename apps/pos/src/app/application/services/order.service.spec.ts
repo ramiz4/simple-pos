@@ -750,6 +750,55 @@ describe('OrderService', () => {
     });
   });
 
+  describe('markOrderAsServed', () => {
+    beforeEach(() => {
+      mockOrderRepo.findById.mockResolvedValue({ ...mockOrder, statusId: 3 }); // READY
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 5 });
+      mockEnumMappingService.getCodeTableId.mockResolvedValue(5); // SERVED
+    });
+
+    it('should mark order as served', async () => {
+      mockEnumMappingService.getEnumFromId
+        .mockResolvedValueOnce({ code: OrderStatusEnum.READY }) // current status lookup
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }); // new status lookup
+
+      const result = await service.markOrderAsServed(1);
+
+      expect(mockEnumMappingService.getCodeTableId).toHaveBeenCalledWith(
+        'ORDER_STATUS',
+        OrderStatusEnum.SERVED,
+      );
+      expect(result.statusId).toBe(5);
+    });
+
+    it('should throw error when order not found', async () => {
+      mockOrderRepo.findById.mockResolvedValue(null);
+
+      await expect(service.markOrderAsServed(999)).rejects.toThrow('Order with id 999 not found');
+    });
+
+    it('should throw error when order status is not READY', async () => {
+      mockOrderRepo.findById.mockResolvedValue({ ...mockOrder, statusId: 1 }); // OPEN
+      mockEnumMappingService.getEnumFromId
+        .mockResolvedValueOnce({ code: OrderStatusEnum.OPEN }) // current status lookup
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }); // new status lookup
+
+      await expect(service.markOrderAsServed(1)).rejects.toThrow(
+        'Invalid status transition from OPEN to SERVED',
+      );
+    });
+
+    it('should not free table when marking order as served', async () => {
+      mockEnumMappingService.getEnumFromId
+        .mockResolvedValueOnce({ code: OrderStatusEnum.READY }) // current status lookup
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }); // new status lookup
+
+      await service.markOrderAsServed(1);
+
+      expect(mockTableService.updateTableStatus).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getOrderItems', () => {
     it('should return all items for an order', async () => {
       const items = [mockOrderItem, { ...mockOrderItem, id: 2 }];
