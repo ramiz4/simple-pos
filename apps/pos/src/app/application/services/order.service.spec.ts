@@ -779,7 +779,10 @@ describe('OrderService', () => {
     it('should throw error when order status is not READY', async () => {
       // Simulate an order in an invalid state (e.g., OPEN) for serving
       mockOrderRepo.findById.mockResolvedValue({ ...mockOrder, statusId: 1 });
-      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.OPEN });
+      mockEnumMappingService.getCodeTableId.mockResolvedValue(5); // SERVED
+      mockEnumMappingService.getEnumFromId
+        .mockResolvedValueOnce({ code: OrderStatusEnum.OPEN }) // current status lookup
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }); // new status lookup
 
       await expect(service.markOrderAsServed(1)).rejects.toThrow(
         'Invalid status transition from OPEN to SERVED',
