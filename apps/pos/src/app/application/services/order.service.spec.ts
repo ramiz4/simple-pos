@@ -755,7 +755,9 @@ describe('OrderService', () => {
       mockOrderRepo.findById.mockResolvedValue({ ...mockOrder, statusId: 3 }); // READY
       mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 5 });
       mockEnumMappingService.getCodeTableId.mockResolvedValue(5); // SERVED
-      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.SERVED });
+      mockEnumMappingService.getEnumFromId
+        .mockResolvedValueOnce({ code: OrderStatusEnum.READY }) // current status lookup
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }); // new status lookup
     });
 
     it('should mark order as served', async () => {
