@@ -1,3 +1,13 @@
+# [1.17.0](https://github.com/ramiz4/simple-pos/compare/v1.16.6...v1.17.0) (2026-02-24)
+
+### Bug Fixes
+
+- **pos:** move Mark as Served to Active Orders page and improve tests ([f0346aa](https://github.com/ramiz4/simple-pos/commit/f0346aa99ffaaa6167bcb2301a0a646b38cf4e09))
+
+### Features
+
+- **pos:** add Mark as Served button in kitchen view for READY orders ([f53d367](https://github.com/ramiz4/simple-pos/commit/f53d367d5aae3c399cb388a8625cd6bb5ccb0d24))
+
 ## [1.16.6](https://github.com/ramiz4/simple-pos/compare/v1.16.5...v1.16.6) (2026-02-24)
 
 ### Bug Fixes
