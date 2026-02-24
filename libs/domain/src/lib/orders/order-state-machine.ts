@@ -9,6 +9,7 @@ export class OrderStateMachine {
     ],
     [OrderStatusEnum.PREPARING]: [OrderStatusEnum.READY, OrderStatusEnum.CANCELLED],
     [OrderStatusEnum.READY]: [
+      OrderStatusEnum.PREPARING,
       OrderStatusEnum.SERVED,
       OrderStatusEnum.OUT_FOR_DELIVERY,
       OrderStatusEnum.COMPLETED,

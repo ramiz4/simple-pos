@@ -399,44 +399,19 @@ export class OrderService {
     const currentStatus = await this.enumMappingService.getEnumFromId(order.statusId);
 
     if (allReady) {
-      const orderType = await this.enumMappingService.getEnumFromId(order.typeId);
-
-      if (orderType.code === OrderTypeEnum.DINE_IN) {
-        // For Dine-In: If all items are ready, it's considered SERVED (out of kitchen, but table active)
-        // Unless it's already paid, then it's COMPLETED
-        if (currentStatus.code === OrderStatusEnum.COMPLETED) {
-          // Already completed, nothing to do
-        } else if (
-          currentStatus.code !== OrderStatusEnum.SERVED &&
-          currentStatus.code !== OrderStatusEnum.COMPLETED
-        ) {
-          const servedStatusId = await this.enumMappingService.getCodeTableId(
-            'ORDER_STATUS',
-            OrderStatusEnum.SERVED,
-          );
-          await this.updateOrderStatus(orderId, servedStatusId);
-        }
-      } else {
-        // For Takeaway/Delivery: All items ready means the order is SERVED (Ready for Pickup/Delivery)
-        // It will be moved to COMPLETED after payment
-        if (
-          currentStatus.code !== OrderStatusEnum.SERVED &&
-          currentStatus.code !== OrderStatusEnum.COMPLETED
-        ) {
-          const servedStatusId = await this.enumMappingService.getCodeTableId(
-            'ORDER_STATUS',
-            OrderStatusEnum.SERVED,
-          );
-          await this.updateOrderStatus(orderId, servedStatusId);
-        }
+      // When all items are ready, move the order to READY status (kitchen done preparing)
+      if (
+        currentStatus.code !== OrderStatusEnum.READY &&
+        currentStatus.code !== OrderStatusEnum.SERVED &&
+        currentStatus.code !== OrderStatusEnum.OUT_FOR_DELIVERY &&
+        currentStatus.code !== OrderStatusEnum.COMPLETED &&
+        currentStatus.code !== OrderStatusEnum.CANCELLED
+      ) {
+        await this.updateOrderStatus(orderId, readyStatusId);
       }
     } else {
       // Not all items are ready. Check if we need to pull back from advanced statuses.
-      if (
-        currentStatus.code === OrderStatusEnum.READY ||
-        currentStatus.code === OrderStatusEnum.SERVED ||
-        currentStatus.code === OrderStatusEnum.OUT_FOR_DELIVERY
-      ) {
+      if (currentStatus.code === OrderStatusEnum.READY) {
         await this.updateOrderStatus(orderId, preparingStatusId);
       } else if (currentStatus.code === OrderStatusEnum.OPEN) {
         // If it's a new/paid order and items are started, move to preparing
