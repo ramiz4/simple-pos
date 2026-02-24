@@ -773,6 +773,16 @@ describe('OrderService', () => {
 
       await expect(service.markOrderAsServed(999)).rejects.toThrow('Order with id 999 not found');
     });
+
+    it('should throw error when order status is not READY', async () => {
+      // Simulate an order in an invalid state (e.g., OPEN) for serving
+      mockOrderRepo.findById.mockResolvedValue({ ...mockOrder, statusId: 1 });
+      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.OPEN });
+
+      await expect(service.markOrderAsServed(1)).rejects.toThrow(
+        'Invalid status transition from OPEN to SERVED',
+      );
+    });
   });
 
   describe('getOrderItems', () => {
