@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, OnDestroy, signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { relaunch } from '@tauri-apps/plugin-process';
 import { check } from '@tauri-apps/plugin-updater';
@@ -7,9 +7,12 @@ import { PlatformService } from '../../infrastructure/services/platform.service'
 @Injectable({
   providedIn: 'root',
 })
-export class UpdateService {
+export class UpdateService implements OnDestroy {
   updateAvailable = signal<boolean>(false);
   updateStatus = signal<string | null>(null);
+
+  private visibilityChangeHandler?: () => void;
+  private periodicCheckInterval?: ReturnType<typeof setInterval>;
 
   constructor(
     private swUpdate: SwUpdate,
@@ -17,9 +20,32 @@ export class UpdateService {
   ) {
     this.checkForUpdates();
 
-    // Check for PWA updates periodically
     if (this.swUpdate.isEnabled) {
-      setInterval(() => this.swUpdate.checkForUpdate(), 6 * 60 * 60 * 1000); // Every 6 hours
+      this.periodicCheckInterval = setInterval(
+        () => this.swUpdate.checkForUpdate(),
+        6 * 60 * 60 * 1000,
+      ); // Every 6 hours
+
+      // Check for updates when the app returns to the foreground.
+      // This is critical for iOS Chrome homescreen apps where background
+      // timers are heavily throttled and the periodic interval may not fire.
+      this.visibilityChangeHandler = () => {
+        if (document.visibilityState === 'visible') {
+          this.swUpdate.checkForUpdate().catch((err) => {
+            console.error('[PWA] Failed to check for update on visibility change:', err);
+          });
+        }
+      };
+      document.addEventListener('visibilitychange', this.visibilityChangeHandler);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.periodicCheckInterval !== undefined) {
+      clearInterval(this.periodicCheckInterval);
+    }
+    if (this.visibilityChangeHandler) {
+      document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
     }
   }
 
