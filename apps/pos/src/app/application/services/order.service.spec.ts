@@ -750,6 +750,31 @@ describe('OrderService', () => {
     });
   });
 
+  describe('markOrderAsServed', () => {
+    beforeEach(() => {
+      mockOrderRepo.findById.mockResolvedValue({ ...mockOrder, statusId: 3 }); // READY
+      mockOrderRepo.update.mockResolvedValue({ ...mockOrder, statusId: 5 });
+      mockEnumMappingService.getCodeTableId.mockResolvedValue(5); // SERVED
+      mockEnumMappingService.getEnumFromId.mockResolvedValue({ code: OrderStatusEnum.SERVED });
+    });
+
+    it('should mark order as served', async () => {
+      const result = await service.markOrderAsServed(1);
+
+      expect(mockEnumMappingService.getCodeTableId).toHaveBeenCalledWith(
+        'ORDER_STATUS',
+        OrderStatusEnum.SERVED,
+      );
+      expect(result.statusId).toBe(5);
+    });
+
+    it('should throw error when order not found', async () => {
+      mockOrderRepo.findById.mockResolvedValue(null);
+
+      await expect(service.markOrderAsServed(999)).rejects.toThrow('Order with id 999 not found');
+    });
+  });
+
   describe('getOrderItems', () => {
     it('should return all items for an order', async () => {
       const items = [mockOrderItem, { ...mockOrderItem, id: 2 }];
