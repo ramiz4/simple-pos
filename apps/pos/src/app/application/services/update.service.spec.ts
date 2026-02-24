@@ -42,9 +42,10 @@ describe('UpdateService', () => {
   });
 
   afterEach(() => {
-    // Remove the visibilitychange listener registered by the service under test
-    // to prevent listener accumulation across tests.
+    // Remove the visibilitychange listener and clear the periodic interval
+    // registered by the service under test to prevent accumulation across tests.
     service.ngOnDestroy();
+    vi.useRealTimers();
   });
 
   it('should initialize with no update available', () => {
@@ -121,6 +122,54 @@ describe('UpdateService', () => {
     expect(disabledCheckForUpdate).not.toHaveBeenCalled();
 
     disabledService.ngOnDestroy();
+  });
+
+  it('should call checkForUpdate every 6 hours via periodic interval', () => {
+    vi.useFakeTimers();
+
+    // Re-create service after fake timers are active so the interval is captured
+    service.ngOnDestroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        UpdateService,
+        { provide: SwUpdate, useValue: mockSwUpdate },
+        { provide: PlatformService, useValue: mockPlatformService },
+      ],
+    });
+    service = TestBed.inject(UpdateService);
+    mockSwUpdate.checkForUpdate.mockClear();
+
+    // Advance 6 hours — one interval tick
+    vi.advanceTimersByTime(6 * 60 * 60 * 1000);
+    expect(mockSwUpdate.checkForUpdate).toHaveBeenCalledTimes(1);
+
+    // Advance another 6 hours — second tick
+    vi.advanceTimersByTime(6 * 60 * 60 * 1000);
+    expect(mockSwUpdate.checkForUpdate).toHaveBeenCalledTimes(2);
+  });
+
+  it('should stop the periodic interval after ngOnDestroy', () => {
+    vi.useFakeTimers();
+
+    // Re-create service after fake timers are active so the interval is captured
+    service.ngOnDestroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        UpdateService,
+        { provide: SwUpdate, useValue: mockSwUpdate },
+        { provide: PlatformService, useValue: mockPlatformService },
+      ],
+    });
+    service = TestBed.inject(UpdateService);
+    mockSwUpdate.checkForUpdate.mockClear();
+
+    service.ngOnDestroy();
+
+    // Advance well past the 6-hour mark — interval should not fire
+    vi.advanceTimersByTime(6 * 60 * 60 * 1000);
+    expect(mockSwUpdate.checkForUpdate).not.toHaveBeenCalled();
   });
 
   it('should activate update for PWA when applyUpdate is called', async () => {

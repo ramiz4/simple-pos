@@ -12,6 +12,7 @@ export class UpdateService implements OnDestroy {
   updateStatus = signal<string | null>(null);
 
   private visibilityChangeHandler?: () => void;
+  private periodicCheckInterval?: ReturnType<typeof setInterval>;
 
   constructor(
     private swUpdate: SwUpdate,
@@ -20,7 +21,10 @@ export class UpdateService implements OnDestroy {
     this.checkForUpdates();
 
     if (this.swUpdate.isEnabled) {
-      setInterval(() => this.swUpdate.checkForUpdate(), 6 * 60 * 60 * 1000); // Every 6 hours
+      this.periodicCheckInterval = setInterval(
+        () => this.swUpdate.checkForUpdate(),
+        6 * 60 * 60 * 1000,
+      ); // Every 6 hours
 
       // Check for updates when the app returns to the foreground.
       // This is critical for iOS Chrome homescreen apps where background
@@ -37,6 +41,9 @@ export class UpdateService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.periodicCheckInterval !== undefined) {
+      clearInterval(this.periodicCheckInterval);
+    }
     if (this.visibilityChangeHandler) {
       document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
     }
