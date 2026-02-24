@@ -73,6 +73,9 @@ describe('Domain Logic', () => {
       expect(
         OrderStateMachine.canTransition(OrderStatusEnum.COMPLETED, OrderStatusEnum.PREPARING),
       ).toBe(true);
+      expect(
+        OrderStateMachine.canTransition(OrderStatusEnum.READY, OrderStatusEnum.PREPARING),
+      ).toBe(true);
     });
 
     it('should reject invalid transitions', () => {
