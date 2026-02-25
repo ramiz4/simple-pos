@@ -1,3 +1,9 @@
+## [1.19.3](https://github.com/ramiz4/simple-pos/compare/v1.19.2...v1.19.3) (2026-02-25)
+
+### Bug Fixes
+
+- **pos:** move modal-backdrop safe area CSS to global stylesheet ([d803636](https://github.com/ramiz4/simple-pos/commit/d803636b3bafe257ccb855d01af97a6bc9ff8ec2))
+
 ## [1.19.2](https://github.com/ramiz4/simple-pos/compare/v1.19.1...v1.19.2) (2026-02-25)
 
 ### Bug Fixes
