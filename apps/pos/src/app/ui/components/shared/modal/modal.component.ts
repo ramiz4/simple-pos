@@ -132,20 +132,6 @@ import {
         background: rgba(0, 0, 0, 0.05);
         border-radius: 20px;
       }
-      .modal-backdrop {
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
-      }
-      @media (min-width: 640px) {
-        .modal-backdrop {
-          padding-top: max(1.5rem, env(safe-area-inset-top));
-          padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-          padding-left: max(1.5rem, env(safe-area-inset-left));
-          padding-right: max(1.5rem, env(safe-area-inset-right));
-        }
-      }
     `,
   ],
 })
