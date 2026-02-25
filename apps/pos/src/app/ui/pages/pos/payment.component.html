@@ -1,14 +1,14 @@
-<main class="p-4 max-w-xl mx-auto animate-fade-in">
+<main class="max-w-xl mx-auto animate-fade-in">
   @if (!processing() && !completed()) {
-    <div class="mb-6 text-center">
-      <h2 class="text-3xl font-black text-surface-900 mb-1">Final Step</h2>
+    <div class="mb-4 text-center">
+      <h2 class="text-2xl font-black text-surface-900 mb-1">Final Step</h2>
       <p class="text-surface-500 font-medium text-sm">Review your order and process payment.</p>
     </div>
 
     <!-- Payment Card -->
     <div class="glass-card bg-surface-900! overflow-hidden shadow-primary-200">
       <div class="p-6 border-b border-white/10">
-        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-4">
+        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-2">
           Detailed Summary
         </h3>
 
@@ -80,7 +80,7 @@
 
       <!-- Amount Received & Change -->
       <div class="p-6 border-b border-white/10">
-        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-4">
+        <h3 class="text-xs font-black text-white/40 uppercase tracking-[0.2em] mb-2">
           Cash Payment
         </h3>
         <div class="space-y-3">
@@ -205,9 +205,9 @@
   }
 
   @if (completed()) {
-    <div class="text-center py-12 animate-scale-in" role="status" aria-live="polite">
+    <div class="text-center animate-scale-in" role="status" aria-live="polite">
       <div
-        class="w-32 h-32 mx-auto bg-green-100 text-green-600 rounded-[40px] flex items-center justify-center text-6xl mb-10 shadow-2xl shadow-green-100"
+        class="w-24 h-24 mx-auto bg-green-100 text-green-600 rounded-[40px] flex items-center justify-center text-6xl mb-10 shadow-2xl shadow-green-100"
         aria-hidden="true"
       >
         ✓
@@ -224,20 +224,26 @@
           <div class="text-xs font-black text-surface-400 uppercase tracking-[0.3em] mb-4">
             Order Reference
           </div>
-          <div class="text-6xl font-black text-primary-600 tracking-tight">
+          <div class="text-2xl font-black text-primary-600 tracking-tight">
             {{ orderNumber() }}
           </div>
         </div>
       </div>
 
-      <button
+      <app-button
         type="button"
+        label="Print Receipt"
+        ariaLabel="Print Receipt"
+        variant="glass"
         (click)="printReceipt()"
-        [disabled]="printing()"
-        class="w-full h-16 rounded-2xl bg-white border-2 border-surface-100 font-black text-surface-900 hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-        aria-label="Print receipt"
+        [isDisabled]="printing()"
+        [hasLeftIcon]="true"
+        [fullWidth]="true"
+        size="lg"
+        class="mb-6"
       >
         <svg
+          leftIcon
           xmlns="http://www.w3.org/2000/svg"
           class="h-6 w-6"
           fill="none"
@@ -252,13 +258,13 @@
             d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
           />
         </svg>
-        <span>Print Receipt</span>
-      </button>
+      </app-button>
 
       <app-button
         (click)="goToDashboard()"
         label="Back To Dashboard"
-        class="w-full h-16 mt-8 text-lg"
+        [fullWidth]="true"
+        size="lg"
       ></app-button>
     </div>
   }
