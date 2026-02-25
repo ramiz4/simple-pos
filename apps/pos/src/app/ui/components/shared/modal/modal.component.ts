@@ -16,7 +16,6 @@ import {
   imports: [],
   template: `
     <div
-      #modalBackdrop
       class="fixed inset-0 bg-surface-900/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in modal-backdrop"
       (click)="onBackdropClick()"
       role="dialog"
