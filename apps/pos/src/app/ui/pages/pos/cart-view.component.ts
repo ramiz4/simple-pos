@@ -352,7 +352,7 @@ import { ButtonComponent } from '../../components/shared/button/button.component
                     (click)="proceedToPayment()"
                     [isDisabled]="isDineIn() && cartItems().length > 0"
                     label="Pay Now"
-                    size="xl"
+                    size="lg"
                     [fullWidth]="true"
                   ></app-button>
                   @if (isDineIn() && cartItems().length > 0) {

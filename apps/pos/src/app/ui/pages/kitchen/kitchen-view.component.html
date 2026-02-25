@@ -1,19 +1,39 @@
 <main class="max-w-7xl mx-auto md:px-6 animate-fade-in">
   <div class="px-4 sm:px-0">
     <!-- Filter & Refresh -->
-    <div
-      class="mb-8 flex flex-col @container/kitchen-header sm:flex-row sm:items-end justify-between gap-6"
-    >
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
       <div class="space-y-4 flex-1">
         <div class="flex items-center justify-between sm:justify-start gap-4">
-          <h2 class="text-4xl font-black text-surface-900 tracking-tight mb-2">
-            {{ filterTitle() }} Orders
-          </h2>
+          <h2 class="text-4xl font-black text-surface-900 tracking-tight mb-2">Orders</h2>
           <span
-            class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-black uppercase tracking-widest hidden @[400px]/kitchen-header:inline-block"
+            class="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-xs font-black uppercase tracking-widest"
           >
             {{ orders().length }} Total
           </span>
+
+          <app-button
+            (click)="loadOrders()"
+            [isLoading]="isLoading()"
+            label="Refresh"
+            labelVisibility="sm"
+            [hasLeftIcon]="!isLoading()"
+          >
+            <svg
+              leftIcon
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </app-button>
         </div>
 
         <!-- Segmented Control (Scrollable on small screens) -->
@@ -69,32 +89,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="shrink-0 flex items-center">
-        <app-button
-          (click)="loadOrders()"
-          [isLoading]="isLoading()"
-          label="Refresh"
-          [hasLeftIcon]="!isLoading()"
-          class="h-12 w-full sm:w-auto min-w-30"
-        >
-          <svg
-            leftIcon
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-        </app-button>
       </div>
     </div>
 

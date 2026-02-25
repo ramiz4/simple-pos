@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
       [attr.form]="form"
       [disabled]="isDisabled || isLoading"
       [routerLink]="routerLink"
+      [attr.aria-label]="ariaLabel || label || null"
       [class]="
         buttonClasses +
         ' relative overflow-hidden transition-all active:scale-95 group items-center justify-center min-h-4 h-full ' +
@@ -51,7 +52,7 @@ import { RouterLink } from '@angular/router';
       <!-- Content -->
       <span class="flex items-center justify-center gap-2" [class.opacity-0]="isLoading">
         <ng-content select="[leftIcon], [lefticon], .left-icon, svg"></ng-content>
-        <span class="whitespace-nowrap">{{ label }}</span>
+        <span [class]="labelClasses">{{ label }}</span>
         <ng-content select="[rightIcon], [righticon], .right-icon"></ng-content>
         <ng-content></ng-content>
       </span>
@@ -75,10 +76,12 @@ import { RouterLink } from '@angular/router';
 })
 export class ButtonComponent {
   @Input() label = '';
+  @Input() ariaLabel = '';
   @Input() type: 'button' | 'submit' = 'button';
   @Input() form: string | null = null;
   @Input() variant: 'neo' | 'glass' | 'danger' | 'ghost' | 'orange' = 'neo';
   @Input() size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
+  @Input() labelVisibility: 'always' | 'sm' | 'md' | 'lg' | 'xl' | 'hidden' = 'always';
   @Input() isLoading = false;
   @Input() isDisabled = false;
   @Input() hasLeftIcon = false;
@@ -98,14 +101,6 @@ export class ButtonComponent {
       xl: 'text-xl py-4',
     };
 
-    // Padding logic
-    let padding = 'px-6';
-    if (this.hasLeftIcon && !this.hasRightIcon) {
-      padding = 'pl-5 pr-8';
-    } else if (this.hasRightIcon && !this.hasLeftIcon) {
-      padding = 'pl-8 pr-5';
-    }
-
     const variants = {
       neo: 'text-white shadow-lg shadow-primary-500/20 bg-linear-to-r from-primary-600 to-primary-500',
       glass:
@@ -116,6 +111,54 @@ export class ButtonComponent {
         'text-white shadow-lg shadow-orange-500/20 bg-linear-to-r from-orange-500 to-orange-400',
     };
 
-    return `${base} ${sizes[this.size]} ${padding} ${variants[this.variant]}`;
+    return `${base} ${sizes[this.size]} ${this.paddingClasses} ${variants[this.variant]}`;
+  }
+
+  get labelClasses(): string {
+    const visibilityClasses = {
+      always: 'inline',
+      sm: 'hidden sm:inline',
+      md: 'hidden md:inline',
+      lg: 'hidden lg:inline',
+      xl: 'hidden xl:inline',
+      hidden: 'hidden',
+    };
+
+    return `whitespace-nowrap ${visibilityClasses[this.labelVisibility]}`;
+  }
+
+  get paddingClasses(): string {
+    const iconOnlyPadding = 'px-3';
+    const textPadding = this.getTextPaddingClasses();
+
+    if (this.labelVisibility === 'always') {
+      return textPadding;
+    }
+
+    if (this.labelVisibility === 'hidden') {
+      return iconOnlyPadding;
+    }
+
+    return `${iconOnlyPadding} ${this.withBreakpoint(textPadding, this.labelVisibility)}`;
+  }
+
+  private getTextPaddingClasses(): string {
+    if (this.hasLeftIcon && !this.hasRightIcon) {
+      return 'pl-5 pr-8';
+    }
+
+    if (this.hasRightIcon && !this.hasLeftIcon) {
+      return 'pl-8 pr-5';
+    }
+
+    return 'px-6';
+  }
+
+  private withBreakpoint(classes: string, breakpoint: 'sm' | 'md' | 'lg' | 'xl'): string {
+    return classes
+      .split(' ')
+      .filter(Boolean)
+      .map((className) => `${breakpoint}:${className}`)
+      .join(' ');
   }
 }
