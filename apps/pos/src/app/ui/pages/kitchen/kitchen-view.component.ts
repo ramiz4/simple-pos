@@ -1,5 +1,5 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   Extra,
@@ -52,20 +52,6 @@ export class KitchenViewComponent implements OnInit, OnDestroy {
   currentFilter = signal<OrderStatusEnum.COMPLETED | OrderStatusEnum.SERVED | 'ACTIVE' | 'ALL'>(
     'ACTIVE',
   );
-  filterTitle = computed(() => {
-    switch (this.currentFilter()) {
-      case 'ACTIVE':
-        return 'Active';
-      case this.OrderStatus.COMPLETED:
-        return 'Completed';
-      case this.OrderStatus.SERVED:
-        return 'Served';
-      case 'ALL':
-        return 'All';
-      default:
-        return 'Orders';
-    }
-  });
 
   orders = signal<KitchenOrder[]>([]);
   isLoading = signal(false);
