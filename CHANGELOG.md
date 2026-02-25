@@ -1,3 +1,10 @@
+## [1.19.2](https://github.com/ramiz4/simple-pos/compare/v1.19.1...v1.19.2) (2026-02-25)
+
+### Bug Fixes
+
+- **ci:** fix Nx cache path from node_modules/.cache/nx to .nx/cache ([36618cf](https://github.com/ramiz4/simple-pos/commit/36618cf953f00dcec3c32d23f194dad20fcd9b89))
+- **pos:** respect safe area insets for modals in fullscreen PWA mode ([24e657a](https://github.com/ramiz4/simple-pos/commit/24e657a3c0a58dccf4e12fab515d4014ea5ee026))
+
 ## [1.19.1](https://github.com/ramiz4/simple-pos/compare/v1.19.0...v1.19.1) (2026-02-25)
 
 ### Bug Fixes
