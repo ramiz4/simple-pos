@@ -16,8 +16,7 @@ import {
   imports: [],
   template: `
     <div
-      #modalBackdrop
-      class="fixed inset-0 bg-surface-900/40 backdrop-blur-sm flex items-center justify-center p-0 sm:p-6 z-50 animate-fade-in"
+      class="fixed inset-0 bg-surface-900/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in modal-backdrop"
       (click)="onBackdropClick()"
       role="dialog"
       aria-modal="true"
@@ -132,6 +131,20 @@ import {
       .custom-scrollbar::-webkit-scrollbar-thumb {
         background: rgba(0, 0, 0, 0.05);
         border-radius: 20px;
+      }
+      .modal-backdrop {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+      @media (min-width: 640px) {
+        .modal-backdrop {
+          padding-top: max(1.5rem, env(safe-area-inset-top));
+          padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+          padding-left: max(1.5rem, env(safe-area-inset-left));
+          padding-right: max(1.5rem, env(safe-area-inset-right));
+        }
       }
     `,
   ],
