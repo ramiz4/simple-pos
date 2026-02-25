@@ -11,8 +11,8 @@ import { CartService } from '../../../application/services/cart.service';
   standalone: true,
   imports: [],
   template: `
-    <main class="p-6 max-w-7xl mx-auto animate-fade-in">
-      <div class="mb-12 text-center">
+    <main class="max-w-7xl mx-auto animate-fade-in">
+      <div class="mb-6 sm:mb-12 text-center">
         <h2 class="text-3xl font-black text-surface-900 mb-2">Where are they sitting?</h2>
         <p class="text-surface-500 font-medium">
           Select an available or occupied table to manage its order.
@@ -30,14 +30,14 @@ import { CartService } from '../../../application/services/cart.service';
         </div>
       } @else {
         <!-- Tables Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
           @for (table of tables(); track table.id) {
             <button
               (click)="selectTable(table)"
               [class]="getTableButtonClass(table)"
               class="relative overflow-hidden group transition-all duration-300"
             >
-              <div class="p-6 relative z-10">
+              <div class="p-4 sm:p-6 relative z-10">
                 <div class="flex justify-between items-start mb-4">
                   <div
                     class="w-10 h-10 rounded-xl bg-surface-100 flex items-center justify-center font-black text-surface-400 group-hover:bg-primary-100 group-hover:text-primary-600 transition-colors"
