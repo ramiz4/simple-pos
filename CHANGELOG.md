@@ -1,3 +1,14 @@
+# [1.18.0](https://github.com/ramiz4/simple-pos/compare/v1.17.0...v1.18.0) (2026-02-25)
+
+### Bug Fixes
+
+- **ci:** fetch base branch for nx affected and fix pg_isready user ([6629753](https://github.com/ramiz4/simple-pos/commit/6629753845ac4ab3bbffb97bb2adabc3b8396b07))
+- **pos:** reorder SERVED transitions and strengthen reopen test mocks ([adfafa8](https://github.com/ramiz4/simple-pos/commit/adfafa8d2e60fd5bf61d475690a12186068e8004))
+
+### Features
+
+- **pos:** allow reopening served orders when new items are added ([44bec4d](https://github.com/ramiz4/simple-pos/commit/44bec4db899abe777a272b48bc81d30d2d3c1ea4))
+
 # [1.17.0](https://github.com/ramiz4/simple-pos/compare/v1.16.6...v1.17.0) (2026-02-24)
 
 ### Bug Fixes
