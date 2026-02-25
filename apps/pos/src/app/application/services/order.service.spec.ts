@@ -933,11 +933,20 @@ describe('OrderService', () => {
     it('should reopen a SERVED order to OPEN when new items are added', async () => {
       const servedStatusId = 5;
       const openStatusId = 1;
+      const readyStatusId = 4;
+      const preparingStatusId = 2;
       const servedOrder = { ...mockOrder, statusId: servedStatusId };
+      const reopenedOrder = { ...mockOrder, statusId: openStatusId };
       const newOpenItem = { ...mockOrderItem, statusId: openStatusId };
 
-      mockOrderRepo.findById.mockResolvedValue(servedOrder);
-      mockOrderItemRepo.findByOrderId.mockResolvedValue([newOpenItem]);
+      // addItemsToOrder: initial lookup
+      mockOrderRepo.findById
+        .mockResolvedValueOnce(servedOrder) // addItemsToOrder initial lookup
+        .mockResolvedValueOnce(servedOrder) // checkAndUpdateOrderStatusByItems lookup
+        .mockResolvedValueOnce(servedOrder) // updateOrderStatus lookup
+        .mockResolvedValueOnce(servedOrder) // updateOrder: table status check
+        .mockResolvedValueOnce(reopenedOrder); // final findById return
+
       mockOrderItemRepo.create.mockResolvedValue(newOpenItem);
       mockOrderItemExtraRepo.create.mockResolvedValue({
         id: 1,
@@ -945,28 +954,38 @@ describe('OrderService', () => {
         orderItemId: 1,
         extraId: 1,
       });
-      mockOrderRepo.update.mockResolvedValue({ ...servedOrder, subtotal: 200 });
 
-      // getCodeTableId: OPEN (item creation), READY, PREPARING, OPEN (transition target)
+      // totals update returns served order with updated subtotal; status update returns reopened order
+      mockOrderRepo.update
+        .mockResolvedValueOnce({ ...servedOrder, subtotal: 200 }) // totals update
+        .mockResolvedValueOnce(reopenedOrder); // status update to OPEN
+
+      mockOrderItemRepo.findByOrderId.mockResolvedValue([newOpenItem]);
+
+      // getCodeTableId sequence: OPEN (item creation), READY, PREPARING, OPEN (transition target)
       mockEnumMappingService.getCodeTableId
         .mockResolvedValueOnce(openStatusId) // OPEN for new item statusId
-        .mockResolvedValueOnce(4) // READY id
-        .mockResolvedValueOnce(2) // PREPARING id
-        .mockResolvedValueOnce(openStatusId); // OPEN id for status transition
+        .mockResolvedValueOnce(readyStatusId) // READY id
+        .mockResolvedValueOnce(preparingStatusId) // PREPARING id
+        .mockResolvedValueOnce(openStatusId); // OPEN id for transition
 
-      // getEnumFromId: SERVED (check current in checkAndUpdate), SERVED (current in updateOrderStatus), OPEN (new in updateOrderStatus)
+      // getEnumFromId: current in checkAndUpdate, current in updateOrderStatus, new in updateOrderStatus, table-status check in updateOrder
       mockEnumMappingService.getEnumFromId
-        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED })
-        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED })
-        .mockResolvedValueOnce({ code: OrderStatusEnum.OPEN });
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }) // checkAndUpdate: current status
+        .mockResolvedValueOnce({ code: OrderStatusEnum.SERVED }) // updateOrderStatus: current status
+        .mockResolvedValueOnce({ code: OrderStatusEnum.OPEN }) // updateOrderStatus: new status
+        .mockResolvedValueOnce({ code: OrderStatusEnum.OPEN }); // updateOrder: table-status check
 
-      await service.addItemsToOrder(1, [mockCartItem]);
+      const result = await service.addItemsToOrder(1, [mockCartItem]);
 
-      // Verify the second update call sets statusId to OPEN
+      // The status update call should set statusId to OPEN
       const statusUpdateCall = mockOrderRepo.update.mock.calls.find(
         (call) => call[1] && call[1].statusId === openStatusId,
       );
       expect(statusUpdateCall).toBeDefined();
+
+      // The returned order should reflect the OPEN status
+      expect(result.statusId).toBe(openStatusId);
     });
   });
 

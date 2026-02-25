@@ -17,8 +17,8 @@ export class OrderStateMachine {
     ],
     [OrderStatusEnum.OUT_FOR_DELIVERY]: [OrderStatusEnum.COMPLETED, OrderStatusEnum.CANCELLED],
     [OrderStatusEnum.SERVED]: [
-      OrderStatusEnum.OPEN,
       OrderStatusEnum.COMPLETED,
+      OrderStatusEnum.OPEN,
       OrderStatusEnum.CANCELLED,
     ],
     [OrderStatusEnum.COMPLETED]: [OrderStatusEnum.PREPARING],
