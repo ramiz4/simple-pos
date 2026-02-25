@@ -1,3 +1,9 @@
+## [1.19.1](https://github.com/ramiz4/simple-pos/compare/v1.19.0...v1.19.1) (2026-02-25)
+
+### Bug Fixes
+
+- **pos:** apply ARIA and leftIcon fixes from PR review ([a5638b3](https://github.com/ramiz4/simple-pos/commit/a5638b354d8933ab566d8f090e39c52838152800))
+
 # [1.19.0](https://github.com/ramiz4/simple-pos/compare/v1.18.1...v1.19.0) (2026-02-25)
 
 ### Features
