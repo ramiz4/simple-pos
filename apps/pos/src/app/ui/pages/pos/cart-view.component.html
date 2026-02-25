@@ -28,7 +28,7 @@
               type="button"
               (click)="toggleExistingItems()"
               [attr.aria-expanded]="!isExistingItemsCollapsed()"
-              aria-controls="already-placed-items"
+              [attr.aria-controls]="!isExistingItemsCollapsed() ? 'already-placed-items' : null"
               class="w-full min-h-11 px-3 py-2 rounded-2xl bg-orange-50/60 border border-orange-100 text-xs sm:text-[10px] font-black text-orange-500 uppercase tracking-[0.14em] sm:tracking-[0.2em] flex items-center gap-2 active:scale-[0.99] transition-transform"
             >
               <span class="shrink-0">Already Placed</span>
