@@ -398,6 +398,10 @@ export class OrderService {
       'ORDER_STATUS',
       OrderStatusEnum.PREPARING,
     );
+    const openStatusId = await this.enumMappingService.getCodeTableId(
+      'ORDER_STATUS',
+      OrderStatusEnum.OPEN,
+    );
 
     const allReady = items.every((item) => item.statusId === readyStatusId);
 
@@ -421,6 +425,9 @@ export class OrderService {
       // Not all items are ready. Check if we need to pull back from advanced statuses.
       if (currentStatus.code === OrderStatusEnum.READY) {
         await this.updateOrderStatus(orderId, preparingStatusId);
+      } else if (currentStatus.code === OrderStatusEnum.SERVED) {
+        // Re-open a served order when new items are added so it reappears in kitchen view
+        await this.updateOrderStatus(orderId, openStatusId);
       } else if (currentStatus.code === OrderStatusEnum.OPEN) {
         // If it's a new/paid order and items are started, move to preparing
         const anyStarted = items.some(

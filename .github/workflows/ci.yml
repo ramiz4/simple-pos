@@ -14,9 +14,6 @@ permissions:
   issues: write
   pull-requests: write
 
-env:
-  NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
-
 jobs:
   main:
     name: CI (Lint, Test, Build)
@@ -31,7 +28,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -47,6 +44,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set Nx base and head SHAs
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }} --depth=1
+            echo "NX_BASE=origin/${{ github.base_ref }}" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          else
+            echo "NX_BASE=HEAD~1" >> $GITHUB_ENV
+            echo "NX_HEAD=HEAD" >> $GITHUB_ENV
+          fi
+
       - uses: pnpm/action-setup@v4
         name: Install pnpm
         with:
@@ -58,6 +66,15 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
+
+      - name: Cache Nx local computation cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules/.cache/nx
+          key: ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-nx-${{ hashFiles('pnpm-lock.yaml') }}-
+            ${{ runner.os }}-nx-
 
       - name: Install Tauri system dependencies
         uses: awalsh128/cache-apt-pkgs-action@v1
@@ -81,8 +98,6 @@ jobs:
           workspaces: |
             apps/native/src-tauri -> target
 
-      - uses: nrwl/nx-set-shas@v4
-
       - name: Generate Prisma Client
         run: pnpm nx run api:prisma-generate
 
@@ -99,12 +114,6 @@ jobs:
 
       - name: Nx Affected Check
         run: pnpm nx affected -t lint test build --exclude=native --parallel=3
-
-      - name: Nx Cloud Fix CI
-        run: pnpm exec nx-cloud fix-ci
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: Release
@@ -169,12 +178,6 @@ jobs:
 
       - name: Build Web
         run: pnpm nx build pos --base-href=/simple-pos/
-
-      - name: Nx Cloud Fix CI
-        run: pnpm exec nx-cloud fix-ci
-        if: always()
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
