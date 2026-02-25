@@ -1,3 +1,9 @@
+## [1.18.1](https://github.com/ramiz4/simple-pos/compare/v1.18.0...v1.18.1) (2026-02-25)
+
+### Bug Fixes
+
+- **pos:** allow OPEN → READY order status transition for single-item orders in kitchen view ([5a1c480](https://github.com/ramiz4/simple-pos/commit/5a1c480bc3c44cbdf1e377de157647fb86f7b9f5))
+
 # [1.18.0](https://github.com/ramiz4/simple-pos/compare/v1.17.0...v1.18.0) (2026-02-25)
 
 ### Bug Fixes
