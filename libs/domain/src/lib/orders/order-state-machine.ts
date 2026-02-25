@@ -4,6 +4,7 @@ export class OrderStateMachine {
   private static readonly transitions: Record<OrderStatusEnum, OrderStatusEnum[]> = {
     [OrderStatusEnum.OPEN]: [
       OrderStatusEnum.PREPARING,
+      OrderStatusEnum.READY,
       OrderStatusEnum.COMPLETED,
       OrderStatusEnum.CANCELLED,
     ],

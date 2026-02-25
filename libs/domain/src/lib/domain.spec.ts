@@ -64,6 +64,9 @@ describe('Domain Logic', () => {
       expect(OrderStateMachine.canTransition(OrderStatusEnum.OPEN, OrderStatusEnum.PREPARING)).toBe(
         true,
       );
+      expect(OrderStateMachine.canTransition(OrderStatusEnum.OPEN, OrderStatusEnum.READY)).toBe(
+        true,
+      );
       expect(OrderStateMachine.canTransition(OrderStatusEnum.OPEN, OrderStatusEnum.COMPLETED)).toBe(
         true,
       );

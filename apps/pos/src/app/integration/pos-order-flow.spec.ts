@@ -671,6 +671,26 @@ describe('Core POS Flow', () => {
       expect(fullyReadyOrder?.statusId).toBe(readyStatusId);
     });
 
+    it('should automatically update order status to READY when the single item is marked done (OPEN → READY)', async () => {
+      // Create an order in OPEN status with a single item
+      const cartItem = await createTestCartItem();
+      const orderData = await createOrderData(takeawayTypeId, openStatusId, null, [cartItem]);
+      const order = await orderService.createOrder(orderData);
+
+      // Verify order starts as OPEN
+      const openOrder = await orderService.getOrderById(order.id);
+      expect(openOrder?.statusId).toBe(openStatusId);
+
+      // Get the single order item
+      const items = await orderService.getOrderItems(order.id);
+      expect(items.length).toBe(1);
+
+      // Mark the only item as READY — order should transition directly from OPEN to READY
+      await orderService.updateOrderItemStatus(items[0].id, readyStatusId);
+      const readyOrder = await orderService.getOrderById(order.id);
+      expect(readyOrder?.statusId).toBe(readyStatusId);
+    });
+
     it('should revert order status to PREPARING when an item is un-marked after all were done', async () => {
       // Create an order in PREPARING with two items
       const cartItem1 = await createTestCartItem();
