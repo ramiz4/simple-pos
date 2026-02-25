@@ -1,3 +1,9 @@
+# [1.19.0](https://github.com/ramiz4/simple-pos/compare/v1.18.1...v1.19.0) (2026-02-25)
+
+### Features
+
+- **pos:** enhance button component with aria-label and label visibility options; update kitchen view and payment components for improved UI ([2837bc8](https://github.com/ramiz4/simple-pos/commit/2837bc8d8c03528775c77708011820bebbe1d98d))
+
 ## [1.18.1](https://github.com/ramiz4/simple-pos/compare/v1.18.0...v1.18.1) (2026-02-25)
 
 ### Bug Fixes
