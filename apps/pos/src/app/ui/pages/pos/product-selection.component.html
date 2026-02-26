@@ -10,7 +10,7 @@
 </div>
 
 <!-- Products Grid Area -->
-<div class="animate-fade-in pb-28 md:pb-32-">
+<div class="animate-fade-in pb-28 md:pb-32">
   <div class="max-w-7xl mx-auto py-2">
     <!-- Products Grid -->
     <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
@@ -59,7 +59,7 @@
         <div class="flex flex-col lg:flex-1 gap-2">
           <h2
             id="product-modal-title"
-            class="max-h-22 overflow-x-auto text-3xl font-black text-surface-900"
+            class="max-h-[5.5rem] overflow-x-auto text-3xl font-black text-surface-900"
           >
             {{ selectedProduct()?.name }}
           </h2>
@@ -91,7 +91,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col gap-10 p-6 overflow-y-auto">
+      <div class="flex flex-col gap-10 p-6 overflow-y-auto grow min-h-0">
         <!-- Variants Selection -->
         @if (productVariants().length > 0) {
           <div>
