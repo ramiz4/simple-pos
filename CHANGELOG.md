@@ -1,3 +1,9 @@
+## [1.19.4](https://github.com/ramiz4/simple-pos/compare/v1.19.3...v1.19.4) (2026-02-26)
+
+### Bug Fixes
+
+- **ui:** adjust layout and styling in status bar and product selection components ([ae44691](https://github.com/ramiz4/simple-pos/commit/ae44691cea8cfb41bc9ee3ea4a64c26bb8a7140c))
+
 ## [1.19.3](https://github.com/ramiz4/simple-pos/compare/v1.19.2...v1.19.3) (2026-02-25)
 
 ### Bug Fixes
