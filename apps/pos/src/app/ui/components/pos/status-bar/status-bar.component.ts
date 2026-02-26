@@ -11,13 +11,13 @@ import { ButtonComponent } from '../../shared/button/button.component';
       Desktop: flush to bottom, offset by the w-64 sidebar
     -->
     <div
-      class="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] lg:bottom-0 left-0 lg:left-64 right-0 z-40 px-3 lg:px-6 pb-3 lg:pb-6 pointer-events-none transition-all duration-300"
+      class="fixed bottom-[calc(56px+env(safe-area-inset-bottom))] lg:bottom-0 left-0 lg:left-64 right-0 z-40 px-3 lg:px-6 pb-2 md:pb-3 lg:pb-8 pointer-events-none transition-all duration-300"
     >
-      <div class="max-w-4xl mx-auto pointer-events-auto">
+      <div class="max-w-6xl mx-auto pointer-events-auto">
         <div
-          class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-3 sm:p-4 shadow-2xl flex items-center justify-between gap-3 sm:gap-6 translate-y-0 animate-slide-up"
+          class="glass-card bg-surface-900/90! backdrop-blur-2xl! border-white/10 p-2 md:p-4 shadow-2xl flex items-center justify-between gap-3 md:gap-6 translate-y-0 animate-slide-up"
         >
-          <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+          <div class="flex items-center gap-2 md:gap-4">
             <div
               class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl primary-gradient flex items-center justify-center text-white relative shrink-0"
             >
@@ -60,7 +60,7 @@ import { ButtonComponent } from '../../shared/button/button.component';
             [isDisabled]="itemCount === 0 && !canBeEmpty"
             [label]="buttonLabel"
             [hasRightIcon]="true"
-            class="scale-90 sm:scale-100 origin-right shrink-0"
+            size="lg"
           >
             <svg
               rightIcon
@@ -82,13 +82,6 @@ import { ButtonComponent } from '../../shared/button/button.component';
       </div>
     </div>
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-      }
-    `,
-  ],
 })
 export class StatusBarComponent {
   @Input() itemCount = 0;

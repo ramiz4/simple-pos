@@ -10,10 +10,10 @@
 </div>
 
 <!-- Products Grid Area -->
-<div class="animate-fade-in pb-32 mt-4">
+<div class="animate-fade-in pb-28 md:pb-32-">
   <div class="max-w-7xl mx-auto py-2">
     <!-- Products Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
       @for (product of filteredProducts(); track product.id) {
         <app-product-card
           [product]="product"
@@ -36,7 +36,7 @@
 <app-status-bar
   [itemCount]="totalItemCount()"
   [subtotal]="displaySubtotal()"
-  [buttonLabel]="existingOrder() ? 'Manage Order' : 'View Cart'"
+  buttonLabel="View Cart"
   [canBeEmpty]="!!existingOrder()"
   (action)="viewCart()"
 ></app-status-bar>
@@ -51,50 +51,50 @@
     aria-labelledby="product-modal-title"
   >
     <div
-      class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up"
+      class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[calc(100dvh-8rem)] sm:max-h-[90vh] overflow-hidden flex flex-col animate-slide-up"
       (click)="$event.stopPropagation()"
     >
       <!-- Modal Header -->
-      <div class="relative h-36 sm:h-64 overflow-hidden shrink-0">
-        <div class="absolute inset-0 primary-gradient opacity-20"></div>
-        <div class="absolute inset-0 flex items-center justify-center text-8xl" aria-hidden="true">
-          🍽️
-        </div>
-        <button
-          type="button"
-          (click)="closeModal()"
-          class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/30 border border-white/40 backdrop-blur-md text-surface-800 flex items-center justify-center text-2xl shadow-sm hover:bg-white/70 transition-colors"
-          aria-label="Close product details"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="w-5 h-5"
-            aria-hidden="true"
+      <div class="flex items-start justify-between p-6 py-4 bg-primary-600/20 gap-2">
+        <div class="flex flex-col lg:flex-1 gap-2">
+          <h2
+            id="product-modal-title"
+            class="max-h-22 overflow-x-auto text-3xl font-black text-surface-900"
           >
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="p-5 sm:p-8 overflow-y-auto grow min-h-0">
-        <div class="mb-8">
-          <h2 id="product-modal-title" class="text-3xl font-black text-surface-900 mb-1">
             {{ selectedProduct()?.name }}
           </h2>
           <p class="text-primary-600 font-bold text-xl">
             Base Price: €{{ (selectedProduct()?.price ?? 0).toFixed(2) }}
           </p>
         </div>
+        <div>
+          <button
+            type="button"
+            (click)="closeModal()"
+            class="flex w-10 h-10 rounded-full bg-white/30 border border-white/40 backdrop-blur-md text-surface-800 items-center justify-center text-2xl shadow-sm hover:bg-white/70 transition-colors"
+            aria-label="Close product details"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="w-5 h-5"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
+      <div class="flex flex-col gap-10 p-6 overflow-y-auto">
         <!-- Variants Selection -->
         @if (productVariants().length > 0) {
-          <div class="mb-8">
+          <div>
             <label class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
               >Choose Variant</label
             >
@@ -123,7 +123,7 @@
 
         <!-- Extras Selection -->
         @if (productExtras().length > 0) {
-          <div class="mb-8">
+          <div>
             <label class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
               >Add Extras</label
             >
@@ -147,7 +147,7 @@
         }
 
         <!-- Quantity & Notes -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-black text-surface-400 uppercase tracking-widest mb-4"
               >Quantity</label
@@ -177,8 +177,8 @@
       </div>
 
       <!-- Fixed Footer -->
-      <div class="px-5 sm:px-8 pt-4 pb-5 sm:pb-8 border-t border-surface-100 bg-white shrink-0">
-        <div class="flex items-end justify-between gap-4">
+      <div class="p-6 py-4 border-t border-slate-200 bg-white shrink-0">
+        <div class="flex items-center justify-between gap-4">
           <div>
             <div class="text-surface-400 text-[10px] font-black uppercase tracking-widest">
               Total Price
@@ -187,7 +187,7 @@
               €{{ (calculatedUnitPrice() * quantity()).toFixed(2) }}
             </div>
           </div>
-          <app-button (click)="addToCart()" label="Add to Order"></app-button>
+          <app-button (click)="addToCart()" label="Add to Order" size="lg"></app-button>
         </div>
       </div>
     </div>
